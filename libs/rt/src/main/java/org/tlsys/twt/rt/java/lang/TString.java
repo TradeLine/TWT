@@ -18,11 +18,11 @@ public final class TString {
 
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
+    @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native char charAt(int index);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
+    @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native boolean equals(Object obj);
 
     //@NotCompile
@@ -46,38 +46,38 @@ public final class TString {
     }
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
+    @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native String trim();
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
+    @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native String substring(int beginIndex);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
+    @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native String substring(int beginIndex, int endIndex);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
+    @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native boolean isEmpty();
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
+    @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native int indexOf(String str);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
+    @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native int indexOf(String str, int fromIndex);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
+    @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native int lastIndexOf(String str);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
+    @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native int lastIndexOf(String str, int fromIndex);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
+    @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native int length();
 }

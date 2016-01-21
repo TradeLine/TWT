@@ -40,6 +40,7 @@ public class PomClassLoader extends URLClassLoader {
 */
     public PomClassLoader(ArtifactRepository localRepo, DependencyNode node, File file, String name, PomLoader pomLoader) {
         super(new URL[]{}, null);
+        haveJSLib = false;
         jarFile = file;
         try {
             addURL(jarFile.toURI().toURL());
@@ -160,7 +161,8 @@ public class PomClassLoader extends URLClassLoader {
     */
 
     public void setJsClassLoader(VClassLoader jsClassLoader) {
-        this.jsClassLoader = jsClassLoader;
+        this.jsClassLoader = Objects.requireNonNull(jsClassLoader);
+        haveJSLib = true;
     }
 
     public File getJarFile() {

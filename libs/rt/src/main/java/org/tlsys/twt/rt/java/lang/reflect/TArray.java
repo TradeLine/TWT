@@ -33,6 +33,6 @@ public final class TArray {
         return multiNewArray(componentType, length);
     }
 
-    @InvokeGen("org.tlsys.twt.rt.java.lang.reflect.ArrayInvoke")
+    @InvokeGen(org.tlsys.twt.rt.java.lang.reflect.ArrayInvoke.class)
     private static native Object multiNewArray(Class<?> componentType, int... dimensions);
 }

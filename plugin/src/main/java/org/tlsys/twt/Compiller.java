@@ -3,7 +3,7 @@ package org.tlsys.twt;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree;
-import org.tlsys.twt.annotations.MethodName;
+import org.tlsys.twt.annotations.*;
 import org.tlsys.lex.Const;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
@@ -123,7 +123,6 @@ public class Compiller {
                 try {
                     method = self.getType().getMethod((Symbol.MethodSymbol) f.sym);
                 } catch (NullPointerException ee) {
-                    System.out.println("123");
                     throw ee;
                 }
             }
@@ -143,8 +142,23 @@ public class Compiller {
 
             //self.getType().getMethod(e)
             Invoke i = new Invoke(method, self);
-            for (JCTree.JCExpression ee : e.args)
-                i.arguments.add((Value) c.op(ee, o));
+            for (int c1 = 0; c1 < method.arguments.size(); c1++) {
+                if (method.arguments.get(c1).var) {
+                    NewArrayItems nai = new NewArrayItems(method.arguments.get(c1).getType().getArrayClass());
+                    for (int c2 = c1; c2 < e.args.size(); c2++) {
+                        nai.elements.add(c.op(e.args.get(c2), o));
+                    }
+                    i.arguments.add(nai);
+                    break;
+                } else {
+                    i.arguments.add(c.op(e.args.get(c1), o));
+                }
+            }
+            /*
+            for (JCTree.JCExpression ee : e.args) {
+                i.arguments.add(c.op(ee, o));
+            }
+            */
             return i;
         });
 
@@ -556,9 +570,22 @@ public class Compiller {
         return v;
     }
 
+
+    public static String getInvokeGenerator(JCTree.JCModifiers modifiers) {
+        for (JCTree.JCAnnotation an : modifiers.getAnnotations()) {
+            if (an.type.toString().equals(org.tlsys.twt.annotations.InvokeGen.class.getName())) {
+                JCTree.JCAssign a = (JCTree.JCAssign) an.getArguments().get(0);
+                JCTree.JCFieldAccess val = (JCTree.JCFieldAccess) a.getExpression();
+                String codeGenerator = ""+val.type.toString().substring(Class.class.getName().length()+1);//val.selected.toString();
+                return codeGenerator.substring(0, codeGenerator.length()-1);
+            }
+        }
+        return null;
+    }
+
     public void exeDec(JCTree.JCMethodDecl mem, VExecute m) throws VClassNotFoundException {
-        if (mem.getName().toString().equals("code"))
-            System.out.println("123");
+        m.generator = GenPlugin.getGenerator(mem.getModifiers());
+        m.invokeGenerator = getInvokeGenerator(mem.getModifiers());
         m.setModificators(modToFlag(mem.getModifiers().getFlags()));
         for (JCTree.JCVariableDecl v : mem.getParameters()) {
             //Set<Modifier> mm = v.getModifiers().getFlags();

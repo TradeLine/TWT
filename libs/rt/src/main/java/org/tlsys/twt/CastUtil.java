@@ -10,6 +10,6 @@ public final class CastUtil {
     private CastUtil() {
     }
 
-    @InvokeGen("org.tlsys.twt.CastInvoke")
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
     public native static <T> T cast(Object obj);
 }

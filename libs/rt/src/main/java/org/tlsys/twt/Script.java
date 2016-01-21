@@ -8,13 +8,13 @@ import org.tlsys.twt.annotations.NotCompile;
 @NotCompile
 public class Script {
 
-    @InvokeGen("org.tlsys.twt.ScriptInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.ScriptInvokeGenerator.class)
     public native static <T> T code(Object ... args);
 
-    @InvokeGen("org.tlsys.twt.ScriptInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.ScriptInvokeGenerator.class)
     public native static boolean isUndefined(Object args);
 
-    @InvokeGen("org.tlsys.twt.ScriptInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.ScriptInvokeGenerator.class)
     public native static String typeOf(Object args);
 
     public void tt(){}

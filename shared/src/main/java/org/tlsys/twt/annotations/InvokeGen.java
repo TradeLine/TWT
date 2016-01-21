@@ -1,12 +1,14 @@
 package org.tlsys.twt.annotations;
 
+import org.tlsys.twt.InvokeGenerator;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(value = ElementType.METHOD)
+@Target(value = {ElementType.METHOD,ElementType.CONSTRUCTOR})
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface InvokeGen {
-    String value();
+    Class<? extends InvokeGenerator> value();
 }

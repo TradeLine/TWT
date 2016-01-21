@@ -1,8 +1,5 @@
 package org.tlsys.twt;
 
-import org.tlsys.lex.Collect;
-import org.tlsys.lex.Operation;
-import org.tlsys.lex.declare.Member;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VClassNotFoundException;
 import org.tlsys.lex.declare.VExecute;
@@ -12,20 +9,9 @@ import java.util.HashMap;
 
 public class CodeGenerator {
 
-    private static class MyGenContext implements GenerationContext {
-        private final VClass current;
+    private static final HashMap<Class, Object> generators = new HashMap<>();
 
-        public MyGenContext(VClass current) {
-            this.current = current;
-        }
-
-        @Override
-        public VClass getCurrentClass() {
-            return current;
-        }
-    }
-
-    public static void generate(VClass clazz, String[] methods, PrintStream ps) throws CompileException{
+    public static void generate(VClass clazz, String[] methods, PrintStream ps) throws CompileException {
 
         try {
             VClass loader = clazz.getClassLoader().loadClass(ClassLoader.class.getName());
@@ -56,17 +42,17 @@ public class CodeGenerator {
                 generator = cl.codeGenerator;
                 break;
             }
-            cl=cl.extendsClass;
+            cl = cl.extendsClass;
             if (cl == null)
                 break;
         }
 
-        if (generator==null)
+        if (generator == null)
             throw new RuntimeException("Can't find generator for " + clazz.fullName);
         try {
             Class genClass = clazz.getClassLoader().getJavaClassLoader().loadClass(generator);
             if (generators.containsKey(genClass))
-                return generators.get(genClass);
+                return (ICodeGenerator) generators.get(genClass);
             ICodeGenerator icg = (ICodeGenerator) genClass.newInstance();
             generators.put(genClass, icg);
             return icg;
@@ -83,5 +69,55 @@ public class CodeGenerator {
 
     }
 
-    private static final HashMap<Class, ICodeGenerator> generators = new HashMap<>();
+    private static class MyGenContext implements GenerationContext {
+        private final VClass current;
+
+        public MyGenContext(VClass current) {
+            this.current = current;
+        }
+
+        @Override
+        public VClass getCurrentClass() {
+            return current;
+        }
+
+        @Override
+        public ICodeGenerator getGenerator(VClass clazz) {
+            return getGeneratorFor(clazz);
+        }
+
+        @Override
+        public ICodeGenerator getGenerator(VExecute execute) {
+            if (execute.generator == null)
+                return getGenerator(execute.getParent());
+
+            try {
+                Class genClass = execute.getParent().getClassLoader().getJavaClassLoader().loadClass(execute.generator);
+                if (generators.containsKey(genClass))
+                    return (ICodeGenerator) generators.get(genClass);
+                ICodeGenerator icg = (ICodeGenerator) genClass.newInstance();
+                generators.put(genClass, icg);
+                return icg;
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public InvokeGenerator getInvokeGenerator(VExecute execute) {
+            if (execute.invokeGenerator == null)
+                return null;
+
+            try {
+                Class genClass = execute.getParent().getClassLoader().getJavaClassLoader().loadClass(execute.invokeGenerator);
+                if (generators.containsKey(genClass))
+                    return (InvokeGenerator) generators.get(genClass);
+                InvokeGenerator icg = (InvokeGenerator) genClass.newInstance();
+                generators.put(genClass, icg);
+                return icg;
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }

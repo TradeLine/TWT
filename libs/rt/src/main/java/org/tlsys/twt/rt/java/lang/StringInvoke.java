@@ -1,14 +1,20 @@
 package org.tlsys.twt.rt.java.lang;
 
 import com.sun.tools.javac.tree.JCTree;
+import org.tlsys.lex.Invoke;
+import org.tlsys.lex.Value;
+import org.tlsys.twt.CompileException;
 import org.tlsys.twt.GenContext;
+import org.tlsys.twt.GenerationContext;
 import org.tlsys.twt.InvokeGenerator;
 import org.tlsys.twt.rt.Tchar;
 
 import java.io.PrintStream;
 import java.lang.reflect.Executable;
+import java.util.List;
 
 public class StringInvoke implements InvokeGenerator {
+    /*
     @Override
     public void generate(GenContext ctx, Class clazz, JCTree.JCExpression self, Executable method, JCTree.JCExpression[] arguments, PrintStream ps) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         if (method.getName().equals("charAt")) {
@@ -65,5 +71,11 @@ public class StringInvoke implements InvokeGenerator {
         }
 
         throw new RuntimeException("Unknown method " + method.getName());
+    }
+    */
+
+    @Override
+    public void generate(GenerationContext ctx, Invoke invoke, List<Value> arguments) throws CompileException {
+        throw new RuntimeException("Not supported");
     }
 }

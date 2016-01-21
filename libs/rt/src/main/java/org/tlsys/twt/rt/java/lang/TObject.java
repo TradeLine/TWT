@@ -1,5 +1,6 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.twt.DefaultGenerator;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.*;
 
@@ -8,6 +9,7 @@ import org.tlsys.twt.annotations.*;
 @ClassName("java.lang.Object")
 @MetaFactory("org.tlsys.twt.FullMeta")
 @ReplaceClass(java.lang.Object.class)
+@CodeGenerator(DefaultGenerator.class)
 public class TObject {
 
     private static int hashCodeCounter = 0;
@@ -23,7 +25,7 @@ public class TObject {
         return hashCode;
     }
 
-    @InvokeGen("org.tlsys.twt.rt.java.lang.ObjectInvokeAdapter")
+    //@InvokeGen("org.tlsys.twt.rt.java.lang.ObjectInvokeAdapter")
     @MethodName("getClass")
     public native Class getJClass();
 

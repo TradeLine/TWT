@@ -299,7 +299,6 @@ public class GenPlugin extends AbstractMojo {
         String name = c.name.toString();
         String fullName = c.sym.toString();
         String aliase = null;
-        String codeGenerator = null;
         VClass v = new VClass(parent, c.sym);
         v.name = name;
         v.fullName = fullName;
@@ -319,20 +318,27 @@ public class GenPlugin extends AbstractMojo {
                     aliase = aliase.substring(0, aliase.length()-1);
                     //aliase = val.selected.toString();
                 }
-                if (an.type.toString().equals(CodeGenerator.class.getName())) {
-                    JCTree.JCAssign a = (JCTree.JCAssign) an.getArguments().get(0);
-                    JCTree.JCFieldAccess val = (JCTree.JCFieldAccess) a.getExpression();
-                    codeGenerator = ""+val.type.toString().substring(Class.class.getName().length()+1);//val.selected.toString();
-                    codeGenerator = codeGenerator.substring(0, codeGenerator.length()-1);
-                }
+
             }
         }
 
 
 
         v.alias = aliase;
-        v.codeGenerator = codeGenerator;
+        v.codeGenerator = getGenerator(c.getModifiers());
         return v;
+    }
+
+    public static String getGenerator(JCTree.JCModifiers modifiers) {
+        for (JCTree.JCAnnotation an : modifiers.getAnnotations()) {
+            if (an.type.toString().equals(CodeGenerator.class.getName())) {
+                JCTree.JCAssign a = (JCTree.JCAssign) an.getArguments().get(0);
+                JCTree.JCFieldAccess val = (JCTree.JCFieldAccess) a.getExpression();
+                String codeGenerator = ""+val.type.toString().substring(Class.class.getName().length()+1);//val.selected.toString();
+                return codeGenerator.substring(0, codeGenerator.length()-1);
+            }
+        }
+        return null;
     }
 
     private class Pair {

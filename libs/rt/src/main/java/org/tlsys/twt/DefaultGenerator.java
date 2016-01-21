@@ -1,9 +1,8 @@
 package org.tlsys.twt;
 
-import org.tlsys.lex.Const;
-import org.tlsys.lex.Operation;
-import org.tlsys.lex.Return;
+import org.tlsys.lex.*;
 import org.tlsys.lex.declare.Member;
+import org.tlsys.lex.declare.VArgument;
 
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -45,6 +44,26 @@ public class DefaultGenerator implements ICodeGenerator {
                 p.append(" ");
                 g.operation(c, o.getValue(), p);
             }
+            return true;
+        });
+
+        addGen(This.class, (c,o,p,g)->{
+            if (o.getType() != c.getCurrentClass())
+                throw new RuntimeException("Not support other this type");
+            p.append("this");
+            return true;
+        });
+
+        addGen(Invoke.class, (c,o,p,g)->{
+            InvokeGenerator icg = c.getInvokeGenerator(o.getMethod());
+            if (icg != null && icg != c)
+                return icg.generate(c,o,p);
+
+            throw new RuntimeException("Invoke not supported");
+        });
+
+        addGen(VArgument.class, (c,o,p,g)->{
+            p.append(o.name);
             return true;
         });
     }

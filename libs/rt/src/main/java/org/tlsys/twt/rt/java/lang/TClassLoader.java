@@ -3,7 +3,7 @@ package org.tlsys.twt.rt.java.lang;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.*;
 
-@CodeGenerator(ClassLoaderCodeGenerator.class)
+@CodeGenerator(NativeCodeGenerator.class)
 @JSClass
 @ClassName("java.lang.ClassLoader")
 @ReplaceClass(java.lang.ClassLoader.class)

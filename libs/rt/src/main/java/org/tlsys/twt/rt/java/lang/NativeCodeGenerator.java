@@ -11,7 +11,7 @@ import org.tlsys.twt.ICodeGenerator;
 
 import java.io.PrintStream;
 
-public class ClassLoaderCodeGenerator extends DefaultGenerator implements ICodeGenerator {
+public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenerator {
     private static final String CLASS_NAME = "cl";
 
     @Override
