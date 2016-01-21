@@ -9,8 +9,8 @@ import org.tlsys.twt.annotations.*;
 @ReplaceClass(java.lang.ClassLoader.class)
 public class TClassLoader/* implements JSClassLoader*/ {
 
-    public void addClass() {
-
+    public void addClass(String className, Object classObject) {
+        Script.code(this,".",className,"=",classObject);
     }
 
     //@Override

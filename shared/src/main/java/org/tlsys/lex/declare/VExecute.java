@@ -20,6 +20,7 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
     private VClass parent;
     private transient Symbol symbol;
     public transient VBlock block = null;
+    public String generator = null;
 
     public VExecute() {
     }
