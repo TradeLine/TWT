@@ -1,0 +1,49 @@
+package org.tlsys.lex;
+
+import com.sun.tools.javac.code.Symbol;
+import org.tlsys.lex.declare.VClass;
+
+import java.util.Optional;
+import java.util.function.Predicate;
+
+public class Increment extends Value {
+
+    private static final long serialVersionUID = -2572398552937808883L;
+    private Value value;
+    private VClass result;
+    private IncType type;
+
+    public Increment() {
+    }
+
+    public Increment(Value value, IncType incType, VClass result) {
+        this.value = value;
+        this.type = incType;
+        this.result = result;
+    }
+
+    @Override
+    public VClass getType() {
+        return result;
+    }
+
+    @Override
+    public Collect getUsing() {
+        return Collect.create().add(result);
+    }
+
+    @Override
+    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+        if (!searchIn.test(value))
+            return Optional.empty();
+        return value.find(symbol, searchIn);
+    }
+
+    public enum IncType {
+        PRE_INC,//++X
+        POST_INC,//X++
+        PRE_DEC,//--X
+        POST_DEC,//X--
+        NOT//!
+    }
+}

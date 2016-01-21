@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.tlsys</groupId>
+    <artifactId>twt-dom-example</artifactId>
+    <version>1.0</version>
+    <packaging>war</packaging>
+    <name>TWT Dom Example</name>
+    <url>http://maven.apache.org</url>
+    <dependencies>
+        <dependency>
+            <groupId>org.tlsys</groupId>
+            <artifactId>twt-rt</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>dom-example</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.tlsys</groupId>
+                <artifactId>twt</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>gen2</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <targets>
+                        <target>
+                            <out>main.js</out>
+                            <main>org.tlsys.Main</main>
+                        </target>
+                    </targets>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
