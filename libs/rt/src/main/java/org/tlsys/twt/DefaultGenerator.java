@@ -1,10 +1,10 @@
 package org.tlsys.twt;
 
 import org.tlsys.lex.*;
-import org.tlsys.lex.declare.Member;
-import org.tlsys.lex.declare.VArgument;
+import org.tlsys.lex.declare.*;
 
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
 public class DefaultGenerator implements ICodeGenerator {
@@ -21,6 +21,16 @@ public class DefaultGenerator implements ICodeGenerator {
 
     @Override
     public boolean member(GenerationContext ctx, Member op, PrintStream ps) throws CompileException {
+        if (op instanceof VClass) {
+            VClass clazz = (VClass)op;
+
+            VClass classClass = clazz.getClassLoader().loadClass(Class.class.getName());
+
+            NewClass classInit = new NewClass(classClass.constructors.get(0));
+            classInit.arguments.add(new Const());
+
+            VClass fieldClass = clazz.getClassLoader().loadClass(Field.class.getName());
+        }
         throw new RuntimeException("Not supported yet " + op.getClass().getName());
     }
 
@@ -64,6 +74,20 @@ public class DefaultGenerator implements ICodeGenerator {
 
         addGen(VArgument.class, (c,o,p,g)->{
             p.append(o.name);
+            return true;
+        });
+        addGen(DeclareVar.class, (c,o,p,g)->{
+            p.append("var ").append(o.name);
+            if (o.init != null) {
+                p.append("=");
+                g.operation(c, o.init, p);
+            }
+            return true;
+        });
+        addGen(GetField.class, (c,o,p,g)->{
+            g.operation(c,o.getScope(),p);
+            p.append(".");
+            p.append(o.getField().name);
             return true;
         });
     }

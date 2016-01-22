@@ -90,9 +90,18 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         c.add(extendsClass);
         for (VClass v : implementsList)
             c.add(v);
+        return c;
+    }
+
+    public Collect getAllUsing() {
+        Collect c = getUsing();
         for (VBlock v : statics)
             c.add(v);
-        return null;
+        for (VConstructor v : constructors)
+            c.add(v);
+        for (VMethod v : methods)
+            c.add(v);
+        return c;
     }
 
     @Override
@@ -155,6 +164,10 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         } catch (VClassNotFoundException e) {
             throw new MethodNotFoundException(symbol);
         }
+    }
+
+    public VMethod getMethod(String name, VClass... args) throws MethodNotFoundException {
+        return getMethod(name, Arrays.asList(args));
     }
 
     public VMethod getMethod(String name, List<VClass> args) throws MethodNotFoundException {

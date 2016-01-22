@@ -5,6 +5,8 @@ import org.tlsys.twt.annotations.*;
 
 @JSClass
 @ClassName("java.lang.String")
+@ReplaceClass(String.class)
+@CodeGenerator(NativeCodeGenerator.class)
 public final class TString {
 
     public TString(String text) {

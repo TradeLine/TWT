@@ -128,6 +128,7 @@ public class GenPlugin extends AbstractMojo {
             String nn = project.getGroupId() + "-" + project.getArtifactId() + "-" + project.getVersion();
             projectClassLoader = new PomClassLoader(localRepository, rootNode, new File(project.getFile().getParent() + File.separator + "target" + File.separator + "classes"), nn, loader);
             VClassLoader classLoader = new VClassLoader(nn);
+            classLoader.setJavaClassLoader(projectClassLoader);
             for (PomClassLoader p : projectClassLoader.parents) {
                 if (p.getJSClassLoader() != null)
                     classLoader.parents.add(p.getJSClassLoader());

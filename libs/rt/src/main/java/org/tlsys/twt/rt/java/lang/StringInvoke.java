@@ -75,7 +75,7 @@ public class StringInvoke implements InvokeGenerator {
     */
 
     @Override
-    public void generate(GenerationContext ctx, Invoke invoke, List<Value> arguments) throws CompileException {
+    public boolean generate(GenerationContext ctx, Invoke invoke, PrintStream ps) throws CompileException {
         throw new RuntimeException("Not supported");
     }
 }

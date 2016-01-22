@@ -2,11 +2,12 @@ package org.tlsys.lex;
 
 import com.sun.tools.javac.code.Symbol;
 import org.tlsys.lex.declare.VClass;
+import org.tlsys.twt.CompileException;
 
 import java.util.List;
 import java.util.Objects;
 
-public class MethodNotFoundException extends Exception {
+public class MethodNotFoundException extends CompileException {
 
     private static String gen(Symbol.MethodSymbol methodSymbol) {
         return methodSymbol.owner.toString() + "::"+methodSymbol.toString();

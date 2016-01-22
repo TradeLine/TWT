@@ -37,6 +37,10 @@ public class VClassLoader implements Serializable {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public void addClass(VClass cl) {
         classes.add(cl);
         cl.setClassLoader(this);

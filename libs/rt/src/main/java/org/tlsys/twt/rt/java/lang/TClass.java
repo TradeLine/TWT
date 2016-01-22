@@ -8,6 +8,8 @@ import java.lang.reflect.Field;
 
 @JSClass
 @ClassName("java.lang.Class")
+@ReplaceClass(Class.class)
+@CodeGenerator(NativeCodeGenerator.class)
 public class TClass {
     //@InvokeGen("org.tlsys.twt.rt.java.lang.ClassInvoke")
     public String getName() {
@@ -37,6 +39,9 @@ public class TClass {
     @JSName("isArray")
     public boolean isArray() {
         return Script.code("Object.getPrototypeOf(this)==AT");
+    }
+
+    public TClass(String name) {
     }
 
     public Object cast(Object obj) {

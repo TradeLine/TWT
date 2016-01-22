@@ -11,7 +11,7 @@ import java.util.function.Predicate;
 
 public class NewClass extends Value {
     private static final long serialVersionUID = -2655271103608417622L;
-    private VConstructor constructor;
+    public VConstructor constructor;
     public ArrayList<Value> arguments = new ArrayList<>();
 
     public NewClass() {

@@ -54,6 +54,7 @@ public class TargetPlugin extends AbstractMojo {
             GenPlugin plug = new GenPlugin(localRepository, project, rootNode);
             plug.process();
 
+            CodeGenerator.renaming(plug.getProjectClassLoader().getJSClassLoader());
 
             for (Target t : targets) {
                 try (FileOutputStream fout = new FileOutputStream(new File(t.getOut()))) {
@@ -70,8 +71,6 @@ public class TargetPlugin extends AbstractMojo {
             }
         } catch (DependencyTreeBuilderException e) {
             throw new MojoExecutionException("Dependensy reader error", e);
-        } catch (VClassNotFoundException e) {
-            throw new MojoExecutionException("Class not found", e);
         }
 
         /*

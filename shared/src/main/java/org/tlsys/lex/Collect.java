@@ -17,6 +17,8 @@ public final class Collect {
         for (Using e : o) {
             if (e == null)
                 continue;
+            if (using.contains(e))
+                continue;
             if (e instanceof CanUse)
                 using.add((CanUse) e);
             add(e.getUsing());

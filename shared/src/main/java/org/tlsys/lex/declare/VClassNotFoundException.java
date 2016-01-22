@@ -1,6 +1,8 @@
 package org.tlsys.lex.declare;
 
-public class VClassNotFoundException extends Exception {
+import org.tlsys.twt.CompileException;
+
+public class VClassNotFoundException extends CompileException {
     private String name;
 
     public VClassNotFoundException(String name) {

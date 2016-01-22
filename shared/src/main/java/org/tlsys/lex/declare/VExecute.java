@@ -53,10 +53,10 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
 
     @Override
     public Collect getUsing() {
-        Collect c = Collect.create().add(parent).add(returnType);
+        Collect c = Collect.create().add(returnType);
         for (VArgument a : arguments)
             c.add(a);
-        c.add(getParent());
+        //c.add(getParent());
         return c;
     }
 
