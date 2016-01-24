@@ -20,6 +20,18 @@ public class SetField extends Value {
     public SetField() {
     }
 
+    public Value getScope() {
+        return scope;
+    }
+
+    public VField getField() {
+        return field;
+    }
+
+    public Value getValue() {
+        return value;
+    }
+
     public SetField(Value scope, VField field, Value value, Assign.AsType type) {
         this.scope = scope;
         this.field = field;

@@ -35,7 +35,7 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
     }
     /*
     @Override
-    public void generate(GenContext context, Class clazz, JCTree.JCExpression self, Executable method, JCTree.JCExpression[] arguments, PrintStream stream) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
+    public void generate(MainGenerationContext context, Class clazz, JCTree.JCExpression self, Executable method, JCTree.JCExpression[] arguments, PrintStream stream) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         if(method.getName().equals("code")) {
             for (JCTree.JCExpression e : arguments) {
                 if (e instanceof JCTree.JCLiteral) {

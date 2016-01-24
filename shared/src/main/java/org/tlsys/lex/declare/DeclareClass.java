@@ -12,9 +12,15 @@ import java.util.function.Predicate;
 public class DeclareClass extends Value {
 
     private VClass clazz;
+    private Value classLoaderVar;
 
-    public DeclareClass(VClass clazz) {
+    public Value getClassLoaderVar() {
+        return classLoaderVar;
+    }
+
+    public DeclareClass(VClass clazz, Value classLoaderVar) {
         this.clazz = clazz;
+        this.classLoaderVar = classLoaderVar;
     }
 
     public DeclareClass() {

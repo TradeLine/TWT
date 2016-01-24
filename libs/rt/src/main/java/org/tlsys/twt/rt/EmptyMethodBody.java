@@ -1,16 +1,20 @@
 package org.tlsys.twt.rt;
 
 import com.sun.tools.javac.tree.JCTree;
-import org.tlsys.twt.GenContext;
-import org.tlsys.twt.MethodBodyGenerator;
+import org.tlsys.lex.Operation;
+import org.tlsys.twt.*;
 
 import java.io.PrintStream;
 import java.lang.reflect.Executable;
 
-public class EmptyMethodBody implements MethodBodyGenerator {
+public class EmptyMethodBody implements ICodeGenerator {
+    @Override
+    public void generateClass(GenerationContext context, CompileModuls.ClassRecord record, PrintStream ps) throws CompileException {
+
+    }
 
     @Override
-    public void gen(GenContext context, JCTree.JCMethodDecl decl, Executable method, PrintStream out) throws NoSuchMethodException, ClassNotFoundException {
-        out.append("{}");
+    public boolean operation(GenerationContext context, Operation operation, PrintStream out) throws CompileException {
+        return false;
     }
 }

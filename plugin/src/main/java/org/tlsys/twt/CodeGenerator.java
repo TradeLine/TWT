@@ -1,8 +1,9 @@
 package org.tlsys.twt;
 
 import org.tlsys.lex.Collect;
-import org.tlsys.lex.MethodNotFoundException;
 import org.tlsys.lex.NewClass;
+import org.tlsys.lex.SVar;
+import org.tlsys.lex.Value;
 import org.tlsys.lex.declare.*;
 
 import java.io.PrintStream;
@@ -15,6 +16,12 @@ public class CodeGenerator {
 
     private static long classNameIterator = 0;
 
+    private static final HashMap<VClassLoader, Value> vars = new HashMap<>();
+
+    public static Value getVarOfClassLoader(VClassLoader loader) {
+        return vars.get(loader);
+    }
+
     public static void renaming(VClassLoader loader) {
         String name = loader.getName();
         loader.setName(name.replace('-', '_').replace('.', '$'));
@@ -24,9 +31,16 @@ public class CodeGenerator {
                 v.alias = v.fullName;
             v.fullName = "$"+Long.toString(++classNameIterator, Character.MAX_RADIX);
 
+            int fieldIterator = 0;
+            for (VField f : v.fields) {
+                if (f.alias == null)
+                    f.alias = f.name;
+                f.name="f"+Integer.toString(++fieldIterator, Character.MAX_RADIX);
+            }
+
             for (VMethod m : v.methods) {
-                //if (m.alias == null)
-                //    m.name =
+                if (m.alias == null)
+                    m.alias = m.name;
                 int argIterator = 0;
                 for (VArgument a : m.arguments) {
                     a.name="a"+Integer.toString(++argIterator, Character.MAX_RADIX);
@@ -44,94 +58,93 @@ public class CodeGenerator {
         for (VClassLoader cl : loader.parents)
             renaming(cl);
     }
+    /*
+        private static DeclareVar createAllClassLoaders(VClass loaderClass, VClassLoader cl, PrintStream ps) throws CompileException {
+            GenerationContext gc = new MyGenContext(loaderClass);
+            SVar var = new SVar(loaderClass, null);
+            DeclareVar dv = new DeclareVar(var);
+            var.name = cl.getName();
+            dv.init = new NewClass(loaderClass.constructors.get(0));
+            vars.put(cl, var);
 
-    private static DeclareVar createAllClassLoaders(VClass loaderClass, VClassLoader cl, PrintStream ps) throws CompileException {
-        GenerationContext gc = new MyGenContext(loaderClass);
-        DeclareVar dv = new DeclareVar(loaderClass, null);
-        dv.name = cl.getName();
-        dv.init = new NewClass(loaderClass.constructors.get(0));
+            getGeneratorFor(loaderClass).operation(gc, dv, ps);
+            ps.append(";\n");
 
-        getGeneratorFor(loaderClass).operation(gc, dv, ps);
-        ps.append(";\n");
 
-        for (VClass v : cl.classes) {
-            if (v == loaderClass)
-                continue;
-            getGeneratorFor(loaderClass).operation(gc, new DeclareClass(v), ps);
+
+            for (VClassLoader c : cl.parents)
+                createAllClassLoaders(loaderClass, c, ps);
+            return dv;
         }
 
-        for (VClassLoader c : cl.parents)
-            createAllClassLoaders(loaderClass, c, ps);
-        return dv;
-    }
-
-    public static void generate(VClass clazz, String[] methods, PrintStream ps) throws CompileException {
-
-        try {
-            VClass loader = clazz.getClassLoader().loadClass(ClassLoader.class.getName());
-            GenerationContext gc = new MyGenContext(loader);
-            getGeneratorFor(loader).member(gc, loader, ps);
-
-            Collect c = loader.getUsing();
-
-            createAllClassLoaders(loader, clazz.getClassLoader(), ps);
-
-
-        } catch (VClassNotFoundException e) {
-            throw new CompileException(e);
-        }
-        /*
-        VExecute[] exe = clazz.methods.stream().filter(e->{
-            for (String s : methods)
-                if (e.name.equals(s) || s.equals(e.alias))
-                    return true;
-            return false;
-        }).toArray(VExecute[]::new);
-
-
-        Collect c = clazz.getUsing();
-
-        System.out.println("" + c);
-        */
-    }
-
-    private static ICodeGenerator getGeneratorFor(VClass clazz) {
-        VClass cl = clazz;
-        String generator = null;
-        while (true) {
-            if (cl.codeGenerator != null && !cl.codeGenerator.isEmpty()) {
-                generator = cl.codeGenerator;
-                break;
+        public static void createAllClasses(VClass loaderClass, VClassLoader cl, PrintStream ps) throws CompileException {
+            for (VClass v : cl.classes) {
+                if (v == loaderClass)
+                    continue;
+                GenerationContext gc = new MyGenContext(loaderClass);
+                getGeneratorFor(v).operation(gc, new DeclareClass(v, getVarOfClassLoader(cl)), ps);
             }
-            cl = cl.extendsClass;
-            if (cl == null)
-                break;
+
+            for (VClassLoader c : cl.parents)
+                createAllClasses(loaderClass, c, ps);
         }
 
-        if (generator == null)
-            throw new RuntimeException("Can't find generator for " + clazz.fullName);
-        try {
-            Objects.requireNonNull(clazz.getClassLoader(), "Classloader not set for " + clazz.alias);
-            Objects.requireNonNull(clazz.getClassLoader().getJavaClassLoader(), "JavaClassloader not set for " + clazz.alias);
-            Class genClass = clazz.getClassLoader().getJavaClassLoader().loadClass(generator);
-            if (generators.containsKey(genClass))
-                return (ICodeGenerator) generators.get(genClass);
-            ICodeGenerator icg = (ICodeGenerator) genClass.newInstance();
-            generators.put(genClass, icg);
-            return icg;
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
+        public static void generate(VClass clazz, String[] methods, PrintStream ps) throws CompileException {
 
+            try {
+                VClass loader = clazz.getClassLoader().loadClass(ClassLoader.class.getName());
+                GenerationContext gc = new MyGenContext(loader);
+                getGeneratorFor(loader).member(gc, loader, ps);
+
+                Collect c = loader.getUsing();
+
+                createAllClassLoaders(loader, clazz.getClassLoader(), ps);
+                createAllClasses(loader, clazz.getClassLoader(), ps);
+
+
+            } catch (VClassNotFoundException e) {
+                throw new CompileException(e);
+            }
+        }
+
+        private static ICodeGenerator getGeneratorFor(VClass clazz) {
+            VClass cl = clazz;
+            String generator = null;
+            while (true) {
+                if (cl.codeGenerator != null && !cl.codeGenerator.isEmpty()) {
+                    generator = cl.codeGenerator;
+                    break;
+                }
+                cl = cl.extendsClass;
+                if (cl == null)
+                    break;
+            }
+
+            if (generator == null)
+                throw new RuntimeException("Can't find generator for " + clazz.fullName);
+            try {
+                Objects.requireNonNull(clazz.getClassLoader(), "Classloader not set for " + clazz.alias);
+                Objects.requireNonNull(clazz.getClassLoader().getJavaClassLoader(), "JavaClassloader not set for " + clazz.alias);
+                Class genClass = clazz.getClassLoader().getJavaClassLoader().loadClass(generator);
+                if (generators.containsKey(genClass))
+                    return (ICodeGenerator) generators.get(genClass);
+                ICodeGenerator icg = (ICodeGenerator) genClass.newInstance();
+                generators.put(genClass, icg);
+                return icg;
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    */
     private static void generateClassLoader(VClass vClass) {
 
     }
 
+    /*
     private static class MyGenContext implements GenerationContext {
         private final VClass current;
 
@@ -183,4 +196,5 @@ public class CodeGenerator {
             }
         }
     }
+    */
 }

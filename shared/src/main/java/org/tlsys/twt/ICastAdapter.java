@@ -1,7 +1,9 @@
 package org.tlsys.twt;
 
 import com.sun.tools.javac.tree.JCTree;
+import org.tlsys.lex.Value;
+import org.tlsys.lex.declare.VClass;
 
 public interface ICastAdapter {
-    public String cast(GenContext context, Class from, Class to, JCTree.JCExpression value) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException;
+    public Value cast(GenerationContext ctx, Value value, VClass from ,VClass to) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException;
 }

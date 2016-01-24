@@ -7,7 +7,7 @@ import java.lang.reflect.Executable;
 
 public class EventMethodBody implements MethodBodyGenerator {
     @Override
-    public void gen(GenContext ctx, JCTree.JCMethodDecl decl, Executable method, PrintStream ps) throws NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchFieldException {
+    public void gen(MainGenerationContext ctx, JCTree.JCMethodDecl decl, Executable method, PrintStream ps) throws NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchFieldException {
 
         if (method.getName().equals("addEventListener")) {
             ps.append("{");

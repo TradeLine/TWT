@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 
 public class VIf extends Operation {
     private static final long serialVersionUID = 6377557826419520191L;
-    private Value value;
+    public Value value;
     public VBlock thenBlock;
     public VBlock elseBlock;
     private Context parentContext;

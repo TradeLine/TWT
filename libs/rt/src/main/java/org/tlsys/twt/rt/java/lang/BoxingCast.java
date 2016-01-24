@@ -1,12 +1,16 @@
 package org.tlsys.twt.rt.java.lang;
 
 import com.sun.tools.javac.tree.JCTree;
-import org.tlsys.twt.GenContext;
+import org.tlsys.lex.Value;
+import org.tlsys.lex.declare.VClass;
+import org.tlsys.twt.GenerationContext;
+import org.tlsys.twt.MainGenerationContext;
 import org.tlsys.twt.ICastAdapter;
 
 public class BoxingCast implements ICastAdapter {
-    @Override
-    public String cast(GenContext context, Class from, Class to, JCTree.JCExpression value) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
+    //@Override
+    public String cast(MainGenerationContext context, Class from, Class to, JCTree.JCExpression value) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
+        /*
         Class fr = context.getClassAliaseProvider().getRealClass(from);
         Class tr = context.getClassAliaseProvider().getRealClass(to);
         Class fn = context.getClassAliaseProvider().getReplacedClass(from);
@@ -51,5 +55,12 @@ public class BoxingCast implements ICastAdapter {
         }
 
         throw new RuntimeException("Not supported yet");
+        */
+        throw new RuntimeException("Not supported yet");
+    }
+
+    @Override
+    public Value cast(GenerationContext ctx, Value value, VClass from, VClass to) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
+        throw new RuntimeException("not supported yet");
     }
 }

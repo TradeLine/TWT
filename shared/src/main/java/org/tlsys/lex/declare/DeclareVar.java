@@ -7,11 +7,17 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class DeclareVar extends VVar implements Using {
+public class DeclareVar extends Operation implements Using {
     private static final long serialVersionUID = -8645985351987178557L;
 
-    public DeclareVar(VClass clazz, Symbol.VarSymbol symbol) {
-        super(clazz, symbol);
+    private SVar var;
+
+    public DeclareVar(SVar var) {
+        this.var = var;
+    }
+
+    public SVar getVar() {
+        return var;
     }
 
     public Operation init;
@@ -21,7 +27,7 @@ public class DeclareVar extends VVar implements Using {
 
     @Override
     public Collect getUsing() {
-        return super.getUsing().add(init);
+        return Collect.create().add(init, var.getType());
     }
 
     @Override
@@ -31,6 +37,8 @@ public class DeclareVar extends VVar implements Using {
             if (o.isPresent())
                 return o;
         }
-        return super.find(symbol,searchIn);
+        if (searchIn.test(var) && var.getSymbol()==symbol)
+            return Optional.of(var);
+        return Optional.empty();
     }
 }

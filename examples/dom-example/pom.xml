@@ -32,10 +32,18 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <generator>org.tlsys.twt.Generator</generator>
                     <targets>
                         <target>
                             <out>main.js</out>
-                            <main>org.tlsys.Main</main>
+                            <classes>
+                                <class>
+                                    <main>org.tlsys.Main</main>
+                                    <methods>
+                                        <method>main</method>
+                                    </methods>
+                                </class>
+                            </classes>
                         </target>
                     </targets>
                 </configuration>

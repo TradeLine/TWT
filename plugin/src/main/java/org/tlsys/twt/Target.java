@@ -2,18 +2,13 @@ package org.tlsys.twt;
 
 public class Target {
     private String out;
-    private String main;
-    private String[] methods;
-
-    public String[] getMethods() {
-        return methods;
-    }
+    private CompileClass[] classes;
 
     public String getOut() {
         return out;
     }
 
-    public String getMain() {
-        return main;
+    public CompileClass[] getClasses() {
+        return classes;
     }
 }

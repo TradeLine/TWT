@@ -39,8 +39,11 @@ public class ForEach extends Operation {
 
     @Override
     public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
-        if (searchIn.test(item) && item.getSymbol() == symbol)
-            return Optional.of(item);
+        if (searchIn.test(item)) {
+            Optional<SVar> o = item.find(symbol, searchIn);
+            if (o.isPresent())
+            return o;
+        }
         if (searchIn.test(parentContext))
             return parentContext.find(symbol, searchIn);
         return Optional.empty();

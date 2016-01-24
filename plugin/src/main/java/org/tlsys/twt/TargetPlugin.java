@@ -16,6 +16,7 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VClassNotFoundException;
+import org.tlsys.lex.declare.VMethod;
 
 import java.io.*;
 
@@ -29,6 +30,9 @@ public class TargetPlugin extends AbstractMojo {
 
     @Parameter(defaultValue = "${localRepository}", readonly = true, required = true)
     protected ArtifactRepository localRepository;
+
+    @Parameter(required = true)
+    private String generator;
 
     @Component
     private ArtifactFactory artifactFactory;
@@ -58,14 +62,33 @@ public class TargetPlugin extends AbstractMojo {
 
             for (Target t : targets) {
                 try (FileOutputStream fout = new FileOutputStream(new File(t.getOut()))) {
+                    CompileModuls cm = new CompileModuls();
+                    for (CompileClass cc : t.getClasses()) {
+                        CompileModuls.ClassRecord cr = cm.add(plug.getProjectClassLoader().getJSClassLoader().loadClass(cc.getMain()));
+                        for (String m : cc.getMethods()) {
+                            for(VMethod mm : cr.getClazz().methods) {
+                                if (m.equals(mm.name) || m.equals(mm.alias))
+                                    cm.add(mm);
+                            }
+                        }
+                    }
                     PrintStream ps = new PrintStream(fout);
-                    VClass clazz = plug.getProjectClassLoader().getJSClassLoader().loadClass(t.getMain());
-                    CodeGenerator.generate(clazz, t.getMethods(), ps);
+                    Class<?> generatorClass = plug.getProjectClassLoader().loadClass(generator);
+                    getLog().info("Main Generator class " + generator);
+                    MainGenerator mg = (MainGenerator) generatorClass.newInstance();
+                    mg.generate(plug.getProjectClassLoader().getJSClassLoader(), cm, ps);
+                    //CodeGenerator.generate(clazz, t.getMethods(), ps);
                 } catch (FileNotFoundException e) {
                     throw new MojoExecutionException("File not found", e);
                 } catch (IOException e) {
                     throw new MojoExecutionException("", e);
                 } catch (CompileException e) {
+                    throw new MojoExecutionException("", e);
+                } catch (ClassNotFoundException e) {
+                    throw new MojoExecutionException("Main generator class not found: " + generator, e);
+                } catch (InstantiationException e) {
+                    throw new MojoExecutionException("", e);
+                } catch (IllegalAccessException e) {
                     throw new MojoExecutionException("", e);
                 }
             }

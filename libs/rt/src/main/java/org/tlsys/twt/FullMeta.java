@@ -1,15 +1,13 @@
 package org.tlsys.twt;
 
 import org.tlsys.twt.desc.ClassDesc;
-import org.tlsys.twt.desc.FieldDesc;
-import org.tlsys.twt.rt.java.lang.reflect.TField;
 
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 
 public class FullMeta implements IMetaFactory {
-    @Override
-    public void genMeta(GenContext ctx, ClassDesc desc, PrintStream ps) throws NoSuchMethodException, ClassNotFoundException {
+    //@Override
+    public void genMeta(MainGenerationContext ctx, ClassDesc desc, PrintStream ps) throws NoSuchMethodException, ClassNotFoundException {
+        /*
         ps.append("function(){");
         for (FieldDesc fd : desc.getFields()) {
             ps.append("this.addField(");
@@ -25,5 +23,11 @@ public class FullMeta implements IMetaFactory {
             ps.append(");");
         }
         ps.append("\n}");
+        */
+    }
+
+    @Override
+    public void genMeta(GenContext context, ClassDesc desc, PrintStream stream) throws NoSuchMethodException, ClassNotFoundException {
+
     }
 }

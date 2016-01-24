@@ -311,12 +311,13 @@ public class Compiller {
         });
 
         addProcSt(JCTree.JCVariableDecl.class, (c, e, o) -> {
-            DeclareVar dv = new DeclareVar(c.vClass.getClassLoader().loadClass(e.type), e.sym);
+            SVar var = new SVar(c.vClass.getClassLoader().loadClass(e.type), e.sym);
+            DeclareVar dv = new DeclareVar(var);
             if (e.init == null)
-                dv.init = c.init(dv.getType());
+                dv.init = c.init(var.getType());
             else
                 dv.init = c.op(e.init, o);
-            dv.name = e.name.toString();
+            var.name = e.name.toString();
             return dv;
         });
 
@@ -326,8 +327,9 @@ public class Compiller {
         });
 
         addProcSt(JCTree.JCEnhancedForLoop.class, (c, e, o) -> {
-            DeclareVar dv = new DeclareVar(c.vClass.getClassLoader().loadClass(e.var.type), e.var.sym);
-            dv.name = e.var.name.toString();
+            SVar var = new SVar(c.vClass.getClassLoader().loadClass(e.var.type), e.var.sym);
+            DeclareVar dv = new DeclareVar(var);
+            var.name = e.var.name.toString();
             Value v = c.op(e.expr, o);
             ForEach fe = new ForEach(v, dv, o);
             Operation op = c.st(e.body, fe);
@@ -441,8 +443,9 @@ public class Compiller {
             Try tr = new Try(o);
             tr.block = (VBlock) c.st(e.body, o);
             for (JCTree.JCCatch ca : e.catchers) {
-                DeclareVar dv = new DeclareVar(c.vClass.getClassLoader().loadClass(ca.param.type), ca.param.sym);
-                dv.name = ca.param.name.toString();
+                SVar var = new SVar(c.vClass.getClassLoader().loadClass(ca.param.type), ca.param.sym);
+                DeclareVar dv = new DeclareVar(var);
+                var.name = ca.param.name.toString();
                 Try.Catch cc = new Try.Catch(tr, dv);
                 cc.block = (VBlock) c.st(ca.body, cc);
                 tr.catchs.add(cc);

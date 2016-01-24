@@ -14,9 +14,9 @@ import java.util.function.Predicate;
 public class Try extends Operation {
 
     private static final long serialVersionUID = 8100497016534329612L;
-    private Context parentContext;
     public ArrayList<Catch> catchs = new ArrayList<>();
     public VBlock block;
+    private Context parentContext;
 
     public Try() {
     }
@@ -40,7 +40,7 @@ public class Try extends Operation {
         return c;
     }
 
-    public static class Catch implements Context, Using,Serializable {
+    public static class Catch implements Context, Using, Serializable {
         public ArrayList<VClass> classes = new ArrayList<>();
         public VBlock block;
         private Context parentContext;
@@ -53,8 +53,11 @@ public class Try extends Operation {
 
         @Override
         public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
-            if (searchIn.test(declareVar) && declareVar.getSymbol() == symbol)
-                return Optional.of(declareVar);
+            if (searchIn.test(declareVar)) {
+                Optional<SVar> o = declareVar.find(symbol, searchIn);
+                if (o.isPresent())
+                    return o;
+            }
 
             if (searchIn.test(parentContext))
                 return parentContext.find(symbol, searchIn);
