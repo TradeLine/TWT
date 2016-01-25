@@ -9,47 +9,17 @@ import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.function.Predicate;
 
 public class DefaultGenerator implements ICodeGenerator {
 
 
     private static final HashSet<VClass> generatedClasses = new HashSet<>();
-
-    protected void addGenerated(VClass clazz) {
-        generatedClasses.add(clazz);
-    }
-
-    protected boolean isGenerated(VClass clazz) {
-        return generatedClasses.contains(clazz);
-    }
-
-    private interface Gen<T> {
-        public boolean gen(GenerationContext ctx, T op, PrintStream ps, ICodeGenerator gen) throws CompileException;
-    }
-
-    public static <T> void addGen(Class<T> clazz, Gen<T> gen) {
-        generators.put(clazz, gen);
-    }
-
     private static HashMap<Class, Gen> generators = new HashMap<>();
 
-    private static Value getClassViaTypeProvider(VClass vClass) throws VClassNotFoundException {
-        VClass typeProviderClass = vClass.getClassLoader().loadClass(TClassLoader.TypeProvider.class.getName());
-        VBlock body = new VBlock();
-        body.operations.add(new Return(new StaticRef(vClass)));
-        Lambda lambda = new Lambda(body, typeProviderClass.methods.get(0), null);
-        return lambda;
-    }
-
-    /*
-    @Override
-    public boolean member(GenerationContext ctx, Member op, PrintStream ps) throws CompileException {
-        throw new RuntimeException("Not supported yet " + op.getClass().getName());
-    }
-    */
-
     static {
-        addGen(Const.class, (c,o,p,g)->{
+        addGen(Const.class, (c, o, p, g) -> {
             if (o.getValue() == null) {
                 p.append("null");
                 return true;
@@ -62,7 +32,7 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         });
 
-        addGen(Return.class, (c,o,p,g)->{
+        addGen(Return.class, (c, o, p, g) -> {
             p.append("return");
             if (o.getValue() != null) {
                 p.append(" ");
@@ -71,42 +41,64 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         });
 
-        addGen(This.class, (c,o,p,g)->{
+        addGen(This.class, (c, o, p, g) -> {
             if (o.getType() != c.getCurrentClass())
                 throw new RuntimeException("Not support other this type");
             p.append("this");
             return true;
         });
 
-        addGen(Invoke.class, (c,o,p,g)->{
+        addGen(Invoke.class, (c, o, p, g) -> {
             InvokeGenerator icg = c.getInvokeGenerator(o.getMethod());
             if (icg != null && icg != c)
-                return icg.generate(c,o,p);
+                return icg.generate(c, o, p);
 
-            g.operation(c,o.getSelf(),p);
+            Predicate<Boolean> printArg = f -> {
+                try {
+                    boolean first = f;
+                    for (Value v : o.arguments) {
+                        if (!first)
+                            p.append(",");
+                        g.operation(c, v, p);
+                        first = false;
+                    }
+                    return true;
+                } catch (CompileException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+
+            if (o.getSelf() instanceof This && o.getSelf().getType() != c.getCurrentClass()) {//вызов конструктора. вероятно родительского
+                This self = (This) o.getSelf();
+                c.getGenerator(self.getType()).operation(c, new StaticRef(self.getType()), p);
+                p.append(".");
+                if (!o.getMethod().isStatic())
+                    p.append("prototype.");
+                p.append(o.getMethod().name);
+                p.append(".apply(this, ");
+                printArg.test(false);
+                p.append(")");
+                return true;
+            }
+            g.operation(c, o.getSelf(), p);
             p.append(".");
             if (o.getMethod() instanceof VMethod) {
-                VMethod m = (VMethod)o.getMethod();
+                VMethod m = (VMethod) o.getMethod();
                 p.append(m.alias);
             } else
                 throw new RuntimeException("Invoke not supported");
+
             p.append("(");
-            boolean first = true;
-            for (Value v : o.arguments) {
-                if (!first)
-                    p.append(",");
-                g.operation(c, v, p);
-                first = false;
-            }
+            printArg.test(true);
             p.append(")");
             return true;
         });
 
-        addGen(VArgument.class, (c,o,p,g)->{
+        addGen(VArgument.class, (c, o, p, g) -> {
             p.append(o.name);
             return true;
         });
-        addGen(DeclareVar.class, (c,o,p,g)->{
+        addGen(DeclareVar.class, (c, o, p, g) -> {
             p.append("var ").append(o.getVar().name);
             if (o.init != null) {
                 p.append("=");
@@ -114,21 +106,21 @@ public class DefaultGenerator implements ICodeGenerator {
             }
             return true;
         });
-        addGen(GetField.class, (c,o,p,g)->{
-            g.operation(c,o.getScope(),p);
+        addGen(GetField.class, (c, o, p, g) -> {
+            g.operation(c, o.getScope(), p);
             p.append(".");
             p.append(o.getField().name);
             return true;
         });
 
-        addGen(StaticRef.class, (c,o,p,g)->{
+        addGen(StaticRef.class, (c, o, p, g) -> {
             ICodeGenerator icg = c.getGenerator(o.getType());
             if (icg != null && icg != g)
-                return icg.operation(c,o,p);
+                return icg.operation(c, o, p);
             throw new RuntimeException("Class ref not supported yet");
         });
 
-        addGen(NewClass.class, (c,o,p,g)->{
+        addGen(NewClass.class, (c, o, p, g) -> {
             InvokeGenerator ig = c.getInvokeGenerator(o.constructor);
             if (ig != null) {
                 Invoke inv = new Invoke(o.constructor, null);
@@ -137,13 +129,13 @@ public class DefaultGenerator implements ICodeGenerator {
             }
             ICodeGenerator icg = c.getGenerator(o.constructor.getParent());
             if (icg != null && icg != c)
-                return icg.operation(c,o,p);
+                return icg.operation(c, o, p);
             //p.append(".");
             //p.append(o.getField().name);
             throw new RuntimeException("new operator not suppported");
         });
 
-        addGen(DeclareClass.class, (c,o,p,g)->{
+        addGen(DeclareClass.class, (c, o, p, g) -> {
             VClass stringClass = c.getCurrentClass().getClassLoader().loadClass(String.class.getName());
             VClass classClass = c.getCurrentClass().getClassLoader().loadClass(Class.class.getName());
             VMethod addClassMethod = o.getClassLoaderVar().getType().getMethod("addClass", stringClass, classClass);
@@ -164,19 +156,19 @@ public class DefaultGenerator implements ICodeGenerator {
             return false;
         });
 
-        addGen(SVar.class, (c,o,p,g)->{
+        addGen(SVar.class, (c, o, p, g) -> {
             p.append(o.name);
             return true;
         });
 
-        addGen(SetField.class, (c,o,p,g)->{
+        addGen(SetField.class, (c, o, p, g) -> {
             g.operation(c, o.getScope(), p);
             p.append(".").append(o.getField().alias).append("=");
             g.operation(c, o.getValue(), p);
             return true;
         });
 
-        addGen(VIf.class, (c,o,p,g)->{
+        addGen(VIf.class, (c, o, p, g) -> {
             p.append("if (");
             g.operation(c, o.value, p);
             p.append(")");
@@ -191,7 +183,189 @@ public class DefaultGenerator implements ICodeGenerator {
             }
             return true;
         });
+        addGen(Parens.class, (c, o, p, g) -> {
+            p.append("(");
+            g.operation(c, o.getValue(), p);
+            p.append(")");
+            return true;
+        });
+        addGen(VBinar.class, (c, o, p, g) -> {
+            g.operation(c, o.getLeft(), p);
+
+            switch (o.getBitType()) {
+                case PLUS:
+                    p.append("+");
+                    break;
+                case MINUS:
+                    p.append("-");
+                    break;
+                case EQ:
+                    p.append("==");
+                    break;
+                case NE:
+                    p.append("!=");
+                    break;
+                case LT://>=
+                    p.append(">=");
+                    break;
+                case GE://<
+                    p.append("<");
+                    break;
+                case GT://<=
+                    p.append("<=");
+                    break;
+                case LE://>
+                    p.append(">");break;
+                default:
+                    throw new RuntimeException("Not support type " + o.getBitType());
+            }
+
+            g.operation(c, o.getRight(), p);
+            return true;
+        });
+
+        addGen(VBlock.class, (c, o, p, g) -> {
+            p.append("{");
+            for (Operation op : o.operations) {
+                g.operation(c, op, p);
+                if (op instanceof VBlock)
+                    continue;
+                if (op instanceof VIf)
+                    continue;
+                if (op instanceof ForEach)
+                    continue;
+                if (op instanceof ForLoop)
+                    continue;
+                if (op instanceof WhileLoop)
+                    continue;
+                p.append(";");
+            }
+            p.append("}");
+            return true;
+        });
+
+        addGen(Throw.class, (c, o, p, g) -> {
+            p.append("throw ");
+            g.operation(c, o.getValue(), p);
+            return true;
+        });
+
+        addGen(WhileLoop.class, (c, o, p, g) -> {
+            p.append("while (");
+            g.operation(c, o.value, p);
+            p.append(")");
+            if (o.block == null)
+                p.append("{}");
+            else
+                g.operation(c, o.block, p);
+            return true;
+        });
+
+        addGen(Assign.class, (c,o,p,g)->{
+            g.operation(c, o.getVar(), p);
+            switch (o.getAsType()) {
+                case ASSIGN:
+                    p.append("=");
+                    break;
+                case PLUS:
+                    p.append("+=");
+                    break;
+                case MINUS:
+                    p.append("-=");
+                    break;
+                default:
+                    throw new RuntimeException("Unknown type " + o.getAsType());
+            };
+            g.operation(c, o.getValue(), p);
+            return true;
+        });
+
+        addGen(ForLoop.class, (c,o,p,g)->{
+            p.append("for(");
+            g.operation(c,o.init,p);
+            p.append(";");
+            g.operation(c, o.value, p);
+            p.append(";");
+            g.operation(c, o.update, p);
+            p.append(")");
+            if (o.block != null) {
+                g.operation(c, o.block, p);
+            } else
+                p.append("{}");
+            return true;
+        });
+
+        addGen(Increment.class, (c,o,p,g)->{
+            switch (o.getIncType()) {
+                case PRE_DEC:
+                    p.append("--");
+                    break;
+                case PRE_INC:
+                    p.append("++");
+                    break;
+                case NOT:
+                    p.append("!");
+                    break;
+                case POST_DEC:
+                case POST_INC:
+                    break;
+                default:
+                    throw new RuntimeException("Not supported " + o.getIncType());
+            }
+
+            g.operation(c, o.getValue(), p);
+
+            switch (o.getIncType()) {
+                case POST_DEC:
+                    p.append("--");
+                    break;
+                case POST_INC:
+                    p.append("++");
+                    break;
+            }
+            return true;
+        });
+
+        /*
+        addGen(ForEach.class, (c,o,p,g)->{
+            VClass iter = c.getCurrentClass().getClassLoader().loadClass(Iterable.class.getName());
+            if (o.getValue().getType().isParent(iter)) {
+                VClass it = c.getCurrentClass().getClassLoader().loadClass(Iterator.class.getName());
+                SVar var = new SVar(it, null);
+                var.name = "t"+Integer.toString(var.hashCode(), Character.MAX_RADIX);
+                DeclareVar dv = new DeclareVar(var);
+            }
+            return true;
+        });
+        */
     }
+
+    public static <T> void addGen(Class<T> clazz, Gen<T> gen) {
+        generators.put(clazz, gen);
+    }
+
+    private static Value getClassViaTypeProvider(VClass vClass) throws VClassNotFoundException {
+        VClass typeProviderClass = vClass.getClassLoader().loadClass(TClassLoader.TypeProvider.class.getName());
+        VBlock body = new VBlock();
+        body.operations.add(new Return(new StaticRef(vClass)));
+        Lambda lambda = new Lambda(body, typeProviderClass.methods.get(0), null);
+        return lambda;
+    }
+
+    protected void addGenerated(VClass clazz) {
+        generatedClasses.add(clazz);
+    }
+
+    protected boolean isGenerated(VClass clazz) {
+        return generatedClasses.contains(clazz);
+    }
+
+    /*
+    @Override
+    public boolean member(GenerationContext ctx, Member op, PrintStream ps) throws CompileException {
+        throw new RuntimeException("Not supported yet " + op.getClass().getName());
+    }
+    */
 
     @Override
     public void generateClass(GenerationContext context, CompileModuls.ClassRecord record, PrintStream ps) throws CompileException {
@@ -205,5 +379,9 @@ public class DefaultGenerator implements ICodeGenerator {
             return g.gen(context, op, out, this);
         }
         throw new RuntimeException("Not supported yet " + op.getClass().getName());
+    }
+
+    private interface Gen<T> {
+        public boolean gen(GenerationContext ctx, T op, PrintStream ps, ICodeGenerator gen) throws CompileException;
     }
 }

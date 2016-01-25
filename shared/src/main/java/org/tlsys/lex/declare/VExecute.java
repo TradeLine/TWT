@@ -15,6 +15,8 @@ import java.util.function.Predicate;
 public abstract class VExecute implements Context, Member, CodeDynLoad {
     private static final long serialVersionUID = 3706412942276907442L;
     public VClass returnType;
+    public String name;
+    public String alias;
 
     public ArrayList<VArgument> arguments = new ArrayList<>();
     private VClass parent;

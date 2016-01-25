@@ -15,7 +15,7 @@ public final class TString {
     @MethodAlias("toString")
     @Override
     public String toString() {
-        return super.toString();
+        return null;
     }
 
 
@@ -32,7 +32,8 @@ public final class TString {
     public static String valueOf(Object obj) {
         if (obj == null)
             return "null";
-        return obj.toString();
+        return "Not supported";
+        //return obj.toString();
     }
 
     //@NotCompile

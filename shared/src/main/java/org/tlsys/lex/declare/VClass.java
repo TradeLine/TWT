@@ -326,6 +326,13 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         in.defaultReadObject();
     }
 
+    public VField getField(String name) throws VFieldNotFoundException {
+        for (VField f : fields)
+            if (name.equals(f.name) || name.equals(f.alias))
+                return f;
+        throw new VFieldNotFoundException(name);
+    }
+
     private static class ClassRef implements Serializable {
         private static final long serialVersionUID = 7210195275588742049L;
         private String name;

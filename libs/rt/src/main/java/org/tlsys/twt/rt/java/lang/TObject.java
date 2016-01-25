@@ -3,6 +3,7 @@ package org.tlsys.twt.rt.java.lang;
 import org.tlsys.twt.DefaultGenerator;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.*;
+import org.tlsys.twt.rt.EmptyMethodBody;
 
 @JSClass
 @ParentClass(value = "", implement = {})
@@ -16,7 +17,8 @@ public class TObject {
 
     private int hashCode = ++hashCodeCounter;
 
-    @MethodBodyGen("org.tlsys.twt.rt.EmptyMethodBody")
+    @CodeGenerator(EmptyMethodBody.class)
+    //@MethodBodyGen("org.tlsys.twt.rt.EmptyMethodBody")
     public TObject() {
     }
 

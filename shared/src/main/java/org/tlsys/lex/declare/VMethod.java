@@ -6,8 +6,6 @@ import java.util.ArrayList;
 
 public class VMethod extends VExecute {
     private static final long serialVersionUID = 7352639283063310734L;
-    public String name;
-    public String alias;
     public VMethod brigTo;
     public ArrayList<VMethod> brigFrom = new ArrayList<>();
 

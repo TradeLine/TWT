@@ -15,6 +15,22 @@ public class Assign extends Value {
     private VClass result;
     private AsType asType;
 
+    public SVar getVar() {
+        return var;
+    }
+
+    public Value getValue() {
+        return value;
+    }
+
+    public VClass getResult() {
+        return result;
+    }
+
+    public AsType getAsType() {
+        return asType;
+    }
+
     public Assign() {
     }
 

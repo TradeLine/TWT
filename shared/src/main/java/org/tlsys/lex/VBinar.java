@@ -14,6 +14,22 @@ public class VBinar extends Value {
     private VClass result;
     private BitType type;
 
+    public BitType getBitType() {
+        return type;
+    }
+
+    public Value getLeft() {
+        return left;
+    }
+
+    public Value getRight() {
+        return right;
+    }
+
+    public VClass getResult() {
+        return result;
+    }
+
     public VBinar() {
     }
 
@@ -40,15 +56,15 @@ public class VBinar extends Value {
     }
 
     public enum BitType {
-        PLUS,
-        MINUS,
-        EQ,
-        OR,
-        AND,
-        NE,
-        LT,
-        GE,
-        GT,
-        LE
+        PLUS,//+
+        MINUS,//-
+        EQ,//==
+        OR,//||
+        AND,//&&
+        NE,//!=
+        LT,//>=
+        GE,//<
+        GT,//<=
+        LE//>
     }
 }

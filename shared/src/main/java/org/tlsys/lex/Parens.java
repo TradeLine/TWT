@@ -15,6 +15,10 @@ public class Parens extends Value {
     private static final long serialVersionUID = -2233739865356402799L;
     private Value value;
 
+    public Value getValue() {
+        return value;
+    }
+
     public Parens() {
     }
 

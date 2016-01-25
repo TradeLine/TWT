@@ -18,6 +18,6 @@ public class CastInvoke implements InvokeGenerator {
 
     @Override
     public boolean generate(GenerationContext ctx, Invoke invoke, PrintStream ps) throws CompileException {
-        throw new RuntimeException("Not supported");
+        return ctx.getGenerator(ctx.getCurrentClass()).operation(ctx, invoke.arguments.get(0), ps);
     }
 }

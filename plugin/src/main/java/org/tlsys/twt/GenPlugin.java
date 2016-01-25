@@ -230,7 +230,7 @@ public class GenPlugin extends AbstractMojo {
         }
     }
 
-    public void analizeCode(Compiller com, Member member, JCTree tree, VClassLoader loader) throws VClassNotFoundException, MethodNotFoundException {
+    public void analizeCode(Compiller com, Member member, JCTree tree, VClassLoader loader) throws CompileException {
         if (tree instanceof JCTree.JCVariableDecl) {
             JCTree.JCVariableDecl v = (JCTree.JCVariableDecl) tree;
             VField f = (VField) member;

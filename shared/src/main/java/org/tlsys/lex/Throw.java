@@ -14,6 +14,10 @@ public class Throw extends Operation {
     private static final long serialVersionUID = -2062082634111339304L;
     private Value value;
 
+    public Value getValue() {
+        return value;
+    }
+
     public Throw() {
     }
 

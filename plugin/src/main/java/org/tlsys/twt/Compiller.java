@@ -37,6 +37,13 @@ public class Compiller {
             if (e.sym instanceof Symbol.VarSymbol) {
                 Optional<SVar> var = o.find((Symbol.VarSymbol) e.sym, v -> true);
                 if (var.isPresent()) {
+                    if (var.get() instanceof VField) {
+                        VField field = (VField)var.get();
+                        if (field.isStatic())
+                            return new GetField(new StaticRef(field.getParent()),field);
+                        else
+                            return new GetField(new This(field.getParent()), field);
+                    }
                     return var.get();
                 }
             }
@@ -193,16 +200,16 @@ public class Compiller {
                 case MINUS:
                     type = VBinar.BitType.MINUS;
                     break;
-                case LT:
+                case LT://<
                     type = VBinar.BitType.LT;
                     break;
-                case GE:
+                case GE://>=
                     type = VBinar.BitType.GE;
                     break;
-                case GT:
+                case GT://<
                     type = VBinar.BitType.GT;
                     break;
-                case LE:
+                case LE://<=
                     type = VBinar.BitType.LE;
                     break;
                 default:
@@ -268,6 +275,8 @@ public class Compiller {
         addProc(JCTree.JCAssign.class, (c, e, o) -> {
             Value v = c.op(e.lhs, o);
             Value v2 = c.op(e.rhs, o);
+            if (v2 instanceof VField)
+                System.out.println("123");
             if (v instanceof GetField) {
                 GetField gf = (GetField) v;
                 SetField sf = new SetField(gf.getScope(), gf.getField(), v2, Assign.AsType.ASSIGN);
@@ -327,24 +336,51 @@ public class Compiller {
         });
 
         addProcSt(JCTree.JCEnhancedForLoop.class, (c, e, o) -> {
-            SVar var = new SVar(c.vClass.getClassLoader().loadClass(e.var.type), e.var.sym);
-            DeclareVar dv = new DeclareVar(var);
-            var.name = e.var.name.toString();
             Value v = c.op(e.expr, o);
-            ForEach fe = new ForEach(v, dv, o);
-            Operation op = c.st(e.body, fe);
-            if (!(op instanceof VBlock)) {
-                VBlock b = new VBlock(fe);
-                b.operations.add(op);
-                op = b;
+            VClass classIterable = c.vClass.getClassLoader().loadClass(Iterable.class.getName());
+
+            if (v.getType().isParent(classIterable)) {
+
+                VBlock block = new VBlock(o);
+
+
+                VClass classIterator = c.vClass.getClassLoader().loadClass(Iterator.class.getName());
+
+
+                SVar iterator = new SVar(classIterator, null);
+                DeclareVar it = new DeclareVar(iterator);
+                it.init = new Invoke(v.getType().getMethod("iterator"), v);
+                block.operations.add(it);
+                WhileLoop wl = new WhileLoop(block);
+                wl.value = new Invoke(classIterator.getMethod("hasNext"), it.getVar());
+                wl.block = new VBlock(wl);
+                block.operations.add(wl);
+
+                SVar var = new SVar(c.vClass.getClassLoader().loadClass(e.var.type), e.var.sym);
+                DeclareVar dv = new DeclareVar(var);
+                var.name = e.var.name.toString();
+                dv.init = new Invoke(classIterator.getMethod("next"), it.getVar());
+                wl.block.operations.add(dv);
+                wl.block.operations.add(c.st(e.body, wl.block));
+                return block;
+            } else {
+                ForLoop forLoop = new ForLoop(o);
+                forLoop.block = new VBlock(forLoop);
+                VClass intClass = c.vClass.getClassLoader().loadClass("int");
+                SVar itVar = new SVar(intClass, null);
+                DeclareVar it = new DeclareVar(itVar);
+                it.init = new Const(0, intClass);
+                forLoop.init = it;
+                forLoop.update = new Increment(itVar, Increment.IncType.PRE_INC, intClass);
+                forLoop.value = new VBinar(itVar, new GetField(v, v.getType().getField("length")),c.vClass.getClassLoader().loadClass("boolean"), VBinar.BitType.GE);
+                return forLoop;
             }
-            fe.block = (VBlock) op;
-            return fe;
         });
 
         addProcSt(JCTree.JCWhileLoop.class, (c, e, o) -> {
             Value v = c.op(e.cond, o);
             WhileLoop fe = new WhileLoop(o);
+            fe.value = c.op(e.cond, o);
             Operation op = c.st(e.body, fe);
             if (!(op instanceof VBlock)) {
                 VBlock b = new VBlock(fe);
@@ -509,14 +545,14 @@ public class Compiller {
         stProc.put(cl, proc);
     }
 
-    public <T extends Operation> T op(JCTree.JCExpression tree, Context context) throws VClassNotFoundException, MethodNotFoundException {
+    public <T extends Operation> T op(JCTree.JCExpression tree, Context context) throws CompileException {
         ProcEx p = exProc.get(tree.getClass());
         if (p != null)
             return (T) p.proc(this, tree, context);
         throw new RuntimeException("Not supported " + tree.getClass().getName() + " \"" + tree + "\"");
     }
 
-    public Operation st(JCTree.JCStatement sta, Context context) throws MethodNotFoundException, VClassNotFoundException {
+    public Operation st(JCTree.JCStatement sta, Context context) throws CompileException {
         ProcSt p = stProc.get(sta.getClass());
         if (p != null)
             return p.proc(this, sta, context);
@@ -558,7 +594,7 @@ public class Compiller {
         throw new RuntimeException("Not supported " + decl.getClass().getName() + " " + decl);
     }
 
-    public void exeCode(VExecute method, JCTree.JCMethodDecl dec) throws MethodNotFoundException, VClassNotFoundException {
+    public void exeCode(VExecute method, JCTree.JCMethodDecl dec) throws CompileException {
         if (dec.body == null)
             return;
 
@@ -628,10 +664,10 @@ public class Compiller {
     }
 
     private static interface ProcEx<V extends JCTree.JCExpression> {
-        Operation proc(Compiller compiller, V e, Context context) throws VClassNotFoundException, MethodNotFoundException;
+        Operation proc(Compiller compiller, V e, Context context) throws CompileException;
     }
 
     private static interface ProcSt<V extends JCTree.JCStatement> {
-        Operation proc(Compiller compiller, V e, Context context) throws VClassNotFoundException, MethodNotFoundException;
+        Operation proc(Compiller compiller, V e, Context context) throws CompileException;
     }
 }

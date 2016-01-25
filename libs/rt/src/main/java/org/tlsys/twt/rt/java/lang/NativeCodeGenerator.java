@@ -13,21 +13,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
     @Override
     public void generateClass(GenerationContext ctx, CompileModuls.ClassRecord record, PrintStream ps) throws CompileException {
         VClass clazz = record.getClazz();
-        ps.append("function ").append(clazz.fullName).append("(");
-        if (clazz.constructors.size() != 1)
-            throw new IllegalArgumentException("Native Code Generator Not support mony constructors");
-
-        VConstructor constructor = clazz.constructors.get(0);
-
-        boolean first = true;
-        for (VArgument ar : constructor.arguments) {
-            if (!first)
-                ps.append(",");
-            ps.append(ar.name);
-            first = false;
-        }
-
-        ps.append("){\n");
+        ps.append("function ").append(clazz.fullName).append("(){\n");
 
         for (VField f : clazz.fields) {
             if (f.isStatic())
@@ -40,19 +26,31 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append(";");
         }
 
+        ps.append("}\n");
+
+
+
+        /*
         if (constructor.block != null)
             for (Operation o : constructor.block.operations) {
                 if (operation(ctx, o, ps))
                     ps.append(";\n");
             }
-        ps.append("}\n");
+
+        */
 
         for (VMethod m : clazz.methods) {
             generateMethod(ctx, m, ps);
         }
+
+        for (VConstructor m : clazz.constructors) {
+            generateMethod(ctx, m, ps);
+
+            ps.append(m.getParent().fullName).append(".function n").append(m.name).append("(){var o = new ").append(m.getParent().fullName).append("();o.").append(m.name).append(".apply(o,arguments);return o;}");
+        }
     }
 
-    private void generateMethod(GenerationContext ctx, VMethod meth, PrintStream ps) throws CompileException {
+    private void generateMethod(GenerationContext ctx, VExecute meth, PrintStream ps) throws CompileException {
         ps.append(meth.getParent().fullName).append(".");
         if (!meth.isStatic())
             ps.append("prototype.");
@@ -60,11 +58,12 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append(meth.alias);
         else
             ps.append(meth.name);
+        ps.append("=");
         if (meth.block == null) {
             ps.append("null;\n");
             return;
         }
-        ps.append("(");
+        ps.append("function(");
         boolean first = true;
         for (VArgument ar : meth.arguments) {
             if (!first)
@@ -85,6 +84,9 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
     public boolean operation(GenerationContext ctx, Operation op, PrintStream ps) throws CompileException {
         if (op instanceof Invoke) {
             Invoke inv = (Invoke) op;
+            InvokeGenerator icg = ctx.getInvokeGenerator(((Invoke) op).getMethod());
+            if (icg != null && icg != this)
+                return icg.generate(ctx, inv, ps);
             if (inv.getMethod() instanceof VConstructor)//если происходит вызов родительского конструктра, то игнорируем!
                 return false;
         }
@@ -101,7 +103,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         if (op instanceof NewClass) {
             NewClass nc = (NewClass) op;
             //if (nc.constructor.getParent()==ctx.getCurrentClass()) {
-            ps.append("new ").append(nc.constructor.getParent().fullName).append("(");
+            ps.append(nc.constructor.getParent().fullName).append(".n").append(nc.constructor.name).append("(");
             boolean first = true;
             for (Value v : nc.arguments) {
                 if (!first)

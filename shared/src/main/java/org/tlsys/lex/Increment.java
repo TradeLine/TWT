@@ -16,6 +16,14 @@ public class Increment extends Value {
     public Increment() {
     }
 
+    public IncType getIncType() {
+        return type;
+    }
+
+    public Value getValue() {
+        return value;
+    }
+
     public Increment(Value value, IncType incType, VClass result) {
         this.value = value;
         this.type = incType;

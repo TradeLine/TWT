@@ -47,7 +47,10 @@ public class CodeGenerator {
                 }
             }
 
+            int constructIterator = 0;
+
             for (VConstructor m : v.constructors) {
+                m.name = "c"+Integer.toString(++constructIterator, Character.MAX_RADIX);
                 int argIterator = 0;
                 for (VArgument a : m.arguments) {
                     a.name="a"+Integer.toString(++argIterator, Character.MAX_RADIX);
