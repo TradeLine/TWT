@@ -44,7 +44,7 @@ public class Lambda extends Value implements Context {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(arguments.stream().toArray(VArgument[]::new)).add(block);
+    public void getUsing(Collect c) {
+        c.add(arguments.stream().toArray(VArgument[]::new)).add(block);
     }
 }

@@ -2,13 +2,13 @@ package org.tlsys.twt.rt.java.lang.reflect;
 
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.*;
-import org.tlsys.twt.rt.java.lang.NativeCodeGenerator;
+import org.tlsys.twt.NativeCodeGenerator;
 import org.tlsys.twt.rt.java.lang.TClassLoader;
 
 import java.lang.reflect.Field;
 
 @JSClass
-@ClassName("java.lang.reflect.Field")
+//@ClassName("java.lang.reflect.Field")
 @ReplaceClass(Field.class)
 @CodeGenerator(NativeCodeGenerator.class)
 public class TField {

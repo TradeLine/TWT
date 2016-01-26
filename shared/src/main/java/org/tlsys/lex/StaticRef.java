@@ -23,8 +23,8 @@ public class StaticRef extends Value {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(ref);
+    public void getUsing(Collect c) {
+        c.add(ref);
     }
 
     @Override

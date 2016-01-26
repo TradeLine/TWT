@@ -1,8 +1,8 @@
 package org.tlsys.twt.rt;
 
+import org.tlsys.twt.NativeCodeGenerator;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
-import org.tlsys.twt.rt.java.lang.NativeCodeGenerator;
 
 @JSClass
 @ReplaceClass(NativeCodeGenerator.class)

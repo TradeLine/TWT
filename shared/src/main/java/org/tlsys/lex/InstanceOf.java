@@ -37,7 +37,7 @@ public class InstanceOf extends Value {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(result, clazz, value);
+    public void getUsing(Collect c) {
+        c.add(result, clazz, value);
     }
 }

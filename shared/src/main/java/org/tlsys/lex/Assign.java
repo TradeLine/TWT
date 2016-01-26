@@ -42,8 +42,8 @@ public class Assign extends Value {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(var, value, result);
+    public void getUsing(Collect c) {
+        c.add(var, value, result);
     }
 
     @Override

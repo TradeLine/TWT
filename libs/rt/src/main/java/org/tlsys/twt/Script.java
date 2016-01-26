@@ -17,6 +17,9 @@ public class Script {
     @InvokeGen(org.tlsys.twt.ScriptInvokeGenerator.class)
     public native static String typeOf(Object args);
 
+    @InvokeGen(org.tlsys.twt.ScriptInvokeGenerator.class)
+    public native static boolean isPrototypeOf(Object args, Class clazz);
+
     public void tt(){}
 
     private Script gg;

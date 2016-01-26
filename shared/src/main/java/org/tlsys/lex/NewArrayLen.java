@@ -32,12 +32,10 @@ public class NewArrayLen extends Value {
     }
 
     @Override
-    public Collect getUsing() {
-        Collect c = Collect.create();
+    public void getUsing(Collect c) {
         for (Value v : sizes) {
             c.add(v);
         }
         c.add(clazz);
-        return c;
     }
 }

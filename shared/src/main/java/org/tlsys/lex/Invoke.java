@@ -33,8 +33,8 @@ public class Invoke extends Value {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(method);
+    public void getUsing(Collect c) {
+        c.add(method);
     }
 
     @Override

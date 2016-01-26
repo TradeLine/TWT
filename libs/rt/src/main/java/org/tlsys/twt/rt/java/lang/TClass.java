@@ -3,13 +3,14 @@ package org.tlsys.twt.rt.java.lang;
 import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.*;
+import org.tlsys.twt.NativeCodeGenerator;
 
 import java.lang.reflect.Field;
 
 @JSClass
 @ClassName("java.lang.Class")
 @ReplaceClass(Class.class)
-@CodeGenerator(NativeCodeGenerator.class)
+//@CodeGenerator(NativeCodeGenerator.class)
 public class TClass {
     //@InvokeGen("org.tlsys.twt.rt.java.lang.ClassInvoke")
     public String getName() {
@@ -24,6 +25,16 @@ public class TClass {
     //@InvokeGen("org.tlsys.twt.rt.java.lang.ClassInvoke")
     public String getSimpleName() {
         return Script.code("this.simpleName");
+    }
+
+    private boolean inited = false;
+
+    public boolean isInited() {
+        return inited;
+    }
+
+    public void init() {
+        //
     }
 
     @JSName("isPrimitive")

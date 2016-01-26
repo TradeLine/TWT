@@ -27,7 +27,6 @@ public class Label extends Operation {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create();
+    public void getUsing(Collect c) {
     }
 }

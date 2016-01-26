@@ -2,11 +2,11 @@ package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.*;
+import org.tlsys.twt.NativeCodeGenerator;
 
 @JSClass
 @ClassName("java.lang.String")
 @ReplaceClass(String.class)
-@CodeGenerator(NativeCodeGenerator.class)
 public final class TString {
 
     public TString(String text) {

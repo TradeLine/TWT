@@ -50,7 +50,7 @@ public class SetField extends Value {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(scope, field,value);
+    public void getUsing(Collect c) {
+        c.add(scope, field,value);
     }
 }

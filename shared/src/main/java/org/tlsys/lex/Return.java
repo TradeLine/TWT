@@ -31,7 +31,7 @@ public class Return extends Operation {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(value);
+    public void getUsing(Collect c) {
+        c.add(value);
     }
 }

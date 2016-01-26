@@ -21,12 +21,9 @@ public class VBlock extends Operation implements Using, CanUse, Context {
     }
 
     @Override
-    public Collect getUsing() {
-        Collect c = Collect.create().create();
-
+    public void getUsing(Collect c) {
         for (Operation o : operations)
             c.add(o);
-        return c;
     }
 
     @Override
@@ -34,12 +31,12 @@ public class VBlock extends Operation implements Using, CanUse, Context {
         for (Operation o : operations) {
             if (!searchIn.test(o))
                 continue;
-            Optional<SVar> v = o.find(symbol,searchIn.and(e->e!=this));
+            Optional<SVar> v = o.find(symbol, searchIn.and(e -> e != this));
             if (v.isPresent())
                 return v;
         }
         if (searchIn.test(parentContext))
-            return parentContext.find(symbol,searchIn.and(e->e!=this));
+            return parentContext.find(symbol, searchIn.and(e -> e != this));
         return Optional.empty();
     }
 }

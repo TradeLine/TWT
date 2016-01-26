@@ -18,6 +18,18 @@ public class DefaultGenerator implements ICodeGenerator {
     private static final HashSet<VClass> generatedClasses = new HashSet<>();
     private static HashMap<Class, Gen> generators = new HashMap<>();
 
+    protected void generateMethodStart(GenerationContext ctx, VExecute execute, PrintStream ps) {
+        throw new RuntimeException("Not supported");
+    }
+
+    protected void generateMethodEnd(GenerationContext ctx, VExecute execute, PrintStream ps) {
+        throw new RuntimeException("Not supported");
+    }
+
+    protected void generateMethodNull(GenerationContext ctx, VExecute execute, PrintStream ps) {
+        throw new RuntimeException("Not supported");
+    }
+
     static {
         addGen(Const.class, (c, o, p, g) -> {
             if (o.getValue() == null) {
@@ -117,7 +129,9 @@ public class DefaultGenerator implements ICodeGenerator {
             ICodeGenerator icg = c.getGenerator(o.getType());
             if (icg != null && icg != g)
                 return icg.operation(c, o, p);
-            throw new RuntimeException("Class ref not supported yet");
+            p.append(Generator.storage.name).append(".").append(o.getType().fullName);
+            //throw new RuntimeException("Class ref not supported yet");
+            return true;
         });
 
         addGen(NewClass.class, (c, o, p, g) -> {
@@ -128,7 +142,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 return ig.generate(c, inv, p);
             }
             ICodeGenerator icg = c.getGenerator(o.constructor.getParent());
-            if (icg != null && icg != c)
+            if (icg != null && icg != g)
                 return icg.operation(c, o, p);
             //p.append(".");
             //p.append(o.getField().name);
@@ -216,6 +230,10 @@ public class DefaultGenerator implements ICodeGenerator {
                     break;
                 case LE://>
                     p.append(">");break;
+                case OR://>
+                    p.append("||");break;
+                case AND://>
+                    p.append("&&");break;
                 default:
                     throw new RuntimeException("Not support type " + o.getBitType());
             }
@@ -323,6 +341,23 @@ public class DefaultGenerator implements ICodeGenerator {
                     p.append("++");
                     break;
             }
+            return true;
+        });
+
+        addGen(ArrayGet.class, (c,o,p,g)->{
+            VMethod getMethod = o.getType().getMethod("get", o.getType().getClassLoader().loadClass("int"));
+            Invoke inv = new Invoke(getMethod, o.getIndex());
+            inv.arguments.add(o.getValue());
+            g.operation(c, inv, p);
+            return true;
+        });
+
+        addGen(Conditional.class, (c,o,p,g)->{
+            g.operation(c, o.getValue(), p);
+            p.append("?");
+            g.operation(c, o.getThenValue(), p);
+            p.append(":");
+            g.operation(c, o.getElseValue(), p);
             return true;
         });
 

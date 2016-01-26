@@ -49,8 +49,8 @@ public class VField extends VVar implements Member, CodeDynLoad {
     }
 
     @Override
-    public Collect getUsing() {
-        return super.getUsing().add(init);
+    public void getUsing(Collect c) {
+        c.add(init, parent, getType());
     }
 
     @Override

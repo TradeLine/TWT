@@ -85,16 +85,15 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     @Override
-    public Collect getUsing() {
-        Collect c = Collect.create();
+    public void getUsing(Collect c) {
         c.add(extendsClass);
         for (VClass v : implementsList)
             c.add(v);
-        return c;
     }
 
     public Collect getAllUsing() {
-        Collect c = getUsing();
+        Collect c = Collect.create();
+        getUsing(c);
         for (VBlock v : statics)
             c.add(v);
         for (VConstructor v : constructors)

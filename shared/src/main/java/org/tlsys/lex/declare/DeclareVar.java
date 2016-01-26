@@ -26,8 +26,8 @@ public class DeclareVar extends Operation implements Using {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(init, var.getType());
+    public void getUsing(Collect c) {
+        c.add(init, var.getType());
     }
 
     @Override

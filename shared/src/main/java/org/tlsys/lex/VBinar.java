@@ -51,8 +51,8 @@ public class VBinar extends Value {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(left,result,result);
+    public void getUsing(Collect c) {
+        c.add(left,result,result);
     }
 
     public enum BitType {
@@ -65,6 +65,9 @@ public class VBinar extends Value {
         LT,//>=
         GE,//<
         GT,//<=
-        LE//>
+        LE,//>
+        BITAND,//&
+        BITOR,//|
+        BITXOR//^
     }
 }

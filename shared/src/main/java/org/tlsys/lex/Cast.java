@@ -30,8 +30,8 @@ public class Cast extends Value {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(value, type);
+    public void getUsing(Collect c) {
+        c.add(value, type);
     }
 
     @Override

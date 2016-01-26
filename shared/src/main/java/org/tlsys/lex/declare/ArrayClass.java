@@ -6,6 +6,8 @@ public class ArrayClass extends VClass {
 
     private static final long serialVersionUID = 8031564067794850457L;
     private VField lengthField;
+    private VMethod get;
+    private VMethod set;
 
     public ArrayClass(VClass component, VClass intType) {
         this(component);
@@ -24,6 +26,18 @@ public class ArrayClass extends VClass {
         lengthField = new VField(intType, Modifier.PUBLIC | Modifier.FINAL, null, this);
         lengthField.name = "length";
         fields.add(lengthField);
+
+        get = new VMethod(this, null, null);
+        get.name = "get";
+        get.arguments.add(new VArgument(intType, "index", false));
+
+        set = new VMethod(this, null, null);
+        set.name = "set";
+        set.arguments.add(new VArgument(intType, "index", false));
+        set.arguments.add(new VArgument(component, "value", false));
+
+        methods.add(get);
+        methods.add(set);
     }
 
     private VClass component;

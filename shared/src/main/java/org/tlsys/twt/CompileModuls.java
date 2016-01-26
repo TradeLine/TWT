@@ -49,7 +49,9 @@ public class CompileModuls {
         if (cr == null) {
             cr = new ClassRecord(clazz);
             classes.put(clazz, cr);
-            add(clazz.getUsing());
+            Collect c = Collect.create();
+            clazz.getUsing(c);
+            add(c);
         }
 
         return cr;
@@ -62,8 +64,12 @@ public class CompileModuls {
      */
     public ClassRecord add(VExecute exe) {
         ClassRecord cr = add(exe.getParent());
+        if (cr.getExe().contains(exe))
+            return cr;
         cr.getExe().add(exe);
-        add(exe.getUsing());
+        Collect c = Collect.create();
+        exe.getUsing(c);
+        add(c);
         return cr;
     }
 

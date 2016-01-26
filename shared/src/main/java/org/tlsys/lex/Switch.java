@@ -39,13 +39,11 @@ public class Switch extends Operation {
     }
 
     @Override
-    public Collect getUsing() {
-        Collect c = Collect.create();
+    public void getUsing(Collect c) {
         if (value != null)
             c.add(value);
         for (Case cc : cases)
             c.add(cc);
-        return c;
     }
 
     public static class Case extends Operation {
@@ -64,8 +62,8 @@ public class Switch extends Operation {
         }
 
         @Override
-        public Collect getUsing() {
-            return Collect.create().add(value, block);
+        public void getUsing(Collect c) {
+            c.add(value, block);
         }
     }
 }

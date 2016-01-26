@@ -33,11 +33,10 @@ public class Try extends Operation {
     }
 
     @Override
-    public Collect getUsing() {
-        Collect c = Collect.create().add(block);
+    public void getUsing(Collect c) {
+        c.add(block);
         for (Catch cc : catchs)
             c.add(cc);
-        return c;
     }
 
     public static class Catch implements Context, Using, Serializable {
@@ -65,12 +64,10 @@ public class Try extends Operation {
         }
 
         @Override
-        public Collect getUsing() {
-            Collect c = Collect.create();
+        public void getUsing(Collect c) {
             for (VClass cc : classes)
                 c.add(cc);
             c.add(block);
-            return c;
         }
     }
 }

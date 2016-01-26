@@ -33,7 +33,7 @@ public class VIf extends Operation {
     }
 
     @Override
-    public Collect getUsing() {
-        return value.getUsing().add(thenBlock).add(elseBlock);
+    public void getUsing(Collect c) {
+        c.add(thenBlock).add(elseBlock);
     }
 }

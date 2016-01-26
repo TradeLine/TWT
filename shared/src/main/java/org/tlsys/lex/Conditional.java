@@ -16,6 +16,18 @@ public class Conditional extends Value {
     private Value elseValue;
     private VClass type;
 
+    public Value getValue() {
+        return value;
+    }
+
+    public Value getThenValue() {
+        return thenValue;
+    }
+
+    public Value getElseValue() {
+        return elseValue;
+    }
+
     public Conditional() {
     }
 
@@ -37,7 +49,7 @@ public class Conditional extends Value {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(type);
+    public void getUsing(Collect c) {
+        c.add(type);
     }
 }

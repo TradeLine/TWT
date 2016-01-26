@@ -1,9 +1,8 @@
 package org.tlsys.twt;
 
-import org.tlsys.lex.Const;
-import org.tlsys.lex.Invoke;
-import org.tlsys.lex.NewArrayItems;
-import org.tlsys.lex.Value;
+import org.tlsys.lex.*;
+import org.tlsys.lex.declare.VClassLoader;
+import org.tlsys.lex.declare.VMethod;
 import org.tlsys.twt.annotations.NotCompile;
 
 import java.io.PrintStream;
@@ -14,24 +13,49 @@ import java.util.List;
 public class ScriptInvokeGenerator implements InvokeGenerator {
     @Override
     public boolean generate(GenerationContext ctx, Invoke invoke, PrintStream ps) throws CompileException {
-        if (invoke.arguments.size() != 1)
-            throw new IllegalArgumentException("Arguments of Script.code must be array of object");
-        if (!(invoke.arguments.get(0) instanceof NewArrayItems)) {
-            throw new IllegalArgumentException("Argument of Script.code must Array Items");
-        }
-        NewArrayItems items = (NewArrayItems) invoke.arguments.get(0);
-        ICodeGenerator gen = ctx.getGenerator(invoke.getMethod().getParent());
-        for (Value v : items.elements) {
-            if (v instanceof Const) {
-                Const c = (Const)v;
-                if (c.getValue() != null && c.getValue() instanceof String) {
-                    ps.append(c.getValue().toString());
-                    continue;
-                }
+        if (invoke.getMethod().alias.equals("code")) {
+            if (invoke.arguments.size() != 1)
+                throw new IllegalArgumentException("Arguments of Script.code must be array of object");
+            if (!(invoke.arguments.get(0) instanceof NewArrayItems)) {
+                throw new IllegalArgumentException("Argument of Script.code must Array Items");
             }
-            gen.operation(ctx, v, ps);
+            NewArrayItems items = (NewArrayItems) invoke.arguments.get(0);
+            ICodeGenerator gen = ctx.getGenerator(invoke.getMethod().getParent());
+            for (Value v : items.elements) {
+                if (v instanceof Const) {
+                    Const c = (Const) v;
+                    if (c.getValue() != null && c.getValue() instanceof String) {
+                        ps.append(c.getValue().toString());
+                        continue;
+                    }
+                }
+                gen.operation(ctx, v, ps);
+            }
+            return true;
         }
-        return true;
+
+        if (invoke.getMethod().alias.equals("isPrototypeOf")) {
+            VClassLoader cl = invoke.getMethod().getParent().getClassLoader();
+            VBinar bin = new VBinar(
+                    new VBinar(invoke.arguments.get(0), new Const(null, cl.loadClass(Object.class.getName())), cl.loadClass("boolean"), VBinar.BitType.EQ),//первый агрумент == null
+                    new VBinar(invoke.arguments.get(1), new Const(null, cl.loadClass(Object.class.getName())), cl.loadClass("boolean"), VBinar.BitType.EQ),//первый агрумент == null
+                    cl.loadClass("boolean"), VBinar.BitType.OR);//если один или оба аргумента == null
+            VMethod codeMethod = invoke.getMethod().getParent().getMethod("code");
+            Invoke codeInvoke = new Invoke(codeMethod, new StaticRef(codeMethod.getParent()));
+
+            NewArrayItems array = new NewArrayItems(cl.loadClass(Object.class.getName()).getArrayClass());
+
+            array.elements.add(invoke.arguments.get(0));
+            array.elements.add(new Const(" instanceof ", cl.loadClass(String.class.getName())));
+            array.elements.add(invoke.arguments.get(1));
+            codeInvoke.arguments.add(array);
+
+            Conditional con = new Conditional(bin, new Const(false, cl.loadClass("boolean")), codeInvoke, cl.loadClass("boolean"));
+            ctx.getGenerator(codeMethod.getParent()).operation(ctx, con, ps);
+            return true;
+        }
+
+        throw new RuntimeException("Unknown method");
     }
     /*
     @Override

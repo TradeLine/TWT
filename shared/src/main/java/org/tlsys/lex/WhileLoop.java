@@ -32,7 +32,7 @@ public class WhileLoop extends Operation {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(value, block);
+    public void getUsing(Collect c) {
+        c.add(value, block);
     }
 }

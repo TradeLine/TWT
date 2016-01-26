@@ -13,4 +13,9 @@ public class VArgument extends SVar {
     public VArgument(VClass clazz, Symbol.VarSymbol symbol) {
         super(clazz, symbol);
     }
+    public VArgument(VClass clazz, String name, boolean var) {
+        super(clazz, null);
+        this.name = name;
+        this.var = var;
+    }
 }

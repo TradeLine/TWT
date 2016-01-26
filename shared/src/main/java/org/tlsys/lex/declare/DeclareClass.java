@@ -39,7 +39,7 @@ public class DeclareClass extends Value {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(getType());
+    public void getUsing(Collect c) {
+        c.add(getType());
     }
 }

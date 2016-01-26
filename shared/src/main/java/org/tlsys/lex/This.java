@@ -27,8 +27,8 @@ public class This extends Value {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(self);
+    public void getUsing(Collect c) {
+        c.add(self);
     }
 
     @Override

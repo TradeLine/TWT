@@ -24,8 +24,8 @@ public class SVar extends Value implements HaveSymbol {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(clazz);
+    public void getUsing(Collect c) {
+        c.add(clazz);
     }
 
     @Override

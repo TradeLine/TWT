@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+@Deprecated
 public class ForEach extends Operation {
     private static final long serialVersionUID = -3334220379606337616L;
     private Value value;
@@ -50,7 +51,6 @@ public class ForEach extends Operation {
     }
 
     @Override
-    public Collect getUsing() {
-        return null;
+    public void getUsing(Collect c) {
     }
 }

@@ -31,7 +31,7 @@ public class Throw extends Operation {
     }
 
     @Override
-    public Collect getUsing() {
-        return value.getUsing();
+    public void getUsing(Collect c) {
+        value.getUsing(c);
     }
 }

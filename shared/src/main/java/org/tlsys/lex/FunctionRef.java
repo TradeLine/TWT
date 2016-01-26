@@ -33,7 +33,7 @@ public class FunctionRef extends Value {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(replaceMethod, newMethod);
+    public void getUsing(Collect c) {
+        c.add(replaceMethod, newMethod);
     }
 }

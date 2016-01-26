@@ -70,6 +70,11 @@ public class StringInvoke implements InvokeGenerator {
 
     @Override
     public boolean generate(GenerationContext ctx, Invoke invoke, PrintStream ps) throws CompileException {
-        throw new RuntimeException("Not supported");
+        ps.append("(");
+        ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.getSelf(), ps);
+        ps.append("==");
+        ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
+        ps.append(")");
+        return true;
     }
 }

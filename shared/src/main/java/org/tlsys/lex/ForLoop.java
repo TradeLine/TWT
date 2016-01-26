@@ -46,7 +46,7 @@ public class ForLoop extends Operation {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(init, value, update, block);
+    public void getUsing(Collect c) {
+        c.add(init, value, update, block);
     }
 }

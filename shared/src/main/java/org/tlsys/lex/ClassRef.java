@@ -20,8 +20,8 @@ public class ClassRef extends Value {
     }
 
     @Override
-    public Collect getUsing() {
-        return Collect.create().add(refTo);
+    public void getUsing(Collect c) {
+        c.add(refTo);
     }
 
     @Override

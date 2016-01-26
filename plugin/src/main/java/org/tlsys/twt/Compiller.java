@@ -51,6 +51,8 @@ public class Compiller {
         });
 
         addProc(JCTree.JCLiteral.class, (c, e, o) -> {
+            if (e.getValue() == null)
+                System.out.println("123");
             return new Const(e.getValue(), c.vClassLoader.loadClass(e.type));
         });
 
@@ -149,6 +151,8 @@ public class Compiller {
 
             //self.getType().getMethod(e)
             Invoke i = new Invoke(method, self);
+            if ("code".equals(method.name))
+                System.out.println("123");
             for (int c1 = 0; c1 < method.arguments.size(); c1++) {
                 if (method.arguments.get(c1).var) {
                     NewArrayItems nai = new NewArrayItems(method.arguments.get(c1).getType().getArrayClass());
@@ -211,6 +215,15 @@ public class Compiller {
                     break;
                 case LE://<=
                     type = VBinar.BitType.LE;
+                    break;
+                case BITAND:
+                    type = VBinar.BitType.BITAND;
+                    break;
+                case BITOR:
+                    type = VBinar.BitType.BITOR;
+                    break;
+                case BITXOR:
+                    type = VBinar.BitType.BITXOR;
                     break;
                 default:
                     throw new RuntimeException("Not supported binar operation " + e.getTag());
@@ -411,9 +424,13 @@ public class Compiller {
                 if (name.equals("this")) {
                     return c.vClass.getParentVar();
                 }
+
+                if (name.equals("class")) {
+                    return scope;
+                }
             }
             VField field = (VField) scope.getType().find((Symbol.VarSymbol) e.sym, v -> true).orElseThrow(() ->
-                            new RuntimeException("Can't find field " + e.name.toString() + " in " + scope.getType().fullName)
+                            new CompileException("Can't find field " + e.name.toString() + " in " + scope.getType().fullName)
             );
             GetField gf = new GetField(scope, field);
             return gf;
@@ -611,7 +628,11 @@ public class Compiller {
         if (dec.body == null)
             return;
 
-        method.block = (VBlock) st(dec.body, method);
+        try {
+            method.block = (VBlock) st(dec.body, method);
+        } catch (Throwable e) {
+            throw new CompileException("Can't compile " + method.getParent().fullName+"::"+method.name, e);
+        }
     }
 
     public VField fieldDec(JCTree.JCVariableDecl fie) throws VClassNotFoundException {
