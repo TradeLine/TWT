@@ -41,6 +41,18 @@ public class TClass {
         return Script.code("Object.getPrototypeOf(this)==AT");
     }
 
+    private Class arrayClass = null;
+
+    @CodeGenerator(GenArrayClassCreateMethod.class)
+    private native void initArrayClass();
+
+    public Class getArrayClass() {
+        if (arrayClass == null) {
+            initArrayClass();
+        }
+        return arrayClass;
+    }
+
     public TClass(String name) {
     }
 
