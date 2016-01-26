@@ -13,7 +13,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
     @Override
     public void generateClass(GenerationContext ctx, CompileModuls.ClassRecord record, PrintStream ps) throws CompileException {
         VClass clazz = record.getClazz();
-        ps.append("function ").append(clazz.fullName).append("(){\n");
+        ps.append("var ").append(clazz.fullName).append("=function(){\n");
 
         for (VField f : clazz.fields) {
             if (f.isStatic())
@@ -26,7 +26,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append(";");
         }
 
-        ps.append("}\n");
+        ps.append("};\n");
 
 
 
@@ -46,8 +46,9 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         for (VConstructor m : clazz.constructors) {
             generateMethod(ctx, m, ps);
 
-            ps.append(m.getParent().fullName).append(".function n").append(m.name).append("(){var o = new ").append(m.getParent().fullName).append("();o.").append(m.name).append(".apply(o,arguments);return o;}");
+            ps.append(m.getParent().fullName).append(".n").append(m.name).append("=function(){var o=new ").append(m.getParent().fullName).append("();o.").append(m.name).append(".apply(o,arguments);return o;};");
         }
+        ps.append("\n");
     }
 
     private void generateMethod(GenerationContext ctx, VExecute meth, PrintStream ps) throws CompileException {

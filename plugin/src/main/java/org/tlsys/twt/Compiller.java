@@ -364,15 +364,28 @@ public class Compiller {
                 wl.block.operations.add(c.st(e.body, wl.block));
                 return block;
             } else {
+                ArrayClass ac = (ArrayClass)v.getType();
                 ForLoop forLoop = new ForLoop(o);
                 forLoop.block = new VBlock(forLoop);
                 VClass intClass = c.vClass.getClassLoader().loadClass("int");
                 SVar itVar = new SVar(intClass, null);
+                itVar.name="i" + Integer.toString(itVar.hashCode(), Character.MAX_RADIX);
                 DeclareVar it = new DeclareVar(itVar);
                 it.init = new Const(0, intClass);
                 forLoop.init = it;
                 forLoop.update = new Increment(itVar, Increment.IncType.PRE_INC, intClass);
                 forLoop.value = new VBinar(itVar, new GetField(v, v.getType().getField("length")),c.vClass.getClassLoader().loadClass("boolean"), VBinar.BitType.GE);
+
+                SVar el = new SVar(c.vClass.getClassLoader().loadClass(e.var.type), e.var.sym);
+                el.name=e.var.name.toString();
+                DeclareVar dv = new DeclareVar(el);
+                dv.init = new ArrayGet(v, itVar);
+                forLoop.block.operations.add(dv);
+
+
+                if (e.body != null) {
+                    forLoop.block.operations.add(c.st(e.body, forLoop.block));
+                }
                 return forLoop;
             }
         });
