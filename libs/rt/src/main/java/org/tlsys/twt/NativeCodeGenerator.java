@@ -109,6 +109,17 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
                 return icg.generate(ctx, inv, ps);
             if (inv.getMethod() instanceof VConstructor)//если происходит вызов конструктра, то игнорируем!
                 return false;
+
+            if(inv.getSelf() instanceof Lambda) {
+                operation(ctx, inv.getSelf(), ps);
+                ps.append(".call(this");
+                for (Value v : inv.arguments) {
+                    ps.append(",");
+                    operation(ctx, v, ps);
+                }
+                ps.append(")");
+                return true;
+            }
         }
 
         if (op instanceof StaticRef) {
@@ -134,6 +145,24 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append(")");
             //}
             return true;
+        }
+
+        if (op instanceof Lambda) {
+            Lambda l = (Lambda)op;
+            ps.append("function(");
+            boolean first = true;
+            for(VArgument a : l.getMethod().arguments) {
+                if(!first)
+                    ps.append(",");
+                ps.append(a.name);
+                first = false;
+            }
+            ps.append(")");
+            if (l.getBlock() == null) {
+                ps.append("{}");
+                return true;
+            } else
+                return operation(ctx, l.getBlock(), ps);
         }
 
         /*

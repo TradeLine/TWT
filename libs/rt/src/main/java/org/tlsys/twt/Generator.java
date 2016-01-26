@@ -1,10 +1,9 @@
 package org.tlsys.twt;
 
+import com.sun.tools.javac.code.Symbol;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
-import org.tlsys.twt.classes.ClassRecord;
-import org.tlsys.twt.classes.ClassStorage;
-import org.tlsys.twt.classes.FieldRecord;
+import org.tlsys.twt.classes.*;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
@@ -48,6 +47,11 @@ public class Generator implements MainGenerator {
         VClass classClassStorage = projectClassLoader.loadClass(ClassStorage.class.getName());
         VClass classClassRecord = projectClassLoader.loadClass(ClassRecord.class.getName());
         VClass classFieldRecord = projectClassLoader.loadClass(FieldRecord.class.getName());
+        VClass classMethodRecord = projectClassLoader.loadClass(MethodRecord.class.getName());
+        VClass classArgumentRecord = projectClassLoader.loadClass(ArgumentRecord.class.getName());
+        VClass classTypeProvider = projectClassLoader.loadClass(TypeProvider.class.getName());
+        VClass classString = projectClassLoader.loadClass(String.class.getName());
+        VClass classBoolean = projectClassLoader.loadClass("boolean");
 
 
         addFullClass(classLoader, compileModuls);
@@ -56,6 +60,9 @@ public class Generator implements MainGenerator {
         addFullClass(classClassStorage, compileModuls);
         addFullClass(classClassRecord, compileModuls);
         addFullClass(classFieldRecord, compileModuls);
+        addFullClass(classMethodRecord, compileModuls);
+        addFullClass(classArgumentRecord, compileModuls);
+        addFullClass(classTypeProvider, compileModuls);
 
         HashSet<CompileModuls.ClassRecord> nativs = new HashSet<>();
         HashSet<CompileModuls.ClassRecord> others = new HashSet<>();
@@ -89,7 +96,11 @@ public class Generator implements MainGenerator {
 
         gc = new MainGenerationContext(classClassRecord, compileModuls);
         icg = gc.getGenerator(classClassRecord);
-        VMethod storageAddMethod = classClassStorage.getMethod("add",classClassRecord);
+        VMethod storageAddMethod = classClassStorage.getMethod("add",classClassRecord);//получаем метод add класса ClassRecord
+        VConstructor methodConstructor = classMethodRecord.getConstructor(classString, classString, classString);//получаем конструктор MethodRecord
+        VMethod methodAddArg = classMethodRecord.getMethod("addArg", classArgumentRecord);
+        VMethod classAddMethod = classClassRecord.getMethod("addMethod", classMethodRecord);
+        VConstructor argumentConstructor = classArgumentRecord.getConstructor(classString, classBoolean, classTypeProvider);
         for (CompileModuls.ClassRecord cr : others) {
             VClassLoader cl = cr.getClazz().getClassLoader();
             NewClass nc = new NewClass(classClassRecord.constructors.get(0));
@@ -101,10 +112,36 @@ public class Generator implements MainGenerator {
             for (VField f : cr.getClazz().fields) {
 
                 Invoke inv = new Invoke(addFieldMethod, lastScope);
-                inv.arguments.add(new Const(f.name, cl.loadClass(String.class.getName())));
-                inv.arguments.add(new Const(f.alias, cl.loadClass(String.class.getName())));
+                inv.arguments.add(new Const(f.name, classString));
+                inv.arguments.add(new Const(f.alias, classString));
                 lastScope = inv;
             }
+
+            for (VExecute e : cr.getExe()) {
+                NewClass newMethod = new NewClass(methodConstructor);
+                Value lastMethodScope = newMethod;
+                newMethod.arguments.add(new Const(e.name,classString));
+                if (e instanceof VConstructor)
+                    newMethod.arguments.add(new Const(null,classString));
+                else
+                    newMethod.arguments.add(new Const(e.alias,classString));
+                newMethod.arguments.add(new Const("METHOD BODY",classString));
+
+                for (VArgument a : e.arguments) {
+                    NewClass newArg = new NewClass(argumentConstructor);
+                    newArg.arguments.add(new Const(a.name, classString));
+                    newArg.arguments.add(new Const(a.var, classBoolean));
+                    newArg.arguments.add(getClassViaTypeProvider(a.getType()));
+                    Invoke addArgInvoke = new Invoke(methodAddArg, lastMethodScope);
+                    addArgInvoke.arguments.add(newArg);
+                    lastMethodScope = addArgInvoke;
+                }
+
+                Invoke invokeAddmethod = new Invoke(classAddMethod, lastScope);
+                invokeAddmethod.arguments.add(lastMethodScope);
+                lastScope = invokeAddmethod;
+            }
+
             Invoke inv = new Invoke(storageAddMethod, storage);
             inv.arguments.add(lastScope);
             icg.operation(gc, inv, ps);
@@ -125,5 +162,13 @@ public class Generator implements MainGenerator {
         */
 
         //throw new RuntimeException("generation not supported");
+    }
+
+    private static Value getClassViaTypeProvider(VClass vClass) throws VClassNotFoundException {
+        VClass typeProviderClass = vClass.getClassLoader().loadClass(TypeProvider.class.getName());
+        VBlock body = new VBlock();
+        body.operations.add(new Return(new StaticRef(vClass)));
+        Lambda lambda = new Lambda(body, typeProviderClass.methods.get(0), null);
+        return lambda;
     }
 }

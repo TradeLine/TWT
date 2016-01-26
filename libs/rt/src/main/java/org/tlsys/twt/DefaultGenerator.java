@@ -3,6 +3,7 @@ package org.tlsys.twt;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.annotations.InvokeGen;
+import org.tlsys.twt.classes.TypeProvider;
 import org.tlsys.twt.rt.java.lang.TClassLoader;
 
 import java.io.PrintStream;
@@ -126,9 +127,25 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(StaticRef.class, (c, o, p, g) -> {
+            VClass classClass = o.getType().getClassLoader().loadClass(Class.class.getName());
             ICodeGenerator icg = c.getGenerator(o.getType());
             if (icg != null && icg != g)
                 return icg.operation(c, o, p);
+            if (o.getType() instanceof ArrayClass) {
+                VClass cur = o.getType();
+                int level = 0;
+                do {
+                    ++level;
+                    cur = ((ArrayClass)cur).getComponent();
+                } while (cur instanceof ArrayClass);
+                Value lastScope = new StaticRef(cur);
+                while (level > 0) {
+                    Invoke inv = new Invoke(classClass.getMethod("getArrayClass"), lastScope);
+                    lastScope = inv;
+                    --level;
+                }
+                return g.operation(c, lastScope, p);
+            }
             p.append(Generator.storage.name).append(".").append(o.getType().fullName);
             //throw new RuntimeException("Class ref not supported yet");
             return true;
@@ -361,6 +378,13 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         });
 
+        addGen(Lambda.class, (c,o,p,g)->{
+            ICodeGenerator icg = c.getGenerator(o.getType());
+            if (icg != null && icg != g)
+                return icg.operation(c,o,p);
+            throw new RuntimeException("Lambda not supported");
+        });
+
         /*
         addGen(ForEach.class, (c,o,p,g)->{
             VClass iter = c.getCurrentClass().getClassLoader().loadClass(Iterable.class.getName());
@@ -377,14 +401,6 @@ public class DefaultGenerator implements ICodeGenerator {
 
     public static <T> void addGen(Class<T> clazz, Gen<T> gen) {
         generators.put(clazz, gen);
-    }
-
-    private static Value getClassViaTypeProvider(VClass vClass) throws VClassNotFoundException {
-        VClass typeProviderClass = vClass.getClassLoader().loadClass(TClassLoader.TypeProvider.class.getName());
-        VBlock body = new VBlock();
-        body.operations.add(new Return(new StaticRef(vClass)));
-        Lambda lambda = new Lambda(body, typeProviderClass.methods.get(0), null);
-        return lambda;
     }
 
     protected void addGenerated(VClass clazz) {

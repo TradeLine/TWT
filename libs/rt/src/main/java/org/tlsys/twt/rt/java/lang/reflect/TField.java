@@ -17,13 +17,11 @@ public class TField {
     private final String jsName;
     private Class type;
     private final Class declaringClass;
-    private TClassLoader.TypeProvider typeProvider;
     private final boolean staticFlag;
 
-    public TField(String name, String jsName, TClassLoader.TypeProvider typeProvider, Class declaringClass, boolean staticFlag) {
+    public TField(String name, String jsName, Class type, Class declaringClass, boolean staticFlag) {
         this.name = name;
         this.jsName = jsName;
-        this.typeProvider = typeProvider;
         this.type = type;
         this.declaringClass = declaringClass;
         this.staticFlag = staticFlag;
@@ -34,8 +32,6 @@ public class TField {
     }
 
     public Class getType() {
-        if (type == null)
-            type = typeProvider.getType();
         return type;
     }
 

@@ -89,6 +89,9 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         c.add(extendsClass);
         for (VClass v : implementsList)
             c.add(v);
+        for (VField f : fields) {
+            c.add(f);
+        }
     }
 
     public Collect getAllUsing() {
@@ -148,6 +151,10 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             return args.get(i).isParent(a.getType());
         }
         return exe.arguments.size() == args.size();
+    }
+
+    public VConstructor getConstructor(VClass... args) throws MethodNotFoundException {
+        return getConstructor(Arrays.asList(args));
     }
 
     public VConstructor getConstructor(List<VClass> args) throws MethodNotFoundException {

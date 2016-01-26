@@ -19,6 +19,14 @@ public class Lambda extends Value implements Context {
     private VMethod method;
     private Context parentContext;
 
+    public VMethod getMethod() {
+        return method;
+    }
+
+    public VBlock getBlock() {
+        return block;
+    }
+
     public Lambda() {
     }
 

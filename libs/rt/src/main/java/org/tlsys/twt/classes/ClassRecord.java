@@ -11,6 +11,7 @@ public class ClassRecord {
     private String jsName;
     private String name;
     private JArray<FieldRecord> fields = new JArray<>();
+    private JArray<MethodRecord> methods = new JArray<>();
 
     public ClassRecord(String jsName, String name) {
         this.jsName = jsName;
@@ -20,6 +21,11 @@ public class ClassRecord {
     public ClassRecord addField(String jsName, String name) {
         FieldRecord fr = new FieldRecord(jsName, name, this);
         fields.add(fr);
+        return this;
+    }
+
+    public ClassRecord addMethod(MethodRecord mr) {
+        methods.add(mr);
         return this;
     }
 

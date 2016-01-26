@@ -26,10 +26,4 @@ public class TClassLoader/* implements JSClassLoader*/ {
             clazz.init();
         return CastUtil.cast(clazz);
     }
-
-    @ReplaceClass(java.lang.ClassLoader.class)
-    @CodeGenerator(NativeCodeGenerator.class)
-    public interface TypeProvider {
-        public Class getType();
-    }
 }

@@ -20,15 +20,12 @@ public class CompileModuls {
     public class ClassRecord {
         private final VClass clazz;
         private final HashSet<VExecute> exe = new HashSet<>();
-
         public VClass getClazz() {
             return clazz;
         }
-
         public HashSet<VExecute> getExe() {
             return exe;
         }
-
         public ClassRecord(VClass clazz) {
             this.clazz = clazz;
         }

@@ -23,6 +23,11 @@ public class ArrayClass extends VClass {
     public void init(VClass intType) {
         if (lengthField != null)
             throw new IllegalStateException("Array type already inited");
+        try {
+            extendsClass = intType.getClassLoader().loadClass(Object.class.getName());
+        } catch (VClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         lengthField = new VField(intType, Modifier.PUBLIC | Modifier.FINAL, null, this);
         lengthField.name = "length";
         fields.add(lengthField);
