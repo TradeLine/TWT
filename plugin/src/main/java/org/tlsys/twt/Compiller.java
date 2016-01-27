@@ -77,7 +77,7 @@ public class Compiller {
             }
             if (type == null)
                 throw new RuntimeException("Unknown incremet type " + e.getTag());
-            return new Increment((Value) c.op(e.arg, o), type, c.vClass.getClassLoader().loadClass(e.type));
+            return new Increment(c.op(e.arg, o), type, c.vClass.getClassLoader().loadClass(e.type));
         });
 
         addProc(JCTree.JCTypeCast.class, (c, e, o) -> {

@@ -303,6 +303,7 @@ public class GenPlugin extends AbstractMojo {
         VClass v = new VClass(parent, c.sym);
         v.name = name;
         v.fullName = fullName;
+        v.realName = c.sym.toString();
         v.setClassLoader(vClassLoader);
         while (it.hasNext()) {
             JCTree.JCAnnotation an = it.next();

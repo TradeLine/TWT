@@ -1,5 +1,6 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.twt.DefaultCast;
 import org.tlsys.twt.DefaultGenerator;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.*;
@@ -11,6 +12,7 @@ import org.tlsys.twt.rt.EmptyMethodBody;
 @MetaFactory("org.tlsys.twt.FullMeta")
 @ReplaceClass(java.lang.Object.class)
 @CodeGenerator(DefaultGenerator.class)
+@CastAdapter(DefaultCast.class)
 public class TObject {
 
     private static int hashCodeCounter = 0;

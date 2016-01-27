@@ -18,8 +18,8 @@ public class ClassRecord {
         this.name = name;
     }
 
-    public ClassRecord addField(String jsName, String name) {
-        FieldRecord fr = new FieldRecord(jsName, name, this);
+    public ClassRecord addField(String jsName, String name, TypeProvider type, ValueProvider initValue) {
+        FieldRecord fr = new FieldRecord(jsName, name, this, type, initValue);
         fields.add(fr);
         return this;
     }

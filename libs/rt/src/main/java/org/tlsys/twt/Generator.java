@@ -14,6 +14,33 @@ import java.util.Objects;
 
 public class Generator implements MainGenerator {
 
+    public static SVar storage;
+
+    //private static HashMap<VClassLoader, SVar> loaders = new HashMap<>();
+
+    /*
+    public static SVar getVarOfClassLoader(VClassLoader classLoader) {
+        Objects.requireNonNull(classLoader, "ClassLoader is NULL");
+        return Objects.requireNonNull(loaders.get(classLoader), "Can't find var for classloader " + classLoader.getName());
+    }
+    */
+
+    private static Value getValueViaProvider(Value value) throws VClassNotFoundException {
+        VClass typeValueProvider = value.getType().getClassLoader().loadClass(ValueProvider.class.getName());
+        VBlock body = new VBlock();
+        body.operations.add(new Return(value));
+        Lambda lambda = new Lambda(body, typeValueProvider.methods.get(0), null);
+        return lambda;
+    }
+
+    private static Value getClassViaTypeProvider(VClass vClass) throws VClassNotFoundException {
+        VClass typeProviderClass = vClass.getClassLoader().loadClass(TypeProvider.class.getName());
+        VBlock body = new VBlock();
+        body.operations.add(new Return(new StaticRef(vClass)));
+        Lambda lambda = new Lambda(body, typeProviderClass.methods.get(0), null);
+        return lambda;
+    }
+
     private void addFullClass(VClass cl, CompileModuls compileModuls) {
         compileModuls.add(cl);
         for (VConstructor c : cl.constructors)
@@ -25,17 +52,6 @@ public class Generator implements MainGenerator {
         for (VField c : cl.fields)
             compileModuls.add(c.getType());
     }
-
-    //private static HashMap<VClassLoader, SVar> loaders = new HashMap<>();
-
-    /*
-    public static SVar getVarOfClassLoader(VClassLoader classLoader) {
-        Objects.requireNonNull(classLoader, "ClassLoader is NULL");
-        return Objects.requireNonNull(loaders.get(classLoader), "Can't find var for classloader " + classLoader.getName());
-    }
-    */
-
-    public static SVar storage;
 
     @Override
     public void generate(VClassLoader projectClassLoader, CompileModuls compileModuls, PrintStream ps) throws CompileException {
@@ -52,6 +68,8 @@ public class Generator implements MainGenerator {
         VClass classTypeProvider = projectClassLoader.loadClass(TypeProvider.class.getName());
         VClass classString = projectClassLoader.loadClass(String.class.getName());
         VClass classBoolean = projectClassLoader.loadClass("boolean");
+        VClass classValueProvider = projectClassLoader.loadClass(ValueProvider.class.getName());
+
 
 
         addFullClass(classLoader, compileModuls);
@@ -87,7 +105,7 @@ public class Generator implements MainGenerator {
         ICodeGenerator icg = gc.getGenerator(classClassStorage);
 
         storage = new SVar(classClassStorage, null);
-        storage.name="storage";
+        storage.name = "storage";
         DeclareVar dv = new DeclareVar(storage);
         dv.init = new NewClass(classClassStorage.constructors.get(0));
 
@@ -96,36 +114,61 @@ public class Generator implements MainGenerator {
 
         gc = new MainGenerationContext(classClassRecord, compileModuls);
         icg = gc.getGenerator(classClassRecord);
-        VMethod storageAddMethod = classClassStorage.getMethod("add",classClassRecord);//получаем метод add класса ClassRecord
+        VMethod storageAddMethod = classClassStorage.getMethod("add", classClassRecord);//получаем метод add класса ClassRecord
         VConstructor methodConstructor = classMethodRecord.getConstructor(classString, classString, classString);//получаем конструктор MethodRecord
         VMethod methodAddArg = classMethodRecord.getMethod("addArg", classArgumentRecord);
         VMethod classAddMethod = classClassRecord.getMethod("addMethod", classMethodRecord);
         VConstructor argumentConstructor = classArgumentRecord.getConstructor(classString, classBoolean, classTypeProvider);
         for (CompileModuls.ClassRecord cr : others) {
+            gc = new MainGenerationContext(cr.getClazz(), compileModuls);
+            ICodeGenerator classCodeGenerator = gc.getGenerator(cr.getClazz());
             VClassLoader cl = cr.getClazz().getClassLoader();
             NewClass nc = new NewClass(classClassRecord.constructors.get(0));
             nc.arguments.add(new Const(cr.getClazz().fullName, cl.loadClass(String.class.getName())));
             nc.arguments.add(new Const(cr.getClazz().alias, cl.loadClass(String.class.getName())));
 
             Value lastScope = nc;
-            VMethod addFieldMethod = classClassRecord.getMethod("addField", cl.loadClass(String.class.getName()), cl.loadClass(String.class.getName()));
+            VMethod addFieldMethod = classClassRecord.getMethod("addField", cl.loadClass(String.class.getName()), cl.loadClass(String.class.getName()), classTypeProvider, classValueProvider);
             for (VField f : cr.getClazz().fields) {
 
                 Invoke inv = new Invoke(addFieldMethod, lastScope);
                 inv.arguments.add(new Const(f.name, classString));
                 inv.arguments.add(new Const(f.alias, classString));
+                inv.arguments.add(getClassViaTypeProvider(f.getType()));
+                inv.arguments.add(getValueViaProvider((Value)f.init));
                 lastScope = inv;
             }
 
             for (VExecute e : cr.getExe()) {
                 NewClass newMethod = new NewClass(methodConstructor);
                 Value lastMethodScope = newMethod;
-                newMethod.arguments.add(new Const(e.name,classString));
+                newMethod.arguments.add(new Const(e.name, classString));
                 if (e instanceof VConstructor)
-                    newMethod.arguments.add(new Const(null,classString));
+                    newMethod.arguments.add(new Const(null, classString));
                 else
-                    newMethod.arguments.add(new Const(e.alias,classString));
-                newMethod.arguments.add(new Const("METHOD BODY",classString));
+                    newMethod.arguments.add(new Const(e.alias, classString));
+
+
+                StringOutputStream functionBody = new StringOutputStream();
+
+                ICodeGenerator cg = gc.getGenerator(e);
+                boolean nullBody = true;
+                if (cg != null) {
+                    if (e.block != null) {
+                        cg.generateExecute(gc, e, functionBody.getStream());
+                        nullBody = false;
+                    }
+                } else {
+                    if (e.block != null) {
+                        classCodeGenerator.generateExecute(gc, e, functionBody.getStream());
+                        nullBody = false;
+                    }
+                }
+
+                if (nullBody)
+                    newMethod.arguments.add(new Const(null, classString));
+                else
+                    newMethod.arguments.add(new Const(functionBody.toString().replace("\"", "\\\""), classString));
 
                 for (VArgument a : e.arguments) {
                     NewClass newArg = new NewClass(argumentConstructor);
@@ -142,6 +185,7 @@ public class Generator implements MainGenerator {
                 lastScope = invokeAddmethod;
             }
 
+            //gc = new MainGenerationContext(classClassStorage, compileModuls);
             Invoke inv = new Invoke(storageAddMethod, storage);
             inv.arguments.add(lastScope);
             icg.operation(gc, inv, ps);
@@ -162,13 +206,5 @@ public class Generator implements MainGenerator {
         */
 
         //throw new RuntimeException("generation not supported");
-    }
-
-    private static Value getClassViaTypeProvider(VClass vClass) throws VClassNotFoundException {
-        VClass typeProviderClass = vClass.getClassLoader().loadClass(TypeProvider.class.getName());
-        VBlock body = new VBlock();
-        body.operations.add(new Return(new StaticRef(vClass)));
-        Lambda lambda = new Lambda(body, typeProviderClass.methods.get(0), null);
-        return lambda;
     }
 }

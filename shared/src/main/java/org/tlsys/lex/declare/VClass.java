@@ -33,6 +33,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     private VClass parent;
     private VField parentVar;
     private transient Class javaClass;
+    public String realName;
 
     public VClass() {
         classSymbol = null;
@@ -315,10 +316,14 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
      * @return реальный Java класс
      * @throws ClassNotFoundException возникает в случае если реальный Java класс не найден
      */
-    public Class getJavaClass() throws ClassNotFoundException {
-        if (javaClass == null)
-            javaClass = getClassLoader().getJavaClassLoader().loadClass(fullName);
-        return javaClass;
+    public Class getJavaClass() {
+        try {
+            if (javaClass == null)
+                javaClass = getClassLoader().getJavaClassLoader().loadClass(realName);
+            return javaClass;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void writeObject(ObjectOutputStream out) throws Exception {

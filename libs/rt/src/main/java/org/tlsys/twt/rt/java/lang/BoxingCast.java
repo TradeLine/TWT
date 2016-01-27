@@ -3,6 +3,7 @@ package org.tlsys.twt.rt.java.lang;
 import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.lex.Value;
 import org.tlsys.lex.declare.VClass;
+import org.tlsys.twt.CompileException;
 import org.tlsys.twt.GenerationContext;
 import org.tlsys.twt.MainGenerationContext;
 import org.tlsys.twt.ICastAdapter;
@@ -60,7 +61,7 @@ public class BoxingCast implements ICastAdapter {
     }
 
     @Override
-    public Value cast(GenerationContext ctx, Value value, VClass from, VClass to) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
+    public Value cast(GenerationContext ctx, Value value, VClass to) throws CompileException {
         throw new RuntimeException("not supported yet");
     }
 }
