@@ -16,4 +16,16 @@ public class ArgumentRecord {
         this.var = var;
         this.type = type;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isVar() {
+        return var;
+    }
+
+    public TypeProvider getType() {
+        return type;
+    }
 }

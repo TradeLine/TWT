@@ -1,9 +1,15 @@
 package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.twt.CastUtil;
+import org.tlsys.twt.JArray;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.*;
 import org.tlsys.twt.NativeCodeGenerator;
+import org.tlsys.twt.classes.ArgumentRecord;
+import org.tlsys.twt.classes.ClassRecord;
+import org.tlsys.twt.classes.FieldRecord;
+import org.tlsys.twt.classes.MethodRecord;
+import org.tlsys.twt.rt.java.lang.reflect.TField;
 
 import java.lang.reflect.Field;
 
@@ -35,6 +41,48 @@ public class TClass {
 
     public void init() {
         //
+    }
+
+    private String name;
+
+    private Object cons = null;
+
+    private JArray<TField> fields = new JArray<>();
+
+    public void initFor(ClassRecord cr) {
+        this.name = cr.getName();
+        String functionBody = "";
+        Script.code(cons,".c=",this);
+
+        for (int i = 0; i < cr.getFields().length(); i++) {
+            FieldRecord fr = cr.getFields().get(i);
+            //TField field = new TField(fr.getName(), fr.getJsName(),CastUtil.cast(this), fr.isStaticFlag());
+            //fields.add(field);
+            if (fr.isStaticFlag()) {
+                Script.code(this,"[",fr.getJsName(),"]=eval(",fr.getInitValue(),")");
+            } else {
+                functionBody+="this."+fr.getJsName()+"="+fr.getInitValue()+";";
+            }
+        }
+
+        cons = Script.code("new Function(",functionBody,")");
+
+        for (int i = 0; i < cr.getMethods().length(); i++) {
+            MethodRecord mr = cr.getMethods().get(i);
+            JArray<String> args = new JArray<>();
+            args.add(null);
+            for (int j = 0; j < mr.getArguments().length(); j++) {
+                ArgumentRecord ar = mr.getArguments().get(j);
+                args.add(ar.getName());
+            }
+            args.add(mr.getBody());
+            Object func = Script.code("Function.apply(",args.getJSArray(),")");
+            if (mr.isStaticFlag()) {
+                Script.code(this,"[",mr.getJsName(),"]=",func);
+            } else {
+                Script.code(cons,".prototype[",mr.getJsName(),"]=",func);
+            }
+        }
     }
 
     @JSName("isPrimitive")

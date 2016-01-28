@@ -13,11 +13,33 @@ public class MethodRecord {
     private String jsName;
     private String name;
     private String body;
+    private boolean staticFlag;
 
-    public MethodRecord(String jsName, String name, String body) {
+    public JArray<ArgumentRecord> getArguments() {
+        return arguments;
+    }
+
+    public String getJsName() {
+        return jsName;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public boolean isStaticFlag() {
+        return staticFlag;
+    }
+
+    public MethodRecord(String jsName, String name, String body, boolean staticFlag) {
         this.body = body;
         this.jsName = jsName;
         this.name = name;
+        this.staticFlag = staticFlag;
     }
 
     public MethodRecord addArg(ArgumentRecord ar) {

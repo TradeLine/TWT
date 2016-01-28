@@ -4,6 +4,7 @@ import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.InvokeGen;
+import org.tlsys.twt.classes.ClassStorage;
 import org.tlsys.twt.classes.TypeProvider;
 import org.tlsys.twt.rt.java.lang.TClassLoader;
 
@@ -133,7 +134,8 @@ public class DefaultGenerator implements ICodeGenerator {
                 }
                 return g.operation(c, lastScope, p);
             }
-            p.append(Generator.storage.name).append(".").append(o.getType().fullName);
+            VMethod getMethod = o.getType().getClassLoader().loadClass(ClassStorage.class.getName()).getMethod("get", o.getType().getClassLoader().loadClass(Object.class.getName()));
+            p.append(Generator.storage.name).append(".").append(getMethod.name).append("(").append(Generator.storage.name).append(".").append(o.getType().fullName).append(")");
             //throw new RuntimeException("Class ref not supported yet");
             return true;
         });
@@ -151,7 +153,7 @@ public class DefaultGenerator implements ICodeGenerator {
             //p.append(".");
             //p.append(o.getField().name);
             g.operation(c, new StaticRef(o.constructor.getParent()), p);
-            p.append(".c").append(o.constructor.name).append("(");
+            p.append(".n").append(o.constructor.name).append("(");
             boolean first = true;
             for (Value v : o.arguments) {
                 if (!first)
@@ -192,7 +194,7 @@ public class DefaultGenerator implements ICodeGenerator {
 
         addGen(SetField.class, (c, o, p, g) -> {
             g.operation(c, o.getScope(), p);
-            p.append(".").append(o.getField().alias).append("=");
+            p.append(".").append(o.getField().name).append("=");
             g.operation(c, o.getValue(), p);
             return true;
         });

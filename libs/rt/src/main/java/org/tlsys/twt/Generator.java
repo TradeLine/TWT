@@ -56,11 +56,16 @@ public class Generator implements MainGenerator {
     @Override
     public void generate(VClassLoader projectClassLoader, CompileModuls compileModuls, PrintStream ps) throws CompileException {
 
+        VClass classClassStorage = projectClassLoader.loadClass(ClassStorage.class.getName());
+
+        storage = new SVar(classClassStorage, null);
+        storage.name = "storage";
+
         VClass classLoader = projectClassLoader.loadClass(ClassLoader.class.getName());
         VClass classClass = projectClassLoader.loadClass(Class.class.getName());
         VClass classField = projectClassLoader.loadClass(Field.class.getName());
 
-        VClass classClassStorage = projectClassLoader.loadClass(ClassStorage.class.getName());
+
         VClass classClassRecord = projectClassLoader.loadClass(ClassRecord.class.getName());
         VClass classFieldRecord = projectClassLoader.loadClass(FieldRecord.class.getName());
         VClass classMethodRecord = projectClassLoader.loadClass(MethodRecord.class.getName());
@@ -104,8 +109,7 @@ public class Generator implements MainGenerator {
         MainGenerationContext gc = new MainGenerationContext(classClassStorage, compileModuls);
         ICodeGenerator icg = gc.getGenerator(classClassStorage);
 
-        storage = new SVar(classClassStorage, null);
-        storage.name = "storage";
+
         DeclareVar dv = new DeclareVar(storage);
         dv.init = new NewClass(classClassStorage.constructors.get(0));
 
@@ -115,7 +119,7 @@ public class Generator implements MainGenerator {
         gc = new MainGenerationContext(classClassRecord, compileModuls);
         icg = gc.getGenerator(classClassRecord);
         VMethod storageAddMethod = classClassStorage.getMethod("add", classClassRecord);//получаем метод add класса ClassRecord
-        VConstructor methodConstructor = classMethodRecord.getConstructor(classString, classString, classString);//получаем конструктор MethodRecord
+        VConstructor methodConstructor = classMethodRecord.getConstructor(classString, classString, classString, classBoolean);//получаем конструктор MethodRecord
         VMethod methodAddArg = classMethodRecord.getMethod("addArg", classArgumentRecord);
         VMethod classAddMethod = classClassRecord.getMethod("addMethod", classMethodRecord);
         VConstructor argumentConstructor = classArgumentRecord.getConstructor(classString, classBoolean, classTypeProvider);
@@ -128,14 +132,20 @@ public class Generator implements MainGenerator {
             nc.arguments.add(new Const(cr.getClazz().alias, cl.loadClass(String.class.getName())));
 
             Value lastScope = nc;
-            VMethod addFieldMethod = classClassRecord.getMethod("addField", cl.loadClass(String.class.getName()), cl.loadClass(String.class.getName()), classTypeProvider, classValueProvider);
+            VMethod addFieldMethod = classClassRecord.getMethod("addField", cl.loadClass(String.class.getName()), cl.loadClass(String.class.getName()), classTypeProvider, classString, classBoolean);
             for (VField f : cr.getClazz().fields) {
 
                 Invoke inv = new Invoke(addFieldMethod, lastScope);
                 inv.arguments.add(new Const(f.name, classString));
                 inv.arguments.add(new Const(f.alias, classString));
                 inv.arguments.add(getClassViaTypeProvider(f.getType()));
-                inv.arguments.add(getValueViaProvider((Value)f.init));
+
+                StringOutputStream initBody = new StringOutputStream();
+                classCodeGenerator.operation(gc, f.init, initBody.getStream());
+
+                //inv.arguments.add(getValueViaProvider((Value)f.init));
+                inv.arguments.add(new Const(initBody.toString().replace("\"", "\\\""), classString));
+                inv.arguments.add(new Const(f.isStatic(), classBoolean));
                 lastScope = inv;
             }
 
@@ -169,6 +179,7 @@ public class Generator implements MainGenerator {
                     newMethod.arguments.add(new Const(null, classString));
                 else
                     newMethod.arguments.add(new Const(functionBody.toString().replace("\"", "\\\""), classString));
+                newMethod.arguments.add(new Const(e.isStatic(), classBoolean));
 
                 for (VArgument a : e.arguments) {
                     NewClass newArg = new NewClass(argumentConstructor);

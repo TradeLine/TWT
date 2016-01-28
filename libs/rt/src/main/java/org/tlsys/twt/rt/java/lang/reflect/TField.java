@@ -19,7 +19,7 @@ public class TField {
     private final Class declaringClass;
     private final boolean staticFlag;
 
-    public TField(String name, String jsName, Class type, Class declaringClass, boolean staticFlag) {
+    public TField(String name, String jsName, Class declaringClass, boolean staticFlag) {
         this.name = name;
         this.jsName = jsName;
         this.type = type;

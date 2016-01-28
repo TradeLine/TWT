@@ -8,6 +8,11 @@ import org.tlsys.twt.annotations.JSClass;
 public class JArray<E> {
     private Object o = Script.code("[]");
 
+
+    public Object getJSArray() {
+        return o;
+    }
+
     public void add(E o) {
         Script.code(this.o,".push(",o,")");
     }

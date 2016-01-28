@@ -130,7 +130,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append(sr.getType().fullName);
             return true;
         }
-
+/*
         if (op instanceof NewClass) {
             NewClass nc = (NewClass) op;
             //if (nc.constructor.getParent()==ctx.getCurrentClass()) {
@@ -146,6 +146,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             //}
             return true;
         }
+        */
 
         if (op instanceof Lambda) {
             Lambda l = (Lambda)op;
