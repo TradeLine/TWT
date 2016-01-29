@@ -14,6 +14,8 @@ public class ClassRecord {
     private String name;
     private JArray<FieldRecord> fields = new JArray<>();
     private JArray<MethodRecord> methods = new JArray<>();
+    private JArray<TypeProvider> imps = new JArray<>();
+    private TypeProvider superClass;
 
     public ClassRecord(String jsName, String name) {
         this.jsName = jsName;
@@ -30,6 +32,24 @@ public class ClassRecord {
 
     public JArray<MethodRecord> getMethods() {
         return methods;
+    }
+
+    public ClassRecord setSuper(TypeProvider superClass) {
+        this.superClass = superClass;
+        return this;
+    }
+
+    public ClassRecord addImplement(TypeProvider imp) {
+        imps.add(imp);
+        return this;
+    }
+
+    public JArray<TypeProvider> getImplementations() {
+        return imps;
+    }
+
+    public TypeProvider getSuper() {
+        return superClass;
     }
 
     public ClassRecord addField(String jsName, String name, TypeProvider type, String initValue, boolean staticFlag) {

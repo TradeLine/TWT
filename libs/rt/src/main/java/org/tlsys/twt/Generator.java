@@ -122,6 +122,9 @@ public class Generator implements MainGenerator {
         VConstructor methodConstructor = classMethodRecord.getConstructor(classString, classString, classString, classBoolean);//получаем конструктор MethodRecord
         VMethod methodAddArg = classMethodRecord.getMethod("addArg", classArgumentRecord);
         VMethod classAddMethod = classClassRecord.getMethod("addMethod", classMethodRecord);
+        VMethod methodSetSuper = classClassRecord.getMethod("setSuper", classTypeProvider);
+        VMethod methodAddImplement = classClassRecord.getMethod("addImplement", classTypeProvider);
+        VMethod addFieldMethod = classClassRecord.getMethod("addField", classString, classString, classTypeProvider, classString, classBoolean);
         VConstructor argumentConstructor = classArgumentRecord.getConstructor(classString, classBoolean, classTypeProvider);
         for (CompileModuls.ClassRecord cr : others) {
             gc = new MainGenerationContext(cr.getClazz(), compileModuls);
@@ -132,7 +135,13 @@ public class Generator implements MainGenerator {
             nc.arguments.add(new Const(cr.getClazz().alias, cl.loadClass(String.class.getName())));
 
             Value lastScope = nc;
-            VMethod addFieldMethod = classClassRecord.getMethod("addField", cl.loadClass(String.class.getName()), cl.loadClass(String.class.getName()), classTypeProvider, classString, classBoolean);
+
+            if (cr.getClazz().extendsClass != null) {
+                Invoke inv = new Invoke(methodSetSuper, lastScope);
+                inv.arguments.add(getClassViaTypeProvider(cr.getClazz().extendsClass));
+                lastScope = inv;
+            }
+
             for (VField f : cr.getClazz().fields) {
 
                 Invoke inv = new Invoke(addFieldMethod, lastScope);

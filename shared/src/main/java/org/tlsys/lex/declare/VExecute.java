@@ -87,4 +87,13 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
         if (block != null)
             outputStream.writeObject(block);
     }
+
+    @Override
+    public String toString() {
+        return "VExecute{" +
+                "name='" + name + '\'' +
+                ", alias='" + alias + '\'' +
+                ", parent=" + parent +
+                '}';
+    }
 }

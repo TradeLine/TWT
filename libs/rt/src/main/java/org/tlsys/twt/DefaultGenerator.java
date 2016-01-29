@@ -52,8 +52,14 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(Invoke.class, (c, o, p, g) -> {
+            if ("getType".equals(o.getMethod().alias))
+                System.out.println("123");
             InvokeGenerator icg = c.getInvokeGenerator(o.getMethod());
-            if (icg != null && icg != c)
+            if (icg != null)
+                return icg.generate(c, o, p);
+
+            ICodeGenerator icg2 = c.getGenerator(o.getMethod());
+            if (icg != null && icg != g)
                 return icg.generate(c, o, p);
 
             Predicate<Boolean> printArg = f -> {
@@ -236,17 +242,17 @@ public class DefaultGenerator implements ICodeGenerator {
                 case NE:
                     p.append("!=");
                     break;
-                case LT://>=
-                    p.append(">=");
-                    break;
-                case GE://<
+                case LT://<
                     p.append("<");
                     break;
-                case GT://<=
-                    p.append("<=");
-                    break;
-                case LE://>
+                case GE://>
                     p.append(">");
+                    break;
+                case GT://>
+                    p.append(">");
+                    break;
+                case LE://<=
+                    p.append("<=");
                     break;
                 case OR://>
                     p.append("||");

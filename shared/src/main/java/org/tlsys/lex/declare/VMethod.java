@@ -21,4 +21,13 @@ public class VMethod extends VExecute {
     public boolean isThis(String name) {
         return this.name.equals(name) || name.equals(alias);
     }
+
+    @Override
+    public String toString() {
+        return "VMethod{" +
+                "name='" + name + '\'' +
+                ", alias='" + alias + '\'' +
+                ", parent=" + getParent() +
+                '}';
+    }
 }

@@ -16,7 +16,7 @@ import java.lang.reflect.Field;
 @JSClass
 @ClassName("java.lang.Class")
 @ReplaceClass(Class.class)
-//@CodeGenerator(NativeCodeGenerator.class)
+@CodeGenerator(NativeCodeGenerator.class)
 public class TClass {
     //@InvokeGen("org.tlsys.twt.rt.java.lang.ClassInvoke")
     public String getName() {
@@ -49,19 +49,25 @@ public class TClass {
 
     private JArray<TField> fields = new JArray<>();
 
+    private Class superClass;
+    private JArray<Class> implementList = new JArray<>();
+
     public void initFor(ClassRecord cr) {
         this.name = cr.getName();
         String functionBody = "";
-        Script.code(cons,".c=",this);
+        String fieldInit = "";
+        if (cr.getSuper() != null)
+            superClass = cr.getSuper().getType();
+        for (int i = 0; i < cr.getImplementations().length(); i++) {
+            implementList.add(cr.getImplementations().get(i).getType());
+        }
+
+        //Script.code(cons,".c=",this);
 
         for (int i = 0; i < cr.getFields().length(); i++) {
             FieldRecord fr = cr.getFields().get(i);
-            //TField field = new TField(fr.getName(), fr.getJsName(),CastUtil.cast(this), fr.isStaticFlag());
-            //fields.add(field);
-            if (fr.isStaticFlag()) {
-                Script.code(this,"[",fr.getJsName(),"]=eval(",fr.getInitValue(),")");
-            } else {
-                functionBody+="this."+fr.getJsName()+"="+fr.getInitValue()+";";
+            if (!fr.isStaticFlag()) {
+                fieldInit+="this."+fr.getJsName()+"="+fr.getInitValue()+";";
             }
         }
 
@@ -70,17 +76,23 @@ public class TClass {
         for (int i = 0; i < cr.getMethods().length(); i++) {
             MethodRecord mr = cr.getMethods().get(i);
             JArray<String> args = new JArray<>();
-            args.add(null);
             for (int j = 0; j < mr.getArguments().length(); j++) {
                 ArgumentRecord ar = mr.getArguments().get(j);
                 args.add(ar.getName());
             }
             args.add(mr.getBody());
-            Object func = Script.code("Function.apply(",args.getJSArray(),")");
+            Object func = Script.code("Function.apply(null, ",args.getJSArray(),")");
             if (mr.isStaticFlag()) {
                 Script.code(this,"[",mr.getJsName(),"]=",func);
             } else {
                 Script.code(cons,".prototype[",mr.getJsName(),"]=",func);
+            }
+        }
+
+        for (int i = 0; i < cr.getFields().length(); i++) {
+            FieldRecord fr = cr.getFields().get(i);
+            if (fr.isStaticFlag()) {
+                Script.code(this,"[",fr.getJsName(),"]=eval(",fr.getInitValue(),")");
             }
         }
     }

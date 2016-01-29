@@ -110,6 +110,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             if (inv.getMethod() instanceof VConstructor)//если происходит вызов конструктра, то игнорируем!
                 return false;
 
+            /*
             if(inv.getSelf() instanceof Lambda) {
                 operation(ctx, inv.getSelf(), ps);
                 ps.append(".call(this");
@@ -120,6 +121,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
                 ps.append(")");
                 return true;
             }
+            */
         }
 
         if (op instanceof StaticRef) {
@@ -150,6 +152,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
 
         if (op instanceof Lambda) {
             Lambda l = (Lambda)op;
+            ps.append("{").append(l.getMethod().name).append(":");
             ps.append("function(");
             boolean first = true;
             for(VArgument a : l.getMethod().arguments) {
@@ -161,9 +164,10 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append(")");
             if (l.getBlock() == null) {
                 ps.append("{}");
-                return true;
             } else
-                return operation(ctx, l.getBlock(), ps);
+                operation(ctx, l.getBlock(), ps);
+            ps.append("}");
+            return true;
         }
 
         /*

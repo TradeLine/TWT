@@ -35,6 +35,8 @@ public class Invoke extends Value {
     @Override
     public void getUsing(Collect c) {
         c.add(method);
+        for (Value v : arguments)
+            c.add(v);
     }
 
     @Override

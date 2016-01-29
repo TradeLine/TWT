@@ -15,6 +15,15 @@ public class Compiller {
     private static final HashMap<Class, ProcEx> exProc = new HashMap<>();
     private static final HashMap<Class, ProcSt> stProc = new HashMap<>();
 
+    private static VClass getExType(VClassLoader cl, JCTree.JCExpression e) throws VClassNotFoundException {
+        return cl.loadClass(e.type);
+        /*
+        if (e instanceof JCTree.JCMethodInvocation)
+            return cl.loadClass(((JCTree.JCMethodInvocation)e).type);
+        throw new RuntimeException("Can't detect type " + );
+        */
+    }
+
     static {
         addProc(JCTree.JCNewClass.class, (c, e, o) -> {
             ArrayList<VClass> aclass = new ArrayList<VClass>(e.args.size());
@@ -130,8 +139,9 @@ public class Compiller {
                 JCTree.JCFieldAccess f = (JCTree.JCFieldAccess) e.meth;
                 self = Objects.requireNonNull(c.op(f.selected, o));
                 try {
-                    method = self.getType().getMethod((Symbol.MethodSymbol) f.sym);
-                } catch (NullPointerException ee) {
+                    VClass selectedCalss = getExType(c.vClass.getClassLoader(), f.selected);
+                    method = selectedCalss.getMethod((Symbol.MethodSymbol) f.sym);
+                } catch (MethodNotFoundException ee) {
                     throw ee;
                 }
             }
@@ -204,7 +214,7 @@ public class Compiller {
                 case MINUS:
                     type = VBinar.BitType.MINUS;
                     break;
-                case LT://<
+                case LT://>
                     type = VBinar.BitType.LT;
                     break;
                 case GE://>=
@@ -387,7 +397,7 @@ public class Compiller {
                 it.init = new Const(0, intClass);
                 forLoop.init = it;
                 forLoop.update = new Increment(itVar, Increment.IncType.PRE_INC, intClass);
-                forLoop.value = new VBinar(itVar, new GetField(v, v.getType().getField("length")),c.vClass.getClassLoader().loadClass("boolean"), VBinar.BitType.GE);
+                forLoop.value = new VBinar(itVar, new GetField(v, v.getType().getField("length")),c.vClass.getClassLoader().loadClass("boolean"), VBinar.BitType.LT);
 
                 SVar el = new SVar(c.vClass.getClassLoader().loadClass(e.var.type), e.var.sym);
                 el.name=e.var.name.toString();

@@ -16,4 +16,13 @@ public class VConstructor extends VExecute {
 
     public VConstructor() {
     }
+
+    @Override
+    public String toString() {
+        return "VConstructor{" +
+                "name='" + name + '\'' +
+                ", alias='" + alias + '\'' +
+                ", parent=" + getParent() +
+                '}';
+    }
 }
