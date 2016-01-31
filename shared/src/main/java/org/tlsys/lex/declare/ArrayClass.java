@@ -8,6 +8,7 @@ public class ArrayClass extends VClass {
     private VField lengthField;
     private VMethod get;
     private VMethod set;
+    private VMethod newLen;
 
     public ArrayClass(VClass component, VClass intType) {
         this(component);
