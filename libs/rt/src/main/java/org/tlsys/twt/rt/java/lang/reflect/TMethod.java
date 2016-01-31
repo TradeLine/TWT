@@ -8,8 +8,19 @@ import org.tlsys.twt.annotations.ReplaceClass;
 @JSClass
 @ClassName("java.lang.reflect.Method")
 @ReplaceClass(java.lang.reflect.Method.class)
-public class TMethod {
-    private String name;
-    private String jsName;
-    private JArray<Class> arguments;
+public class TMethod extends TExecutable {
+    public String name;
+    public boolean staticFlag = false;
+
+
+    @Override
+    public String getName() {
+        return name;
+    }
+/*
+    @Override
+    public Class<?>[] getParameterTypes() {
+        return new Class<?>[0];
+    }
+    */
 }

@@ -3,7 +3,7 @@ package org.tlsys.twt.dom;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
 
-@JSClass
+//@JSClass
 public interface FocusElement extends DomElement {
     public default void focus() {
         Script.code(this,".focus()");

@@ -1,5 +1,6 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.lex.Cast;
 import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.JArray;
 import org.tlsys.twt.Script;
@@ -9,7 +10,10 @@ import org.tlsys.twt.classes.ArgumentRecord;
 import org.tlsys.twt.classes.ClassRecord;
 import org.tlsys.twt.classes.FieldRecord;
 import org.tlsys.twt.classes.MethodRecord;
+import org.tlsys.twt.rt.java.lang.reflect.TConstructor;
+import org.tlsys.twt.rt.java.lang.reflect.TExecutable;
 import org.tlsys.twt.rt.java.lang.reflect.TField;
+import org.tlsys.twt.rt.java.lang.reflect.TMethod;
 
 import java.lang.reflect.Field;
 
@@ -47,15 +51,89 @@ public class TClass {
 
     private Object cons = null;
 
+    public Object getJsClass() {
+        return cons;
+    }
+
     private JArray<TField> fields = new JArray<>();
 
     private Class superClass;
     private JArray<Class> implementList = new JArray<>();
+    private JArray<TConstructor> constructors;
+    private JArray<TMethod> methods;
+
+    private ClassRecord classRecord;
+
+    private String domNode;
+
+    private void initMethods() {
+        if (methods != null)
+            return;
+        methods = new JArray<>();
+
+        for (int i = 0; i < classRecord.getMethods().length(); i++) {
+            MethodRecord mr = classRecord.getMethods().get(i);
+            if (mr.getName() == null)
+                continue;
+
+            TMethod mm = new TMethod();
+            methods.add(mm);
+            mm.name = mr.getName();
+            mm.staticFlag = mr.isStaticFlag();
+
+            if (mr.isStaticFlag())
+                mm.jsFunction = Script.code(this,"[",mr.getJsName(),"]");
+            else
+                mm.jsFunction = Script.code(this.cons,".prototype[",mr.getJsName(),"]");
+
+            for (int j = 0; j < mr.getArguments().length(); j++) {
+                ArgumentRecord ar = mr.getArguments().get(j);
+                mm.arguments.add(ar.getType().getType());
+            }
+        }
+    }
+
+    private void initConstructors() {
+        if (constructors != null)
+            return;
+        constructors = new JArray<>();
+
+        for (int i = 0; i < classRecord.getMethods().length(); i++) {
+            MethodRecord mr = classRecord.getMethods().get(i);
+            if (mr.getName() != null)
+                continue;
+
+            TConstructor mm = new TConstructor();
+            constructors.add(mm);
+
+            mm.jsName = mr.getJsName();
+            mm.parentClass = CastUtil.cast(this);
+            mm.jsFunction = Script.code(this.cons,".prototype[",mr.getJsName(),"]");
+
+            for (int j = 0; j < mr.getArguments().length(); j++) {
+                ArgumentRecord ar = mr.getArguments().get(j);
+                mm.arguments.add(ar.getType().getType());
+            }
+        }
+    }
 
     public void initFor(ClassRecord cr) {
+        domNode = cr.getDomNode();
+        classRecord = cr;
         this.name = cr.getName();
+        String fieldInitFlag = cr.getJsName()+"_";
         String functionBody = "";
-        String fieldInit = "";
+        String fieldInit = "if (!this."+fieldInitFlag+"){";
+
+        for (int i = 0; i < cr.getFields().length(); i++) {
+            FieldRecord fr = cr.getFields().get(i);
+            if (!fr.isStaticFlag()) {
+                fieldInit+="this."+fr.getJsName()+"="+fr.getInitValue()+";";
+            }
+        }
+        fieldInit+="this.fieldInitFlag=true;}";
+        //Object functionFieldInit = Script.code("new Function(",fieldInit,")");
+
         if (cr.getSuper() != null)
             superClass = cr.getSuper().getType();
         for (int i = 0; i < cr.getImplementations().length(); i++) {
@@ -64,28 +142,54 @@ public class TClass {
 
         //Script.code(cons,".c=",this);
 
-        for (int i = 0; i < cr.getFields().length(); i++) {
-            FieldRecord fr = cr.getFields().get(i);
-            if (!fr.isStaticFlag()) {
-                fieldInit+="this."+fr.getJsName()+"="+fr.getInitValue()+";";
-            }
-        }
+
 
         cons = Script.code("new Function(",functionBody,")");
+        Script.code(cons,"['NEW']=",cons);
 
         for (int i = 0; i < cr.getMethods().length(); i++) {
             MethodRecord mr = cr.getMethods().get(i);
             JArray<String> args = new JArray<>();
+            /*
+
+            */
+
             for (int j = 0; j < mr.getArguments().length(); j++) {
                 ArgumentRecord ar = mr.getArguments().get(j);
                 args.add(ar.getName());
             }
-            args.add(mr.getBody());
+
+            if (mr.getName() == null) {
+                //TConstructor con = (TConstructor)exe;
+
+                if (Object.class != CastUtil.cast(this)) {
+                    int p = mr.getBody().indexOf(";");
+                    //TODO добавить проверку на p=-1
+                    String callConstructor = mr.getBody().substring(0, p+1);
+                    String body = mr.getBody().substring(callConstructor.length());
+                    args.add(callConstructor+fieldInit+body);
+                } else
+                    args.add(fieldInit + mr.getBody());
+
+                if (domNode == null)
+                Script.code(this,"['n'+",mr.getJsName(),"]=new Function('var o = new ",cons,"();" +
+                        "o.'+",mr.getJsName(),"+'(); return o;')");
+                else {
+                    Script.code(this,"['n'+",mr.getJsName(),"]=new Function('" +
+                            "var o = document.createElement(",this.domNode,");" +
+                            "for(var k in ",cons,".prototype) o[k]=",cons,".prototype[k];" +
+                            "o.'+",mr.getJsName(),"+'();return o;')");
+                }
+            } else {
+                args.add(mr.getBody());
+            }
+
             Object func = Script.code("Function.apply(null, ",args.getJSArray(),")");
+
             if (mr.isStaticFlag()) {
                 Script.code(this,"[",mr.getJsName(),"]=",func);
             } else {
-                Script.code(cons,".prototype[",mr.getJsName(),"]=",func);
+                Script.code(cons, ".prototype[", mr.getJsName(), "]=", func);
             }
         }
 
@@ -95,6 +199,31 @@ public class TClass {
                 Script.code(this,"[",fr.getJsName(),"]=eval(",fr.getInitValue(),")");
             }
         }
+
+        if (superClass != null) {
+            TClass ss = CastUtil.cast(superClass);
+            ss.initMethods();
+            for (int i = 0; i < ss.methods.length(); i++) {
+                initMethods();
+                TMethod mm = getMethodByJSName(ss.methods.get(i).jsName);
+                if (mm == null) {
+                    mm = ss.methods.get(i);
+                    if (mm.staticFlag) {
+                        Script.code(this,"[",mm.jsName,"]=",mm.jsFunction);
+                    } else {
+                        Script.code(cons,".prototype[",mm.jsName,"]=",mm.jsFunction);
+                    }
+                }
+            }
+        }
+    }
+
+    private TMethod getMethodByJSName(String name) {
+        for (int i = 0; i < methods.length(); i++) {
+            if (methods.get(i).jsName.equals(name))
+                return methods.get(i);
+        }
+        return null;
     }
 
     @JSName("isPrimitive")

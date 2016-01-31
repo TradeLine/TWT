@@ -15,6 +15,7 @@ public class Invoke extends Value {
     private VExecute method;
     public ArrayList<Value> arguments = new ArrayList<>();
     private Value self;
+    public VClass returnType;
 
     public Invoke() {
     }
@@ -41,7 +42,7 @@ public class Invoke extends Value {
 
     @Override
     public VClass getType() {
-        return method.returnType;
+        return returnType;
     }
 
     @Override

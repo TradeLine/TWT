@@ -27,8 +27,6 @@ public final class TString {
     @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native boolean equals(Object obj);
 
-    //@NotCompile
-    //@InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
     public static String valueOf(Object obj) {
         if (obj == null)
             return "null";
@@ -36,14 +34,10 @@ public final class TString {
         //return obj.toString();
     }
 
-    //@NotCompile
-    //@InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
     public static String valueOf(int obj) {
         return Script.code(obj,".toString()");
     }
 
-    //@NotCompile
-    //@InvokeGen("org.tlsys.twt.rt.java.lang.StringInvoke")
     public static String valueOf(long obj) {
         return Script.code(obj,".toString()");
     }

@@ -10,6 +10,10 @@ public class Continue extends Operation {
     private static final long serialVersionUID = 4299151552383535059L;
     private Label label;
 
+    public Label getLabel() {
+        return label;
+    }
+
     public Continue(Label label) {
         this.label = label;
     }

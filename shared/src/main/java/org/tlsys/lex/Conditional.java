@@ -50,6 +50,6 @@ public class Conditional extends Value {
 
     @Override
     public void getUsing(Collect c) {
-        c.add(type);
+        c.add(type).add(value, thenValue, elseValue);
     }
 }

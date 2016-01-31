@@ -7,6 +7,11 @@ public class VConstructor extends VExecute {
 
     public VConstructor(VClass parent, Symbol.MethodSymbol symbol) {
         super(parent, symbol);
+        try {
+            returnType = parent.getClassLoader().loadClass("void");
+        } catch (VClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

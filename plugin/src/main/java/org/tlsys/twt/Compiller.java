@@ -9,6 +9,7 @@ import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 
 import javax.lang.model.element.Modifier;
+import javax.xml.transform.sax.SAXSource;
 import java.util.*;
 
 public class Compiller {
@@ -161,8 +162,6 @@ public class Compiller {
 
             //self.getType().getMethod(e)
             Invoke i = new Invoke(method, self);
-            if ("code".equals(method.name))
-                System.out.println("123");
             for (int c1 = 0; c1 < method.arguments.size(); c1++) {
                 if (method.arguments.get(c1).var) {
                     NewArrayItems nai = new NewArrayItems(method.arguments.get(c1).getType().getArrayClass());
@@ -175,6 +174,13 @@ public class Compiller {
                     i.arguments.add(c.op(e.args.get(c1), o));
                 }
             }
+            i.returnType = self.getType().getClassLoader().loadClass(e.type);
+            /*
+            if (i.getType() != retType) {
+                Cast cast = new Cast(retType, i);
+                return cast;
+            }
+            */
             /*
             for (JCTree.JCExpression ee : e.args) {
                 i.arguments.add(c.op(ee, o));
@@ -439,6 +445,16 @@ public class Compiller {
                     return scope;
                 }
             }
+            /*
+            Symbol.ClassSymbol cs = (Symbol.ClassSymbol) ((Symbol.VarSymbol) e.sym).owner;
+            VClass ownClass = null;
+            try {
+                ownClass = scope.getType().getClassLoader().loadClass(cs.toString());
+            } catch (VClassNotFoundException e2) {
+                System.out.println("" + cs);
+                throw e2;
+            }
+            */
             VField field = (VField) scope.getType().find((Symbol.VarSymbol) e.sym, v -> true).orElseThrow(() ->
                             new CompileException("Can't find field " + e.name.toString() + " in " + scope.getType().fullName)
             );
@@ -608,7 +624,7 @@ public class Compiller {
             return new Const(false, vClass);
         if (vClass.fullName.equals("char"))
             return new Cast(vClassLoader.loadClass(int.class.getName()), new Const((char) 0, vClass));
-        return new Const("null", vClassLoader.loadClass(Object.class.getName()));
+        return new Const(null, vClass);
     }
 
     public Member memDec(JCTree decl) throws VClassNotFoundException {

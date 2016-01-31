@@ -5,9 +5,11 @@ import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.InvokeGen;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.annotations.ReplaceClass;
 
 @JSClass
 @ClassName("java.lang.reflect.Array")
+@ReplaceClass(java.lang.reflect.Array.class)
 public final class TArray {
     private TArray() {
     }

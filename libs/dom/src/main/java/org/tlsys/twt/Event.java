@@ -1,20 +1,21 @@
 package org.tlsys.twt;
 
+import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.MethodBodyGen;
 
-@JSClass
+//@JSClass
 public class Event {
-    @MethodBodyGen("org.tlsys.twt.EventMethodBody")
+    @CodeGenerator(org.tlsys.twt.EventMethodBody.class)
     public native static void setEvent(Object object, String eventName, EventListener listener);
 
-    @MethodBodyGen("org.tlsys.twt.EventMethodBody")
+    @CodeGenerator(org.tlsys.twt.EventMethodBody.class)
     public native static EventListener getEvent(Object object, String eventName);
 
-    @MethodBodyGen("org.tlsys.twt.EventMethodBody")
+    @CodeGenerator(org.tlsys.twt.EventMethodBody.class)
     public native static void addEventListener(Object object, String eventName, EventListener eventListener, boolean useCapture);
 
-    @MethodBodyGen("org.tlsys.twt.EventMethodBody")
+    @CodeGenerator(org.tlsys.twt.EventMethodBody.class)
     public native static void removeEventListener(Object object, String eventName, EventListener eventListener, boolean useCapture);
 
     public static void addEventListener(Object object, String eventName, EventListener eventListener) {

@@ -9,7 +9,7 @@ import org.tlsys.twt.annotations.NotCompile;
 
 import java.util.Objects;
 
-@JSClass
+//@JSClass
 public final class DOM {
     private DOM() {
     }
@@ -39,28 +39,28 @@ public final class DOM {
     }
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.dom.DomMethodInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
     public static native void setAttribute(DomElement element, String name, String value);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.dom.DomMethodInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
     public static native DomElement[] childNodes(DomElement element);
 
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.dom.DomMethodInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
     public static native boolean hasAttribute(DomElement element, String name);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.dom.DomMethodInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
     public static native String getAttribute(DomElement element, String name);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.dom.DomMethodInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
     public static native String removeAttribute(DomElement element, String name);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.dom.DomMethodInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
     public static native void appendChild(DomElement element, DomElement child);
 
     public static void appendChildBefor(DomElement before, DomElement child) {
@@ -103,23 +103,23 @@ public final class DOM {
     }
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.dom.DomMethodInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
     public static native void removeChild(DomElement element, DomElement child);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.dom.DomMethodInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
     public static native DomElement[] getElementsByTagName(DomElement element, String tag);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.dom.DomMethodInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
     public static native String getHTML(DomElement element);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.dom.DomMethodInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
     public static native void setHTML(DomElement element, String html);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.dom.DomMethodInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
     public static native DomElement getParent(DomElement element);
 
     public static DomElement queryFirst(DomElement element, String html) {
@@ -130,11 +130,11 @@ public final class DOM {
     }
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.dom.DomMethodInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
     public static native DomElement[] query(DomElement element, String html);
 
     @NotCompile
-    @InvokeGen("org.tlsys.twt.dom.DomMethodInvokeGenerator")
+    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
     public native static <T extends DomElement> T createFor(DomElement element, Class<T> clazz);
 
     public enum EventType {

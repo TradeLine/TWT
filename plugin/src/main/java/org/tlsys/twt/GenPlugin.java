@@ -24,13 +24,11 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.tlsys.lex.Value;
-import org.tlsys.twt.annotations.ClassName;
-import org.tlsys.twt.annotations.CodeGenerator;
-import org.tlsys.twt.annotations.JSClass;
-import org.tlsys.twt.annotations.ReplaceClass;
+import org.tlsys.twt.annotations.*;
 import org.tlsys.lex.MethodNotFoundException;
 import org.tlsys.lex.VVar;
 import org.tlsys.lex.declare.*;
+import org.tlsys.twt.annotations.CodeGenerator;
 
 import javax.lang.model.util.Types;
 import javax.tools.JavaCompiler;
@@ -318,7 +316,12 @@ public class GenPlugin extends AbstractMojo {
                     JCTree.JCFieldAccess val = (JCTree.JCFieldAccess) a.getExpression();
                     aliase = ""+val.type.toString().substring(Class.class.getName().length()+1);//val.selected.toString();
                     aliase = aliase.substring(0, aliase.length()-1);
-                    //aliase = val.selected.toString();
+                }
+
+                if (an.type.toString().equals(DomNode.class.getName())) {
+                    JCTree.JCAssign a = (JCTree.JCAssign) an.getArguments().get(0);
+                    JCTree.JCLiteral val = (JCTree.JCLiteral) a.getExpression();
+                    v.domNode = (String) val.getValue();
                 }
 
             }

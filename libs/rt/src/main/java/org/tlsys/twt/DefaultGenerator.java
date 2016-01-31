@@ -6,6 +6,7 @@ import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.InvokeGen;
 import org.tlsys.twt.classes.ClassStorage;
 import org.tlsys.twt.classes.TypeProvider;
+import org.tlsys.twt.rt.java.lang.TClass;
 import org.tlsys.twt.rt.java.lang.TClassLoader;
 
 import java.io.PrintStream;
@@ -52,8 +53,6 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(Invoke.class, (c, o, p, g) -> {
-            if ("getType".equals(o.getMethod().alias))
-                System.out.println("123");
             InvokeGenerator icg = c.getInvokeGenerator(o.getMethod());
             if (icg != null)
                 return icg.generate(c, o, p);
@@ -77,16 +76,25 @@ public class DefaultGenerator implements ICodeGenerator {
                 }
             };
 
+            if (o.getMethod() instanceof VConstructor) {
+                if (o.getSelf() instanceof This) {
+                    if (o.getType() != o.getMethod().getParent())
+                        System.out.println("123");
+                }
+
+            }
+
             if (o.getSelf() instanceof This) {//вызов конструктора
                 This self = (This) o.getSelf();
 
-                if (o.getSelf().getType() != c.getCurrentClass()) {//чужого
-                    c.getGenerator(self.getType()).operation(c, new StaticRef(self.getType()), p);
+                if (o.getMethod().getParent() != o.getSelf().getType()) {//чужого
+                    c.getGenerator(self.getType()).operation(c, new StaticRef(o.getMethod().getParent()), p);
                     p.append(".");
+
                     if (!o.getMethod().isStatic())
-                        p.append("prototype.");
+                        p.append(o.getSelf().getType().getClassLoader().loadClass(Class.class.getName()).getMethod("getJsClass").name).append("().prototype.");
                     p.append(o.getMethod().name);
-                    p.append(".apply(this, ");
+                    p.append(".apply(this");
                     printArg.test(false);
                     p.append(")");
                     return true;
@@ -401,6 +409,10 @@ public class DefaultGenerator implements ICodeGenerator {
             ICastAdapter ica = null;
 
             do {
+                if (clazz == null)
+                    System.out.println("123");
+                if (clazz.getJavaClass() == null)
+                    System.out.println("123");
                 CastAdapter ca = (CastAdapter) clazz.getJavaClass().getAnnotation(CastAdapter.class);
                 if (ca != null) {
                     try {
@@ -416,6 +428,14 @@ public class DefaultGenerator implements ICodeGenerator {
             if (ica == null)
                 throw new RuntimeException("Can't find cast adapter for " + o.getValue().getType().getJavaClass().getName());
             g.operation(c, ica.cast(c, o.getValue(), o.getType()), p);
+            return true;
+        });
+
+        addGen(Continue.class, (c,o,p,g)->{
+            p.append("continue");
+            if (o.getLabel() != null) {
+                p.append(" ").append(o.getLabel().getName());
+            }
             return true;
         });
 

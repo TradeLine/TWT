@@ -12,6 +12,7 @@ import org.tlsys.twt.rt.java.lang.reflect.TField;
 public class ClassRecord {
     private String jsName;
     private String name;
+    private String domNode;
     private JArray<FieldRecord> fields = new JArray<>();
     private JArray<MethodRecord> methods = new JArray<>();
     private JArray<TypeProvider> imps = new JArray<>();
@@ -24,6 +25,15 @@ public class ClassRecord {
 
     public String getName() {
         return name;
+    }
+
+    public String getDomNode() {
+        return domNode;
+    }
+
+    public ClassRecord setDomNode(String domNode) {
+        this.domNode = domNode;
+        return this;
     }
 
     public JArray<FieldRecord> getFields() {

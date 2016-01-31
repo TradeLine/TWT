@@ -1,6 +1,9 @@
 package org.tlsys.twt.dom;
 
 import com.sun.tools.javac.tree.JCTree;
+import org.tlsys.lex.Invoke;
+import org.tlsys.twt.CompileException;
+import org.tlsys.twt.GenerationContext;
 import org.tlsys.twt.MainGenerationContext;
 import org.tlsys.twt.InvokeGenerator;
 
@@ -9,6 +12,7 @@ import java.lang.reflect.Executable;
 
 public class DomMethodInvokeGenerator implements InvokeGenerator {
 
+    /*
     @Override
     public void generate(MainGenerationContext ctx, Class clazz, JCTree.JCExpression self, Executable method, JCTree.JCExpression[] arguments, PrintStream out) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         if (method.getName().equals("setAttribute")) {
@@ -95,5 +99,10 @@ public class DomMethodInvokeGenerator implements InvokeGenerator {
         }
 
         throw new RuntimeException("Unknown method " + method.getName());
+    }
+*/
+    @Override
+    public boolean generate(GenerationContext ctx, Invoke invoke, PrintStream ps) throws CompileException {
+        return false;
     }
 }

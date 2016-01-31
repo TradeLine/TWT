@@ -1,11 +1,14 @@
 package org.tlsys.twt;
 
 import com.sun.tools.javac.tree.JCTree;
+import org.tlsys.lex.Operation;
+import org.tlsys.lex.declare.VExecute;
 
 import java.io.PrintStream;
 import java.lang.reflect.Executable;
 
-public class EventMethodBody implements MethodBodyGenerator {
+public class EventMethodBody implements ICodeGenerator {
+    /*
     @Override
     public void gen(MainGenerationContext ctx, JCTree.JCMethodDecl decl, Executable method, PrintStream ps) throws NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchFieldException {
 
@@ -94,5 +97,20 @@ public class EventMethodBody implements MethodBodyGenerator {
 
 
         throw new RuntimeException("Unknown method " + method);
+    }
+*/
+    @Override
+    public void generateClass(GenerationContext context, CompileModuls.ClassRecord record, PrintStream ps) throws CompileException {
+        throw new RuntimeException("Nut supported yet!");
+    }
+
+    @Override
+    public boolean operation(GenerationContext context, Operation operation, PrintStream out) throws CompileException {
+        throw new RuntimeException("Nut supported yet!");
+    }
+
+    @Override
+    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps) throws CompileException {
+        throw new RuntimeException("Nut supported yet!");
     }
 }

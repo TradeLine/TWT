@@ -34,6 +34,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     private VField parentVar;
     private transient Class javaClass;
     public String realName;
+    public String domNode;
 
     public VClass() {
         classSymbol = null;
@@ -149,7 +150,8 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             }
             if (i >= args.size())
                 return false;
-            return args.get(i).isParent(a.getType());
+            if (!args.get(i).isParent(a.getType()))
+                return false;
         }
         return exe.arguments.size() == args.size();
     }
