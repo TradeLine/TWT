@@ -11,9 +11,12 @@ public class Main {
         Script.code("console.info('Hash='+",hashCode(),")");
         Test t = new Test();
         Script.code("document.getElementsByTagName('body')[0].appendChild(",t,")");
-        String[] names = new String[10];
-        for (int i = 0; i < names.length; i++) {
-            names[i] = "name " + i;
+        print("Hello","World!");
+    }
+
+    public static void print(String ... list) {
+        for (String s : list) {
+            System.out.println("->>" + s);
         }
     }
 

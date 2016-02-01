@@ -13,6 +13,10 @@ public class JArray<E> {
         return o;
     }
 
+    public void setJSArray(Object o) {
+        this.o = o;
+    }
+
     public void add(E o) {
         Script.code(this.o,".push(",o,")");
     }
