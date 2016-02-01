@@ -161,6 +161,8 @@ public class Compiller {
                 throw new RuntimeException("Self or method is NULL");
 
             //self.getType().getMethod(e)
+            if (method.isStatic())
+                self = new StaticRef(method.getParent());
             Invoke i = new Invoke(method, self);
             for (int c1 = 0; c1 < method.arguments.size(); c1++) {
                 if (method.arguments.get(c1).var) {

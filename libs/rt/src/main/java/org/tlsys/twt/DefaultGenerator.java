@@ -431,7 +431,7 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         });
 
-        addGen(Continue.class, (c,o,p,g)->{
+        addGen(Continue.class, (c, o, p, g) -> {
             p.append("continue");
             if (o.getLabel() != null) {
                 p.append(" ").append(o.getLabel().getName());

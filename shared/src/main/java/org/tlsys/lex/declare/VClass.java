@@ -248,6 +248,8 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
                 return Optional.of(f);
             if (f.name.equals(symbol.name.toString()))
                 return Optional.of(f);
+            if (f.alias != null && f.alias.equals(symbol.name.toString()))
+                return Optional.of(f);
         }
         if (extendsClass != null && searchIn.test(extendsClass)) {
             Optional<SVar> v = extendsClass.find(symbol, searchIn);

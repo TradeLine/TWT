@@ -2,6 +2,7 @@ package org.tlsys.lex.declare;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
+import org.tlsys.twt.CompileException;
 
 import javax.lang.model.type.NullType;
 import java.io.ObjectInputStream;
@@ -61,7 +62,7 @@ public class VClassLoader implements Serializable {
         public void init() {
             try {
                 clazz.init(loadClass(int.class.getName()));
-            } catch (VClassNotFoundException e) {
+            } catch (CompileException e) {
                 throw new RuntimeException(e);
             }
         }

@@ -25,6 +25,11 @@ public class Invoke extends Value {
         this.method = Objects.requireNonNull(method);
     }
 
+    public Invoke addArg(Value value) {
+        arguments.add(value);
+        return this;
+    }
+
     public Value getSelf() {
         return self;
     }

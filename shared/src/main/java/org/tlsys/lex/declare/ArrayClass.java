@@ -38,25 +38,33 @@ public class ArrayClass extends VClass {
         //VClass classClass;
         extendsClass = intType.getClassLoader().loadClass(Object.class.getName());
         lengthField = new VField(intType, Modifier.PUBLIC | Modifier.FINAL, null, this);
-        lengthField.name = "length";
+        lengthField.name = "_";
+        lengthField.alias = "length";
         lengthField.init = new Const(0, intType);
         fields.add(lengthField);
 
         jsArray = new VField(intType, Modifier.PRIVATE | Modifier.FINAL, null, this);
-        jsArray.name = "jsArray";
+        jsArray.name = "_f";
+        jsArray.alias = "jsArray";
         jsArray.init = new Const(null, extendsClass);
         fields.add(jsArray);
 
 
 
         get = new VMethod(this, null, null);
-        get.name = "get";
-        get.arguments.add(new VArgument(intType, "index", false));
+        get.name = "_g";
+        get.alias="get";
+        get.arguments.add(new VArgument(intType, "i", false));
+        get.block = new VBlock(get);
+        get.returnType = component;
 
         set = new VMethod(this, null, null);
-        set.name = "set";
-        set.arguments.add(new VArgument(intType, "index", false));
-        set.arguments.add(new VArgument(component, "value", false));
+        set.name = "_s";
+        set.alias="set";
+        set.arguments.add(new VArgument(intType, "i", false));
+        set.arguments.add(new VArgument(component, "v", false));
+        set.returnType = intType.getClassLoader().loadClass("void");
+        set.block = new VBlock(set);
 
         set.generator = ArrayCodeGenerator.class.getName();
         get.generator = ArrayCodeGenerator.class.getName();
@@ -65,8 +73,11 @@ public class ArrayClass extends VClass {
         methods.add(set);
 
         constructor = new VConstructor(this, null);
-        constructor.arguments.add(new VArgument(intType, "length", false));
+        constructor.name="_$";
+        constructor.arguments.add(new VArgument(intType, "l", false));
         constructor.generator = ArrayCodeGenerator.class.getName();
+        constructor.block = new VBlock(constructor);
+        constructor.returnType = intType.getClassLoader().loadClass("void");
         constructors.add(constructor);
     }
 

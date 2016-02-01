@@ -20,6 +20,11 @@ public class VBlock extends Operation implements Using, CanUse, Context {
     public VBlock() {
     }
 
+    public VBlock add(Operation operation) {
+        operations.add(operation);
+        return this;
+    }
+
     @Override
     public void getUsing(Collect c) {
         for (Operation o : operations)

@@ -22,6 +22,16 @@ public class VIf extends Operation {
         this.parentContext = Objects.requireNonNull(parentContext);
     }
 
+    public VBlock createThen() {
+        thenBlock = new VBlock(this);
+        return thenBlock;
+    }
+
+    public VBlock createElse() {
+        elseBlock = new VBlock(this);
+        return elseBlock;
+    }
+
     @Override
     public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
         Optional<SVar> v = value.find(symbol, searchIn);
@@ -34,6 +44,6 @@ public class VIf extends Operation {
 
     @Override
     public void getUsing(Collect c) {
-        c.add(thenBlock).add(elseBlock);
+        c.add(thenBlock).add(elseBlock).add(value);
     }
 }

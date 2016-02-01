@@ -1,7 +1,9 @@
 package org.tlsys;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.rt.java.lang.TClass;
 
 @JSClass
 public class Main {
@@ -11,7 +13,11 @@ public class Main {
         Script.code("console.info('Hash='+",hashCode(),")");
         Test t = new Test();
         Script.code("document.getElementsByTagName('body')[0].appendChild(",t,")");
-        print("Hello","World!");
+        //print("Hello","World!");
+        TClass cl = CastUtil.cast(String.class);
+        Class ar = cl.getArrayClass();
+
+        Script.code("console.dir(",ar,")");
     }
 
     public static void print(String ... list) {

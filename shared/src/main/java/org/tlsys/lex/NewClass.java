@@ -17,6 +17,11 @@ public class NewClass extends Value {
     public NewClass() {
     }
 
+    public NewClass addArg(Value value) {
+        arguments.add(value);
+        return this;
+    }
+
     public NewClass(VConstructor constructor) {
         this.constructor = constructor;
     }

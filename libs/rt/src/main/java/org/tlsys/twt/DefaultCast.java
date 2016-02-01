@@ -15,6 +15,7 @@ public class DefaultCast implements ICastAdapter {
             VClass classClass = value.getType().getClassLoader().loadClass(Class.class.getName());
             Invoke inv = new Invoke(classClass.getMethod("cast", value.getType().getClassLoader().loadClass(Object.class.getName())), new StaticRef(to));
             inv.arguments.add(value);
+            inv.returnType = to;
             return inv;
             //throw new RuntimeException("Cast not supported");
         }

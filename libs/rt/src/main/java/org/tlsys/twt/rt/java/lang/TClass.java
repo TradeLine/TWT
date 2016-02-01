@@ -50,6 +50,7 @@ public class TClass {
     private String name;
 
     private Object cons = null;
+    private String jsName;
 
     public Object getJsClass() {
         return cons;
@@ -119,6 +120,7 @@ public class TClass {
 
     public void initFor(ClassRecord cr) {
         domNode = cr.getDomNode();
+        this.jsName = cr.getJsName();
         classRecord = cr;
         this.name = cr.getName();
         String fieldInitFlag = cr.getJsName()+"_";
@@ -244,11 +246,11 @@ public class TClass {
     private Class arrayClass = null;
 
     @CodeGenerator(GenArrayClassCreateMethod.class)
-    private native void initArrayClass();
+    private native Class initArrayClass();
 
     public Class getArrayClass() {
         if (arrayClass == null) {
-            initArrayClass();
+            arrayClass = initArrayClass();
         }
         return arrayClass;
     }
