@@ -11,7 +11,6 @@ import java.util.Objects;
 public class ArrayBuilder<T> {
     public Class component;
     private T[] array;
-    private int level = 0;
 
     private ArrayBuilder(Class component) {
         this.component = Objects.requireNonNull(component, "Array component is NULL");
@@ -26,6 +25,8 @@ public class ArrayBuilder<T> {
     public T[] set(T ... values) {
         throw new RuntimeException("Must be replace");
     }
+
+    public static <T> T[] create(int[] len, )
 
     public T[] get() {
         return array;

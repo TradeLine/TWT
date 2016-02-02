@@ -17,6 +17,9 @@ public class ArrayClass extends VClass {
     public VConstructor constructor;
     private VClass component;
 
+    public static final String CONSTRUCTOR = "_$";
+    public static final String SET = "_s";
+
     public ArrayClass(VClass component, VClass intType) {
         this(component);
         try {
@@ -59,7 +62,7 @@ public class ArrayClass extends VClass {
         get.returnType = component;
 
         set = new VMethod(this, null, null);
-        set.name = "_s";
+        set.name = SET;
         set.alias="set";
         set.arguments.add(new VArgument(intType, "i", false));
         set.arguments.add(new VArgument(component, "v", false));
@@ -73,7 +76,7 @@ public class ArrayClass extends VClass {
         methods.add(set);
 
         constructor = new VConstructor(this, null);
-        constructor.name="_$";
+        constructor.name=CONSTRUCTOR;
         constructor.arguments.add(new VArgument(intType, "l", false));
         constructor.generator = ArrayCodeGenerator.class.getName();
         constructor.block = new VBlock(constructor);

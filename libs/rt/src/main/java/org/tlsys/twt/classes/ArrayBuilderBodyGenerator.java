@@ -1,10 +1,7 @@
 package org.tlsys.twt.classes;
 
 import org.tlsys.lex.*;
-import org.tlsys.lex.declare.VClass;
-import org.tlsys.lex.declare.VExecute;
-import org.tlsys.lex.declare.VField;
-import org.tlsys.lex.declare.VMethod;
+import org.tlsys.lex.declare.*;
 import org.tlsys.twt.*;
 
 import java.io.PrintStream;
@@ -34,11 +31,23 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator {
         VMethod getArrayClassMethod = classClass.getMethod("getArrayClass");
 
         if (execute.alias.equals("len")) {
-            ps.append("for (var i = 0; i < ").append(execute.arguments.get(0).name).append(".length; i++){");
+            ps.append("if (").append(execute.arguments.get(0).name).append(".length<=0) return null;");
+            ps.append("this.").append(array.name).append("=");
+            cg.operation(context, new Invoke(getArrayClassMethod, new GetField(new This(arrayBuilderClass), component)), ps);
+            ps.append(".n").append(ArrayClass.CONSTRUCTOR).append("(").append(execute.arguments.get(0).name).append("[0]);");
+
+            ps.append("if (").append(execute.arguments.get(0).name).append(".length>1){");
+            ps.append("var t = ").append(execute.arguments.get(0).name).append("slice(1);");
+            ps.append("var g = ").append(arrayBuilderClass.fullName).append(".n").append(arrayBuilderClass.getConstructor(intClass).name).append("(");
+            cg.operation(context, new Invoke(getArrayClassMethod, new GetField(new This(arrayBuilderClass), component)), ps);
+            ps.append(");");
+
+            ps.append("for (var i = 1; i < ").append(execute.arguments.get(0).name).append("[0]; i++){");
+            ps.append("this.").append(array.name).append("[i]=g.").append(arrayBuilderClass.getMethod("len", intClass.getArrayClass()).name).append("(t);");
+            ps.append("}");
 
             ps.append("}");
-            new VIf(new VBinar(new Const(0, intClass),new GetField(new This(arrayBuilderClass), level), booleanClass, VBinar.BitType.GE), execute)
-                    .thenBlock
+
             super.generateMethodEnd(context, execute, ps);
         }
         ps.append("}");
