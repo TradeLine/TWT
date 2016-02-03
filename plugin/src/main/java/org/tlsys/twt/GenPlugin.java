@@ -264,7 +264,7 @@ public class GenPlugin extends AbstractMojo {
         try {
             Compiller com = new Compiller(loader, p.vclass);
             for (JCTree t : p.desl.defs) {
-                Member m = com.memDec(t);
+                Member m = com.memDec(p.vclass, t);
                 if (m != null)
                     p.members.put(t, m);
             }

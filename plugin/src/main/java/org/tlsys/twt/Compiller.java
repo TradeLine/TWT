@@ -629,7 +629,7 @@ public class Compiller {
         return new Const(null, vClass);
     }
 
-    public Member memDec(JCTree decl) throws VClassNotFoundException {
+    public Member memDec(VClass clazz, JCTree decl) throws VClassNotFoundException {
         if (decl instanceof JCTree.JCMethodDecl) {
             JCTree.JCMethodDecl m = (JCTree.JCMethodDecl) decl;
             if (m.name.toString().equals("<init>")) {
@@ -637,7 +637,7 @@ public class Compiller {
                 vClass.constructors.add(v);
                 return v;
             }
-            VMethod v = memDec(m);
+            VMethod v = memDec(clazz, m);
             vClass.methods.add(v);
             return v;
         }
@@ -702,7 +702,7 @@ public class Compiller {
         }
     }
 
-    private VMethod memDec(JCTree.JCMethodDecl mem) throws VClassNotFoundException {
+    private VMethod memDec(VClass clazz, JCTree.JCMethodDecl mem) throws VClassNotFoundException {
         VMethod m = new VMethod(vClass, null, mem.sym);
         if (!mem.getModifiers().annotations.isEmpty()) {
             for (JCTree.JCAnnotation a : mem.getModifiers().annotations) {
