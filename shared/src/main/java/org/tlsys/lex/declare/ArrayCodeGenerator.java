@@ -26,6 +26,7 @@ public class ArrayCodeGenerator implements ICodeGenerator {
         if (execute == ac.constructor) {
             defaultCG.operation(ctx, new Invoke(execute.getParent().extendsClass.getConstructor(), new This(execute.getParent())), ps);
             ps.append(";");
+
             ps.append("this.").append(ac.jsArray.name).append("=new Array(").append(execute.arguments.get(0).name).append(");");
             defaultCG.operation(ctx, new SetField(new This(ac), ac.lengthField, execute.arguments.get(0), Assign.AsType.ASSIGN), ps);
             ps.append(";");

@@ -173,10 +173,19 @@ public class TClass {
                 } else
                     args.add(fieldInit + mr.getBody());
 
-                if (domNode == null)
-                Script.code(this,"['n'+",mr.getJsName(),"]=new Function('var o = new ",cons,"();" +
-                        "o.'+",mr.getJsName(),"+'(); return o;')");
-                else {
+                if (domNode == null) {
+                    JArray<String> a = new JArray<>();
+                    String arguments = "";
+                    for (int j = 0; j < mr.getArguments().length(); j++) {
+                        if (j>0)
+                            arguments+=",";
+                        arguments+=mr.getArguments().get(j).getName();
+                        a.add(mr.getArguments().get(j).getName());
+                    }
+                    a.add(Script.code("'var o = new ", cons, "();" +
+                            "o.'+", mr.getJsName(), "+'('+",arguments,"+'); return o;'"));
+                    Script.code(this, "['n'+", mr.getJsName(), "]=Function.apply(null,",a.getJSArray(),")");
+                }else {
                     Script.code(this,"['n'+",mr.getJsName(),"]=new Function('" +
                             "var o = document.createElement(",this.domNode,");" +
                             "for(var k in ",cons,".prototype) o[k]=",cons,".prototype[k];" +

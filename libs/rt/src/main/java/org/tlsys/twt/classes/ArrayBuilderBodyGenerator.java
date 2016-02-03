@@ -6,16 +6,8 @@ import org.tlsys.twt.*;
 
 import java.io.PrintStream;
 
-public class ArrayBuilderBodyGenerator extends NativeCodeGenerator {
-    @Override
-    public void generateClass(GenerationContext context, CompileModuls.ClassRecord record, PrintStream ps) throws CompileException {
-        throw new RuntimeException("Not supported!");
-    }
+public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements InvokeGenerator {
 
-    @Override
-    public boolean operation(GenerationContext context, Operation operation, PrintStream out) throws CompileException {
-        throw new RuntimeException("Not supported!");
-    }
 
     @Override
     public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps) throws CompileException {
@@ -23,13 +15,38 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator {
         VClass arrayBuilderClass = execute.getParent();
         VClass classClass = arrayBuilderClass.getClassLoader().loadClass(Class.class.getName());
         VClass intClass = arrayBuilderClass.getClassLoader().loadClass("int");
-        VField component = arrayBuilderClass.getField("component");
         VClass booleanClass = arrayBuilderClass.getClassLoader().loadClass("boolean");
         ICodeGenerator cg = context.getGenerator(classClass);
-        VField array = arrayBuilderClass.getField("array");
-        VField level = arrayBuilderClass.getField("level");
         VMethod getArrayClassMethod = classClass.getMethod("getArrayClass");
 
+        if (execute.alias.equals("create")) {
+            ps.append("{");
+            ps.append("console.info('Create array...elements=');");
+            ps.append("console.dir("+execute.arguments.get(1).name+");");
+
+
+            ps.append("console.info('ArrayClass=');");
+            ps.append("console.dir(");
+            cg.operation(context, new Invoke(getArrayClassMethod, execute.arguments.get(0)), ps);
+            ps.append(");");
+
+
+            ps.append("var t=");
+            cg.operation(context, new Invoke(getArrayClassMethod, execute.arguments.get(0)), ps);
+            ps.append(".n").append(ArrayClass.CONSTRUCTOR).append("(").append(execute.arguments.get(1).name).append(".length);");
+
+            ps.append("console.info('Created object=');");
+            ps.append("console.dir(t);");
+
+            ps.append("for(var i=0;i<").append(execute.arguments.get(1).name).append(".length;i++){");
+            ps.append("console.info('set['+i+']='+"+execute.arguments.get(1).name+"[i]);");
+            ps.append("t.").append(ArrayClass.SET).append("(i,").append(execute.arguments.get(1).name).append("[i]);");
+            ps.append("}");
+            ps.append("return t;");
+            ps.append("};\n");
+            return;
+        }
+        /*
         if (execute.alias.equals("len")) {
             ps.append("if (").append(execute.arguments.get(0).name).append(".length<=0) return null;");
             ps.append("this.").append(array.name).append("=");
@@ -50,7 +67,35 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator {
 
             super.generateMethodEnd(context, execute, ps);
         }
-        ps.append("}");
+        */
+
         throw new RuntimeException("Unknown method " + execute.alias);
+    }
+
+    @Override
+    public boolean generate(GenerationContext ctx, Invoke invoke, PrintStream ps) throws CompileException {
+        if (invoke.getMethod().alias.equals("create")) {
+            ICodeGenerator g = ctx.getGenerator(invoke.getMethod());
+            g.operation(ctx, new StaticRef(invoke.getMethod().getParent()), ps);
+            ps.append(".").append(invoke.getMethod().name).append("(");
+            g.operation(ctx, invoke.arguments.get(0), ps);
+            ps.append(",");
+            ps.append("[");
+            if (invoke.arguments.get(1) instanceof NewArrayItems) {
+                NewArrayItems nai = (NewArrayItems)invoke.arguments.get(1);
+                boolean first = true;
+                for (Value v : nai.elements) {
+                    if (!first)
+                        ps.append(",");
+                    g.operation(ctx, v, ps);
+                    first = false;
+                }
+            } else
+                throw new RuntimeException("Unknown array type");
+            ps.append("])");
+            return true;
+        }
+
+        throw new RuntimeException("Unknown method " + invoke.getMethod().alias);
     }
 }

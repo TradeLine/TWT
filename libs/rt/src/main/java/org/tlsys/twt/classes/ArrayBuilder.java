@@ -2,13 +2,15 @@ package org.tlsys.twt.classes;
 
 import org.tlsys.twt.NativeCodeGenerator;
 import org.tlsys.twt.annotations.CodeGenerator;
+import org.tlsys.twt.annotations.InvokeGen;
 import org.tlsys.twt.annotations.JSClass;
 
 import java.util.Objects;
 
 @JSClass
 @CodeGenerator(NativeCodeGenerator.class)
-public class ArrayBuilder<T> {
+public final class ArrayBuilder<T> {
+    /*
     public Class component;
     private T[] array;
 
@@ -25,12 +27,15 @@ public class ArrayBuilder<T> {
     public T[] set(T ... values) {
         throw new RuntimeException("Must be replace");
     }
+    */
 
-    public static <T> T[] create(int[] len, )
+    //public Object[] create(Class arrayClass, int[] len);
 
-    public T[] get() {
-        return array;
+
+    private ArrayBuilder() {
     }
 
-
+    @InvokeGen(ArrayBuilderBodyGenerator.class)
+    @CodeGenerator(ArrayBuilderBodyGenerator.class)
+    public static <T> T[] create(Class<T> clazz, T...values){return null;}
 }

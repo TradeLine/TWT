@@ -465,7 +465,7 @@ public class Compiller {
         });
 
         addProc(JCTree.JCNewArray.class, (c, e, o) -> {
-            if (e.dims != null) {
+            if (e.dims != null && !e.dims.isEmpty()) {
                 NewArrayLen nal = new NewArrayLen((ArrayClass) c.vClass.getClassLoader().loadClass(e.type));
                 for (JCTree.JCExpression v : e.dims)
                     nal.sizes.add(c.op(v, o));
@@ -474,7 +474,7 @@ public class Compiller {
 
             if (e.elems != null) {
                 NewArrayItems nai = new NewArrayItems((ArrayClass) c.vClass.getClassLoader().loadClass(e.type));
-                for (JCTree.JCExpression v : e.dims)
+                for (JCTree.JCExpression v : e.elems)
                     nai.elements.add(c.op(v, o));
                 return nai;
             }

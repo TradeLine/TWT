@@ -19,6 +19,9 @@ public class ArrayClass extends VClass {
 
     public static final String CONSTRUCTOR = "_$";
     public static final String SET = "_s";
+    public static final String GET = "_g";
+    public static final String ARRAY = "_f";
+    public static final String LENGTH = "_";
 
     public ArrayClass(VClass component, VClass intType) {
         this(component);
@@ -41,13 +44,13 @@ public class ArrayClass extends VClass {
         //VClass classClass;
         extendsClass = intType.getClassLoader().loadClass(Object.class.getName());
         lengthField = new VField(intType, Modifier.PUBLIC | Modifier.FINAL, null, this);
-        lengthField.name = "_";
+        lengthField.name = LENGTH;
         lengthField.alias = "length";
         lengthField.init = new Const(0, intType);
         fields.add(lengthField);
 
         jsArray = new VField(intType, Modifier.PRIVATE | Modifier.FINAL, null, this);
-        jsArray.name = "_f";
+        jsArray.name = ARRAY;
         jsArray.alias = "jsArray";
         jsArray.init = new Const(null, extendsClass);
         fields.add(jsArray);
@@ -55,11 +58,12 @@ public class ArrayClass extends VClass {
 
 
         get = new VMethod(this, null, null);
-        get.name = "_g";
+        get.name = GET;
         get.alias="get";
         get.arguments.add(new VArgument(intType, "i", false));
         get.block = new VBlock(get);
         get.returnType = component;
+        get.setModificators(Modifier.PUBLIC);
 
         set = new VMethod(this, null, null);
         set.name = SET;
@@ -68,6 +72,7 @@ public class ArrayClass extends VClass {
         set.arguments.add(new VArgument(component, "v", false));
         set.returnType = intType.getClassLoader().loadClass("void");
         set.block = new VBlock(set);
+        set.setModificators(Modifier.PUBLIC);
 
         set.generator = ArrayCodeGenerator.class.getName();
         get.generator = ArrayCodeGenerator.class.getName();
@@ -76,6 +81,7 @@ public class ArrayClass extends VClass {
         methods.add(set);
 
         constructor = new VConstructor(this, null);
+        constructor.setModificators(Modifier.PUBLIC);
         constructor.name=CONSTRUCTOR;
         constructor.arguments.add(new VArgument(intType, "l", false));
         constructor.generator = ArrayCodeGenerator.class.getName();

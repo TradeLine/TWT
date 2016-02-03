@@ -4,6 +4,7 @@ import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.InvokeGen;
+import org.tlsys.twt.classes.ArrayBuilder;
 import org.tlsys.twt.classes.ClassStorage;
 import org.tlsys.twt.classes.TypeProvider;
 import org.tlsys.twt.rt.java.lang.TClass;
@@ -380,9 +381,9 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(ArrayGet.class, (c, o, p, g) -> {
-            VMethod getMethod = o.getType().getMethod("get", o.getType().getClassLoader().loadClass("int"));
-            Invoke inv = new Invoke(getMethod, o.getIndex());
-            inv.arguments.add(o.getValue());
+            VMethod getMethod = o.getValue().getType().getMethod("get", o.getType().getClassLoader().loadClass("int"));
+            Invoke inv = new Invoke(getMethod, o.getValue());
+            inv.arguments.add(o.getIndex());
             g.operation(c, inv, p);
             return true;
         });
@@ -436,6 +437,26 @@ public class DefaultGenerator implements ICodeGenerator {
             if (o.getLabel() != null) {
                 p.append(" ").append(o.getLabel().getName());
             }
+            return true;
+        });
+
+        addGen(NewArrayLen.class, (c,o,p,g)->{
+            if (o.sizes.size() > 1) {
+                throw new RuntimeException("Not supported multiarray! yet!");
+            }
+            g.operation(c, new StaticRef(o.getType()), p);
+            p.append(".n").append(ArrayClass.CONSTRUCTOR).append("(");
+            g.operation(c, o.sizes.get(0), p);
+            p.append(")");
+            return true;
+        });
+
+        addGen(NewArrayItems.class, (c,o,p,g)->{
+            VClass classArrayBuilder = o.getType().getClassLoader().loadClass(ArrayBuilder.class.getName());
+            VMethod methodGet = classArrayBuilder.getMethodByName("create").get(0);
+            g.operation(c, new Invoke(methodGet, new StaticRef(classArrayBuilder))
+            .addArg(new StaticRef(o.getType()))
+            .addArg(o), p);
             return true;
         });
 

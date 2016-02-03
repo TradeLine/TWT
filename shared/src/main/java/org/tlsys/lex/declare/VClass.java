@@ -179,9 +179,23 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         return getMethod(name, Arrays.asList(args));
     }
 
+    public List<VMethod> getMethodByName(String name) {
+        ArrayList<VMethod> methods = new ArrayList<>();
+
+        for (VMethod m : this.methods) {
+            if (m.isThis(name))
+                methods.add(m);
+        }
+
+        if (extendsClass != null)
+            methods.addAll(extendsClass.getMethodByName(name));
+        for (VClass c : implementsList)
+            methods.addAll(c.getMethodByName(name));
+
+        return methods;
+    }
+
     public VMethod getMethod(String name, List<VClass> args) throws MethodNotFoundException {
-        if (name.equals("code"))
-            System.out.println("123");
         for (VMethod v : methods) {
             if (!name.equals(v.name) && !name.equals(v.alias))
                 continue;
@@ -203,7 +217,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             }
         }
 
-        throw new MethodNotFoundException(this, name, args);
+        throw new MethodNotFoundException(this, alias, args);
     }
 
     public VMethod getMethod(Symbol.MethodSymbol symbol) throws MethodNotFoundException {

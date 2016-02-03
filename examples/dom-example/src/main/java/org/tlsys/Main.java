@@ -3,6 +3,7 @@ package org.tlsys;
 import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.classes.ArrayBuilder;
 import org.tlsys.twt.rt.java.lang.TClass;
 
 @JSClass
@@ -18,11 +19,20 @@ public class Main {
         Class ar = cl.getArrayClass();
 
         Script.code("console.dir(",ar,")");
+
+        //String[] strings = ArrayBuilder.create(String.class, "1","2","3","4","5","6","7");
+        String[][] strings = {{"1","2","3"},{"4","5","6","7"}};
+        String[] str = new String[10];
+        Script.code("console.dir(", strings,")");
+        Script.code("console.dir(", str,")");
+        for (int i = 0; i < strings.length; i++)
+            Script.code("console.info('LEN='+", strings[i],")");
+        print("Hello!", "World!");
     }
 
     public static void print(String ... list) {
         for (String s : list) {
-            System.out.println("->>" + s);
+            Script.code("console.info('-->'+", s,")");
         }
     }
 
