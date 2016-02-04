@@ -2,6 +2,7 @@ package org.tlsys.twt;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.twt.annotations.*;
 import org.tlsys.lex.Const;
@@ -659,7 +660,7 @@ public class Compiller {
         try {
             method.block = (VBlock) st(dec.body, method);
         } catch (Throwable e) {
-            throw new CompileException("Can't compile " + method.getParent().fullName+"::"+method.name, e);
+            throw new CompileException("Can't compile " + method.getParent().fullName+"::"+method.getRunTimeName(), e);
         }
     }
 
@@ -684,18 +685,37 @@ public class Compiller {
         return null;
     }
 
+    public static VMethod createBrig(VMethod from, VMethod to) {
+        VMethod rep = new VMethod(to.getParent(), null, null);
+        rep.setReplace(from);
+        rep.arguments.addAll(from.arguments);
+        rep.block = new VBlock(rep);
+        rep.alias = from.alias;
+
+        Invoke inv = new Invoke(to, new This(to.getParent()));
+        inv.arguments.addAll(rep.arguments);
+        inv.returnType = to.returnType;
+
+        if (!(from.returnType instanceof ArrayClass) && from.returnType.isThis("void")) {
+            rep.block.add(inv);
+        } else {
+            rep.block.add(new Return(inv));
+        }
+        return rep;
+    }
+
     public void exeDec(JCTree.JCMethodDecl mem, VExecute m) throws VClassNotFoundException {
         m.generator = GenPlugin.getGenerator(mem.getModifiers());
         m.invokeGenerator = getInvokeGenerator(mem.getModifiers());
         m.setModificators(modToFlag(mem.getModifiers().getFlags()));
         for (JCTree.JCVariableDecl v : mem.getParameters()) {
             //Set<Modifier> mm = v.getModifiers().getFlags();
-
             VClass arg = vClassLoader.loadClass(v.type);
             if (arg instanceof ArrayClass) {
                 //VClass arg2 = vClassLoader.loadClass(v.type);
             }
             VArgument a = new VArgument(arg, v.sym);
+            a.generic = v.type instanceof Type.TypeVar;
             a.var = (v.mods.flags & Flags.VARARGS) != 0;
             a.name = v.name.toString();
             m.arguments.add(a);
@@ -712,7 +732,7 @@ public class Compiller {
                 }
             }
         }
-        m.name = mem.getName().toString();
+        m.setRuntimeName(mem.getName().toString());
         m.returnType = vClass.getClassLoader().loadClass(mem.restype.type);
         exeDec(mem, m);
         return m;

@@ -7,7 +7,7 @@ import org.tlsys.twt.classes.ArrayBuilder;
 import org.tlsys.twt.rt.java.lang.TClass;
 
 @JSClass
-public class Main extends Parent {
+public class Main extends Parent<String> {
 
     public Main() {
         Script.code("console.info('Class created!')");
@@ -31,9 +31,9 @@ public class Main extends Parent {
     }
 
     @Override
-    public void doit() {
+    public void doit(String val) {
         Script.code("console.info('Parent::doit')");
-        super.doit();
+        super.doit(val);
     }
 
     public static void print(String ... list) {

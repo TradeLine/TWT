@@ -73,6 +73,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     @Override
     public boolean isThis(String name) {
+        Objects.requireNonNull(name, "Name is NULL");
         return this.fullName.equals(name) || name.equals(this.alias);
     }
 
@@ -197,7 +198,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     public VMethod getMethod(String name, List<VClass> args) throws MethodNotFoundException {
         for (VMethod v : methods) {
-            if (!name.equals(v.name) && !name.equals(v.alias))
+            if (!name.equals(v.getRunTimeName()) && !name.equals(v.alias))
                 continue;
             if (equalArgs(v, args))
                 return v;

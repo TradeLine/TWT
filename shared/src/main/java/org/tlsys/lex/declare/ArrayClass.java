@@ -58,7 +58,7 @@ public class ArrayClass extends VClass {
 
 
         get = new VMethod(this, null, null);
-        get.name = GET;
+        get.setRuntimeName(GET);
         get.alias="get";
         get.arguments.add(new VArgument(intType, "i", false));
         get.block = new VBlock(get);
@@ -66,7 +66,7 @@ public class ArrayClass extends VClass {
         get.setModificators(Modifier.PUBLIC);
 
         set = new VMethod(this, null, null);
-        set.name = SET;
+        set.setRuntimeName(SET);
         set.alias="set";
         set.arguments.add(new VArgument(intType, "i", false));
         set.arguments.add(new VArgument(component, "v", false));
@@ -82,7 +82,7 @@ public class ArrayClass extends VClass {
 
         constructor = new VConstructor(this, null);
         constructor.setModificators(Modifier.PUBLIC);
-        constructor.name=CONSTRUCTOR;
+        constructor.setRuntimeName(CONSTRUCTOR);
         constructor.arguments.add(new VArgument(intType, "l", false));
         constructor.generator = ArrayCodeGenerator.class.getName();
         constructor.block = new VBlock(constructor);

@@ -201,6 +201,13 @@ public class GenPlugin extends AbstractMojo {
                         analizeCode(compiller1, t.getValue(), t.getKey(), classLoader);
             }
 
+            for (Pair p : pairs) {
+                Compiller compiller1 = new Compiller(classLoader, p.vclass);
+                for (Map.Entry<JCTree, Member> t : p.members.entrySet())
+                    if (t.getValue() instanceof VMethod)
+                        analizeReplace(compiller1, (VMethod)t.getValue(), t.getKey(), classLoader);
+            }
+
 
         } catch (Throwable e) {
             throw new MojoExecutionException("Generate error", e);
@@ -226,6 +233,50 @@ public class GenPlugin extends AbstractMojo {
         } catch (Throwable e) {
             throw new MojoExecutionException("Generate error", e);
         }
+    }
+
+    public void analizeReplace(Compiller com, VMethod member, JCTree tree, VClassLoader loader) throws CompileException {
+        List<VMethod> methods = member.getParent().getMethodByName(member.getRunTimeName());
+
+        METHOD:for (VMethod m : methods) {
+            if (m == member)
+                continue;
+
+            if (m.arguments.size() != member.arguments.size())
+                continue;
+
+            for (VArgument a : m.arguments) {
+                for (VArgument b : m.arguments) {
+                    if (a.getType() != b.getType())
+                        continue METHOD;
+                }
+            }
+
+            member.setReplace(m);
+            break;
+        }
+
+        METHOD:for (VMethod m : methods) {
+            if (m == member)
+                continue;
+
+            if (m.arguments.size() != member.arguments.size())
+                continue;
+
+            for (VArgument a : m.arguments) {
+                for (VArgument b : m.arguments) {
+                    if (a.generic) {
+                        if (!b.getType().isParent(a.getType()))
+                            continue METHOD;
+                    } else
+                    if (a.getType() != b.getType())
+                        continue METHOD;
+                }
+            }
+            member.getParent().methods.add(Compiller.createBrig(m, member));
+            break;
+        }
+
     }
 
     public void analizeCode(Compiller com, Member member, JCTree tree, VClassLoader loader) throws CompileException {

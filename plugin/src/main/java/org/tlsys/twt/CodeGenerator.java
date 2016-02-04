@@ -13,10 +13,9 @@ import java.util.Objects;
 public class CodeGenerator {
 
     private static final HashMap<Class, Object> generators = new HashMap<>();
-
-    private static long classNameIterator = 0;
-
     private static final HashMap<VClassLoader, Value> vars = new HashMap<>();
+    private static long classNameIterator = 0;
+    private static long methodNameIterator = 0;
 
     public static Value getVarOfClassLoader(VClassLoader loader) {
         return vars.get(loader);
@@ -29,31 +28,33 @@ public class CodeGenerator {
         for (VClass v : loader.classes) {
             if (v.alias == null)
                 v.alias = v.fullName;
-            v.fullName = "$"+Long.toString(++classNameIterator, Character.MAX_RADIX);
+            v.fullName = "$" + Long.toString(++classNameIterator, Character.MAX_RADIX);
 
             int fieldIterator = 0;
             for (VField f : v.fields) {
                 if (f.alias == null)
                     f.alias = f.name;
-                f.name="f"+Integer.toString(++fieldIterator, Character.MAX_RADIX);
+                f.name = "f" + Integer.toString(++fieldIterator, Character.MAX_RADIX);
             }
 
             for (VMethod m : v.methods) {
                 if (m.alias == null)
-                    m.alias = m.name;
+                    m.alias = m.getRunTimeName();
                 int argIterator = 0;
                 for (VArgument a : m.arguments) {
-                    a.name="a"+Integer.toString(++argIterator, Character.MAX_RADIX);
+                    a.name = "a" + Integer.toString(++argIterator, Character.MAX_RADIX);
                 }
+                if (m.getReplace() == null)
+                    m.setRuntimeName("m" + Long.toString(++methodNameIterator, Character.MAX_RADIX));
             }
 
             int constructIterator = 0;
 
             for (VConstructor m : v.constructors) {
-                m.name = "c"+Integer.toString(++constructIterator, Character.MAX_RADIX);
+                m.setRuntimeName("c" + Integer.toString(++constructIterator, Character.MAX_RADIX));
                 int argIterator = 0;
                 for (VArgument a : m.arguments) {
-                    a.name="a"+Integer.toString(++argIterator, Character.MAX_RADIX);
+                    a.name = "a" + Integer.toString(++argIterator, Character.MAX_RADIX);
                 }
             }
         }
@@ -61,6 +62,7 @@ public class CodeGenerator {
         for (VClassLoader cl : loader.parents)
             renaming(cl);
     }
+
     /*
         private static DeclareVar createAllClassLoaders(VClass loaderClass, VClassLoader cl, PrintStream ps) throws CompileException {
             GenerationContext gc = new MyGenContext(loaderClass);

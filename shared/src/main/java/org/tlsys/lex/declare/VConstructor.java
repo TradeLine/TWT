@@ -25,7 +25,7 @@ public class VConstructor extends VExecute {
     @Override
     public String toString() {
         return "VConstructor{" +
-                "name='" + name + '\'' +
+                "name='" + getRunTimeName() + '\'' +
                 ", alias='" + alias + '\'' +
                 ", parent=" + getParent() +
                 '}';
