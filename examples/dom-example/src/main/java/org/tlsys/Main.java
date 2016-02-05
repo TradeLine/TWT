@@ -28,6 +28,10 @@ public class Main extends Parent<String> {
         for (int i = 0; i < strings.length; i++)
             Script.code("console.info('LEN='+", strings[i],")");
         print("Hello!", "World!");
+
+        EventListener el = (e)->{
+            Script.code("console.info('EVENT!');");
+        };
     }
 
     @Override

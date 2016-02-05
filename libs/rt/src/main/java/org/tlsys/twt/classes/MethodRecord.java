@@ -8,7 +8,6 @@ import org.tlsys.twt.annotations.JSClass;
 @JSClass
 @CodeGenerator(NativeCodeGenerator.class)
 public class MethodRecord {
-    private ClassRecord parent;
     private final JArray<ArgumentRecord> arguments = new JArray<>();
     private String jsName;
     private String name;

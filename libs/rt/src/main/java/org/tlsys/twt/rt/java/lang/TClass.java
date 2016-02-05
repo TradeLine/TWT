@@ -1,15 +1,9 @@
 package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.lex.Cast;
-import org.tlsys.twt.CastUtil;
-import org.tlsys.twt.JArray;
-import org.tlsys.twt.Script;
+import org.tlsys.twt.*;
 import org.tlsys.twt.annotations.*;
-import org.tlsys.twt.NativeCodeGenerator;
-import org.tlsys.twt.classes.ArgumentRecord;
-import org.tlsys.twt.classes.ClassRecord;
-import org.tlsys.twt.classes.FieldRecord;
-import org.tlsys.twt.classes.MethodRecord;
+import org.tlsys.twt.classes.*;
 import org.tlsys.twt.rt.java.lang.reflect.TConstructor;
 import org.tlsys.twt.rt.java.lang.reflect.TExecutable;
 import org.tlsys.twt.rt.java.lang.reflect.TField;
@@ -66,6 +60,32 @@ public class TClass {
     private ClassRecord classRecord;
 
     private String domNode;
+
+    private JDictionary<Object> lambdaList = new JDictionary<>();
+
+    public Object getLambda(String name, String methodName, Object method) {
+        Object t = lambdaList.get(name);
+        if (t != null)
+            return t;
+
+
+        ClassRecord c = new ClassRecord(this.jsName+name, this.name+"$lambda"+name);
+        c.setSuper(()->superClass);
+        //c.addMethod(method.getMethod());//
+
+        for (int i = 0; i < classRecord.getMethods().length(); i++) {
+            MethodRecord mr = classRecord.getMethods().get(i);
+            if (mr.getName() == null)
+                c.addMethod(mr);
+        }
+
+        TClass cc = new TClass("");
+        cc.initFor(c);
+        Script.code(cc.cons,".prototype[",methodName,"]=",method);
+        t = Script.code("new ",cc.cons,"()");
+        lambdaList.set(name, t);
+        return t;
+    }
 
     private void initMethods() {
         if (methods != null)
