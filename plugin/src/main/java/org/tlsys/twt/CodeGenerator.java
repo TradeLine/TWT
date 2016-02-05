@@ -16,6 +16,7 @@ public class CodeGenerator {
     private static final HashMap<VClassLoader, Value> vars = new HashMap<>();
     private static long classNameIterator = 0;
     private static long methodNameIterator = 0;
+    private static int fieldIterator = 0;
 
     public static Value getVarOfClassLoader(VClassLoader loader) {
         return vars.get(loader);
@@ -30,7 +31,7 @@ public class CodeGenerator {
                 v.alias = v.fullName;
             v.fullName = "$" + Long.toString(++classNameIterator, Character.MAX_RADIX);
 
-            int fieldIterator = 0;
+
             for (VField f : v.fields) {
                 if (f.alias == null)
                     f.alias = f.name;

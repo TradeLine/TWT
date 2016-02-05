@@ -63,7 +63,7 @@ public class Generator implements MainGenerator {
         VClass classClassStorage = projectClassLoader.loadClass(ClassStorage.class.getName());
 
         storage = new SVar(classClassStorage, null);
-        storage.name = "storage";
+        storage.name = "S";
 
         VClass classLoader = projectClassLoader.loadClass(ClassLoader.class.getName());
         VClass classClass = projectClassLoader.loadClass(Class.class.getName());
@@ -143,6 +143,15 @@ public class Generator implements MainGenerator {
             icg.operation(gc, inv, ps);
             ps.append(";\n");
         }
+
+        for (CompileModuls.ClassRecord cr : compileModuls.getRecords()) {
+            for (VExecute e : cr.getExe()) {
+                if (e instanceof VMethod && e.isStatic() && e.isThis("main")) {
+                    gc = new MainGenerationContext(classClassRecord, compileModuls);
+                    gc.getGenerator(e).operation(gc, new Invoke(e, new StaticRef(e.getParent())), ps);
+                }
+            }
+        }
     }
 
     public static Value genClassRecord(GenerationContext gc, VClass vClass, Predicate<VExecute> exeNeed, Supplier<Value> newClass) throws CompileException {
@@ -207,7 +216,7 @@ public class Generator implements MainGenerator {
             if (!exeNeed.test(e))
                 continue;
             NewClass newMethod = new NewClass(methodConstructor)
-                    .addArg(new Const(e.name, classString));
+                    .addArg(new Const(e.getRunTimeName(), classString));
             Value lastMethodScope = newMethod;
             if (e instanceof VConstructor)
                 newMethod.arguments.add(new Const(null, classString));

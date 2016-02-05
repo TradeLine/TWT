@@ -2,14 +2,17 @@ package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.annotations.ReplaceClass;
 
 @JSClass
 @ClassName("java.lang.Enum")
+@ReplaceClass(java.lang.Enum.class)
 public class TEnum {
-    private final int ordinal;
-    private final String name;
+    public int ordinal;
+    public String name;
+
     public TEnum(String name, int ordinal) {
-        this.name = name;
         this.ordinal = ordinal;
+        this.name = name;
     }
 }

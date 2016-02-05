@@ -93,8 +93,8 @@ public class DefaultGenerator implements ICodeGenerator {
                     p.append(".");
 
                     if (!o.getMethod().isStatic())
-                        p.append(o.getSelf().getType().getClassLoader().loadClass(Class.class.getName()).getMethod("getJsClass").name).append("().prototype.");
-                    p.append(o.getMethod().name);
+                        p.append(o.getSelf().getType().getClassLoader().loadClass(Class.class.getName()).getMethod("getJsClass").getRunTimeName()).append("().prototype.");
+                    p.append(o.getMethod().getRunTimeName());
                     p.append(".apply(this");
                     printArg.test(false);
                     p.append(")");
@@ -103,7 +103,7 @@ public class DefaultGenerator implements ICodeGenerator {
             }
             g.operation(c, o.getSelf(), p);
             p.append(".");
-            p.append(o.getMethod().name);
+            p.append(o.getMethod().getRunTimeName());
             p.append("(");
             printArg.test(true);
             p.append(")");
@@ -150,7 +150,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 return g.operation(c, lastScope, p);
             }
             VMethod getMethod = o.getType().getClassLoader().loadClass(ClassStorage.class.getName()).getMethod("get", o.getType().getClassLoader().loadClass(Object.class.getName()));
-            p.append(Generator.storage.name).append(".").append(getMethod.name).append("(").append(Generator.storage.name).append(".").append(o.getType().fullName).append(")");
+            p.append(Generator.storage.name).append(".").append(getMethod.getRunTimeName()).append("(").append(Generator.storage.name).append(".").append(o.getType().fullName).append(")");
             //throw new RuntimeException("Class ref not supported yet");
             return true;
         });
@@ -168,7 +168,7 @@ public class DefaultGenerator implements ICodeGenerator {
             //p.append(".");
             //p.append(o.getField().name);
             g.operation(c, new StaticRef(o.constructor.getParent()), p);
-            p.append(".n").append(o.constructor.name).append("(");
+            p.append(".n").append(o.constructor.getRunTimeName()).append("(");
             boolean first = true;
             for (Value v : o.arguments) {
                 if (!first)
@@ -284,8 +284,6 @@ public class DefaultGenerator implements ICodeGenerator {
                 if (op instanceof VBlock)
                     continue;
                 if (op instanceof VIf)
-                    continue;
-                if (op instanceof ForEach)
                     continue;
                 if (op instanceof ForLoop)
                     continue;

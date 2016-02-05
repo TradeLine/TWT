@@ -23,13 +23,12 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
-import org.tlsys.lex.Value;
+import org.tlsys.lex.*;
 import org.tlsys.twt.annotations.*;
-import org.tlsys.lex.MethodNotFoundException;
-import org.tlsys.lex.VVar;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.annotations.CodeGenerator;
 
+import javax.lang.model.element.Modifier;
 import javax.lang.model.util.Types;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
@@ -246,7 +245,7 @@ public class GenPlugin extends AbstractMojo {
                 continue;
 
             for (VArgument a : m.arguments) {
-                for (VArgument b : m.arguments) {
+                for (VArgument b : member.arguments) {
                     if (a.getType() != b.getType())
                         continue METHOD;
                 }
@@ -264,7 +263,7 @@ public class GenPlugin extends AbstractMojo {
                 continue;
 
             for (VArgument a : m.arguments) {
-                for (VArgument b : m.arguments) {
+                for (VArgument b : member   .arguments) {
                     if (a.generic) {
                         if (!b.getType().isParent(a.getType()))
                             continue METHOD;
@@ -285,8 +284,15 @@ public class GenPlugin extends AbstractMojo {
             VField f = (VField) member;
             if (v.init == null)
                 f.init = com.init(f.getType());
-            else
+            else {
                 f.init = com.op(v.init, f.getParent());
+                VClass enumClass = f.getParent().getClassLoader().loadClass(Enum.class.getName());
+                if (f.getParent() != enumClass && f.getParent().isParent(enumClass)) {
+                    NewClass nc = (NewClass) f.init;
+                    nc.addArg(new Const(f.alias != null ? f.alias : f.name, f.getParent().getClassLoader().loadClass(String.class.getName())));
+                    nc.addArg(new Const(f.getParent().fields.indexOf(f), f.getParent().getClassLoader().loadClass("int")));
+                }
+            }
             return;
         }
 
@@ -302,8 +308,11 @@ public class GenPlugin extends AbstractMojo {
         JCTree.JCExpression ex = p.desl.getExtendsClause();
         if (ex != null) {
             p.vclass.extendsClass = loader.loadClass(ex.type.tsym.toString());
-        } else
-            p.vclass.extendsClass = loader.loadClass(java.lang.Object.class.getName());
+        } else {
+            Type.ClassType ct = (Type.ClassType) p.desl.type;
+            p.vclass.extendsClass = loader.loadClass(ct.supertype_field);
+            //p.vclass.extendsClass = loader.loadClass(java.lang.Object.class.getName());
+        }
         if (p.vclass.alias != null && p.vclass.alias.equals(java.lang.Object.class.getName()))
             p.vclass.extendsClass = null;
         for (JCTree.JCExpression e : p.desl.implementing) {

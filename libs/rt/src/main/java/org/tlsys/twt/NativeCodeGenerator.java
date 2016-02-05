@@ -42,7 +42,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         for (VExecute m : record.getExe()) {
             ctx.getGenerator(m).generateExecute(ctx, m, ps);
             if (m instanceof VConstructor)
-                ps.append(m.getParent().fullName).append(".n").append(m.name).append("=function(){var o=new ").append(m.getParent().fullName).append("();o.").append(m.name).append(".apply(o,arguments);return o;};");
+                ps.append(m.getParent().fullName).append(".n").append(m.getRunTimeName()).append("=function(){var o=new ").append(m.getParent().fullName).append("();o.").append(m.getRunTimeName()).append(".apply(o,arguments);return o;};");
         }
         ps.append("\n");
     }
@@ -52,10 +52,12 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         ps.append(meth.getParent().fullName).append(".");
         if (!meth.isStatic())
             ps.append("prototype.");
+        /*
         if (meth.alias != null)
             ps.append(meth.alias);
         else
-            ps.append(meth.name);
+        */
+            ps.append(meth.getRunTimeName());
         ps.append("=function(");
         boolean first = true;
         for (VArgument ar : meth.arguments) {
@@ -77,10 +79,12 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         ps.append(meth.getParent().fullName).append(".");
         if (!meth.isStatic())
             ps.append("prototype.");
+        /*
         if (meth.alias != null)
             ps.append(meth.alias);
         else
-            ps.append(meth.name);
+        */
+            ps.append(meth.getRunTimeName());
         ps.append("=null;\n");
     }
 
@@ -152,7 +156,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
 
         if (op instanceof Lambda) {
             Lambda l = (Lambda)op;
-            ps.append("{").append(l.getMethod().name).append(":");
+            ps.append("{").append(l.getMethod().getRunTimeName()).append(":");
             ps.append("function(");
             boolean first = true;
             for(VArgument a : l.getMethod().arguments) {

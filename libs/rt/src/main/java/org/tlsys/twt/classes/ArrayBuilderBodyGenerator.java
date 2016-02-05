@@ -77,7 +77,7 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
         if (invoke.getMethod().alias.equals("create")) {
             ICodeGenerator g = ctx.getGenerator(invoke.getMethod());
             g.operation(ctx, new StaticRef(invoke.getMethod().getParent()), ps);
-            ps.append(".").append(invoke.getMethod().name).append("(");
+            ps.append(".").append(invoke.getMethod().getRunTimeName()).append("(");
             g.operation(ctx, invoke.arguments.get(0), ps);
             ps.append(",");
             ps.append("[");

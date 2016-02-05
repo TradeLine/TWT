@@ -44,4 +44,8 @@ public class VBlock extends Operation implements Using, CanUse, Context {
             return parentContext.find(symbol, searchIn.and(e -> e != this));
         return Optional.empty();
     }
+
+    public Context getParentContext() {
+        return parentContext;
+    }
 }

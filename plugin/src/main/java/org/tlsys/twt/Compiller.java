@@ -33,7 +33,15 @@ public class Compiller {
 
             for (Symbol.VarSymbol ee : ms.getParameters())
                 aclass.add(c.vClassLoader.loadClass(ee.type));
-            VConstructor con = c.vClassLoader.loadClass(e.type).getConstructor((Symbol.MethodSymbol) e.constructor);
+            VClass classIns = c.vClassLoader.loadClass(e.type);
+
+            if (classIns.isParent(classIns.getClassLoader().loadClass(Enum.class.getName()))) {
+                VConstructor con = classIns.getConstructor(classIns.getClassLoader().loadClass(String.class.getName()), classIns.getClassLoader().loadClass("int"));
+                NewClass nc = new NewClass(con);
+                return nc;
+            }
+
+            VConstructor con = classIns.getConstructor((Symbol.MethodSymbol) e.constructor);
             NewClass nc = new NewClass(con);
             for (JCTree.JCExpression ee : e.args)
                 nc.arguments.add(c.op(ee, o));
@@ -162,6 +170,13 @@ public class Compiller {
                 throw new RuntimeException("Self or method is NULL");
 
             //self.getType().getMethod(e)
+            if (method instanceof VConstructor && method.getParent().isParent(method.getParent().getClassLoader().loadClass(Enum.class.getName()))) {
+                VBlock block = (VBlock)o;
+                VConstructor cons = (VConstructor)block.getParentContext();
+                if (cons.arguments.size() != 2)
+                    System.out.println("123");
+                return new Invoke(method, new This(cons.getParent())).addArg(cons.arguments.get(0)).addArg(cons.arguments.get(1));
+            }
             if (method.isStatic())
                 self = new StaticRef(method.getParent());
             Invoke i = new Invoke(method, self);
@@ -174,6 +189,8 @@ public class Compiller {
                     i.arguments.add(nai);
                     break;
                 } else {
+                    if (e.args.size() <= c1)
+                        System.out.println("123");
                     i.arguments.add(c.op(e.args.get(c1), o));
                 }
             }
@@ -719,6 +736,19 @@ public class Compiller {
             a.var = (v.mods.flags & Flags.VARARGS) != 0;
             a.name = v.name.toString();
             m.arguments.add(a);
+        }
+
+        if (m instanceof VConstructor) {
+            VClass enumClass = vClass.getClassLoader().loadClass(Enum.class.getName());
+            if (m.getParent() != enumClass && m.getParent().isParent(enumClass)) {
+                VArgument name = new VArgument(vClass.getClassLoader().loadClass(String.class.getName()), null);
+                name.name = "name";
+                m.arguments.add(name);
+
+                VArgument ordinal = new VArgument(vClass.getClassLoader().loadClass("int"), null);
+                ordinal.name = "ordinal";
+                m.arguments.add(ordinal);
+            }
         }
     }
 

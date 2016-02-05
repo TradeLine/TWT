@@ -9,7 +9,10 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class VClass extends VLex implements Member, Using, Context, Serializable, CodeDynLoad {
 
@@ -180,6 +183,27 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         return getMethod(name, Arrays.asList(args));
     }
 
+    private static boolean isEqualArguments(List<VArgument> arg1, List<VArgument> arg2) {
+        if (arg1.size() != arg2.size())
+            return false;
+
+        for (int i = 0; i < arg1.size(); i++) {
+            if (arg1.get(i).getType() != arg2.get(i).getType())
+                return false;
+        }
+        return true;
+    }
+
+    private boolean concateMethodWithArgs(Collection<VMethod> methods, List<VArgument> arguments) {
+        Iterator<VMethod> it = methods.iterator();
+        while (it.hasNext()) {
+            VMethod m = it.next();
+            if (isEqualArguments(m.arguments, arguments))
+                return true;
+        }
+        return false;
+    }
+
     public List<VMethod> getMethodByName(String name) {
         ArrayList<VMethod> methods = new ArrayList<>();
 
@@ -188,10 +212,19 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
                 methods.add(m);
         }
 
-        if (extendsClass != null)
-            methods.addAll(extendsClass.getMethodByName(name));
-        for (VClass c : implementsList)
-            methods.addAll(c.getMethodByName(name));
+        if (extendsClass != null) {
+            extendsClass.getMethodByName(name).forEach(e->{
+                if (!concateMethodWithArgs(methods, e.arguments))
+                    methods.add(e);
+            });
+        }
+
+        for (VClass c : implementsList) {
+            c.getMethodByName(name).forEach(e->{
+                if (!concateMethodWithArgs(methods, e.arguments))
+                    methods.add(e);
+            });;
+        }
 
         return methods;
     }

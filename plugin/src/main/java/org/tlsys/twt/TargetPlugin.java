@@ -67,7 +67,7 @@ public class TargetPlugin extends AbstractMojo {
                         CompileModuls.ClassRecord cr = cm.add(plug.getProjectClassLoader().getJSClassLoader().loadClass(cc.getMain()));
                         for (String m : cc.getMethods()) {
                             for(VMethod mm : cr.getClazz().methods) {
-                                if (m.equals(mm.name) || m.equals(mm.alias))
+                                if (m.equals(mm.getRunTimeName()) || m.equals(mm.alias))
                                     cm.add(mm);
                             }
                         }
