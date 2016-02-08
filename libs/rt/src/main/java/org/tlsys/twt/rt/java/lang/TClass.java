@@ -80,9 +80,9 @@ public class TClass {
         if (t != null)
             return t;
 
-
+        TClass self = this;
         ClassRecord c = new ClassRecord(this.jsName+name, this.name+"$lambda"+name);
-        c.setSuper(()->CastUtil.cast(this));
+        c.setSuper(()->CastUtil.cast(self));
         //c.addMethod(method.getMethod());//
 
         for (int i = 0; i < classRecord.getMethods().length(); i++) {
