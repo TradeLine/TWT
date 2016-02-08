@@ -94,6 +94,7 @@ public class VClassLoader implements Serializable {
     }
 
     public VClass loadClass(String name) throws VClassNotFoundException{
+        name = name.replace('$','.');
         if (classes == null)
             classes = new ArrayList<>();
         for (VClass v : classes) {
