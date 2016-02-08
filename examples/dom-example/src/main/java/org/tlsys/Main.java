@@ -17,6 +17,7 @@ public class Main extends Parent<String> {
         //print("Hello","World!");
         TClass cl = CastUtil.cast(String.class);
         Class ar = cl.getArrayClass();
+        int a = 8;
 
         Script.code("console.dir(",ar,")");
 
@@ -31,7 +32,10 @@ public class Main extends Parent<String> {
 
         EventListener el = (e)->{
             Script.code("console.info('EVENT!');");
+            Script.code("console.info('STR='+",a,");");
         };
+
+        el.onEvent(null);
     }
 
     @Override

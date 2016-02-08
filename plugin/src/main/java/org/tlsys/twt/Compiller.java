@@ -104,7 +104,6 @@ public class Compiller {
         });
 
         addProc(JCTree.JCLambda.class, (c, e, o) -> {
-            VBlock block = new VBlock(o);
             VClass imp = c.vClassLoader.loadClass(e.type);
             VMethod method = null;
             for (VMethod m : imp.methods)
@@ -113,14 +112,25 @@ public class Compiller {
                     break;
                 }
             Objects.requireNonNull(method, "Method for replace not found");
-            Lambda l = new Lambda(block, method, o);
+            Lambda l = new Lambda(method, o);
             for (JCTree.JCVariableDecl v : e.params) {
                 VArgument a = new VArgument(c.vClassLoader.loadClass(v.type), v.sym);
                 a.name = v.name.toString();
                 l.arguments.add(a);
             }
             if (e.body instanceof JCTree.JCBlock) {
-                c.st((JCTree.JCStatement) e.body, l);
+                l.setBlock((VBlock) c.st((JCTree.JCStatement) e.body, l));
+            } else {
+                if (e.body instanceof JCTree.JCExpression) {
+                    VBlock block = new VBlock(l);
+                    Operation op = c.op((JCTree.JCExpression) e.body, block);
+                    if (l.getMethod().returnType != c.vClass.getClassLoader().loadClass("void")) {
+                        block.add(new Return((Value) op));
+                    } else
+                        block.add(op);
+                    l.setBlock(block);
+                } else
+                    throw new RuntimeException("No blocked lambdanot supportedf yet");
             }
             return l;
         });

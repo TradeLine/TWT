@@ -63,7 +63,7 @@ public class TClass {
 
     private JDictionary<Object> lambdaList = new JDictionary<>();
 
-    public Object getLambda(String name, String methodName, Object method) {
+    public Object getLambda(String name, String methodName, Object method, Object scope) {
         Object t = lambdaList.get(name);
         if (t != null)
             return t;
@@ -81,7 +81,7 @@ public class TClass {
 
         TClass cc = new TClass("");
         cc.initFor(c);
-        Script.code(cc.cons,".prototype[",methodName,"]=",method);
+        Script.code(cc.cons,".prototype[",methodName,"]=function(){return ",method,".apply(",scope,",arguments);}");
         t = Script.code("new ",cc.cons,"()");
         lambdaList.set(name, t);
         return t;

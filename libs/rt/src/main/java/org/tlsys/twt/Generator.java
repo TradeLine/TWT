@@ -33,7 +33,8 @@ public class Generator implements MainGenerator {
         VClass typeValueProvider = value.getType().getClassLoader().loadClass(ValueProvider.class.getName());
         VBlock body = new VBlock();
         body.operations.add(new Return(value));
-        Lambda lambda = new Lambda(body, typeValueProvider.methods.get(0), null);
+        Lambda lambda = new Lambda(typeValueProvider.methods.get(0), null);
+        lambda.setBlock(body);
         return lambda;
     }
 
@@ -41,7 +42,8 @@ public class Generator implements MainGenerator {
         VClass typeProviderClass = vClass.getClassLoader().loadClass(TypeProvider.class.getName());
         VBlock body = new VBlock();
         body.operations.add(new Return(new StaticRef(vClass)));
-        Lambda lambda = new Lambda(body, typeProviderClass.methods.get(0), null);
+        Lambda lambda = new Lambda(typeProviderClass.methods.get(0), null);
+        lambda.setBlock(body);
         return lambda;
     }
 

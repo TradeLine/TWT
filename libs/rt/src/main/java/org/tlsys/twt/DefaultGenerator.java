@@ -397,9 +397,33 @@ public class DefaultGenerator implements ICodeGenerator {
 
         addGen(Lambda.class, (c, o, p, g) -> {
             ICodeGenerator icg = c.getGenerator(o.getType());
-            if (icg != null && icg != g)
+            if (icg != null && icg != g) {
                 return icg.operation(c, o, p);
-            throw new RuntimeException("Lambda not supported");
+            }
+            VClassLoader cl = o.getMethod().getParent().getClassLoader();
+            VClass classClass = cl.loadClass(Class.class.getName());
+            VClass stringClass = cl.loadClass(String.class.getName());
+            VClass objectClass = cl.loadClass(Object.class.getName());
+            VMethod getLambdaMethod = classClass.getMethod("getLambda", stringClass, stringClass, objectClass, objectClass);
+            g.operation(c, new StaticRef(o.getMethod().getParent()), p);
+            p.append(".").append(getLambdaMethod.getRunTimeName()).append("(");
+            g.operation(c, new Const(Integer.toString(o.hashCode()), stringClass), p);
+            p.append(",");
+            g.operation(c, new Const(o.getMethod().getRunTimeName(), stringClass), p);
+            p.append(",function(");
+            boolean first = true;
+            for (VArgument a : o.arguments) {
+                if (!first)
+                    p.append(",");
+                g.operation(c, a, p);
+            }
+            p.append("){");
+            g.operation(c, o.getBlock(), p);
+            p.append("}");
+            p.append(",this");
+            p.append(")");
+            return true;
+            //throw new RuntimeException("Lambda not supported");
         });
 
         addGen(Cast.class, (c, o, p, g) -> {
