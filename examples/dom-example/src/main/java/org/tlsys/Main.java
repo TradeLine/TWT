@@ -9,46 +9,56 @@ import org.tlsys.twt.rt.java.lang.TClass;
 @JSClass
 public class Main extends Parent<String> {
 
+    private static final Events.EventListener ee = (s, e) -> {
+        info("CLICK1");
+        //removeEvent(s);
+    };
+
+    private static void removeEvent(Object dom) {
+        Events.removeEventListener(dom, "click", ee, false);
+    }
+
+    private static void attach(Object dom) {
+        Script.code("document.getElementsByTagName('body')[0].appendChild(", dom, ")");
+    }
+
+    private static void info(String text) {
+        Script.code("console.info(", text, ")");
+    }
+
+    private static void dir(Object text) {
+        Script.code("console.dir(", text, ")");
+    }
+
     public Main() {
-        Script.code("console.info('Class created!')");
-        Script.code("console.info('Hash='+",hashCode(),")");
-        Butten bb = new Butten();
-        Test t = new Test();
-        Script.code("document.getElementsByTagName('body')[0].appendChild(",t,")");
-        Script.code("document.getElementsByTagName('body')[0].appendChild(",bb,")");
-        //print("Hello","World!");
-        TClass cl = CastUtil.cast(String.class);
-        Class ar = cl.getArrayClass();
-        int a = 8;
+        Butten t1 = new Butten();
+        attach(t1);
+        DOM.setHTML(t1, "test1");
 
-        Script.code("console.dir(",ar,")");
+        Butten t2 = new Butten();
+        attach(t2);
+        DOM.setHTML(t2, "test2");
 
-        //String[] strings = ArrayBuilder.create(String.class, "1","2","3","4","5","6","7");
-        String[][] strings = {{"1","2","3"},{"4","5","6","7"}};
-        String[] str = new String[10];
-        Script.code("console.dir(", strings,")");
-        Script.code("console.dir(", str,")");
-        for (int i = 0; i < strings.length; i++)
-            Script.code("console.info('LEN='+", strings[i],")");
-        print("Hello!", "World!");
+        Butten t3 = new Butten();
+        attach(t3);
+        DOM.setHTML(t3, "test3");
 
+        info("Event listener=");
+        dir(ee);
+        info("------------");
 
-        EventListener el = (e)->{
-            Script.code("console.info('EVENT!');");
-            Script.code("console.info('STR='+",a,");");
+        Events.EventListener el3 = (s, e) -> {
+            info("CLICK3");
         };
 
+        Events.addEventListener(t1, "click", ee, false);
+        Events.addEventListener(t2, "click", (s, e) -> {
+            info("CLICK2");
+            dir(t2);
+            Events.removeEventListener(t3, "click", el3, false);
+        }, false);
 
-        /*
-        EventListener tt = new EventListener(){
-            @Override
-            public void onEvent(Object sender) {
-                Script.code("console.info('Hello from annonimus class!');");
-            }
-        };
-        */
-
-        //el.onEvent(null);
+        Events.addEventListener(t3, "click", el3, false);
     }
 
     @Override
@@ -57,9 +67,9 @@ public class Main extends Parent<String> {
         super.doit(val);
     }
 
-    public static void print(String ... list) {
+    public static void print(String... list) {
         for (String s : list) {
-            Script.code("console.info('-->'+", s,")");
+            Script.code("console.info('-->'+", s, ")");
         }
     }
 
