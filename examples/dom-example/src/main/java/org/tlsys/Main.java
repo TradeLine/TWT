@@ -12,8 +12,10 @@ public class Main extends Parent<String> {
     public Main() {
         Script.code("console.info('Class created!')");
         Script.code("console.info('Hash='+",hashCode(),")");
+        Butten bb = new Butten();
         Test t = new Test();
         Script.code("document.getElementsByTagName('body')[0].appendChild(",t,")");
+        Script.code("document.getElementsByTagName('body')[0].appendChild(",bb,")");
         //print("Hello","World!");
         TClass cl = CastUtil.cast(String.class);
         Class ar = cl.getArrayClass();
@@ -30,19 +32,23 @@ public class Main extends Parent<String> {
             Script.code("console.info('LEN='+", strings[i],")");
         print("Hello!", "World!");
 
+
         EventListener el = (e)->{
             Script.code("console.info('EVENT!');");
             Script.code("console.info('STR='+",a,");");
         };
 
+
+        /*
         EventListener tt = new EventListener(){
             @Override
             public void onEvent(Object sender) {
                 Script.code("console.info('Hello from annonimus class!');");
             }
         };
+        */
 
-        el.onEvent(null);
+        //el.onEvent(null);
     }
 
     @Override

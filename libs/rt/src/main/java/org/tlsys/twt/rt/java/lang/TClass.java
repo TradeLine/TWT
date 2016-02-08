@@ -184,9 +184,6 @@ public class TClass {
         for (int i = 0; i < cr.getMethods().length(); i++) {
             MethodRecord mr = cr.getMethods().get(i);
             JArray<String> args = new JArray<>();
-            /*
-
-            */
 
             for (int j = 0; j < mr.getArguments().length(); j++) {
                 ArgumentRecord ar = mr.getArguments().get(j);
