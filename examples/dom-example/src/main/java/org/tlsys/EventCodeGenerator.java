@@ -32,7 +32,7 @@ public class EventCodeGenerator extends DefaultGenerator {
                     .append(",n:").append(execute.arguments.get(1).name)
                     .append(",u:").append(execute.arguments.get(3).name)
                     .append(",f:f")
-                    .append("})");
+                    .append("});");
 
             ps.append(execute.arguments.get(0).name).append(".addEventListener(")
                     .append(execute.arguments.get(1).name)
@@ -56,10 +56,11 @@ public class EventCodeGenerator extends DefaultGenerator {
                     .append("){").append(contener).append(".splice(i,1);")
                         .append(execute.arguments.get(0).name).append(".removeEventListener(g.n,g.f,g.u);")
                     .append("break;")
+                    .append("}")
                     .append("}");
 
             ps.append("if (").append(contener).append(".length==0)")
-                    .append("delete ").append(contener);
+                    .append("delete ").append(contener).append(";");
             ps.append("}");
             return;
         }

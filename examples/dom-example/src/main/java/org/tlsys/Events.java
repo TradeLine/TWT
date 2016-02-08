@@ -2,7 +2,9 @@ package org.tlsys;
 
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.CodeGenerator;
+import org.tlsys.twt.annotations.JSClass;
 
+@JSClass
 public class Events {
     public enum Type {
         CLICK,
@@ -19,6 +21,7 @@ public class Events {
     public static void removeEventListener(Object object, String eventType, EventListener listener, boolean useCapture) {
     }
 
+    @JSClass
     @FunctionalInterface
     public interface EventListener {
         public void onEvent(Object sender, Object event);
