@@ -62,6 +62,18 @@ public class TClass {
     private String domNode;
 
     private JDictionary<Object> lambdaList = new JDictionary<>();
+    private JDictionary<TClass> annonimusList = new JDictionary<>();
+
+    public TClass getAnnonimus(String name, AnnonimusProvider annonimusProvider) {
+
+        TClass cc = annonimusList.get(name);
+        if (cc != null)
+            return cc;
+        cc = new TClass("");
+        cc.initFor(annonimusProvider.getRecord());
+        annonimusList.set(name, cc);
+        return cc;
+    }
 
     public Object getLambda(String name, String methodName, Object method, Object scope) {
         Object t = lambdaList.get(name);
@@ -70,7 +82,7 @@ public class TClass {
 
 
         ClassRecord c = new ClassRecord(this.jsName+name, this.name+"$lambda"+name);
-        c.setSuper(()->superClass);
+        c.setSuper(()->CastUtil.cast(this));
         //c.addMethod(method.getMethod());//
 
         for (int i = 0; i < classRecord.getMethods().length(); i++) {

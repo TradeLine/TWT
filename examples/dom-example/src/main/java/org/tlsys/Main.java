@@ -35,6 +35,13 @@ public class Main extends Parent<String> {
             Script.code("console.info('STR='+",a,");");
         };
 
+        EventListener tt = new EventListener(){
+            @Override
+            public void onEvent(Object sender) {
+                Script.code("console.info('Hello from annonimus class!');");
+            }
+        };
+
         el.onEvent(null);
     }
 

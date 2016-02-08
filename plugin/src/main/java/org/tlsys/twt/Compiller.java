@@ -33,6 +33,7 @@ public class Compiller {
 
             for (Symbol.VarSymbol ee : ms.getParameters())
                 aclass.add(c.vClassLoader.loadClass(ee.type));
+            e.def
             VClass classIns = c.vClassLoader.loadClass(e.type);
 
             if (classIns.isParent(classIns.getClassLoader().loadClass(Enum.class.getName()))) {
