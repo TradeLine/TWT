@@ -10,6 +10,7 @@ public class Ajax {
     private Auth auth;
     private Object request;
     private String data;
+    private boolean sync;
 
     private Ajax(String url) {
         this.url = url;
@@ -60,6 +61,7 @@ public class Ajax {
     public Ajax get() {
         return method(Method.GET);
     }
+
 
     public Result sync() {
 
@@ -124,6 +126,10 @@ public class Ajax {
         public String header(String name) {
             return Script.code(request, ".getResponseHeader(",name,")");
         }
+    }
+
+    public interface DoneListener {
+        public void done();
     }
 
     public enum Method {
