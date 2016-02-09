@@ -52,7 +52,8 @@ public class Main extends Parent<String> {
         info("------------");
 
         Events.EventListener el3 = (s, e) -> {
-            info("CLICK3");
+            Ajax.Result rs = Ajax.create("http://127.0.0.1/test.php").get().sync();
+            dir(rs);
         };
 
         Events.addEventListener(t1, "click", ee, false);

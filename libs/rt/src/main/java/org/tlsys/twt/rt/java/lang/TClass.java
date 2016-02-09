@@ -108,6 +108,7 @@ public class TClass {
             TMethod mm = new TMethod();
             methods.add(mm);
             mm.name = mr.getName();
+            mm.jsName = mr.getJsName();
             mm.staticFlag = mr.isStaticFlag();
 
             if (mr.isStaticFlag())

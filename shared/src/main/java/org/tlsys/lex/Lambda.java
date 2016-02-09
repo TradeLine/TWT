@@ -35,7 +35,6 @@ public class Lambda extends Value implements Context {
     }
 
     public Lambda(VMethod method, Context parentContext) {
-        this.block = block;
         this.method = method;
         this.parentContext = parentContext;
     }

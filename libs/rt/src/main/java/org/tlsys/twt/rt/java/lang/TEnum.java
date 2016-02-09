@@ -15,4 +15,12 @@ public class TEnum {
         this.ordinal = ordinal;
         this.name = name;
     }
+
+    public int ordinal() {
+        return ordinal;
+    }
+
+    public String name() {
+        return name;
+    }
 }

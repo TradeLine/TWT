@@ -95,7 +95,7 @@ public class DefaultGenerator implements ICodeGenerator {
                     if (!o.getMethod().isStatic())
                         p.append(o.getSelf().getType().getClassLoader().loadClass(Class.class.getName()).getMethod("getJsClass").getRunTimeName()).append("().prototype.");
                     p.append(o.getMethod().getRunTimeName());
-                    p.append(".apply(this");
+                    p.append(".call(this");
                     printArg.test(false);
                     p.append(")");
                     return true;

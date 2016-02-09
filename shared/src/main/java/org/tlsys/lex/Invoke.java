@@ -40,6 +40,7 @@ public class Invoke extends Value {
 
     @Override
     public void getUsing(Collect c) {
+        c.add(self);
         c.add(method);
         for (Value v : arguments)
             c.add(v);
