@@ -16,6 +16,9 @@ import java.lang.reflect.Field;
 @ReplaceClass(Class.class)
 @CodeGenerator(NativeCodeGenerator.class)
 public class TClass {
+
+    static final String CLASS_IMP="$";
+
     private boolean inited = false;
     private String name;
     private Object cons = null;
@@ -177,6 +180,7 @@ public class TClass {
 
 
         cons = Script.code("new Function(", functionBody, ")");
+        Script.code(cons,".prototype[",CLASS_IMP,"]=",this);
         Script.code(cons, "['NEW']=", cons);
 
         for (int i = 0; i < cr.getMethods().length(); i++) {

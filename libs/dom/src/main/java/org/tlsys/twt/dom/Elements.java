@@ -1,9 +1,11 @@
 package org.tlsys.twt.dom;
 
 import org.tlsys.twt.Script;
+import org.tlsys.twt.annotations.JSClass;
 
 import java.util.Objects;
 
+@JSClass
 public final class Elements {
     private Elements() {
     }

@@ -5,6 +5,7 @@ import org.tlsys.lex.Collect;
 import org.tlsys.lex.Invoke;
 
 import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class VConstructor extends VExecute {
@@ -55,9 +56,10 @@ public class VConstructor extends VExecute {
                 '}';
     }
 
-    private static class MethodRef {
+    private static class MethodRef implements Serializable {
         private VClass parent;
         private ArrayList<VClass> arguments;
+
 
         public MethodRef(VClass parent, ArrayList<VClass> arguments) {
             this.parent = parent;
@@ -73,6 +75,8 @@ public class VConstructor extends VExecute {
         }
 
         Object readResolve() throws Exception {
+            if (getParent().constructors == null)
+                getParent().constructors = new ArrayList<>();
             return getParent().getConstructor(getArguments());
         }
     }

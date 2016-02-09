@@ -1,76 +1,61 @@
 package org.tlsys.twt.dom;
 
-import org.tlsys.twt.Event;
-import org.tlsys.twt.EventListener;
+import org.tlsys.twt.JArray;
 import org.tlsys.twt.Script;
-import org.tlsys.twt.annotations.InvokeGen;
 import org.tlsys.twt.annotations.JSClass;
-import org.tlsys.twt.annotations.NotCompile;
 
 import java.util.Objects;
 
-//@JSClass
+@JSClass
 public final class DOM {
     private DOM() {
     }
 
-    public static void setEvent(DomElement element, EventType eventName, EventListener listener) {
-        Event.setEvent(element, eventName.toEventName(), listener);
+    public static void setAttribute(Object element, String name, String value) {
+        Script.code(element,".setAttribute(",name,",",value,")");
     }
 
-    public static EventListener getEvent(DomElement element, EventType eventName) {
-        return Event.getEvent(element, eventName.toEventName());
+    public static Object[] childNodes(Object element) {
+        JArray ar = new JArray();
+        ar.setJSArray(Script.code(element,".childNodes"));
+
+        Object[] out = new Object[ar.length()];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = ar.get(i);
+        }
+        return out;
     }
 
-    public static void addEventListener(DomElement element, EventType eventName, EventListener listener) {
-        addEventListener(element, eventName, listener, false);
+
+    public static boolean hasAttribute(Object element, String name) {
+        return Script.code(element,".hasAttribute(",name,")");
     }
 
-    public static void addEventListener(DomElement element, EventType eventName, EventListener listener, boolean useCapture) {
-        Event.addEventListener(element, eventName.toEventName(), listener, useCapture);
+    public static String getAttribute(Object element, String name) {
+        String s = Script.code(element,".getAttribute(",name,")");
+        if (s == null || Script.isUndefined(s))
+            return null;
+        return s;
     }
 
-    public static void removeEventListener(DomElement element, EventType eventName, EventListener listener, boolean useCapture) {
-        Event.removeEventListener(element, eventName.toEventName(), listener, useCapture);
+    public static String removeAttribute(Object element, String name) {
+        String s = getAttribute(element, name);
+        Script.code(element,".removeAttribute(",name,")");
+        return s;
     }
 
-    public static void removeEventListener(DomElement element, EventType eventName, EventListener listener) {
-        removeEventListener(element, eventName, listener, false);
+    public static void appendChild(Object element, Object child) {
+        Script.code(element,".appendChild(",child,")");
     }
 
-    @NotCompile
-    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
-    public static native void setAttribute(DomElement element, String name, String value);
-
-    @NotCompile
-    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
-    public static native DomElement[] childNodes(DomElement element);
-
-
-    @NotCompile
-    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
-    public static native boolean hasAttribute(DomElement element, String name);
-
-    @NotCompile
-    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
-    public static native String getAttribute(DomElement element, String name);
-
-    @NotCompile
-    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
-    public static native String removeAttribute(DomElement element, String name);
-
-    @NotCompile
-    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
-    public static native void appendChild(DomElement element, DomElement child);
-
-    public static void appendChildBefor(DomElement before, DomElement child) {
-        DomElement parent = Objects.requireNonNull(getParent(before));
+    public static void appendChildBefor(Object before, Object child) {
+        Object parent = Objects.requireNonNull(getParent(before));
         Script.code(parent,".insertBefore(",child,",",before,")");
     }
 
-    public static void appendChildAfter(DomElement after, DomElement child) {
-        DomElement parent = getParent(after);
-        DomElement[] elements = childNodes(parent);
+    public static void appendChildAfter(Object after, Object child) {
+        Object parent = getParent(after);
+        Object[] elements = childNodes(parent);
 
         if (elements[elements.length-1] == after) {
             appendChild(parent, child);
@@ -88,98 +73,67 @@ public final class DOM {
         throw new RuntimeException("Can not found before node");
     }
 
-    public static void replaceChild(DomElement element, DomElement replaceTo) {
-        DomElement parent = getParent(element);
+    public static void replaceChild(Object element, Object replaceTo) {
+        Object parent = getParent(element);
         Script.code(parent,".replaceChild(",element,",",replaceTo,")");
     }
 
-    public static int childLength(DomElement element) {
+    public static int childLength(Object element) {
         return Script.code(element,".childNodes.length");
     }
 
-    public static DomElement getChild(DomElement element, int index) {
+    public static Object getChild(Object element, int index) {
         //TODO добавитиь проверку index: не выходит лион за пределы
         return Script.code(element,".childNodes.item(",index,")");
     }
 
-    @NotCompile
-    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
-    public static native void removeChild(DomElement element, DomElement child);
+    public static void removeChild(Object element) {
+        Object parent = getParent(element);
+        if (parent == null)
+            return;
+        Script.code(parent,".removeChild(",element,")");
+    }
 
-    @NotCompile
-    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
-    public static native DomElement[] getElementsByTagName(DomElement element, String tag);
+    public static Object[] getElementsByTagName(Object element, String tag) {
+        JArray ar = new JArray();
+        ar.setJSArray(Script.code(element,".getElementsByTagName(",tag,")"));
 
-    @NotCompile
-    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
-    public static native String getHTML(DomElement element);
+        Object[] out = new Object[ar.length()];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = ar.get(i);
+        }
+        return out;
+    }
 
-    @NotCompile
-    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
-    public static native void setHTML(DomElement element, String html);
+    public static void setHTML(Object dom, String html) {
+        Script.code(dom,".innerHTML=",html);
+    }
+    public static String getHTML(Object dom) {
+        return Script.code(dom,".innerHTML");
+    }
 
-    @NotCompile
-    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
-    public static native DomElement getParent(DomElement element);
+    public static Object getParent(Object element) {
+        Object o = Script.code(element,".parentElement");
+        if (o == null || Script.isUndefined(o))
+            return null;
+        return null;
+    }
 
-    public static DomElement queryFirst(DomElement element, String html) {
-        DomElement dom = Script.code(element,".querySelector(",html,")");
+    public static Object queryFirst(Object element, String html) {
+        Object dom = Script.code(element,".querySelector(",html,")");
         if (dom == null || Script.isUndefined(dom))
             return null;
         return dom;
     }
 
-    @NotCompile
-    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
-    public static native DomElement[] query(DomElement element, String html);
+    public static Object[] query(Object element, Object selector) {
+        JArray ar = new JArray();
+        ar.setJSArray(Script.code(element,".querySelectorAll(",selector,")"));
 
-    @NotCompile
-    @InvokeGen(org.tlsys.twt.dom.DomMethodInvokeGenerator.class)
-    public native static <T extends DomElement> T createFor(DomElement element, Class<T> clazz);
-
-    public enum EventType {
-        FOCUS,
-        BLUR,
-
-        CLICK,
-        DOUBLE_CLICK,
-
-        MOUSE_DOWN,
-        MOUSE_UP,
-        MOUSE_MOVE,
-        MOUSE_OVER,
-
-        KEY_DOWN,
-        KEY_UP,
-        KEY_PRESS;
-
-        private String toEventName() {
-            switch (this) {
-                case FOCUS:
-                    return "focus";
-                case BLUR:
-                    return "blur";
-                case CLICK:
-                    return "click";
-                case DOUBLE_CLICK:
-                    return "dblclick";
-                case MOUSE_DOWN:
-                    return "mousedown";
-                case MOUSE_UP:
-                    return "mouseup";
-                case MOUSE_MOVE:
-                    return "mousemove";
-                case MOUSE_OVER:
-                    return "mouseover";
-                case KEY_DOWN:
-                    return "keydown";
-                case KEY_UP:
-                    return "keyup";
-                case KEY_PRESS:
-                    return "keypress";
-                default:
-                    throw new RuntimeException("Unknown type");
-            }
+        Object[] out = new Object[ar.length()];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = ar.get(i);
         }
+        return out;
     }
 }

@@ -3,10 +3,7 @@ package org.tlsys.lex.declare;
 import com.sun.tools.javac.code.Symbol;
 import org.tlsys.lex.*;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectStreamException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -88,7 +85,7 @@ public class VField extends VVar implements Member, CodeDynLoad {
         return this;
     }
 
-    private static class FieldRef {
+    private static class FieldRef implements Serializable {
         private String name;
         private VClass parent;
 

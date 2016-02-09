@@ -4,6 +4,7 @@ import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.classes.ArrayBuilder;
+import org.tlsys.twt.dom.DOM;
 import org.tlsys.twt.rt.java.lang.TClass;
 
 @JSClass

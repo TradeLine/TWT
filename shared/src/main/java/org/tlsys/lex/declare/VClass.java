@@ -27,10 +27,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     public String codeGenerator = null;
     public VClass extendsClass;
     public ArrayList<VClass> implementsList = new ArrayList<>();
-    public ArrayList<StaticBlock> statics = new ArrayList<>();
-    public ArrayList<VField> fields = new ArrayList<>();
-    public ArrayList<VConstructor> constructors = new ArrayList<>();
-    public ArrayList<VMethod> methods = new ArrayList<>();
     private transient VClassLoader classLoader;
     private int modificators;
     private VClass parent;
@@ -38,6 +34,11 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     private transient Class javaClass;
     public String realName;
     public String domNode;
+
+    public transient ArrayList<VField> fields = new ArrayList<>();
+    public transient ArrayList<VConstructor> constructors = new ArrayList<>();
+    public transient ArrayList<VMethod> methods = new ArrayList<>();
+    public ArrayList<StaticBlock> statics = new ArrayList<>();
 
     public VClass() {
         classSymbol = null;
@@ -383,6 +384,10 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     private void writeObject(ObjectOutputStream out) throws Exception {
         out.defaultWriteObject();
+        out.writeObject(constructors);
+        out.writeObject(fields);
+        out.writeObject(methods);
+        out.writeObject(statics);
     }
 
     private void readObject(ObjectInputStream in) throws Exception {
@@ -390,6 +395,10 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             throw new RuntimeException("Not supported");
         setClassLoader(getCurrentClassLoader());
         in.defaultReadObject();
+        constructors = (ArrayList<VConstructor>) in.readObject();
+        fields = (ArrayList<VField>) in.readObject();
+        methods = (ArrayList<VMethod>) in.readObject();
+        statics = (ArrayList<StaticBlock>) in.readObject();
     }
 
     public VField getField(String name) throws VFieldNotFoundException {

@@ -31,7 +31,9 @@ public class TObject {
 
     //@InvokeGen("org.tlsys.twt.rt.java.lang.ObjectInvokeAdapter")
     @MethodName("getClass")
-    public native Class getJClass();
+    public Class getJClass() {
+        return Script.code(this,"[",TClass.CLASS_IMP,"]");
+    }
 
     public String toString() {
         return getClass().getName()+"@"+hashCode();

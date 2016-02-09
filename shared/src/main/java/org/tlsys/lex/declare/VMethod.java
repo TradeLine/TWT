@@ -3,6 +3,7 @@ package org.tlsys.lex.declare;
 import com.sun.tools.javac.code.Symbol;
 
 import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class VMethod extends VExecute {
@@ -68,7 +69,7 @@ public class VMethod extends VExecute {
         return this;
     }
 
-    private static class MethodRef {
+    private static class MethodRef implements Serializable {
         private String alias;
         private VClass parent;
         private ArrayList<VClass> arguments;

@@ -206,7 +206,7 @@ public class Compiller {
                     i.arguments.add(c.op(e.args.get(c1), o));
                 }
             }
-            i.returnType = self.getType().getClassLoader().loadClass(e.type);
+            i.returnType = c.vClass.getClassLoader().loadClass(e.type);
             /*
             if (i.getType() != retType) {
                 Cast cast = new Cast(retType, i);
