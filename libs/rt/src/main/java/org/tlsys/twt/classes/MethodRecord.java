@@ -11,7 +11,7 @@ public class MethodRecord {
     private final JArray<ArgumentRecord> arguments = new JArray<>();
     private String jsName;
     private String name;
-    private String body;
+    private Object body;
     private boolean staticFlag;
 
     public JArray<ArgumentRecord> getArguments() {
@@ -26,7 +26,7 @@ public class MethodRecord {
         return name;
     }
 
-    public String getBody() {
+    public Object getBody() {
         return body;
     }
 
@@ -34,7 +34,7 @@ public class MethodRecord {
         return staticFlag;
     }
 
-    public MethodRecord(String jsName, String name, String body, boolean staticFlag) {
+    public MethodRecord(String jsName, String name, Object body, boolean staticFlag) {
         this.body = body;
         this.jsName = jsName;
         this.name = name;

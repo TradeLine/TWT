@@ -27,7 +27,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     public String codeGenerator = null;
     public VClass extendsClass;
     public ArrayList<VClass> implementsList = new ArrayList<>();
-    public ArrayList<VBlock> statics = new ArrayList<>();
+    public ArrayList<StaticBlock> statics = new ArrayList<>();
     public ArrayList<VField> fields = new ArrayList<>();
     public ArrayList<VConstructor> constructors = new ArrayList<>();
     public ArrayList<VMethod> methods = new ArrayList<>();
@@ -98,12 +98,15 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         for (VField f : fields) {
             c.add(f);
         }
+
+        for (StaticBlock v : statics)
+            c.add(v);
     }
 
     public Collect getAllUsing() {
         Collect c = Collect.create();
         getUsing(c);
-        for (VBlock v : statics)
+        for (StaticBlock v : statics)
             c.add(v);
         for (VConstructor v : constructors)
             c.add(v);

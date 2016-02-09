@@ -6,6 +6,8 @@ import org.tlsys.lex.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamException;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -77,5 +79,34 @@ public class VField extends VVar implements Member, CodeDynLoad {
             init = (Operation) o;
         } else
             init = null;
+    }
+
+    Object writeReplace() throws ObjectStreamException {
+        if (getParent().getClassLoader() != VClass.getCurrentClassLoader()) {
+            return new FieldRef(name, getParent());
+        }
+        return this;
+    }
+
+    private static class FieldRef {
+        private String name;
+        private VClass parent;
+
+        public FieldRef(String name, VClass parent) {
+            this.name = name;
+            this.parent = parent;
+        }
+
+        public VClass getParent() {
+            return parent;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        Object readResolve() throws Exception {
+            return getParent().getField(getName());
+        }
     }
 }

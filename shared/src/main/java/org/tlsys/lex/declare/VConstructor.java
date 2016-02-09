@@ -1,9 +1,16 @@
 package org.tlsys.lex.declare;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.lex.Collect;
+import org.tlsys.lex.Invoke;
+
+import java.io.ObjectStreamException;
+import java.util.ArrayList;
 
 public class VConstructor extends VExecute {
     private static final long serialVersionUID = 6381674695841109642L;
+
+    public Invoke parentConstructorInvoke;
 
     public VConstructor(VClass parent, Symbol.MethodSymbol symbol) {
         super(parent, symbol);
@@ -23,11 +30,50 @@ public class VConstructor extends VExecute {
     }
 
     @Override
+    public void getUsing(Collect c) {
+        super.getUsing(c);
+        if (parentConstructorInvoke != null)
+            c.add(parentConstructorInvoke);
+    }
+
+    Object writeReplace() throws ObjectStreamException {
+        if (getParent().getClassLoader() != VClass.getCurrentClassLoader()) {
+            ArrayList<VClass> args = new ArrayList<>(arguments.size());
+            for (int i = 0; i < arguments.size(); i++)
+                args.add(arguments.get(i).getType());
+            return new MethodRef(getParent(), args);
+        }
+        return this;
+    }
+
+    @Override
     public String toString() {
         return "VConstructor{" +
                 "name='" + getRunTimeName() + '\'' +
                 ", alias='" + alias + '\'' +
                 ", parent=" + getParent() +
                 '}';
+    }
+
+    private static class MethodRef {
+        private VClass parent;
+        private ArrayList<VClass> arguments;
+
+        public MethodRef(VClass parent, ArrayList<VClass> arguments) {
+            this.parent = parent;
+            this.arguments = arguments;
+        }
+
+        public VClass getParent() {
+            return parent;
+        }
+
+        public ArrayList<VClass> getArguments() {
+            return arguments;
+        }
+
+        Object readResolve() throws Exception {
+            return getParent().getConstructor(getArguments());
+        }
     }
 }

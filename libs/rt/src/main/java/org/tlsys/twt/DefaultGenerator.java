@@ -514,7 +514,25 @@ public class DefaultGenerator implements ICodeGenerator {
 
     @Override
     public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps) throws CompileException {
-        operation(context, execute.block, ps);
+        if (execute instanceof VConstructor) {
+            VConstructor c = (VConstructor)execute;
+            if (c.parentConstructorInvoke != null) {
+                operation(context, c.parentConstructorInvoke, ps);
+                ps.append(";");
+            }
+            for (VField f : c.getParent().fields) {
+                if (f.isStatic())
+                    continue;
+                ps.append("this.").append(f.name).append("=");
+                operation(context, f.init, ps);
+                ps.append(";");
+            }
+        }
+
+        for (Operation op: execute.block.operations) {
+            operation(context, op, ps);
+            ps.append(";");
+        }
     }
 
     protected void addGenerated(VClass clazz) {

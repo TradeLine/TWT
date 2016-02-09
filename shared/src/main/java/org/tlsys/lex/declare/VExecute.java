@@ -68,7 +68,6 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
             c.add(a);
         if (block != null)
             c.add(block);
-        //c.add(getParent());
     }
 
     @Override

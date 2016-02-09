@@ -16,6 +16,23 @@ import java.lang.reflect.Field;
 @ReplaceClass(Class.class)
 @CodeGenerator(NativeCodeGenerator.class)
 public class TClass {
+    private boolean inited = false;
+    private String name;
+    private Object cons = null;
+    private String jsName;
+    private JArray<TField> fields = new JArray<>();
+    private Class superClass;
+    private JArray<Class> implementList = new JArray<>();
+    private JArray<TConstructor> constructors;
+    private JArray<TMethod> methods;
+    private ClassRecord classRecord;
+    private String domNode;
+    private JDictionary<Object> lambdaList = new JDictionary<>();
+    private JDictionary<TClass> annonimusList = new JDictionary<>();
+    private Class arrayClass = null;
+    public TClass(String name) {
+    }
+
     //@InvokeGen("org.tlsys.twt.rt.java.lang.ClassInvoke")
     public String getName() {
         return Script.code("this.fullName");
@@ -31,8 +48,6 @@ public class TClass {
         return Script.code("this.simpleName");
     }
 
-    private boolean inited = false;
-
     public boolean isInited() {
         return inited;
     }
@@ -41,28 +56,9 @@ public class TClass {
         //
     }
 
-    private String name;
-
-    private Object cons = null;
-    private String jsName;
-
     public Object getJsClass() {
         return cons;
     }
-
-    private JArray<TField> fields = new JArray<>();
-
-    private Class superClass;
-    private JArray<Class> implementList = new JArray<>();
-    private JArray<TConstructor> constructors;
-    private JArray<TMethod> methods;
-
-    private ClassRecord classRecord;
-
-    private String domNode;
-
-    private JDictionary<Object> lambdaList = new JDictionary<>();
-    private JDictionary<TClass> annonimusList = new JDictionary<>();
 
     public TClass getAnnonimus(String name, AnnonimusProvider annonimusProvider) {
 
@@ -81,8 +77,8 @@ public class TClass {
             return t;
 
         TClass self = this;
-        ClassRecord c = new ClassRecord(this.jsName+name, this.name+"$lambda"+name);
-        c.setSuper(()->CastUtil.cast(self));
+        ClassRecord c = new ClassRecord(this.jsName + name, this.name + "$lambda" + name);
+        c.setSuper(() -> CastUtil.cast(self));
         //c.addMethod(method.getMethod());//
 
         for (int i = 0; i < classRecord.getMethods().length(); i++) {
@@ -93,8 +89,8 @@ public class TClass {
 
         TClass cc = new TClass("");
         cc.initFor(c);
-        Script.code(cc.cons,".prototype[",methodName,"]=function(){return ",method,".apply(",scope,",arguments);}");
-        t = Script.code("new ",cc.cons,"()");
+        Script.code(cc.cons, ".prototype[", methodName, "]=function(){return ", method, ".apply(", scope, ",arguments);}");
+        t = Script.code("new ", cc.cons, "()");
         lambdaList.set(name, t);
         return t;
     }
@@ -115,9 +111,9 @@ public class TClass {
             mm.staticFlag = mr.isStaticFlag();
 
             if (mr.isStaticFlag())
-                mm.jsFunction = Script.code(this,"[",mr.getJsName(),"]");
+                mm.jsFunction = Script.code(this, "[", mr.getJsName(), "]");
             else
-                mm.jsFunction = Script.code(this.cons,".prototype[",mr.getJsName(),"]");
+                mm.jsFunction = Script.code(this.cons, ".prototype[", mr.getJsName(), "]");
 
             for (int j = 0; j < mr.getArguments().length(); j++) {
                 ArgumentRecord ar = mr.getArguments().get(j);
@@ -141,7 +137,7 @@ public class TClass {
 
             mm.jsName = mr.getJsName();
             mm.parentClass = CastUtil.cast(this);
-            mm.jsFunction = Script.code(this.cons,".prototype[",mr.getJsName(),"]");
+            mm.jsFunction = Script.code(this.cons, ".prototype[", mr.getJsName(), "]");
 
             for (int j = 0; j < mr.getArguments().length(); j++) {
                 ArgumentRecord ar = mr.getArguments().get(j);
@@ -155,8 +151,9 @@ public class TClass {
         this.jsName = cr.getJsName();
         classRecord = cr;
         this.name = cr.getName();
-        String fieldInitFlag = cr.getJsName()+"_";
+        String fieldInitFlag = cr.getJsName() + "_";
         String functionBody = "";
+        /*
         String fieldInit = "if (!this."+fieldInitFlag+"){";
 
         for (int i = 0; i < cr.getFields().length(); i++) {
@@ -166,6 +163,7 @@ public class TClass {
             }
         }
         fieldInit+="this.fieldInitFlag=true;}";
+        */
         //Object functionFieldInit = Script.code("new Function(",fieldInit,")");
 
         if (cr.getSuper() != null)
@@ -177,66 +175,69 @@ public class TClass {
         //Script.code(cons,".c=",this);
 
 
-
-        cons = Script.code("new Function(",functionBody,")");
-        Script.code(cons,"['NEW']=",cons);
+        cons = Script.code("new Function(", functionBody, ")");
+        Script.code(cons, "['NEW']=", cons);
 
         for (int i = 0; i < cr.getMethods().length(); i++) {
             MethodRecord mr = cr.getMethods().get(i);
+            /*
             JArray<String> args = new JArray<>();
 
             for (int j = 0; j < mr.getArguments().length(); j++) {
                 ArgumentRecord ar = mr.getArguments().get(j);
                 args.add(ar.getName());
             }
+            */
 
             if (mr.getName() == null) {
                 //TConstructor con = (TConstructor)exe;
-
+                /*
                 if (Object.class != CastUtil.cast(this)) {
+
                     int p = mr.getBody().indexOf(";");
                     //TODO добавить проверку на p=-1
                     String callConstructor = mr.getBody().substring(0, p+1);
                     String body = mr.getBody().substring(callConstructor.length());
                     args.add(callConstructor+fieldInit+body);
                 } else
-                    args.add(fieldInit + mr.getBody());
+                */
+                //args.add(mr.getBody());
 
                 if (domNode == null) {
                     JArray<String> a = new JArray<>();
                     String arguments = "";
                     for (int j = 0; j < mr.getArguments().length(); j++) {
-                        if (j>0)
-                            arguments+=",";
-                        arguments+=mr.getArguments().get(j).getName();
+                        if (j > 0)
+                            arguments += ",";
+                        arguments += mr.getArguments().get(j).getName();
                         a.add(mr.getArguments().get(j).getName());
                     }
                     a.add(Script.code("'var o = new ", cons, "();" +
-                            "o.'+", mr.getJsName(), "+'('+",arguments,"+'); return o;'"));
-                    Script.code(this, "['n'+", mr.getJsName(), "]=Function.apply(null,",a.getJSArray(),")");
-                }else {
-                    Script.code(this,"['n'+",mr.getJsName(),"]=new Function('" +
-                            "var o = document.createElement(",this.domNode,");" +
-                            "for(var k in ",cons,".prototype) o[k]=",cons,".prototype[k];" +
-                            "o.'+",mr.getJsName(),"+'();return o;')");
+                            "o.'+", mr.getJsName(), "+'('+", arguments, "+'); return o;'"));
+                    Script.code(this, "['n'+", mr.getJsName(), "]=Function.apply(null,", a.getJSArray(), ")");
+                } else {
+                    Script.code(this, "['n'+", mr.getJsName(), "]=new Function('" +
+                            "var o = document.createElement(", this.domNode, ");" +
+                            "for(var k in ", cons, ".prototype) o[k]=", cons, ".prototype[k];" +
+                            "o.'+", mr.getJsName(), "+'();return o;')");
                 }
             } else {
-                args.add(mr.getBody());
+                //args.add(mr.getBody());
             }
 
-            Object func = Script.code("Function.apply(null, ",args.getJSArray(),")");
+            //Object func = Script.code("Function.apply(null, ",args.getJSArray(),")");
 
-            if (mr.isStaticFlag()) {
-                Script.code(this,"[",mr.getJsName(),"]=",func);
+            if (mr.isStaticFlag() && mr.getName() != null) {
+                Script.code(this, "[", mr.getJsName(), "]=", mr.getBody());
             } else {
-                Script.code(cons, ".prototype[", mr.getJsName(), "]=", func);
+                Script.code(cons, ".prototype[", mr.getJsName(), "]=", mr.getBody());
             }
         }
 
         for (int i = 0; i < cr.getFields().length(); i++) {
             FieldRecord fr = cr.getFields().get(i);
             if (fr.isStaticFlag()) {
-                Script.code(this,"[",fr.getJsName(),"]=eval(",fr.getInitValue(),")");
+                Script.code(this, "[", fr.getJsName(), "]=eval(", fr.getInitValue(), ")");
             }
         }
 
@@ -249,12 +250,16 @@ public class TClass {
                 if (mm == null) {
                     mm = ss.methods.get(i);
                     if (mm.staticFlag) {
-                        Script.code(this,"[",mm.jsName,"]=",mm.jsFunction);
+                        Script.code(this, "[", mm.jsName, "]=", mm.jsFunction);
                     } else {
-                        Script.code(cons,".prototype[",mm.jsName,"]=",mm.jsFunction);
+                        Script.code(cons, ".prototype[", mm.jsName, "]=", mm.jsFunction);
                     }
                 }
             }
+        }
+
+        for (int i = 0; i < cr.getStatics().length(); i++) {
+            Script.code(cr.getStatics().get(i),"()");
         }
     }
 
@@ -267,7 +272,7 @@ public class TClass {
     }
 
     @JSName("isPrimitive")
-    public boolean isPrimitive(){
+    public boolean isPrimitive() {
         return Script.code("this.primitive");
     }
 
@@ -281,8 +286,6 @@ public class TClass {
         return Script.code("Object.getPrototypeOf(this)==AT");
     }
 
-    private Class arrayClass = null;
-
     @CodeGenerator(GenArrayClassCreateMethod.class)
     private native Class initArrayClass();
 
@@ -293,15 +296,12 @@ public class TClass {
         return arrayClass;
     }
 
-    public TClass(String name) {
-    }
-
     public Object cast(Object obj) {
         if (obj == null)
             return null;
         if (isInstance(obj))
             return obj;
-        throw new ClassCastException("Can not cast from " + getName() + " to " + obj.getClass().getName() );
+        throw new ClassCastException("Can not cast from " + getName() + " to " + obj.getClass().getName());
     }
 
     public boolean isInstance(Object obj) {
@@ -336,6 +336,6 @@ public class TClass {
     public Class getComponentType() {
         if (!isArray())
             return null;
-        return Script.code("getClass(",this,".type,","this.len-1)");
+        return Script.code("getClass(", this, ".type,", "this.len-1)");
     }
 }

@@ -12,7 +12,6 @@ import org.tlsys.twt.rt.java.lang.TClass;
 @CodeGenerator(NativeCodeGenerator.class)
 public class ClassStorage {
     public ClassRecord add(ClassRecord cr) {
-        Script.code("console.info('add class'+",cr.getJsName(),")");
         Script.code(this,"[",cr.getJsName(),"]=",cr);
         return cr;
     }

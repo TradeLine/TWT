@@ -158,8 +158,16 @@ public class Generator implements MainGenerator {
 
     public static Value genClassRecord(GenerationContext gc, VClass vClass, Predicate<VExecute> exeNeed, Supplier<Value> newClass) throws CompileException {
         VClassLoader cl = vClass.getClassLoader();
-        VClass classClassRecord = cl.loadClass(ClassRecord.class.getName());
         VClass classString = cl.loadClass(String.class.getName());
+        VClass objectClass = cl.loadClass(Object.class.getName());
+
+        VClass classClassRecord = cl.loadClass(ClassRecord.class.getName());
+        VMethod addStaticMethod = classClassRecord.getMethod("addStatic", objectClass);
+
+
+        VClass scriptClass = cl.loadClass(Script.class.getName());
+        VMethod codeMethod = scriptClass.getMethodByName("code").get(0);
+
         VClass classBoolean = cl.loadClass("boolean");
         VClass classValueProvider = cl.loadClass(ValueProvider.class.getName());
         VClass classMethodRecord = cl.loadClass(MethodRecord.class.getName());
@@ -170,10 +178,12 @@ public class Generator implements MainGenerator {
         VMethod classAddMethod = classClassRecord.getMethod("addMethod", classMethodRecord);
         VMethod methodSetSuper = classClassRecord.getMethod("setSuper", classTypeProvider);
         VMethod methodAddImplement = classClassRecord.getMethod("addImplement", classTypeProvider);
-        VConstructor methodConstructor = classMethodRecord.getConstructor(classString, classString, classString, classBoolean);//получаем конструктор MethodRecord
+        VConstructor methodConstructor = classMethodRecord.getConstructor(classString, classString, objectClass, classBoolean);//получаем конструктор MethodRecord
         VMethod addFieldMethod = classClassRecord.getMethod("addField", classString, classString, classTypeProvider, classString, classBoolean);
         VMethod setDomNodeMethod = classClassRecord.getMethod("setDomNode", classString);
+
         VConstructor argumentConstructor = classArgumentRecord.getConstructor(classString, classBoolean, classTypeProvider);
+
 
         ICodeGenerator hc2 = gc.getGenerator(vClass);
         GenerationContext gc2 = new MainGenerationContext(vClass, null);
@@ -226,26 +236,39 @@ public class Generator implements MainGenerator {
                 newMethod.arguments.add(new Const(e.alias, classString));
 
 
-            StringOutputStream functionBody = new StringOutputStream();
 
-            ICodeGenerator cg = gc2.getGenerator(e);
-            boolean nullBody = true;
-            if (cg != null) {
-                if (e.block != null) {
-                    cg.generateExecute(gc2, e, functionBody.getStream());
-                    nullBody = false;
+            if (e.block == null)
+                newMethod.arguments.add(new Const(null, objectClass));
+            else {
+                ICodeGenerator cg = gc2.getGenerator(e);
+                Invoke inv = new Invoke(codeMethod, new StaticRef(scriptClass));
+                NewArrayItems args = new NewArrayItems(objectClass.getArrayClass());
+                inv.addArg(args);
+                StringOutputStream sos = new StringOutputStream();
+
+                sos.getStream().append("function(");
+                boolean first = true;
+                for (VArgument a : e.arguments) {
+                    if (!first)
+                        sos.getStream().append(",");
+                    sos.getStream().append(a.name);
+                    first = false;
                 }
-            } else {
-                if (e.block != null) {
-                    hc2.generateExecute(gc2, e, functionBody.getStream());
-                    nullBody = false;
+                sos.getStream().append("){");
+
+                if (cg != null) {
+                    cg.generateExecute(gc2, e, sos.getStream());
+                } else {
+                    hc2.generateExecute(gc2, e, sos.getStream());
                 }
+                sos.getStream().append("}");
+
+                args.elements.add(new Const(sos.toString(), classString));
+
+
+
+                newMethod.arguments.add(inv);
             }
-
-            if (nullBody)
-                newMethod.arguments.add(new Const(null, classString));
-            else
-                newMethod.arguments.add(new Const(functionBody.toString().replace("\"", "\\\""), classString));
             newMethod.arguments.add(new Const(e.isStatic(), classBoolean));
 
             for (VArgument a : e.arguments) {
@@ -261,6 +284,16 @@ public class Generator implements MainGenerator {
             Invoke invokeAddmethod = new Invoke(classAddMethod, lastScope)
                     .addArg(lastMethodScope);
             lastScope = invokeAddmethod;
+        }
+
+        for (StaticBlock b : vClass.statics) {
+
+            StringOutputStream sos = new StringOutputStream();
+            sos.getStream().append("function()");
+            hc2.operation(gc, b.getBlock(), sos.getStream());
+            //sos.getStream().append("}");
+            lastScope = new Invoke(addStaticMethod, lastScope)
+                            .addArg(new Invoke(codeMethod, new StaticRef(scriptClass)).addArg(new NewArrayItems(objectClass.getArrayClass()).addEl(new Const(sos.toString(), classString))));
         }
 
         return lastScope;

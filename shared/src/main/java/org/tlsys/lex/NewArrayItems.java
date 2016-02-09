@@ -41,4 +41,9 @@ public class NewArrayItems extends Value {
         }
         c.add(clazz);
     }
+
+    public NewArrayItems addEl(Value value) {
+        elements.add(value);
+        return this;
+    }
 }

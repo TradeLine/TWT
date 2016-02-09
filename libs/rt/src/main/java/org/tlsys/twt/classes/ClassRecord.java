@@ -17,6 +17,11 @@ public class ClassRecord {
     private JArray<MethodRecord> methods = new JArray<>();
     private JArray<TypeProvider> imps = new JArray<>();
     private TypeProvider superClass;
+    private JArray<Object> statics = new JArray<>();
+
+    public JArray<Object> getStatics() {
+        return statics;
+    }
 
     public ClassRecord(String jsName, String name) {
         this.jsName = jsName;
@@ -29,6 +34,11 @@ public class ClassRecord {
 
     public String getDomNode() {
         return domNode;
+    }
+
+    public ClassRecord addStatic(Object block) {
+        statics.add(block);
+        return this;
     }
 
     public ClassRecord setDomNode(String domNode) {

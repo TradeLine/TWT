@@ -301,7 +301,20 @@ public class GenPlugin extends AbstractMojo {
             return;
         }
 
+        if (member instanceof StaticBlock) {
+            StaticBlock sb = (StaticBlock)member;
+            JCTree.JCBlock b = (JCTree.JCBlock)tree;
+            for (JCTree.JCStatement t : b.getStatements()) {
+                sb.getBlock().add(com.st(t,sb));
+            }
+            return;
+        }
+
         throw new RuntimeException("Code analize for " + tree.getClass().getName() + " not ready yet");
+    }
+
+    private void analizeStatic(VClass clazz, JCTree.JCClassDecl decl) {
+
     }
 
     public void analiseExtends(Pair p, VClassLoader loader) throws VClassNotFoundException {

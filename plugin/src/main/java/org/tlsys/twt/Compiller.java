@@ -679,6 +679,12 @@ public class Compiller {
             return null;
         }
 
+        if (decl instanceof JCTree.JCBlock) {
+            StaticBlock sb = new StaticBlock(clazz);
+            vClass.statics.add(sb);
+            return sb;
+        }
+
         throw new RuntimeException("Not supported " + decl.getClass().getName() + " " + decl);
     }
 
@@ -688,6 +694,18 @@ public class Compiller {
 
         try {
             method.block = (VBlock) st(dec.body, method);
+            if (method instanceof VConstructor) {
+                VConstructor cons = (VConstructor)method;
+                if (!method.block.operations.isEmpty()) {
+                    if (method.block.operations.get(0) instanceof Invoke) {
+                        Invoke inv = (Invoke)method.block.operations.get(0);
+                        if (inv.getMethod() instanceof VConstructor) {
+                            cons.parentConstructorInvoke = inv;
+                            cons.block.operations.remove(0);
+                        }
+                    }
+                }
+            }
         } catch (Throwable e) {
             throw new CompileException("Can't compile " + method.getParent().fullName+"::"+method.getRunTimeName(), e);
         }

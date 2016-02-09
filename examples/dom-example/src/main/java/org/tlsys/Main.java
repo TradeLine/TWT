@@ -22,6 +22,10 @@ public class Main extends Parent<String> {
         Script.code("document.getElementsByTagName('body')[0].appendChild(", dom, ")");
     }
 
+    static {
+        info("Hello from static");
+    }
+
     private static void info(String text) {
         Script.code("console.info(", text, ")");
     }

@@ -29,7 +29,7 @@ public class CodeGenerator {
         for (VClass v : loader.classes) {
             if (v.alias == null)
                 v.alias = v.fullName;
-            v.fullName = "$" + Long.toString(++classNameIterator, Character.MAX_RADIX);
+            v.fullName = v.fullName.replace('.','_')+"_" + Long.toString(++classNameIterator, Character.MAX_RADIX);
 
 
             for (VField f : v.fields) {
@@ -43,10 +43,10 @@ public class CodeGenerator {
                     m.alias = m.getRunTimeName();
                 int argIterator = 0;
                 for (VArgument a : m.arguments) {
-                    a.name = "a" + Integer.toString(++argIterator, Character.MAX_RADIX);
+                    a.name = a.name+"_" + Integer.toString(++argIterator, Character.MAX_RADIX);
                 }
                 if (m.getReplace() == null)
-                    m.setRuntimeName("m" + Long.toString(++methodNameIterator, Character.MAX_RADIX));
+                    m.setRuntimeName(m.getRunTimeName()+"_" + Long.toString(++methodNameIterator, Character.MAX_RADIX));
             }
 
             int constructIterator = 0;
