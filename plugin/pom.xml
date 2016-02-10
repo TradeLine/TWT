@@ -12,7 +12,7 @@
     <groupId>org.tlsys</groupId>
     <artifactId>twt</artifactId>
     <version>1.0</version>
-    <name>TWT Build Plugin</name>
+    <name>TWT Build org.tlsys.Plugin</name>
     <url>http://tlsys.org</url>
     <dependencies>
         <dependency>

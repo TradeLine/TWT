@@ -1,0 +1,12 @@
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies{
+    compile files("${System.properties['java.home']}/../lib/tools.jar")
+    testCompile 'junit:junit:4.12'
+}

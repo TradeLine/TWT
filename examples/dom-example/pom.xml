@@ -31,6 +31,20 @@
         <plugins>
             <plugin>
                 <groupId>org.tlsys</groupId>
+                <artifactId>twt-gradle-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>demo</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--
+            <plugin>
+                <groupId>org.tlsys</groupId>
                 <artifactId>twt</artifactId>
                 <version>1.0</version>
                 <executions>
@@ -58,6 +72,7 @@
                     </targets>
                 </configuration>
             </plugin>
+            -->
         </plugins>
     </build>
 </project>

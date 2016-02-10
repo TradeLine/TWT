@@ -1,0 +1,9 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.tlsys:twt-gradle-plugin:1.0"
+    }
+}

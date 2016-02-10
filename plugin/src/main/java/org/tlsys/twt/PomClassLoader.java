@@ -190,6 +190,7 @@ public class PomClassLoader extends URLClassLoader {
             ObjectInputStream ois = new ObjectInputStream(is);
             jsClassLoader = (VClassLoader) ois.readObject();
             jsClassLoader.setJavaClassLoader(this);
+            System.out.println("->" + cl);
 
             return jsClassLoader;
         } catch (IOException e) {

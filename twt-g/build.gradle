@@ -1,0 +1,39 @@
+group 'org.tlsys'
+version = '1.0'
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    jcenter()
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile gradleApi()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId "$group"
+            artifactId 'twt-gradle-plugin'
+            version "$version"
+            from components.java
+        }
+    }
+}
+uploadArchives {
+    repositories {
+        mavenLocal()
+    }
+}
+
+task aaa{
+}
