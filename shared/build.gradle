@@ -6,6 +6,17 @@ repositories {
     mavenCentral()
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId "org.tlsys"
+            artifactId 'twt-shared'
+            version "1.0"
+            from components.java
+        }
+    }
+}
+
 dependencies{
     compile files("${System.properties['java.home']}/../lib/tools.jar")
     testCompile 'junit:junit:4.12'

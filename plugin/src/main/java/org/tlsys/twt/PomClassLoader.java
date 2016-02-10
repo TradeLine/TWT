@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 public class PomClassLoader extends URLClassLoader {
-    public static final String JSLIB = "jslib.data";
+
     private static final Logger LOG = Logger.getLogger(PomClassLoader.class.getName());
     /*
         public PomClassLoader(URL url) {
@@ -169,41 +169,7 @@ public class PomClassLoader extends URLClassLoader {
         return jarFile;
     }
 
-    public VClassLoader getJSClassLoader() {
-        if (jsClassLoader != null)
-            return jsClassLoader;
-        if (!haveJSLib)
-            return null;
-        try (InputStream is = getResourceAsStream(JSLIB)) {
-            if (is == null) {
-                haveJSLib = false;
-                return null;
-            }
 
-            ArrayList<VClassLoader> cl = new ArrayList<>(parents.size());
-            for (PomClassLoader p : parents) {
-                VClassLoader vv = p.getJSClassLoader();
-                if (vv != null)
-                    cl.add(vv);
-            }
-            VClassLoader.setParentList(cl);
-            ObjectInputStream ois = new ObjectInputStream(is);
-            jsClassLoader = (VClassLoader) ois.readObject();
-            jsClassLoader.setJavaClassLoader(this);
-            System.out.println("->" + cl);
-
-            return jsClassLoader;
-        } catch (IOException e) {
-            throw new RuntimeException(name,e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(name,e);
-        }
-    }
-
-    public void saveJSClassLoader(OutputStream outputStream) throws IOException {
-        ObjectOutputStream oos = new ObjectOutputStream(outputStream);
-        oos.writeObject(jsClassLoader);
-    }
 
     @Override
     public String toString() {

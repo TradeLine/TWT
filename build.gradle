@@ -1,9 +1,15 @@
+apply plugin: 'idea'
+
+group 'org.tlsys'
+version = '1.0'
+
 buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
+        jcenter()
     }
     dependencies {
-        classpath "org.tlsys:twt-gradle-plugin:1.0"
+
     }
 }
