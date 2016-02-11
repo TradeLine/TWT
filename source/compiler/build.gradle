@@ -1,0 +1,29 @@
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    jcenter()
+}
+
+System.out.println("hello $group")
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId "org.tlsys"
+            artifactId 'twt-compiler'
+            version "1.0"
+            from components.java
+        }
+    }
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile project(":shared")
+}

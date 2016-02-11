@@ -1,0 +1,18 @@
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'org.tlsys'
+            artifactId 'twt-rt'
+            version '1.0'
+            from components.java
+        }
+    }
+}
+
+dependencies {
+    compile project(':shared')
+}

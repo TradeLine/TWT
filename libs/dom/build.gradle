@@ -1,7 +1,0 @@
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-
-dependencies{
-    compile project(":shared")
-    compile project(":libs/rt")
-}

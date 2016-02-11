@@ -1,6 +1,0 @@
-rootProject.name = 'TWT'
-include "examples/dom-example"
-include "libs/rt"
-include "libs/dom"
-include "shared"
-

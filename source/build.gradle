@@ -1,0 +1,3 @@
+apply plugin: 'idea'
+group 'org.tlsys'
+version = '1.0'
