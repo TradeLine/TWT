@@ -4,6 +4,7 @@ import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.util.JavacTask;
 import com.sun.tools.javac.api.JavacTool;
 import org.tlsys.lex.declare.VClassLoader;
+import org.tlsys.twt.CompileException;
 import org.tlsys.twt.SourceClassLoader;
 
 import javax.lang.model.util.Types;
@@ -16,7 +17,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 public class SourceCompiler {
-    public static void compile(SourceClassLoader projectClassLoader) throws IOException {
+    public static void compile(SourceClassLoader projectClassLoader) throws IOException, CompileException {
         JavaCompiler compiler = JavacTool.create();
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, Charset.forName("UTF-8"));
         ProjectFileManager projectFileManager = new ProjectFileManager(fileManager, projectClassLoader);
@@ -34,5 +35,7 @@ public class SourceCompiler {
         }
 
         javacTask.analyze();
+
+        ClassCompiler.compile(compiled, projectClassLoader.getJsClassLoader(), e->projectClassLoader.getJsClassLoader().addClass(e));
     }
 }
