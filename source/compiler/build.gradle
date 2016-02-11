@@ -26,4 +26,5 @@ publishing {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile project(":shared")
+    compile name: 'maven-model', group:'org.apache.maven', version:'3.0.3'
 }

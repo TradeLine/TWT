@@ -28,6 +28,8 @@ public class ArtifactRecolver {
             return Optional.empty();
         version = ver.get();
         ar = new File(ar + File.separator + version);
+        String prifix = ar+File.separator+name+"-"+version;
+        return Optional.of(new ArtifactRecord(new File(prifix+".jar"), new File(prifix+".pom")));
     }
 
     private static Optional<String> selectVersion(File[] all, String version) {

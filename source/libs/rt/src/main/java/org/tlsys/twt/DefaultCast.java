@@ -17,7 +17,6 @@ public class DefaultCast implements ICastAdapter {
             inv.arguments.add(value);
             inv.returnType = to;
             return inv;
-            //throw new RuntimeException("Cast not supported");
         }
     }
 }

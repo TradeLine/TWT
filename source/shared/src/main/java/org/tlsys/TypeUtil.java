@@ -9,9 +9,6 @@ import org.tlsys.lex.declare.VClassNotFoundException;
 import javax.lang.model.type.NullType;
 import java.util.Objects;
 
-/**
- * Created by Субочев Антон on 11.02.2016.
- */
 public final class TypeUtil {
     private TypeUtil() {
     }

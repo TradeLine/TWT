@@ -23,7 +23,6 @@ public abstract class DClassLoader extends URLClassLoader {
     }
 
     public abstract Set<DClassLoader> getParents();
-    public File file;
     private boolean haveJSLib = true;
     private VClassLoader jsClassLoader;
     private final DLoader loader;
