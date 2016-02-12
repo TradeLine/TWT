@@ -5,9 +5,7 @@ import org.tlsys.lex.declare.VClassLoader;
 import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public abstract class DClassLoader extends URLClassLoader {
 
@@ -67,5 +65,55 @@ public abstract class DClassLoader extends URLClassLoader {
     public void saveJSClassLoader(OutputStream outputStream) throws IOException {
         ObjectOutputStream oos = new ObjectOutputStream(outputStream);
         oos.writeObject(jsClassLoader);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
+
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+        name = name.trim();
+        try {
+            return Thread.currentThread().getContextClassLoader().loadClass(name);
+        } catch (ClassNotFoundException e) {
+
+        }
+        try {
+            Class cl = super.loadClass(name);
+            return cl;
+        } catch (ClassNotFoundException e) {
+        }
+        for (ClassLoader cl : getParents()) {
+            try {
+                return cl.loadClass(name);
+            } catch (ClassNotFoundException e) {
+                //
+            }
+        }
+        return getSystemClassLoader().loadClass(name);
+    }
+
+
+    @Override
+    public Enumeration<URL> getResources(String name) throws IOException {
+        final Set<URL> urls = new HashSet<>();
+        for (ClassLoader cl : getParents()) {
+            urls.addAll(Collections.list(cl.getResources(name)));
+        }
+        urls.addAll(Collections.list(super.getResources(name)));
+        urls.addAll(Collections.list(getSystemClassLoader().getResources(name)));
+        return Collections.enumeration(urls);
+    }
+
+    @Override
+    public Enumeration<URL> findResources(String name) throws IOException {
+        final HashSet<URL> urls = new HashSet<>();
+        for (DClassLoader cl : getParents()) {
+            urls.addAll(Collections.list(cl.findResources(name)));
+        }
+        urls.addAll(Collections.list(super.findResources(name)));
+        return Collections.enumeration(urls);
     }
 }

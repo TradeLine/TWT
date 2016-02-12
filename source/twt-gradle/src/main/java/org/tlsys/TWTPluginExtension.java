@@ -2,12 +2,16 @@ package org.tlsys;
 
 import org.gradle.api.DefaultTask;
 
+import java.io.File;
+
 public class TWTPluginExtension {
-    private String sampleFilePath="/home/mahendra/abc";
-    public void setSampleFilePath(String sampleFilePath){
-        this.sampleFilePath=sampleFilePath;
+    private String sourceName="main";
+
+    public String getSourceName() {
+        return sourceName;
     }
-    public String getSampleFilePath(){
-        return sampleFilePath;
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 }

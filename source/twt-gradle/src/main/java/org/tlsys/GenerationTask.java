@@ -12,15 +12,25 @@ import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
+import org.gradle.api.file.DirectoryTree;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileTree;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.artifacts.repositories.DefaultMavenLocalArtifactRepository;
+import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.tlsys.twt.ArtifactRecolver;
 import org.tlsys.twt.DLoader;
+import org.tlsys.twt.compiler.SourceCompiler;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -42,10 +52,27 @@ public class GenerationTask extends DefaultTask {
             }
         }
 
-        GradleProjectDClassLoader mainLoader = new GradleProjectDClassLoader(getProject(), artifactRecolver, loader);
+        TWTPluginExtension extension = getProject().getExtensions().findByType(TWTPluginExtension.class);
+
+        FileCollection source = getInputs().getSourceFiles();
+        JavaPluginConvention javaConvention = getProject().getConvention().getPlugin(JavaPluginConvention.class);
+        SourceSetContainer ssc = javaConvention.getSourceSets();
+        SourceSet ss = ssc.getByName(extension.getSourceName());
+
+        Optional<File> sources = ss.getAllSource().getSrcDirs().stream().filter(e -> e.getName().equals("java")).findFirst();
+        if (!sources.isPresent())
+            throw new TaskExecutionException(this, new RuntimeException("Can't find directore with java source"));
+
+
+        //GradleProjectDClassLoader mainLoader = new GradleProjectDClassLoader(getProject(), artifactRecolver, loader);
 
 
         try {
+            File classDir = new File(getProject().getBuildDir().getAbsolutePath()+File.separator+"classes"+File.separator+extension.getSourceName());
+            ProjectSourceDClassLoader mainLoader = new ProjectSourceDClassLoader(sources.get(), classDir, artifactRecolver, loader, getProject());
+            loader.add(mainLoader);
+
+            SourceCompiler.compile(mainLoader);
             /*
             ConfigurationContainer cc = getProject().getConfigurations();
             for (Configuration c : cc) {
@@ -68,9 +95,7 @@ public class GenerationTask extends DefaultTask {
             ComponentMetadataHandler cmh = dh.getComponents();
             System.out.println("->" + dh + cmm + cmh + cc);
             */
-            TWTPluginExtension extension = getProject().getExtensions().findByType(TWTPluginExtension.class);
-            String filePath = extension.getSampleFilePath();
-            LOG.info("Sample file path is: " + filePath);
+
             LOG.info("Successfully completed sample Task");
         }catch(Exception e){
             LOG.info("ERROR");
