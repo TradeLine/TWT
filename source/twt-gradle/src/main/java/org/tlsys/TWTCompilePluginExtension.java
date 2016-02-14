@@ -4,7 +4,7 @@ import org.gradle.api.DefaultTask;
 
 import java.io.File;
 
-public class TWTPluginExtension {
+public class TWTCompilePluginExtension {
     private String sourceName="main";
 
     public String getSourceName() {

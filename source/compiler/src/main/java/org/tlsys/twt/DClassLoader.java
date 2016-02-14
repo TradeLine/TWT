@@ -99,6 +99,8 @@ public abstract class DClassLoader extends URLClassLoader {
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
         final Set<URL> urls = new HashSet<>();
+        if (getParents() == null)
+            System.out.println("123");
         for (ClassLoader cl : getParents()) {
             urls.addAll(Collections.list(cl.getResources(name)));
         }

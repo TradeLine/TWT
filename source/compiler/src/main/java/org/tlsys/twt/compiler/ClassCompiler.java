@@ -12,6 +12,7 @@ import org.tlsys.lex.VVar;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.CompileContext;
 import org.tlsys.twt.CompileException;
+import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.DomNode;
 import org.tlsys.twt.annotations.ReplaceClass;
@@ -66,6 +67,7 @@ public class ClassCompiler {
         v.realName = c.sym.toString();
         v.fullName = v.realName;
         CompilerTools.getAnnatationValueClass(c.getModifiers(), CodeGenerator.class).ifPresent(e -> v.codeGenerator = e);
+        CompilerTools.getAnnatationValueString(c.getModifiers(), ClassName.class).ifPresent(e -> v.alias = e);
         CompilerTools.getAnnatationValueClass(c.getModifiers(), ReplaceClass.class).ifPresent(e -> v.alias = e);
         CompilerTools.getAnnatationValueString(c.getModifiers(), DomNode.class).ifPresent(e -> v.domNode = e);
         v.setClassLoader(vClassLoader);

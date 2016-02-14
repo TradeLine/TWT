@@ -6,7 +6,7 @@ public class GradlePlugin implements org.gradle.api.Plugin<Project> {
 
     @Override
     public void apply(Project target) {
-        target.getExtensions().create("twt-plugin", TWTPluginExtension.class);
-        target.getTasks().create("demo",GenerationTask.class);
+        target.getExtensions().create("twt-plugin", TWTCompilePluginExtension.class);
+        target.getTasks().create("twt_compile",CompileTask.class);
     }
 }

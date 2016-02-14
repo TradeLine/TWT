@@ -1,15 +1,13 @@
 package org.tlsys;
 
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.DependencyArtifact;
-import org.gradle.api.artifacts.ExternalModuleDependency;
-import org.gradle.api.artifacts.ProjectDependency;
+import org.gradle.api.artifacts.*;
 import org.tlsys.twt.*;
 
 import java.io.File;
-import java.util.Optional;
-import java.util.Set;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.*;
 
 final class Utils {
     private Utils() {
@@ -37,21 +35,31 @@ final class Utils {
         return d;
     }
 
-    public static DClassLoader loadClass(ArtifactRecolver artifactRecolver, DLoader loader, Dependency dependency) {
+    public static Collection<DClassLoader> loadClass(ArtifactRecolver artifactRecolver, DLoader loader, Dependency dependency) throws IOException {
         if (dependency instanceof ProjectDependency) {
             ProjectDependency pd = (ProjectDependency)dependency;
             Optional<DClassLoader> p = loader.getByName(Utils.getDClassLoaderName(pd.getDependencyProject()));
             if (p.isPresent())
-                return p.get();
+                return Arrays.asList(p.get());
             DClassLoader cd = new GradleProjectDClassLoader(pd.getDependencyProject(), artifactRecolver, loader);
             loader.add(cd);
-            return cd;
+            return Arrays.asList(cd);
         }
 
         if (dependency instanceof ExternalModuleDependency) {
             ExternalModuleDependency emd  = (ExternalModuleDependency)dependency;
             ArtifactRecord ar = artifactRecolver.getArtifacte(emd.getName(), emd.getGroup(), emd.getVersion());
-            return loadClass(artifactRecolver, loader, ar);
+            return Arrays.asList(loadClass(artifactRecolver, loader, ar));
+        }
+
+        if (dependency instanceof SelfResolvingDependency) {
+            SelfResolvingDependency srd = (SelfResolvingDependency)dependency;
+            Set<File> file = srd.resolve();
+            ArrayList<DClassLoader> out = new ArrayList<DClassLoader>(file.size());
+            for (File f : file) {
+                out.add(loadClass(loader, f));
+            }
+            return out;
         }
         throw new RuntimeException("Unknown dependency " + dependency.getClass().getName());
     }

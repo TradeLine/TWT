@@ -1,6 +1,5 @@
 package org.tlsys.twt;
 
-import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.lex.Invoke;
 import org.tlsys.lex.Value;
 

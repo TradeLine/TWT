@@ -1,6 +1,5 @@
 package org.tlsys.twt.rt;
 
-import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.lex.Operation;
 import org.tlsys.lex.declare.VExecute;
 import org.tlsys.twt.*;

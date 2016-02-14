@@ -43,7 +43,7 @@ public class ProjectSourceDClassLoader extends SourceClassLoader {
 
         for (Configuration c : project.getConfigurations()) {
             for (Dependency d : c.getDependencies()) {
-                parents.add(Utils.loadClass(artifactRecolver, getLoader(), d));
+                parents.addAll(Utils.loadClass(artifactRecolver, getLoader(), d));
             }
         }
         VClassLoader cl = new VClassLoader(getName());
@@ -53,6 +53,8 @@ public class ProjectSourceDClassLoader extends SourceClassLoader {
                 cl.parents.add(l);
         }
         setJsClassLoader(cl);
+
+        addURL(classDir.toURI().toURL());
     }
 
     @Override
