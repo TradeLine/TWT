@@ -1,9 +1,6 @@
-package org.tlsys;
-
-import org.tlsys.twt.*;
+package org.tlsys.twt;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Set;
 

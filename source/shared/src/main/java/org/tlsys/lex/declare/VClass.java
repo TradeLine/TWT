@@ -434,7 +434,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
                 }
             }
             VClassLoader ll = getCurrentClassLoader();
-            System.out.println("=>" + ll);
+            System.out.println("=>" + ll + " J=" + ll.getJavaClassLoader());
             throw new VClassNotFoundException(getName());
         }
     }

@@ -64,7 +64,7 @@ public class VMethod extends VExecute {
             ArrayList<VClass> args = new ArrayList<>(arguments.size());
             for (int i = 0; i < arguments.size(); i++)
                 args.add(arguments.get(i).getType());
-            return new MethodRef(alias, getParent(), args);
+            return new MethodRef(getRunTimeName(), getParent(), args);
         }
         return this;
     }

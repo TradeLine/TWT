@@ -1,12 +1,10 @@
-package org.tlsys;
+package org.tlsys.twt;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.*;
-import org.tlsys.twt.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.*;
 
 final class Utils {

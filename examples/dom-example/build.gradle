@@ -25,3 +25,8 @@ dependencies {
 }
 
 apply plugin: 'twt-gradle'
+
+
+classes{
+    dependsOn generateTWT
+}

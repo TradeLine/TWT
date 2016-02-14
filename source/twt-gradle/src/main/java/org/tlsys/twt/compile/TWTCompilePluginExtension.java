@@ -1,4 +1,4 @@
-package org.tlsys;
+package org.tlsys.twt.compile;
 
 import org.gradle.api.DefaultTask;
 

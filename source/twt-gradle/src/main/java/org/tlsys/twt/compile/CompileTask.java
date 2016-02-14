@@ -1,4 +1,4 @@
-package org.tlsys;
+package org.tlsys.twt.compile;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
@@ -10,9 +10,7 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
-import org.tlsys.twt.ArtifactRecolver;
-import org.tlsys.twt.DClassLoader;
-import org.tlsys.twt.DLoader;
+import org.tlsys.twt.*;
 import org.tlsys.twt.compiler.SourceCompiler;
 
 import java.io.File;
@@ -21,8 +19,6 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 public class CompileTask extends DefaultTask {
-
-    private static final Logger LOG = Logger.getLogger(CompileTask.class.getName());
 
     @TaskAction
     public void samplePluginTasks() throws TaskExecutionException {

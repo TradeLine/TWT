@@ -140,10 +140,11 @@ public class VClassLoader implements Serializable {
         if (parentList == null)
             throw new IllegalStateException("parents not set");
         VClass.setCurrentClassLoader(this);
+        this.parents.addAll(parentList.get());
         loading = true;
         in.defaultReadObject();
 
-        this.parents.addAll(parentList.get());
+
 
         for (VClass cl : classes)
             cl.loadCode(in);

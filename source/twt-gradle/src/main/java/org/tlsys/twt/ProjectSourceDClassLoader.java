@@ -1,15 +1,9 @@
-package org.tlsys;
+package org.tlsys.twt;
 
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.resources.ResourceHandler;
 import org.tlsys.lex.declare.VClassLoader;
-import org.tlsys.twt.ArtifactRecolver;
-import org.tlsys.twt.DClassLoader;
-import org.tlsys.twt.DLoader;
-import org.tlsys.twt.SourceClassLoader;
 import org.tlsys.twt.compiler.SourceFinder;
 
 import java.io.File;
@@ -53,6 +47,7 @@ public class ProjectSourceDClassLoader extends SourceClassLoader {
                 cl.parents.add(l);
         }
         setJsClassLoader(cl);
+        cl.setJavaClassLoader(this);
 
         addURL(classDir.toURI().toURL());
     }

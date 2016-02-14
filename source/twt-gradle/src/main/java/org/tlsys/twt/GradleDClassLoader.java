@@ -1,4 +1,4 @@
-package org.tlsys;
+package org.tlsys.twt;
 
 import org.tlsys.twt.DClassLoader;
 import org.tlsys.twt.DLoader;
