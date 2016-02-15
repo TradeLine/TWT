@@ -23,20 +23,20 @@ public class GenerationTarget {
         return this;
     }
 
-    public String mainClass() {
+    public String main() {
         return mainClass;
     }
 
-    public GenerationTarget mainClass(String mainClass) {
+    public GenerationTarget main(String mainClass) {
         this.mainClass = mainClass;
         return this;
     }
 
-    public String fileName() {
+    public String out() {
         return fileName;
     }
 
-    public GenerationTarget fileName(String fileName) {
+    public GenerationTarget out(String fileName) {
         this.fileName = fileName;
         return this;
     }

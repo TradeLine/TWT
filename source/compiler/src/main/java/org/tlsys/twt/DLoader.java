@@ -1,8 +1,6 @@
 package org.tlsys.twt;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Контекст загруженных зависимостей
@@ -17,5 +15,9 @@ public final class DLoader {
 
     public void add(DClassLoader loader) {
         loaders.put(loader.getName(), loader);
+    }
+
+    public Collection<DClassLoader> getLoaders() {
+        return loaders.values();
     }
 }

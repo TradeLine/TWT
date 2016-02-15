@@ -56,7 +56,6 @@ public class CompilerTools {
                 e->m.generator=e
         );
         getAnnatationValueClass(mem.getModifiers(), InvokeGen.class).ifPresent(e->m.invokeGenerator=e);
-        System.out.println("METHOD ->" + m.getParent().realName + "::" + m.getRunTimeName() + " " + m.invokeGenerator);
         m.setModificators(toFlags(mem.getModifiers().getFlags()));
         for (JCTree.JCVariableDecl v : mem.getParameters()) {
             //Set<Modifier> mm = v.getModifiers().getFlags();

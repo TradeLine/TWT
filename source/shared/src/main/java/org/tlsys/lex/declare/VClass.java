@@ -286,8 +286,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         } else if (symbol.type != null && symbol.type instanceof Type.MethodType) {
             Type.MethodType fa = (Type.MethodType) symbol.type;
             for (Type t : fa.argtypes) {
-                if (getClassLoader() == null)
-                    System.out.println("123");
                 args.add(TypeUtil.loadClass(getClassLoader(), t));
             }
         }
@@ -434,7 +432,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
                 }
             }
             VClassLoader ll = getCurrentClassLoader();
-            System.out.println("=>" + ll + " J=" + ll.getJavaClassLoader());
             throw new VClassNotFoundException(getName());
         }
     }

@@ -14,10 +14,6 @@ public class MethodNotFoundException extends CompileException {
     }
 
     private static String gen(VClass clazz, String methodName, List<VClass> arguments) {
-        if (clazz == null)
-            System.out.println("123");
-        if (methodName == null)
-            System.out.println("123");
         StringBuilder sb = new StringBuilder(Objects.requireNonNull(clazz).fullName).append("::").append(Objects.requireNonNull(methodName)).append("(");
         boolean first = true;
         for (VClass v : Objects.requireNonNull(arguments)) {

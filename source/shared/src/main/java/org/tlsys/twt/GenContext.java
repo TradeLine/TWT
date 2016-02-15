@@ -189,7 +189,6 @@ public interface GenContext {
             Type.ArrayType a = (Type.ArrayType) type;
             Class el = getClass(a.elemtype);
             String fullName = "[" + RefUtils.getClassSignName(el);
-            System.out.println("try search class... " + fullName + " in " + el.getName());
             return Array.newInstance(el, 0).getClass();
         }
         if (type instanceof Type.JCPrimitiveType) {
@@ -244,10 +243,8 @@ public interface GenContext {
         try {
             return getAppClassLoader().loadClass(name);
         } catch (ClassNotFoundException e) {
-            System.out.println("name=" + name + ", getAppClassLoader().hash=" + getAppClassLoader().hashCode());
             throw e;
         } catch (NoClassDefFoundError e) {
-            System.out.println("name=" + name + ", getAppClassLoader().hash=" + getAppClassLoader().hashCode());
             throw e;
         }
     }

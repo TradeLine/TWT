@@ -22,7 +22,6 @@ public class ArtifactRecolver {
     private static Optional<ArtifactRecord> find(File repo, String name, String group, String version) {
         File ar = new File(repo + File.separator + group.replace('.',File.separatorChar)+File.separator+name);
         File[] versions = ar.listFiles(pathname -> pathname.isDirectory());
-        System.out.println(""+ar);
         Optional<String> ver = selectVersion(versions, version);
         if (!ver.isPresent())
             return Optional.empty();

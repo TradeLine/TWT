@@ -58,8 +58,6 @@ class OperationCompiler {
         });
 
         addProc(JCTree.JCLiteral.class, (c, e, o) -> {
-            if (e.getValue() == null)
-                System.out.println("123");
             return new Const(e.getValue(), c.loadClass(e.type));
         });
 
@@ -171,8 +169,6 @@ class OperationCompiler {
             if (method instanceof VConstructor && method.getParent().isParent(method.getParent().getClassLoader().loadClass(Enum.class.getName()))) {
                 VBlock block = (VBlock)o;
                 VConstructor cons = (VConstructor)block.getParentContext();
-                if (cons.arguments.size() != 2)
-                    System.out.println("123");
                 return new Invoke(method, new This(cons.getParent())).addArg(cons.arguments.get(0)).addArg(cons.arguments.get(1));
             }
             if (method.isStatic())
@@ -187,8 +183,6 @@ class OperationCompiler {
                     i.arguments.add(nai);
                     break;
                 } else {
-                    if (e.args.size() <= c1)
-                        System.out.println("123");
                     i.arguments.add(c.op(e.args.get(c1), o));
                 }
             }
@@ -272,8 +266,6 @@ class OperationCompiler {
         addProc(JCTree.JCAssign.class, (c, e, o) -> {
             Value v = c.op(e.lhs, o);
             Value v2 = c.op(e.rhs, o);
-            if (v2 instanceof VField)
-                System.out.println("123");
             if (v instanceof GetField) {
                 GetField gf = (GetField) v;
                 SetField sf = new SetField(gf.getScope(), gf.getField(), v2, Assign.AsType.ASSIGN);

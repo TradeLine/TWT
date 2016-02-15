@@ -38,10 +38,8 @@ public abstract class DClassLoader extends URLClassLoader {
         try (InputStream is = getResourceAsStream(JSLIB)) {
             if (is == null) {
                 haveJSLib = false;
-                System.out.println("Liblary " + getName() + " not have JS");
                 return null;
             }
-            System.out.println("Liblary " + getName() + " have JS");
 
             ArrayList<VClassLoader> cl = new ArrayList<>(getParents().size());
             for (DClassLoader p : getParents()) {
@@ -79,8 +77,6 @@ public abstract class DClassLoader extends URLClassLoader {
 
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
-        LOG.info("load class " + name);
-        System.out.println("==>>" + name);
         Objects.requireNonNull(name, "Argument \"name\" is NULL");
         name = name.trim();
         try {
@@ -107,8 +103,6 @@ public abstract class DClassLoader extends URLClassLoader {
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
         final Set<URL> urls = new HashSet<>();
-        if (getParents() == null)
-            System.out.println("123");
         for (ClassLoader cl : getParents()) {
             urls.addAll(Collections.list(cl.getResources(name)));
         }

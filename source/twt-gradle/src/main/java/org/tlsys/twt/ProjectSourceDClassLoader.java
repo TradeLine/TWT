@@ -22,7 +22,6 @@ public class ProjectSourceDClassLoader extends SourceClassLoader {
     public ProjectSourceDClassLoader(File sourceDir, File classDir, ArtifactRecolver artifactRecolver, DLoader loader, Project project) throws IOException {
         super(loader);
         this.project = project;
-        System.out.println("Source = " + sourceDir);
 
 
         sourcees = SourceFinder.getCompileClasses(classDir, name -> {

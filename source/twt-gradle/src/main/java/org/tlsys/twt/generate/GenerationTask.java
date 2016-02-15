@@ -10,6 +10,8 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
+import org.tlsys.lex.Invoke;
+import org.tlsys.lex.StaticRef;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.*;
 import org.tlsys.twt.compile.TWTCompilePluginExtension;
@@ -17,6 +19,7 @@ import org.tlsys.twt.compiler.SourceCompiler;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Optional;
 
@@ -56,8 +59,17 @@ public class GenerationTask extends DefaultTask {
 
             TWTGenerationPluginExtension genPropertys = getProject().getExtensions().findByType(TWTGenerationPluginExtension.class);
             for (GenerationTarget gt : genPropertys.getTargets()) {
-                try (PrintStream ps = new PrintStream(new FileOutputStream(new File(getProject().getBuildDir(), gt.fileName())))) {
+                try (PrintStream ps = new PrintStream(new FileOutputStream(new File(getProject().getBuildDir(), gt.out())))) {
                     CompileModuls cm = new CompileModuls();
+                    Optional<VMethod> mainMethod = null;
+                    if (gt.main() != null) {
+                        VClass mainClass = mainLoader.getJsClassLoader().loadClass(gt.main());
+                        mainMethod = mainClass.getMethodByName("main").stream().filter(e->e.getParent() == mainClass).findFirst();
+                        if (!mainMethod.isPresent())
+                            throw new CompileException("Can't method main in " + gt.main());
+                        cm.add(mainMethod.get());
+                    }
+
                     for (String c : gt.getClasses()) {
                         cm.add(mainLoader.getJsClassLoader().loadClass(c));
                     }
@@ -65,6 +77,10 @@ public class GenerationTask extends DefaultTask {
                     Class cl = mainLoader.loadClass(gt.generator());
                     MainGenerator mg = (MainGenerator) cl.newInstance();
                     mg.generate(mainLoader.getJsClassLoader(), cm, ps);
+
+                    if (mainMethod != null) {
+                        mg.generateInvoke(mainMethod.get(), ps);
+                    }
                 }
             }
             /*
@@ -75,6 +91,14 @@ public class GenerationTask extends DefaultTask {
         }catch(Exception e){
             e.printStackTrace();
             throw new TaskExecutionException(this,new Exception("Exception occured while processing sampleTask",e));
+        } finally {
+            for(DClassLoader cl : loader.getLoaders()) {
+                try {
+                    cl.close();
+                } catch (IOException io) {
+                    //ignore
+                }
+            }
         }
     }
 

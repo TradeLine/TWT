@@ -32,8 +32,6 @@ public final class TypeUtil {
             return loader.loadClass(Object.class.getName());
 
         try {
-            if (type.tsym == null)
-                System.out.println("123");
             if (type.tsym.owner != null && type.tsym.owner instanceof Symbol.ClassSymbol) {
                 return loader.loadClass(loadClass(loader, type.tsym.owner.type).fullName + "." + type.tsym.name.toString());
             }

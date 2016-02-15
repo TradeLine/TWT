@@ -15,6 +15,7 @@ import org.tlsys.twt.compiler.SourceCompiler;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -57,6 +58,14 @@ public class CompileTask extends DefaultTask {
         }catch(Exception e){
             e.printStackTrace();
             throw new TaskExecutionException(this,new Exception("Exception occured while processing sampleTask",e));
+        } finally {
+            for(DClassLoader cl : loader.getLoaders()) {
+                try {
+                    cl.close();
+                } catch (IOException io) {
+                    //ignore
+                }
+            }
         }
     }
 }
