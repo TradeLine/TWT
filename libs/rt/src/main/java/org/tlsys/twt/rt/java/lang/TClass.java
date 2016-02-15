@@ -17,7 +17,7 @@ import java.lang.reflect.Field;
 @CodeGenerator(NativeCodeGenerator.class)
 public class TClass {
 
-    static final String CLASS_IMP="$";
+    static final String CLASS_IMP = "$";
 
     private boolean inited = false;
     private String name;
@@ -33,6 +33,7 @@ public class TClass {
     private JDictionary<Object> lambdaList = new JDictionary<>();
     private JDictionary<TClass> annonimusList = new JDictionary<>();
     private Class arrayClass = null;
+
     public TClass(String name) {
     }
 
@@ -105,9 +106,9 @@ public class TClass {
 
         for (int i = 0; i < classRecord.getMethods().length(); i++) {
             MethodRecord mr = classRecord.getMethods().get(i);
-            if (mr.getName() == null)
+            if (mr.getName() == null) {
                 continue;
-
+            }
             TMethod mm = new TMethod();
             methods.add(mm);
             mm.name = mr.getName();
@@ -124,6 +125,23 @@ public class TClass {
                 mm.arguments.add(ar.getType().getType());
             }
         }
+    }
+
+    public TConstructor[] getConstructors() {
+        TConstructor[] out = new TConstructor[constructors.length()];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = constructors.get(i);
+        }
+        return out;
+    }
+
+
+    public TMethod[] getMethods() {
+        TMethod[] out = new TMethod[methods.length()];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = methods.get(i);
+        }
+        return out;
     }
 
     private void initConstructors() {
@@ -180,7 +198,7 @@ public class TClass {
 
 
         cons = Script.code("new Function(", functionBody, ")");
-        Script.code(cons,".prototype[",CLASS_IMP,"]=",this);
+        Script.code(cons, ".prototype[", CLASS_IMP, "]=", this);
         Script.code(cons, "['NEW']=", cons);
 
         for (int i = 0; i < cr.getMethods().length(); i++) {
@@ -222,10 +240,10 @@ public class TClass {
                             "o.'+", mr.getJsName(), "+'('+", arguments, "+'); return o;'"));
 
                 } else {
-                    a.add(Script.code("'var o = document.createElement(",this.domNode,");" +
+                    a.add(Script.code("'var o = document.createElement(", this.domNode, ");" +
                             "var o = document.createElement(", this.domNode, ");" +
                             "for(var k in ", cons, ".prototype) o[k]=", cons, ".prototype[k];" +
-                            "o.'+", mr.getJsName(), "+'('+",arguments,"+');return o;'"));
+                            "o.'+", mr.getJsName(), "+'('+", arguments, "+');return o;'"));
                     /*
                     Script.code(this, "['n'+", mr.getJsName(), "]=new Function('" +
                             "var o = document.createElement(", this.domNode, ");" +
@@ -272,8 +290,17 @@ public class TClass {
         }
 
         for (int i = 0; i < cr.getStatics().length(); i++) {
-            Script.code(cr.getStatics().get(i),"()");
+            Script.code(cr.getStatics().get(i), "()");
         }
+    }
+
+    private Object newInstance() throws InstantiationException {
+        for (TConstructor c : getConstructors()) {
+            if (c.getParameterCount() == 0) {
+                return Script.code(this,"[",c.jsName,"]()");
+            }
+        }
+        throw new InstantiationException();
     }
 
     private TMethod getMethodByJSName(String name) {

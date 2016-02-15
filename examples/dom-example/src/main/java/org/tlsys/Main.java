@@ -5,13 +5,15 @@ import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.classes.ArrayBuilder;
 import org.tlsys.twt.dom.DOM;
+import org.tlsys.twt.dom.Document;
 import org.tlsys.twt.rt.java.lang.TClass;
 
 @JSClass
 public class Main extends Parent<String> {
 
     private static void attach(Object dom) {
-        Script.code("document.getElementsByTagName('body')[0].appendChild(", dom, ")");
+        //DOM.appendChild(Document.get(), dom)
+        Script.code(Document.get(),".getElementsByTagName('body')[0].appendChild(", dom, ")");
     }
 
     private static void info(String text) {
@@ -42,9 +44,18 @@ public class Main extends Parent<String> {
         };
 
         Events.addEventListener(t2, "click", (s, e) -> {
+            /*
             info("CLICK2");
             dir(t2);
             Events.removeEventListener(t3, "click", el3, false);
+            */
+            try {
+                dir(t2.getClass().newInstance());
+            } catch (InstantiationException e1) {
+
+            } catch (IllegalAccessException e1) {
+
+            }
         }, false);
 
         Events.addEventListener(t3, "click", el3, false);
