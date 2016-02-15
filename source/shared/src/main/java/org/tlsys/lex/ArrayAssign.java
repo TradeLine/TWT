@@ -41,4 +41,16 @@ public class ArrayAssign extends Value {
     public void getUsing(Collect c) {
         c.add(var).add(value).add(indexs);
     }
+
+    public Value getVar() {
+        return var;
+    }
+
+    public Value getIndexs() {
+        return indexs;
+    }
+
+    public Value getValue() {
+        return value;
+    }
 }

@@ -389,6 +389,17 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         });
 
+        addGen(ArrayAssign.class, (c, o, p, g) -> {
+            VMethod getMethod = o.getVar().getType().getMethod("set",
+                    o.getType().getClassLoader().loadClass("int"),
+                    o.getType());
+            Invoke inv = new Invoke(getMethod, o.getValue());
+            inv.arguments.add(o.getIndexs());
+            inv.arguments.add(o.getValue());
+            g.operation(c, inv, p);
+            return true;
+        });
+
         addGen(Conditional.class, (c, o, p, g) -> {
             g.operation(c, o.getValue(), p);
             p.append("?");
@@ -419,6 +430,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 if (!first)
                     p.append(",");
                 g.operation(c, a, p);
+                first = false;
             }
             p.append("){");
             g.operation(c, o.getBlock(), p);
