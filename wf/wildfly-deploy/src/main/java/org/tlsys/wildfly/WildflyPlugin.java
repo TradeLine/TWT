@@ -8,5 +8,6 @@ public class WildflyPlugin implements Plugin<Project> {
     public void apply(Project target) {
         target.getExtensions().create("wildfly", WildflySettings.class);
         target.getTasks().create("deployWildfly", DeployTask.class);
+        target.getTasks().create("redeployWildfly", RedeployTask.class);
     }
 }

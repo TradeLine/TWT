@@ -7,6 +7,7 @@ import java.io.InputStream;
 
 public interface DeployManager {
     public void undeploy(String fileName) throws IOException, WildFlyException;
+    public void remove(String appName) throws IOException, WildFlyException;
     public void deploy(String fileName, byte[] hash) throws IOException, WildFlyException;
     public default void deploy(String fileName, InputStream input) throws IOException, WildFlyException {
         byte[] hash = getConnector().uploadContent(input);

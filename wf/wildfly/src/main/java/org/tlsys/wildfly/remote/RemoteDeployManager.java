@@ -40,6 +40,23 @@ public class RemoteDeployManager implements DeployManager {
     }
 
     @Override
+    public void remove(String appName) throws IOException, WildFlyException {
+
+        ModelNode op = new ModelNode();
+        op.get("operation").set("remove");
+        ModelNode addr = op.get("address");
+        addr.add("deployment", appName);
+        ModelNode out = getControl().getClient().execute(op);
+        String outcome = out.get("outcome").asString();
+        if (!outcome.equals("success")) {
+            String message = out.get("failure-description").asString();
+            if (message.contains("Management resource") && message.endsWith("not found"))
+                throw new ResourceNotFoundException(message);
+            throw new WildFlyException(message);
+        }
+    }
+
+    @Override
     public Resurce[] getList() throws IOException, WildFlyException {
         ModelNode op = new ModelNode();
         op.get("operation").set("read-children-resources");
