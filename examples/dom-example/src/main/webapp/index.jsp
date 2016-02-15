@@ -2,5 +2,5 @@
 <body>
 <h2>Hello World!</h2>
 </body>
-<script src="main.js">
+<script language="javascript" src="main.js"></script>
 </html>

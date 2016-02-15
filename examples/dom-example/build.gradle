@@ -1,19 +1,18 @@
 apply plugin: 'idea'
 apply plugin: 'java'
 apply plugin: 'war'
-apply plugin: 'jetty'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
 
 buildscript {
     repositories {
         mavenCentral()
         mavenLocal()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
     }
 
     dependencies {
         classpath group: 'org.tlsys', name:'twt-gradle', version:'1.0'
+        classpath group: 'org.tlsys', name:'wildfly-deploy', version:'1.0'
     }
 }
 
@@ -30,6 +29,7 @@ dependencies {
 }
 
 apply plugin: 'twt-gradle'
+apply plugin: 'wildfly'
 
 
 classes{
@@ -38,26 +38,17 @@ classes{
 
 TWT.target()
         .addClass("org.tlsys.Main")
-        .fileName("main.js")
-        .generator("org.tlsys.twt.Generator");
+        .out("main.js")
+        .generator("org.tlsys.twt.Generator")
+        .main("org.tlsys.Main");
+
 war {
-    from('/') {
+    from('./build/main.js') {
         include 'main.js'
     }
-
-    /*
-    manifest {
-        attributes("Manifest-Version": version,
-                "Created-By": vendor,
-                "Specification-Title": appName,
-                "Specification-Version": version,
-                "Specification-Vendor": vendor,
-                "Implementation-Title": appName,
-                "Implementation-Version": version,
-                "Implementation-Vendor": vendor
-//"Main-Class" : "com.whatever.HelloWorld",
-                //"Class-Path" : configurations.compile.collect { it.getName() }.join(' ')
-        )
-    }
-    */
 }
+
+
+wildfly
+        .remote("admin", "admin", "tlsys.org", 9990)
+        .file(file("build/libs/dom-example.war"))
