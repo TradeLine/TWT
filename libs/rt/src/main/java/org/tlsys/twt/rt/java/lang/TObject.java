@@ -9,7 +9,6 @@ import org.tlsys.twt.rt.EmptyMethodBody;
 @JSClass
 @ParentClass(value = "", implement = {})
 @ClassName("java.lang.Object")
-@MetaFactory("org.tlsys.twt.FullMeta")
 @ReplaceClass(java.lang.Object.class)
 @CodeGenerator(DefaultGenerator.class)
 @CastAdapter(DefaultCast.class)

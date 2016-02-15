@@ -1,18 +1,12 @@
 package org.tlsys.twt;
 
-import com.sun.tools.javac.code.Symbol;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
-import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.classes.*;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -145,15 +139,15 @@ public class Generator implements MainGenerator {
             icg.operation(gc, inv, ps);
             ps.append(";\n");
         }
+    }
 
-        for (CompileModuls.ClassRecord cr : compileModuls.getRecords()) {
-            for (VExecute e : cr.getExe()) {
-                if (e instanceof VMethod && e.isStatic() && e.isThis("main")) {
-                    gc = new MainGenerationContext(classClassRecord, compileModuls);
-                    gc.getGenerator(e).operation(gc, new Invoke(e, new StaticRef(e.getParent())), ps);
-                }
-            }
-        }
+    @Override
+    public void generateInvoke(VMethod method, PrintStream out, Value... arguments) throws CompileException {
+        Invoke inv = new Invoke(method, new StaticRef(method.getParent()));
+        for (Value v : arguments)
+            inv.addArg(v);
+        MainGenerationContext gc = new MainGenerationContext(method.getParent(), null);
+        MainGenerationContext.getGeneratorFor(method).operation(gc, inv, out);
     }
 
     public static Value genClassRecord(GenerationContext gc, VClass vClass, Predicate<VExecute> exeNeed, Supplier<Value> newClass) throws CompileException {

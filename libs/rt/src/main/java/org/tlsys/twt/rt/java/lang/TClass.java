@@ -207,25 +207,33 @@ public class TClass {
                 } else
                 */
                 //args.add(mr.getBody());
+                String arguments = "";
+                JArray<String> a = new JArray<>();
+                for (int j = 0; j < mr.getArguments().length(); j++) {
+                    if (j > 0)
+                        arguments += ",";
+                    arguments += mr.getArguments().get(j).getName();
+                    a.add(mr.getArguments().get(j).getName());
+                }
 
                 if (domNode == null) {
-                    JArray<String> a = new JArray<>();
-                    String arguments = "";
-                    for (int j = 0; j < mr.getArguments().length(); j++) {
-                        if (j > 0)
-                            arguments += ",";
-                        arguments += mr.getArguments().get(j).getName();
-                        a.add(mr.getArguments().get(j).getName());
-                    }
+
                     a.add(Script.code("'var o = new ", cons, "();" +
                             "o.'+", mr.getJsName(), "+'('+", arguments, "+'); return o;'"));
-                    Script.code(this, "['n'+", mr.getJsName(), "]=Function.apply(null,", a.getJSArray(), ")");
+
                 } else {
+                    a.add(Script.code("'var o = document.createElement(",this.domNode,");" +
+                            "var o = document.createElement(", this.domNode, ");" +
+                            "for(var k in ", cons, ".prototype) o[k]=", cons, ".prototype[k];" +
+                            "o.'+", mr.getJsName(), "+'('+",arguments,"+');return o;'"));
+                    /*
                     Script.code(this, "['n'+", mr.getJsName(), "]=new Function('" +
                             "var o = document.createElement(", this.domNode, ");" +
                             "for(var k in ", cons, ".prototype) o[k]=", cons, ".prototype[k];" +
-                            "o.'+", mr.getJsName(), "+'();return o;')");
+                            "o.'+", mr.getJsName(), "+'('+",arguments,"+');return o;')");
+                    */
                 }
+                Script.code(this, "['n'+", mr.getJsName(), "]=Function.apply(null,", a.getJSArray(), ")");
             } else {
                 //args.add(mr.getBody());
             }

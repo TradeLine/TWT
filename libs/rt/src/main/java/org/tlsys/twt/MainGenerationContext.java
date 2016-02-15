@@ -2,6 +2,7 @@ package org.tlsys.twt;
 
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VExecute;
+import org.tlsys.lex.declare.VMethod;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -56,18 +57,12 @@ public class MainGenerationContext implements GenerationContext {
         }
     }
 
-    @Override
-    public ICodeGenerator getGenerator(VClass clazz) {
-        return getGeneratorFor(clazz);
-    }
-
-    @Override
-    public ICodeGenerator getGenerator(VExecute execute) {
-        if (execute.generator == null)
-            return getGenerator(execute.getParent());
+    public static final ICodeGenerator getGeneratorFor(VExecute method) {
+        if (method.generator == null)
+            return getGeneratorFor(method.getParent());
 
         try {
-            Class genClass = execute.getParent().getClassLoader().getJavaClassLoader().loadClass(execute.generator);
+            Class genClass = method.getParent().getClassLoader().getJavaClassLoader().loadClass(method.generator);
             if (generators.containsKey(genClass))
                 return (ICodeGenerator) generators.get(genClass);
             ICodeGenerator icg = (ICodeGenerator) genClass.newInstance();
@@ -76,6 +71,16 @@ public class MainGenerationContext implements GenerationContext {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public ICodeGenerator getGenerator(VClass clazz) {
+        return getGeneratorFor(clazz);
+    }
+
+    @Override
+    public ICodeGenerator getGenerator(VExecute execute) {
+        return getGeneratorFor(execute);
     }
 
     @Override
