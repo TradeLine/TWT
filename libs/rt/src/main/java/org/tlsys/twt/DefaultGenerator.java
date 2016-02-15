@@ -54,9 +54,13 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(Invoke.class, (c, o, p, g) -> {
+            System.out.println("Invoke " + o.getMethod().getParent().realName + "::" + o.getMethod().alias + ", invgen=" + o.getMethod().invokeGenerator);
             InvokeGenerator icg = c.getInvokeGenerator(o.getMethod());
-            if (icg != null)
+            if (icg != null) {
+                System.out.println("using generator " + o.getMethod().invokeGenerator);
                 return icg.generate(c, o, p);
+            }
+            System.out.println("using standart");
 
             ICodeGenerator icg2 = c.getGenerator(o.getMethod());
             if (icg != null && icg != g)
@@ -68,6 +72,7 @@ public class DefaultGenerator implements ICodeGenerator {
                     for (Value v : o.arguments) {
                         if (!first)
                             p.append(",");
+                        System.out.println("->" + v.getClass().getName() + " hash " + v.hashCode());
                         g.operation(c, v, p);
                         first = false;
                     }
@@ -77,6 +82,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 }
             };
 
+            /*
             if (o.getMethod() instanceof VConstructor) {
                 if (o.getSelf() instanceof This) {
                     if (o.getType() != o.getMethod().getParent())
@@ -84,6 +90,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 }
 
             }
+            */
 
             if (o.getSelf() instanceof This) {//вызов конструктора
                 This self = (This) o.getSelf();
@@ -557,6 +564,7 @@ public class DefaultGenerator implements ICodeGenerator {
 
     @Override
     public boolean operation(GenerationContext context, Operation op, PrintStream out) throws CompileException {
+        System.out.println("Generate => " + op.getClass().getName() + " hash " + op.hashCode());
         Gen g = generators.get(op.getClass());
         if (g != null) {
             return g.gen(context, op, out, this);

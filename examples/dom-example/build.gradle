@@ -1,14 +1,19 @@
 apply plugin: 'idea'
 apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'jetty'
+
 buildscript {
     repositories {
         mavenCentral()
         mavenLocal()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
 
     dependencies {
         classpath group: 'org.tlsys', name:'twt-gradle', version:'1.0'
-        //classpath project(':twt-g')
     }
 }
 
@@ -19,9 +24,9 @@ repositories {
 
 
 dependencies {
-    compile group: 'org.tlsys', name:'twt-shared', version:'1.0'
-    compile group: 'org.tlsys', name:'twt-rt', version:'1.0'
-    compile group: 'org.tlsys', name:'twt-dom', version:'1.0'
+    providedCompile group: 'org.tlsys', name:'twt-shared', version:'1.0'
+    providedCompile group: 'org.tlsys', name:'twt-rt', version:'1.0'
+    providedCompile group: 'org.tlsys', name:'twt-dom', version:'1.0'
 }
 
 apply plugin: 'twt-gradle'
@@ -29,4 +34,30 @@ apply plugin: 'twt-gradle'
 
 classes{
     dependsOn generateTWT
+}
+
+TWT.target()
+        .addClass("org.tlsys.Main")
+        .fileName("main.js")
+        .generator("org.tlsys.twt.Generator");
+war {
+    from('/') {
+        include 'main.js'
+    }
+
+    /*
+    manifest {
+        attributes("Manifest-Version": version,
+                "Created-By": vendor,
+                "Specification-Title": appName,
+                "Specification-Version": version,
+                "Specification-Vendor": vendor,
+                "Implementation-Title": appName,
+                "Implementation-Version": version,
+                "Implementation-Vendor": vendor
+//"Main-Class" : "com.whatever.HelloWorld",
+                //"Class-Path" : configurations.compile.collect { it.getName() }.join(' ')
+        )
+    }
+    */
 }

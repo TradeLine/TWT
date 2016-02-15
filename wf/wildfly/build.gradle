@@ -1,0 +1,33 @@
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    jcenter()
+}
+
+dependencies {
+    compile gradleApi()
+    compile group:'org.wildfly', name: 'wildfly-controller-client', version:'8.1.0.Final'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'org.tlsys'
+            artifactId 'wildfly'
+            version '1.0'
+            from components.java
+        }
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenLocal()
+    }
+}

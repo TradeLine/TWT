@@ -71,10 +71,12 @@ public class PackageInternalsFinder {
                 // weird file in the classpath
                 return Collections.emptyList();
             }
+            System.out.println("open " + packageFolderURL);
             String jarUri = packageFolderURL.toExternalForm().split("!")[0];
             JarURLConnection jarConn = (JarURLConnection) urlConnection;
             String rootEntryName = jarConn.getEntryName();
             int rootEnd = rootEntryName.length() + 1;
+            jarConn.getJarFile();
 
             Enumeration<JarEntry> entryEnum = jarConn.getJarFile().entries();
             while (entryEnum.hasMoreElements()) {

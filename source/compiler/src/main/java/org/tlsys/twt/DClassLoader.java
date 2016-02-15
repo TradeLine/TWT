@@ -6,8 +6,11 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.logging.Logger;
 
 public abstract class DClassLoader extends URLClassLoader {
+
+    private static final Logger LOG = Logger.getLogger(DClassLoader.class.getName());
 
     public static final String JSLIB = "twt.data";
 
@@ -35,8 +38,10 @@ public abstract class DClassLoader extends URLClassLoader {
         try (InputStream is = getResourceAsStream(JSLIB)) {
             if (is == null) {
                 haveJSLib = false;
+                System.out.println("Liblary " + getName() + " not have JS");
                 return null;
             }
+            System.out.println("Liblary " + getName() + " have JS");
 
             ArrayList<VClassLoader> cl = new ArrayList<>(getParents().size());
             for (DClassLoader p : getParents()) {
@@ -74,6 +79,9 @@ public abstract class DClassLoader extends URLClassLoader {
 
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
+        LOG.info("load class " + name);
+        System.out.println("==>>" + name);
+        Objects.requireNonNull(name, "Argument \"name\" is NULL");
         name = name.trim();
         try {
             return Thread.currentThread().getContextClassLoader().loadClass(name);

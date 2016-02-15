@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class GenerationTarget {
-    private ArrayList<String> classes;
+    private ArrayList<String> classes = new ArrayList<>();
     private String mainClass;
     private String fileName;
     private String generator;
@@ -13,28 +13,32 @@ public class GenerationTarget {
         return generator;
     }
 
-    public void generator(String generator) {
+    public GenerationTarget generator(String generator) {
         this.generator = generator;
+        return this;
     }
 
-    public void addClass(String ... classList) {
+    public GenerationTarget addClass(String ... classList) {
         classes.addAll(Arrays.asList(classList));
+        return this;
     }
 
     public String mainClass() {
         return mainClass;
     }
 
-    public void mainClass(String mainClass) {
+    public GenerationTarget mainClass(String mainClass) {
         this.mainClass = mainClass;
+        return this;
     }
 
     public String fileName() {
         return fileName;
     }
 
-    public void fileName(String fileName) {
+    public GenerationTarget fileName(String fileName) {
         this.fileName = fileName;
+        return this;
     }
 
     public ArrayList<String> getClasses() {

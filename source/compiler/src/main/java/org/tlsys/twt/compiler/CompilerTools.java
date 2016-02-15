@@ -7,6 +7,7 @@ import org.tlsys.TypeUtil;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.InvokeGenerator;
 import org.tlsys.twt.annotations.CodeGenerator;
+import org.tlsys.twt.annotations.InvokeGen;
 import org.tlsys.twt.annotations.MethodName;
 
 import javax.lang.model.element.Modifier;
@@ -51,8 +52,11 @@ public class CompilerTools {
     }
 
     private static void readExecutable(JCTree.JCMethodDecl mem, VExecute m) throws VClassNotFoundException {
-        getAnnatationValueClass(mem.getModifiers(), CodeGenerator.class).ifPresent(e->m.generator=e);
-        getAnnatationValueClass(mem.getModifiers(), InvokeGenerator.class).ifPresent(e->m.invokeGenerator=e);
+        getAnnatationValueClass(mem.getModifiers(), CodeGenerator.class).ifPresent(
+                e->m.generator=e
+        );
+        getAnnatationValueClass(mem.getModifiers(), InvokeGen.class).ifPresent(e->m.invokeGenerator=e);
+        System.out.println("METHOD ->" + m.getParent().realName + "::" + m.getRunTimeName() + " " + m.invokeGenerator);
         m.setModificators(toFlags(mem.getModifiers().getFlags()));
         for (JCTree.JCVariableDecl v : mem.getParameters()) {
             //Set<Modifier> mm = v.getModifiers().getFlags();
@@ -83,8 +87,9 @@ public class CompilerTools {
 
     private static VMethod createMethodMember(VClass clazz, JCTree.JCMethodDecl mem) throws VClassNotFoundException {
         VMethod m = new VMethod(clazz, null, mem.sym);
-        getAnnatationValueString(mem.getModifiers(), MethodName.class).ifPresent(e->m.alias = e);
         m.setRuntimeName(mem.getName().toString());
+        m.alias = m.getRunTimeName();
+        getAnnatationValueString(mem.getModifiers(), MethodName.class).ifPresent(e->m.alias = e);
         m.returnType = TypeUtil.loadClass(clazz.getClassLoader(), mem.restype.type);
         readExecutable(mem, m);
         return m;
