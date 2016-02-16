@@ -47,7 +47,6 @@ public class EventCodeGenerator extends DefaultGenerator {
             String contener = execute.arguments.get(0).name+".E";
             ps.append("if (!").append(contener).append(")return;");
 
-            //цикл по всем событиям. Ищем нужное
             ps.append("for(var i=0;i<").append(contener).append(".length;i++){")
                     .append("var g=").append(contener).append("[i];")
                     .append("if (g.o==").append(execute.arguments.get(2).name)

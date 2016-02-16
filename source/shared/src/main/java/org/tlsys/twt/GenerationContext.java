@@ -9,4 +9,5 @@ public interface GenerationContext {
     ICodeGenerator getGenerator(VExecute execute);
     InvokeGenerator getInvokeGenerator(VExecute execute);
     public CompileModuls getCompileModuls();
+    public String genLocalName();
 }

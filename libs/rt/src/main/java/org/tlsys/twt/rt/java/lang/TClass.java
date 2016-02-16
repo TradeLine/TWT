@@ -128,6 +128,7 @@ public class TClass {
     }
 
     public TConstructor[] getConstructors() {
+        initConstructors();
         TConstructor[] out = new TConstructor[constructors.length()];
         for (int i = 0; i < out.length; i++) {
             out[i] = constructors.get(i);
@@ -297,7 +298,7 @@ public class TClass {
     private Object newInstance() throws InstantiationException {
         for (TConstructor c : getConstructors()) {
             if (c.getParameterCount() == 0) {
-                return Script.code(this,"[",c.jsName,"]()");
+                return Script.code(this,"['n'+",c.jsName,"]()");
             }
         }
         throw new InstantiationException();

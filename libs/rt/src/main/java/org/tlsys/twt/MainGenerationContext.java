@@ -104,4 +104,11 @@ public class MainGenerationContext implements GenerationContext {
     public CompileModuls getCompileModuls() {
         return compileModuls;
     }
+
+    private long localNameIterator = 0;
+
+    @Override
+    public String genLocalName() {
+        return "l"+Long.toString(++localNameIterator, Character.MAX_RADIX);
+    }
 }

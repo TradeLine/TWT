@@ -273,7 +273,7 @@ class OperationCompiler {
             }
             if (v instanceof ArrayGet) {
                 ArrayGet gf = (ArrayGet) v;
-                ArrayAssign aa = new ArrayAssign(gf.getValue(), gf.getIndex(), v2, Assign.AsType.ASSIGN);
+                ArrayAssign aa = new ArrayAssign(gf.getValue(), v2, gf.getIndex(), Assign.AsType.ASSIGN);
                 return aa;
             }
             Assign a = new Assign(c.op(e.lhs, o), v2, c.loadClass(e.type), Assign.AsType.ASSIGN);

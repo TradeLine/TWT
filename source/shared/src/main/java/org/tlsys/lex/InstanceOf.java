@@ -40,4 +40,16 @@ public class InstanceOf extends Value {
     public void getUsing(Collect c) {
         c.add(result, clazz, value);
     }
+
+    public Value getValue() {
+        return value;
+    }
+
+    public VClass getClazz() {
+        return clazz;
+    }
+
+    public VClass getResult() {
+        return result;
+    }
 }

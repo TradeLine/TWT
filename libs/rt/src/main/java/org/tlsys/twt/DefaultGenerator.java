@@ -393,7 +393,7 @@ public class DefaultGenerator implements ICodeGenerator {
             VMethod getMethod = o.getVar().getType().getMethod("set",
                     o.getType().getClassLoader().loadClass("int"),
                     o.getType());
-            Invoke inv = new Invoke(getMethod, o.getValue());
+            Invoke inv = new Invoke(getMethod, o.getVar());
             inv.arguments.add(o.getIndexs());
             inv.arguments.add(o.getValue());
             g.operation(c, inv, p);
@@ -491,6 +491,40 @@ public class DefaultGenerator implements ICodeGenerator {
             .addArg(new StaticRef(o.getType()))
             .addArg(o), p);
             return true;
+        });
+
+        addGen(Try.class, (c,o,p,g)->{
+            p.append("try");
+            g.operation(c, o.block, p);
+            if (!o.catchs.isEmpty()) {
+                SVar evar = new SVar(c.getCurrentClass().getClassLoader().loadClass(Throwable.class.getName()), null);
+                evar.name = c.genLocalName();
+                String lab = c.genLocalName();
+                p.append("catch(").append(evar.name).append("){").append(lab).append(":{");
+                for (Try.Catch ca : o.catchs) {
+                    boolean first = true;
+                    p.append("if (");
+                    for (VClass cl : ca.classes) {
+                        if (!first)
+                            p.append("||");
+                        g.operation(c, new InstanceOf(evar, cl), p);
+                        first = false;
+                    }
+                    p.append(") {");
+                    g.operation(c, ca.block, p);
+                    p.append("break ").append(lab).append(";}");
+                }
+                p.append("throw ").append(evar.name).append("}}");
+            } else {
+                p.append("catch(e){throw e;}");
+            }
+            return true;
+        });
+
+        addGen(InstanceOf.class, (c,o,p,g)->{
+            VClass classClass = o.getClazz().getClassLoader().loadClass(Class.class.getName());
+            VMethod method = classClass.getMethod("isInstance", o.getClazz().getClassLoader().loadClass(Object.class.getName()));
+            return g.operation(c, new Invoke(method, new StaticRef(o.getClazz())), p);
         });
 
         /*

@@ -44,17 +44,20 @@ public class Main extends Parent<String> {
         };
 
         Events.addEventListener(t2, "click", (s, e) -> {
-            /*
             info("CLICK2");
+            /*
+
             dir(t2);
             Events.removeEventListener(t3, "click", el3, false);
             */
             try {
+                info("11");
                 dir(t2.getClass().newInstance());
+                info("22");
             } catch (InstantiationException e1) {
-
+                info("ERROR1");
             } catch (IllegalAccessException e1) {
-
+                info("ERROR2");
             }
         }, false);
 

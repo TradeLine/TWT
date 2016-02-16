@@ -193,6 +193,12 @@ class StatementCompiler {
                 DeclareVar dv = new DeclareVar(var);
                 var.name = ca.param.name.toString();
                 Try.Catch cc = new Try.Catch(tr, dv);
+                if (ca.param.vartype instanceof JCTree.JCTypeUnion) {
+                    JCTree.JCTypeUnion ut = (JCTree.JCTypeUnion)ca.param.vartype;
+                    for (JCTree.JCExpression ee : ut.alternatives)
+                        cc.classes.add(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ee.type));
+                } else
+                    cc.classes.add(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ca.param.vartype.type));
                 cc.block = (VBlock) c.st(ca.body, cc);
                 tr.catchs.add(cc);
             }
