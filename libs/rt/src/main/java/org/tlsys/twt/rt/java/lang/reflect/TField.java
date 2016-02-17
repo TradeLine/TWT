@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
 @JSClass
 //@ClassName("java.lang.reflect.Field")
 @ReplaceClass(Field.class)
-@CodeGenerator(NativeCodeGenerator.class)
+//@CodeGenerator(NativeCodeGenerator.class)
 public class TField {
 
     private final String name;

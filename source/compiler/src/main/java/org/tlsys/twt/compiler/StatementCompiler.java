@@ -89,6 +89,7 @@ class StatementCompiler {
 
 
                 SVar iterator = new SVar(classIterator, null);
+                iterator.name = "it" + Integer.toString(iterator.hashCode(), Character.MAX_RADIX);
                 DeclareVar it = new DeclareVar(iterator);
                 it.init = new Invoke(v.getType().getMethod("iterator"), v);
                 block.operations.add(it);
@@ -180,6 +181,14 @@ class StatementCompiler {
                 l = o.findLabel(e.label.toString()).get();
             }
             return new Continue(l);
+        });
+
+        addProcSt(JCTree.JCBreak.class, (c, e, o) -> {
+            Label l = null;
+            if (e.label != null) {
+                l = o.findLabel(e.label.toString()).get();
+            }
+            return new Break(l);
         });
 
 

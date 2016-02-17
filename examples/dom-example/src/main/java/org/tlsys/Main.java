@@ -45,11 +45,18 @@ public class Main extends Parent<String> {
 
         Events.addEventListener(t2, "click", (s, e) -> {
             info("CLICK2");
+            User u = new User("Hello");
+            u.list = new String[3];
+            u.list[0]="el1";
+            u.list[1]="el2";
+            u.list[2]="el3";
+            info(Json.toJSON(u));
             /*
 
             dir(t2);
             Events.removeEventListener(t3, "click", el3, false);
             */
+            /*
             try {
                 info("11");
                 dir(t2.getClass().newInstance());
@@ -59,6 +66,7 @@ public class Main extends Parent<String> {
             } catch (IllegalAccessException e1) {
                 info("ERROR2");
             }
+            */
         }, false);
 
         Events.addEventListener(t3, "click", el3, false);

@@ -357,13 +357,14 @@ class OperationCompiler {
     }
 
     public static Value getInitValueForType(VClass clazz) throws VClassNotFoundException {
-        if (clazz.fullName.equals("byte") || clazz.fullName.equals("short") || clazz.fullName.equals("int") || clazz.fullName.equals("long"))
+        Objects.requireNonNull(clazz, "Argument clazz is NULL");
+        if (clazz.isThis("byte") || clazz.isThis("short") || clazz.isThis("int") || clazz.isThis("long"))
             return new Const(0, clazz);
-        if (clazz.fullName.equals("float") || clazz.fullName.equals("double"))
+        if (clazz.isThis("float") || clazz.isThis("double"))
             return new Const(0.0f, clazz);
-        if (clazz.fullName.equals("boolean"))
+        if (clazz.isThis("boolean"))
             return new Const(false, clazz);
-        if (clazz.fullName.equals("char"))
+        if (clazz.isThis("char"))
             return new Cast(clazz.getClassLoader().loadClass("int"), new Const((char) 0, clazz));
         return new Const(null, clazz);
     }

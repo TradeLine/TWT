@@ -30,7 +30,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 return true;
             }
             if (o.getValue() instanceof String) {
-                p.append("\"").append(o.getValue().toString()).append("\"");
+                p.append("'").append(o.getValue().toString().replace("'","\\'")).append("'");
                 return true;
             }
             p.append(o.getValue().toString());
@@ -473,6 +473,14 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         });
 
+        addGen(Break.class, (c, o, p, g) -> {
+            p.append("break");
+            if (o.getLabel() != null) {
+                p.append(" ").append(o.getLabel().getName());
+            }
+            return true;
+        });
+
         addGen(NewArrayLen.class, (c,o,p,g)->{
             if (o.sizes.size() > 1) {
                 throw new RuntimeException("Not supported multiarray! yet!");
@@ -522,9 +530,12 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(InstanceOf.class, (c,o,p,g)->{
+            ICodeGenerator cg = c.getGenerator(o.getClazz());
+            if (cg != null && cg != g)
+                return cg.operation(c, o, p);
             VClass classClass = o.getClazz().getClassLoader().loadClass(Class.class.getName());
             VMethod method = classClass.getMethod("isInstance", o.getClazz().getClassLoader().loadClass(Object.class.getName()));
-            return g.operation(c, new Invoke(method, new StaticRef(o.getClazz())), p);
+            return g.operation(c, new Invoke(method, new StaticRef(o.getClazz())).addArg(o.getValue()), p);
         });
 
         /*

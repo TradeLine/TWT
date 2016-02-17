@@ -23,7 +23,6 @@ public class TClass {
     private String name;
     private Object cons = null;
     private String jsName;
-    private JArray<TField> fields = new JArray<>();
     private Class superClass;
     private JArray<Class> implementList = new JArray<>();
     private JArray<TConstructor> constructors;
@@ -39,7 +38,7 @@ public class TClass {
 
     //@InvokeGen("org.tlsys.twt.rt.java.lang.ClassInvoke")
     public String getName() {
-        return Script.code("this.fullName");
+        return name;
     }
 
     //@InvokeGen("org.tlsys.twt.rt.java.lang.ClassInvoke")
@@ -298,7 +297,7 @@ public class TClass {
     private Object newInstance() throws InstantiationException {
         for (TConstructor c : getConstructors()) {
             if (c.getParameterCount() == 0) {
-                return Script.code(this,"['n'+",c.jsName,"]()");
+                return Script.code(this, "['n'+", c.jsName, "]()");
             }
         }
         throw new InstantiationException();
@@ -314,7 +313,7 @@ public class TClass {
 
     @JSName("isPrimitive")
     public boolean isPrimitive() {
-        return Script.code("this.primitive");
+        return getName().equals("char")||getName().equals("byte")||getName().equals("short")||getName().equals("int")||getName().equals("long")||getName().equals("float")||getName().equals("double")||getName().equals("boolean");
     }
 
     @JSName("getSuperClass")
@@ -324,7 +323,7 @@ public class TClass {
 
     @JSName("isArray")
     public boolean isArray() {
-        return Script.code("Object.getPrototypeOf(this)==AT");
+        return component != null;
     }
 
     @CodeGenerator(GenArrayClassCreateMethod.class)
@@ -333,6 +332,8 @@ public class TClass {
     public Class getArrayClass() {
         if (arrayClass == null) {
             arrayClass = initArrayClass();
+            TClass cl = CastUtil.cast(arrayClass);
+            cl.component = this;
         }
         return arrayClass;
     }
@@ -370,13 +371,23 @@ public class TClass {
         return null;
     }
 
+    private Field[] fields = null;
+
     public Field[] getFields() {
-        return Script.code("this.meta.fields");
+        if (fields == null) {
+            fields = new Field[classRecord.getFields().length()];
+            for (int i = 0; i < fields.length; i++) {
+                FieldRecord fr = classRecord.getFields().get(i);
+                TField f = new TField(fr.getName(), fr.getJsName(), CastUtil.cast(this), fr.isStaticFlag());
+                fields[i] = CastUtil.cast(f);
+            }
+        }
+        return fields;
     }
 
+    public TClass component;
+
     public Class getComponentType() {
-        if (!isArray())
-            return null;
-        return Script.code("getClass(", this, ".type,", "this.len-1)");
+        return CastUtil.cast(component);
     }
 }

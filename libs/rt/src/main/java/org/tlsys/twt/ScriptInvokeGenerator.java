@@ -61,6 +61,12 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
             ps.append("==undefined)");
             return true;
         }
+        if (invoke.getMethod().alias.equals("typeOf")) {
+            ps.append("(typeof ");
+            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
+            ps.append(")");
+            return true;
+        }
 
         throw new RuntimeException("Unknown method " + invoke.getMethod().alias);
     }

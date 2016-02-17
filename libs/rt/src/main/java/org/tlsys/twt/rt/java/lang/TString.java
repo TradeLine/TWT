@@ -7,6 +7,7 @@ import org.tlsys.twt.NativeCodeGenerator;
 @JSClass
 @ClassName("java.lang.String")
 @ReplaceClass(String.class)
+@CodeGenerator(StringCodeGenerator.class)
 public final class TString {
 
     public TString(String text) {

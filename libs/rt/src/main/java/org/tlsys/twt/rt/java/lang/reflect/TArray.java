@@ -15,11 +15,15 @@ public final class TArray {
     }
 
     public static Object get(Object array, int index) {
-        return Script.code(array,".list[",index,"]");
+        //return Script.code(array,".list[",index,"]");
+        Object[] ar = CastUtil.cast(array);
+        return ar[index];
     }
 
     public static void set(Object array, int index, Object value){
-        Script.code(array,".list[",index,"]=",value);
+        Object[] ar = CastUtil.cast(array);
+        ar[index] = value;
+        //Script.code(array,".list[",index,"]=",value);
     }
 
     public static int getLength(Object array) {
@@ -28,13 +32,13 @@ public final class TArray {
     }
 
     public static Object newInstance(Class<?> componentType, int length) {
-        return multiNewArray(componentType, length);
+        //return multiNewArray(componentType, length);
+        throw new RuntimeException("Not supported yet!");
     }
 
     public static Object newInstance(Class<?> componentType, int... length) {
-        return multiNewArray(componentType, length);
+        //return multiNewArray(componentType, length);
+        throw new RuntimeException("Not supported yet!");
     }
 
-    @InvokeGen(org.tlsys.twt.rt.java.lang.reflect.ArrayInvoke.class)
-    private static native Object multiNewArray(Class<?> componentType, int... dimensions);
 }

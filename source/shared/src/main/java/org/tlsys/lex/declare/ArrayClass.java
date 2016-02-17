@@ -36,6 +36,10 @@ public class ArrayClass extends VClass {
         super(null, null);
         this.component = component;
         setClassLoader(component.getClassLoader());
+
+        name = "["+component.name;
+        alias = "["+component.alias;
+        fullName = "[" + component.fullName;
     }
 
     public void init(VClass intType) throws CompileException {

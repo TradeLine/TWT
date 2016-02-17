@@ -71,7 +71,6 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
                 ),
                 ps);
 
-
         ps.append("}");
         generateMethodEnd(context, execute, ps);
     }

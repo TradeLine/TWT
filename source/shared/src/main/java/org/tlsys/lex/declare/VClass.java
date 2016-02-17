@@ -79,6 +79,8 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     @Override
     public boolean isThis(String name) {
         Objects.requireNonNull(name, "Name is NULL");
+        if (fullName == null)
+            System.out.println("123");
         return this.fullName.equals(name) || name.equals(this.alias);
     }
 
