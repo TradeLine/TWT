@@ -260,8 +260,6 @@ public class TClass {
             if (mr.isStaticFlag() && mr.getName() != null) {
                 Script.code(this, "[", mr.getJsName(), "]=", mr.getBody());
             } else {
-                if (mr.getName() != null)
-                    Console.info("Add self " + getName() + " " + mr.getName() + " [" + mr.getJsName() + "]");
                 Script.code(cons, ".prototype[", mr.getJsName(), "]=", mr.getBody());
                 if (mr.getName().equals("toString") && mr.getArguments().length() == 0) {
                     Script.code(cons, ".prototype.toString=", mr.getBody());
@@ -276,11 +274,9 @@ public class TClass {
             }
         }
 
-        Console.info("start init " + getName());
         Class t = superClass;
         while (t != null) {
             TClass tt = CastUtil.cast(t);
-            Console.info("Reading method of " + tt.getName() + " for " + getName() + "...");
             for (int i = 0; i < tt.classRecord.getMethods().length(); i++) {
                 MethodRecord mr = tt.classRecord.getMethods().get(i);
                 if (mr.getName() == null)
@@ -288,22 +284,18 @@ public class TClass {
                 if (mr.isStaticFlag()) {
                     if (Script.hasOwnProperty(this,mr.getJsName()))
                         continue;
-                    Console.info("added " + mr.getName() + " as static to " + getName());
                     Script.code(this, "[", mr.getJsName(), "]=", mr.getBody());
                 } else {
                     if (Script.hasOwnProperty(Script.code(cons,".prototype"), mr.getJsName()))
                         continue;
-                    Console.info("added " + mr.getName() + " as local to " + getName() + " [" + mr.getJsName()+"]");
                     Script.code(cons, ".prototype[", mr.getJsName(), "]=", mr.getBody());
                     if (mr.getName().equals("toString") && mr.getArguments().length() == 0) {
                         Script.code(cons, ".prototype.toString=", mr.getBody());
                     }
                 }
             }
-            Console.info("NEXT = " + (t.getSuperclass()==null?"NONE":t.getSuperclass().getName()));
             t=t.getSuperclass();
         }
-        Console.info("-----DONE-----");
 
 
         /*
@@ -359,7 +351,6 @@ public class TClass {
 
     @JSName("isArray")
     public boolean isArray() {
-        Console.info("isConsole test");
         return component != null;
     }
 
@@ -415,7 +406,7 @@ public class TClass {
             fields = new Field[classRecord.getFields().length()];
             for (int i = 0; i < fields.length; i++) {
                 FieldRecord fr = classRecord.getFields().get(i);
-                TField f = new TField(fr.getName(), fr.getJsName(), CastUtil.cast(this), fr.isStaticFlag());
+                TField f = new TField(fr.getName(), fr.getJsName(), CastUtil.cast(this), fr.isStaticFlag(), fr.getType().getType());
                 fields[i] = CastUtil.cast(f);
             }
         }

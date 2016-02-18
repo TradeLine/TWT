@@ -76,21 +76,22 @@ public class Json {
     public static Object readObject(Object ina, Class needClass, JDictionary<Object> ids) {
         Console.info("READ=");
         Console.dir(ina);
-        Objects.requireNonNull(needClass, "need class is NULL");
-        Script.code("console.info('1')");
+        Console.info("LINE-1");
         try {
+            Console.info("LINE-1-1");
             if (ina == null)
                 return null;
+            Console.info("LINE-1-2");
             String type = Script.typeOf(ina);
             if (type.equals("boolean") || type.equals("number") || type.equals("string"))
                 return ina;
-            Script.code("console.info('2')");
+            Console.info("LINE-2");
             if (Script.code("Array.isArray(", ina, ")")) {
-                Script.code("console.info('2.1')");
+                Console.info("LINE-2-1");
                 Console.info("Need class=");
                 Console.dir(needClass);
                 if (needClass.isArray()) {
-                    Script.code("console.info('2.2')");
+                    Console.info("LINE-2-2");
                     int arLen = Script.code(ina, ".length");
                     Object ar = Array.newInstance(needClass.getComponentType(), arLen);
                     Script.code("console.info('2.3')");
@@ -105,44 +106,44 @@ public class Json {
                 Script.code("console.info('2.7')");
                 throw new RuntimeException("Not supported array type");
             }
-            Script.code("console.info('3')");
+            Console.info("LINE-3");
             if (Script.code(ina, ".hasOwnProperty('@ref')")) {
                 return ids.get(Script.code(ina, "['@ref']"));
             }
-            Script.code("console.info('4')");
+            Console.info("LINE-4");
             String className = Script.code(ina, "['@type']");
-            Script.code("console.info('5')");
+            Console.info("LINE-5");
             if (needClass == null && (className == null || Script.isUndefined(className))) {
                 throw new RuntimeException("Can't get class name...");
             }
-            Script.code("console.info('6')");
+            Console.info("LINE-6");
             Class objClass;
             if (className == null || Script.isUndefined(className)) {
                 objClass = needClass;
             }else {
                 objClass = ClassStorage.get().getByName(className);
             }
-            Script.code("console.info('7')");
+            Console.info("LINE-7");
 
             if (objClass == boolean.class)
                 return Script.code(ina, ".value");
             if (objClass.isArray()) {
                 return readObject(Script.code(ina, "['@items']"), objClass, ids);
             }
-
-            Script.code("console.info('8=>'+",objClass.getName(),")");
+            Console.info("LINE-8=>" + objClass.getName());
             Object o = objClass.newInstance();
-            Script.code("console.info('9')");
+            Console.info("LINE-9");
             if (Script.code(ina, ".hasOwnProperty('@id')")) {
                 int id = Script.code(ina, "['@id']");
                 ids.set(id, o);
             }
 
             Class oo = objClass;
-            Script.code("console.info('10')");
+            Console.info("LINE-10");
             while (oo != null) {
                 Field[] fields = oo.getFields();
                 for (Field f : fields) {
+                    Console.info("Read field " + f.getName() + " with type " + f.getType());
                     if (Script.code(ina, ".hasOwnProperty(", f.getName(), ")")) {
                         Object t = Script.code(ina, "[", f.getName(), "]");
                         f.set(o, readObject(t, f.getType(), ids));
@@ -152,7 +153,7 @@ public class Json {
                 if (oo == Object.class)
                     break;
             }
-            Script.code("console.info('11')");
+            Console.info("LINE-11");
             return o;
         } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
             throw new RuntimeException(e);
