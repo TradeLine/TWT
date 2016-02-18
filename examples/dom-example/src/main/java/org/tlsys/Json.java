@@ -1,10 +1,13 @@
 package org.tlsys;
 
-import org.tlsys.twt.Script;
+import org.tlsys.twt.*;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.classes.ClassStorage;
+import org.tlsys.twt.rt.java.lang.reflect.TField;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 @JSClass
 public class Json {
@@ -61,6 +64,97 @@ public class Json {
             }
             return out + "}";
         } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Object fromJSON(String json) {
+        Object ina = Script.code("JSON.parse(", json, ")");
+        return readObject(ina, null, new JDictionary<>());
+    }
+
+    public static Object readObject(Object ina, Class needClass, JDictionary<Object> ids) {
+        Console.info("READ=");
+        Console.dir(ina);
+        Objects.requireNonNull(needClass, "need class is NULL");
+        Script.code("console.info('1')");
+        try {
+            if (ina == null)
+                return null;
+            String type = Script.typeOf(ina);
+            if (type.equals("boolean") || type.equals("number") || type.equals("string"))
+                return ina;
+            Script.code("console.info('2')");
+            if (Script.code("Array.isArray(", ina, ")")) {
+                Script.code("console.info('2.1')");
+                Console.info("Need class=");
+                Console.dir(needClass);
+                if (needClass.isArray()) {
+                    Script.code("console.info('2.2')");
+                    int arLen = Script.code(ina, ".length");
+                    Object ar = Array.newInstance(needClass.getComponentType(), arLen);
+                    Script.code("console.info('2.3')");
+                    for (int i = 0; i < arLen; i++) {
+                        Script.code("console.info('2.4')");
+                        Array.set(ar, i, readObject(Script.code(ina, "[", i, "]"), needClass.getComponentType(), ids));
+                        Script.code("console.info('2.5')");
+                    }
+                    Script.code("console.info('2.6')");
+                    return ar;
+                }
+                Script.code("console.info('2.7')");
+                throw new RuntimeException("Not supported array type");
+            }
+            Script.code("console.info('3')");
+            if (Script.code(ina, ".hasOwnProperty('@ref')")) {
+                return ids.get(Script.code(ina, "['@ref']"));
+            }
+            Script.code("console.info('4')");
+            String className = Script.code(ina, "['@type']");
+            Script.code("console.info('5')");
+            if (needClass == null && (className == null || Script.isUndefined(className))) {
+                throw new RuntimeException("Can't get class name...");
+            }
+            Script.code("console.info('6')");
+            Class objClass;
+            if (className == null || Script.isUndefined(className)) {
+                objClass = needClass;
+            }else {
+                objClass = ClassStorage.get().getByName(className);
+            }
+            Script.code("console.info('7')");
+
+            if (objClass == boolean.class)
+                return Script.code(ina, ".value");
+            if (objClass.isArray()) {
+                return readObject(Script.code(ina, "['@items']"), objClass, ids);
+            }
+
+            Script.code("console.info('8=>'+",objClass.getName(),")");
+            Object o = objClass.newInstance();
+            Script.code("console.info('9')");
+            if (Script.code(ina, ".hasOwnProperty('@id')")) {
+                int id = Script.code(ina, "['@id']");
+                ids.set(id, o);
+            }
+
+            Class oo = objClass;
+            Script.code("console.info('10')");
+            while (oo != null) {
+                Field[] fields = oo.getFields();
+                for (Field f : fields) {
+                    if (Script.code(ina, ".hasOwnProperty(", f.getName(), ")")) {
+                        Object t = Script.code(ina, "[", f.getName(), "]");
+                        f.set(o, readObject(t, f.getType(), ids));
+                    }
+                }
+                oo = oo.getSuperclass();
+                if (oo == Object.class)
+                    break;
+            }
+            Script.code("console.info('11')");
+            return o;
+        } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

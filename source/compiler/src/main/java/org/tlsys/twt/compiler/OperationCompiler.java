@@ -2,6 +2,7 @@ package org.tlsys.twt.compiler;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree;
+import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.CompileException;
@@ -353,6 +354,11 @@ class OperationCompiler {
         addProc(JCTree.JCArrayAccess.class, (c, e, o) -> {
             ArrayGet ag = new ArrayGet(c.op(e.getExpression(), o), c.op(e.getIndex(), o));
             return ag;
+        });
+
+
+        addProc(JCTree.JCPrimitiveTypeTree.class, (c,e,o)->{
+            return new StaticRef(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.type));
         });
     }
 

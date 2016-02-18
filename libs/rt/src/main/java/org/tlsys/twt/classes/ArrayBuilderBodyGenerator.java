@@ -21,25 +21,11 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
 
         if (execute.alias.equals("create")) {
             ps.append("{");
-            ps.append("console.info('Create array...elements=');");
-            ps.append("console.dir("+execute.arguments.get(1).name+");");
-
-
-            ps.append("console.info('ArrayClass=');");
-            ps.append("console.dir(");
-            cg.operation(context, new Invoke(getArrayClassMethod, execute.arguments.get(0)), ps);
-            ps.append(");");
-
-
             ps.append("var t=");
             cg.operation(context, new Invoke(getArrayClassMethod, execute.arguments.get(0)), ps);
             ps.append(".n").append(ArrayClass.CONSTRUCTOR).append("(").append(execute.arguments.get(1).name).append(".length);");
 
-            ps.append("console.info('Created object=');");
-            ps.append("console.dir(t);");
-
             ps.append("for(var i=0;i<").append(execute.arguments.get(1).name).append(".length;i++){");
-            ps.append("console.info('set['+i+']='+"+execute.arguments.get(1).name+"[i]);");
             ps.append("t.").append(ArrayClass.SET).append("(i,").append(execute.arguments.get(1).name).append("[i]);");
             ps.append("}");
             ps.append("return t;");

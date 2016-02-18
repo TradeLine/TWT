@@ -19,6 +19,12 @@ public final class TObjects {
         return t;
     }
 
+    public static <T> T requireNonNull(T t, String description) {
+        if (t == null)
+            throw new NullPointerException(description);
+        return t;
+    }
+
     public static int hashCode(Object o) {
         return o != null ? o.hashCode() : 0;
     }

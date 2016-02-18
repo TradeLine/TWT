@@ -10,6 +10,7 @@ import org.tlsys.twt.rt.java.lang.reflect.TField;
 import org.tlsys.twt.rt.java.lang.reflect.TMethod;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 @JSClass
 @ClassName("java.lang.Class")
@@ -201,6 +202,8 @@ public class TClass {
         Script.code(cons, ".prototype[", CLASS_IMP, "]=", this);
         Script.code(cons, "['NEW']=", cons);
 
+
+
         for (int i = 0; i < cr.getMethods().length(); i++) {
             MethodRecord mr = cr.getMethods().get(i);
             /*
@@ -252,16 +255,17 @@ public class TClass {
                     */
                 }
                 Script.code(this, "['n'+", mr.getJsName(), "]=Function.apply(null,", a.getJSArray(), ")");
-            } else {
-                //args.add(mr.getBody());
             }
-
-            //Object func = Script.code("Function.apply(null, ",args.getJSArray(),")");
 
             if (mr.isStaticFlag() && mr.getName() != null) {
                 Script.code(this, "[", mr.getJsName(), "]=", mr.getBody());
             } else {
+                if (mr.getName() != null)
+                    Console.info("Add self " + getName() + " " + mr.getName() + " [" + mr.getJsName() + "]");
                 Script.code(cons, ".prototype[", mr.getJsName(), "]=", mr.getBody());
+                if (mr.getName().equals("toString") && mr.getArguments().length() == 0) {
+                    Script.code(cons, ".prototype.toString=", mr.getBody());
+                }
             }
         }
 
@@ -272,7 +276,42 @@ public class TClass {
             }
         }
 
+        Console.info("start init " + getName());
+        Class t = superClass;
+        while (t != null) {
+            TClass tt = CastUtil.cast(t);
+            Console.info("Reading method of " + tt.getName() + " for " + getName() + "...");
+            for (int i = 0; i < tt.classRecord.getMethods().length(); i++) {
+                MethodRecord mr = tt.classRecord.getMethods().get(i);
+                if (mr.getName() == null)
+                    continue;
+                if (mr.isStaticFlag()) {
+                    if (Script.hasOwnProperty(this,mr.getJsName()))
+                        continue;
+                    Console.info("added " + mr.getName() + " as static to " + getName());
+                    Script.code(this, "[", mr.getJsName(), "]=", mr.getBody());
+                } else {
+                    if (Script.hasOwnProperty(Script.code(cons,".prototype"), mr.getJsName()))
+                        continue;
+                    Console.info("added " + mr.getName() + " as local to " + getName() + " [" + mr.getJsName()+"]");
+                    Script.code(cons, ".prototype[", mr.getJsName(), "]=", mr.getBody());
+                    if (mr.getName().equals("toString") && mr.getArguments().length() == 0) {
+                        Script.code(cons, ".prototype.toString=", mr.getBody());
+                    }
+                }
+            }
+            Console.info("NEXT = " + (t.getSuperclass()==null?"NONE":t.getSuperclass().getName()));
+            t=t.getSuperclass();
+        }
+        Console.info("-----DONE-----");
+
+
+        /*
         if (superClass != null) {
+
+
+
+
             TClass ss = CastUtil.cast(superClass);
             ss.initMethods();
             for (int i = 0; i < ss.methods.length(); i++) {
@@ -280,14 +319,11 @@ public class TClass {
                 TMethod mm = getMethodByJSName(ss.methods.get(i).jsName);
                 if (mm == null) {
                     mm = ss.methods.get(i);
-                    if (mm.staticFlag) {
-                        Script.code(this, "[", mm.jsName, "]=", mm.jsFunction);
-                    } else {
-                        Script.code(cons, ".prototype[", mm.jsName, "]=", mm.jsFunction);
-                    }
+
                 }
             }
         }
+        */
 
         for (int i = 0; i < cr.getStatics().length(); i++) {
             Script.code(cr.getStatics().get(i), "()");
@@ -300,7 +336,7 @@ public class TClass {
                 return Script.code(this, "['n'+", c.jsName, "]()");
             }
         }
-        throw new InstantiationException();
+        throw new InstantiationException("Can't find constructor whout arguments");
     }
 
     private TMethod getMethodByJSName(String name) {
@@ -318,11 +354,12 @@ public class TClass {
 
     @JSName("getSuperClass")
     public Class getSuperclass() {
-        return Script.code("this.ex");
+        return superClass;
     }
 
     @JSName("isArray")
     public boolean isArray() {
+        Console.info("isConsole test");
         return component != null;
     }
 

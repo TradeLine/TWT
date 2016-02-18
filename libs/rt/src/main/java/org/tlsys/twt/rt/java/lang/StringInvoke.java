@@ -86,6 +86,19 @@ public class StringInvoke implements InvokeGenerator {
             return true;
         }
 
+        if (invoke.getMethod().alias.equals("endsWith")) {
+            ps.append("(");
+            stringCG.operation(ctx, invoke.getSelf(), ps);
+            ps.append(".indexOf(");
+            stringCG.operation(ctx, invoke.arguments.get(0), ps);
+            ps.append(",");
+            stringCG.operation(ctx, invoke.getSelf(), ps);
+            ps.append(".length - ");
+            stringCG.operation(ctx, invoke.arguments.get(0), ps);
+            ps.append(".length) !== -1)");
+            return true;
+        }
+
 
 
         /*

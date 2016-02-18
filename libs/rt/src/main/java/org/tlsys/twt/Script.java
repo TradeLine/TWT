@@ -20,6 +20,10 @@ public class Script {
     @InvokeGen(org.tlsys.twt.ScriptInvokeGenerator.class)
     public native static boolean isPrototypeOf(Object args, Class clazz);
 
+    public static boolean hasOwnProperty(Object object, String name) {
+        return Script.code(object,".hasOwnProperty(",name,")");
+    }
+
     public void tt(){}
 
     private Script gg;

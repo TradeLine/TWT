@@ -77,6 +77,7 @@ public class Generator implements MainGenerator {
 
 
 
+        addFullClass(projectClassLoader.loadClass(Throwable.class.getName()), compileModuls);
         addFullClass(classLoader, compileModuls);
         addFullClass(classClass, compileModuls);
         addFullClass(classField, compileModuls);

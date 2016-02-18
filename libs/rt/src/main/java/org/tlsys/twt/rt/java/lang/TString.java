@@ -78,4 +78,8 @@ public final class TString {
     @NotCompile
     @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native int length();
+
+    @NotCompile
+    @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
+    public native String endsWith(String suffix);
 }

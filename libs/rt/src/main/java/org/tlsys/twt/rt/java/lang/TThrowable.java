@@ -1,5 +1,8 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.lex.MethodNotFoundException;
+import org.tlsys.twt.CastUtil;
+import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
 
@@ -9,7 +12,7 @@ public class TThrowable {
 
     private String detailMessage;
 
-    private Throwable cause = (Throwable) (Object) this;
+    private Throwable cause = CastUtil.cast(this);
 
     public TThrowable() {
     }
@@ -48,5 +51,17 @@ public class TThrowable {
         String s = getClass().getName();
         String message = getMessage();
         return (message != null) ? (s + ": " + message) : s;
+    }
+
+    public static Object jsErrorConvert(Object o) {
+        if (Script.code(o," instanceof TypeError")) {
+            String message = Script.code(o,".message");
+            if (message.endsWith(" not a function")) {
+                return new NoSuchMethodException(message);
+            }
+            if (message.endsWith(" of null"))
+                return new NullPointerException();
+        }
+        return o;
     }
 }

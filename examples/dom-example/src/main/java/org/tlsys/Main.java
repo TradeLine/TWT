@@ -39,18 +39,25 @@ public class Main extends Parent<String> {
         info("------------");
 
         Events.EventListener el3 = (s, e) -> {
-            Ajax.Result rs = Ajax.create("http://127.0.0.1/test.php").get().sync();
-            dir(rs);
+            //Ajax.Result rs = Ajax.create("http://127.0.0.1/test.php").get().sync();
+            //dir(rs);
+            RuntimeException ee = new RuntimeException("HELLO!");
+            dir(ee);
+            dir(ee.getClass());
         };
 
         Events.addEventListener(t2, "click", (s, e) -> {
             info("CLICK2");
             User u = new User("Hello");
+            new User();
             u.list = new String[3];
             u.list[0]="el1";
             u.list[1]="el2";
             u.list[2]="el3";
-            info(Json.toJSON(u));
+            String json =Json.toJSON(u);
+            Object o = Json.fromJSON(json);
+            info(json);
+            dir(o);
             /*
 
             dir(t2);

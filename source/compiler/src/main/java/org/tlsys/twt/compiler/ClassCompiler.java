@@ -17,6 +17,7 @@ import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.DomNode;
 import org.tlsys.twt.annotations.ReplaceClass;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 public class ClassCompiler {
@@ -183,8 +184,26 @@ public class ClassCompiler {
         }
     }
 
+    private static List<VMethod> getAllMethodsNyName(VClass clazz, String name) {
+        ArrayList<VMethod> out = new ArrayList<>();
+        for (VMethod m : clazz.methods) {
+            if (m.isThis(name))
+                out.add(m);
+        }
+
+        if (clazz.extendsClass != null)
+            out.addAll(getAllMethodsNyName(clazz.extendsClass, name));
+
+        for (VClass c : clazz.implementsList) {
+            out.addAll(getAllMethodsNyName(c, name));
+        }
+        return out;
+    }
+
     private static void findReplaceMethodInClass(VMethod member) {
-        List<VMethod> methods = member.getParent().getMethodByName(member.getRunTimeName());
+        if (member.isThis("toString"))
+            System.out.println("123");
+        List<VMethod> methods = getAllMethodsNyName(member.getParent(), member.getRunTimeName());
 
         METHOD:for (VMethod m : methods) {
             if (m == member)

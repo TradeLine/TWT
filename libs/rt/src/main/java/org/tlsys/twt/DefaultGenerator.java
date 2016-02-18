@@ -505,10 +505,18 @@ public class DefaultGenerator implements ICodeGenerator {
             p.append("try");
             g.operation(c, o.block, p);
             if (!o.catchs.isEmpty()) {
-                SVar evar = new SVar(c.getCurrentClass().getClassLoader().loadClass(Throwable.class.getName()), null);
+                VClass errorClass = c.getCurrentClass().getClassLoader().loadClass(Throwable.class.getName());
+                VClass objectClass = c.getCurrentClass().getClassLoader().loadClass(Object.class.getName());
+
+                VMethod convertMethod = errorClass.getMethod("jsErrorConvert", objectClass);
+
+                SVar evar = new SVar(errorClass, null);
                 evar.name = c.genLocalName();
                 String lab = c.genLocalName();
-                p.append("catch(").append(evar.name).append("){").append(lab).append(":{");
+                p.append("catch(").append(evar.name).append("){");
+                g.operation(c, new Assign(evar, new Invoke(convertMethod, new StaticRef(errorClass)).addArg(evar), evar.getType(), Assign.AsType.ASSIGN), p);
+                p.append(";");
+                p.append(lab).append(":{");
                 for (Try.Catch ca : o.catchs) {
                     boolean first = true;
                     p.append("if (");
