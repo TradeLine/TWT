@@ -1,2 +1,2 @@
 rootProject.name = 'TWT-examples'
-include "rt", "dom"
+include "rt", "dom", "net", "json", "events"

@@ -1,6 +1,5 @@
 package org.tlsys.twt.rt.java.lang;
 
-import org.tlsys.lex.MethodNotFoundException;
 import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.ClassName;
@@ -62,6 +61,7 @@ public class TThrowable {
             if (message.endsWith(" of null"))
                 return new NullPointerException();
         }
-        return o;
+        String message = Script.code(o,".message");
+        return new RuntimeException(message);
     }
 }

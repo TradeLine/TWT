@@ -5,7 +5,7 @@ import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
 
 @JSClass
-@ClassName("java.net.URLEncoder")
+@ClassName("java.events.URLEncoder")
 public final class TURLEncoder {
     private TURLEncoder() {
     }

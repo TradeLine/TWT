@@ -38,4 +38,12 @@ public class JArray<E> {
     public int length() {
         return Script.code(o,".length");
     }
+
+    public int indexOf(E object) {
+        for (int i = 0; i < length(); i++) {
+            if (get(i) == object)
+                return i;
+        }
+        return -1;
+    }
 }

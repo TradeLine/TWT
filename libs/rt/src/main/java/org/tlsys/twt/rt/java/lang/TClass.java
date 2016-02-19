@@ -1,16 +1,13 @@
 package org.tlsys.twt.rt.java.lang;
 
-import org.tlsys.lex.Cast;
 import org.tlsys.twt.*;
 import org.tlsys.twt.annotations.*;
 import org.tlsys.twt.classes.*;
 import org.tlsys.twt.rt.java.lang.reflect.TConstructor;
-import org.tlsys.twt.rt.java.lang.reflect.TExecutable;
 import org.tlsys.twt.rt.java.lang.reflect.TField;
 import org.tlsys.twt.rt.java.lang.reflect.TMethod;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 @JSClass
 @ClassName("java.lang.Class")
@@ -37,17 +34,14 @@ public class TClass {
     public TClass(String name) {
     }
 
-    //@InvokeGen("org.tlsys.twt.rt.java.lang.ClassInvoke")
     public String getName() {
         return name;
     }
 
-    //@InvokeGen("org.tlsys.twt.rt.java.lang.ClassInvoke")
     public String toString() {
         return getName();
     }
 
-    //@InvokeGen("org.tlsys.twt.rt.java.lang.ClassInvoke")
     public String getSimpleName() {
         return Script.code("this.simpleName");
     }
@@ -203,31 +197,9 @@ public class TClass {
         Script.code(cons, "['NEW']=", cons);
 
 
-
         for (int i = 0; i < cr.getMethods().length(); i++) {
             MethodRecord mr = cr.getMethods().get(i);
-            /*
-            JArray<String> args = new JArray<>();
-
-            for (int j = 0; j < mr.getArguments().length(); j++) {
-                ArgumentRecord ar = mr.getArguments().get(j);
-                args.add(ar.getName());
-            }
-            */
-
             if (mr.getName() == null) {
-                //TConstructor con = (TConstructor)exe;
-                /*
-                if (Object.class != CastUtil.cast(this)) {
-
-                    int p = mr.getBody().indexOf(";");
-                    //TODO добавить проверку на p=-1
-                    String callConstructor = mr.getBody().substring(0, p+1);
-                    String body = mr.getBody().substring(callConstructor.length());
-                    args.add(callConstructor+fieldInit+body);
-                } else
-                */
-                //args.add(mr.getBody());
                 String arguments = "";
                 JArray<String> a = new JArray<>();
                 for (int j = 0; j < mr.getArguments().length(); j++) {
@@ -239,20 +211,13 @@ public class TClass {
 
                 if (domNode == null) {
 
-                    a.add(Script.code("'var o = new ", cons, "();" +
-                            "o.'+", mr.getJsName(), "+'('+", arguments, "+'); return o;'"));
+                    a.add(Script.code("'var o = new ", cons, "();" + "o.'+", mr.getJsName(), "+'('+", arguments, "+'); return o;'"));
 
                 } else {
                     a.add(Script.code("'var o = document.createElement(", this.domNode, ");" +
                             "var o = document.createElement(", this.domNode, ");" +
                             "for(var k in ", cons, ".prototype) o[k]=", cons, ".prototype[k];" +
                             "o.'+", mr.getJsName(), "+'('+", arguments, "+');return o;'"));
-                    /*
-                    Script.code(this, "['n'+", mr.getJsName(), "]=new Function('" +
-                            "var o = document.createElement(", this.domNode, ");" +
-                            "for(var k in ", cons, ".prototype) o[k]=", cons, ".prototype[k];" +
-                            "o.'+", mr.getJsName(), "+'('+",arguments,"+');return o;')");
-                    */
                 }
                 Script.code(this, "['n'+", mr.getJsName(), "]=Function.apply(null,", a.getJSArray(), ")");
             }
@@ -282,11 +247,11 @@ public class TClass {
                 if (mr.getName() == null)
                     continue;
                 if (mr.isStaticFlag()) {
-                    if (Script.hasOwnProperty(this,mr.getJsName()))
+                    if (Script.hasOwnProperty(this, mr.getJsName()))
                         continue;
                     Script.code(this, "[", mr.getJsName(), "]=", mr.getBody());
                 } else {
-                    if (Script.hasOwnProperty(Script.code(cons,".prototype"), mr.getJsName()))
+                    if (Script.hasOwnProperty(Script.code(cons, ".prototype"), mr.getJsName()))
                         continue;
                     Script.code(cons, ".prototype[", mr.getJsName(), "]=", mr.getBody());
                     if (mr.getName().equals("toString") && mr.getArguments().length() == 0) {
@@ -294,7 +259,7 @@ public class TClass {
                     }
                 }
             }
-            t=t.getSuperclass();
+            t = t.getSuperclass();
         }
 
 
@@ -341,7 +306,7 @@ public class TClass {
 
     @JSName("isPrimitive")
     public boolean isPrimitive() {
-        return getName().equals("char")||getName().equals("byte")||getName().equals("short")||getName().equals("int")||getName().equals("long")||getName().equals("float")||getName().equals("double")||getName().equals("boolean");
+        return getName().equals("char") || getName().equals("byte") || getName().equals("short") || getName().equals("int") || getName().equals("long") || getName().equals("float") || getName().equals("double") || getName().equals("boolean");
     }
 
     @JSName("getSuperClass")
