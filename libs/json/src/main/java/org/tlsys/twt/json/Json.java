@@ -1,13 +1,13 @@
-package org.tlsys;
+package org.tlsys.twt.json;
 
-import org.tlsys.twt.*;
+import org.tlsys.twt.Console;
+import org.tlsys.twt.JDictionary;
+import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.classes.ClassStorage;
-import org.tlsys.twt.rt.java.lang.reflect.TField;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.Objects;
 
 @JSClass
 public class Json {
@@ -15,7 +15,7 @@ public class Json {
         try {
             if (obj == null)
                 return "null";
-            if (/*Script.typeOf(obj) == "string" || */obj instanceof String) {
+            if (obj instanceof String) {
                 return "\"" + obj + "\"";
             }
 
