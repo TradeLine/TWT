@@ -1,6 +1,5 @@
-package org.tlsys;
+package org.tlsys.twt.events;
 
-import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.JSClass;
 

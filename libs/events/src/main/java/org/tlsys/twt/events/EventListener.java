@@ -1,4 +1,4 @@
-package org.tlsys;
+package org.tlsys.twt.events;
 
 import org.tlsys.twt.annotations.JSClass;
 

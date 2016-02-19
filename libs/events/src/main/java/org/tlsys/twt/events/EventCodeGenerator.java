@@ -1,6 +1,5 @@
-package org.tlsys;
+package org.tlsys.twt.events;
 
-import org.tlsys.lex.Operation;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VExecute;
 import org.tlsys.lex.declare.VMethod;
