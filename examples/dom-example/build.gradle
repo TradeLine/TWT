@@ -26,6 +26,9 @@ dependencies {
     providedCompile group: 'org.tlsys', name:'twt-shared', version:'1.0'
     providedCompile group: 'org.tlsys', name:'twt-rt', version:'1.0'
     providedCompile group: 'org.tlsys', name:'twt-dom', version:'1.0'
+    providedCompile group: 'org.tlsys', name:'twt-events', version:'1.0'
+    providedCompile group: 'org.tlsys', name:'twt-net', version:'1.0'
+    providedCompile group:'javax', name:'javaee-api',version:'7.0'
 }
 
 apply plugin: 'twt-gradle'

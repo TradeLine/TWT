@@ -1,12 +1,8 @@
 package org.tlsys;
 
-import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
-import org.tlsys.twt.classes.ArrayBuilder;
-import org.tlsys.twt.dom.DOM;
 import org.tlsys.twt.dom.Document;
-import org.tlsys.twt.rt.java.lang.TClass;
 
 @JSClass
 public class Main extends Parent<String> {
@@ -23,6 +19,8 @@ public class Main extends Parent<String> {
     private static void dir(Object text) {
         Script.code("console.dir(", text, ")");
     }
+
+    private SimpleClient sc = null;
 
     public Main() {
         Butten t1 = new Butten("test 1");
@@ -58,25 +56,31 @@ public class Main extends Parent<String> {
             Object o = Json.fromJSON(json);
             info(json);
             dir(o);
-            /*
-
-            dir(t2);
-            Events.removeEventListener(t3, "click", el3, false);
-            */
-            /*
-            try {
-                info("11");
-                dir(t2.getClass().newInstance());
-                info("22");
-            } catch (InstantiationException e1) {
-                info("ERROR1");
-            } catch (IllegalAccessException e1) {
-                info("ERROR2");
-            }
-            */
         }, false);
 
         Events.addEventListener(t3, "click", el3, false);
+
+        /*
+        if (false) {
+            sc.onOpen();
+            sc.onClose(null);
+            sc.onError(null);
+            sc.onMessage(null);
+        }
+        */
+
+
+        Butten connect = new Butten("Connect");
+        Events.addEventListener(connect, "click", (s,e)->{
+            sc = new SimpleClient();
+        }, false);
+        attach(connect);
+
+        Butten send = new Butten("Send");
+        Events.addEventListener(send, "click", (s,e)->{
+            sc.send("Hello from client");
+        }, false);
+        attach(send);
     }
 
     @Override

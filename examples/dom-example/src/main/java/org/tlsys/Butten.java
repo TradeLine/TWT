@@ -24,4 +24,12 @@ public class Butten {
     public Butten() {
         this("NONE");
     }
+
+    public boolean isEnabled() {
+        return DOM.getAttribute(this,"disabled") != null;
+    }
+
+    public void setEnabled() {
+        DOM.setAttribute(this, "disabled","disabled");
+    }
 }
