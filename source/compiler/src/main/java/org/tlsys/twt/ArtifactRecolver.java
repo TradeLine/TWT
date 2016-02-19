@@ -9,18 +9,20 @@ public class ArtifactRecolver {
         pathes.add(file);
     }
 
-    public ArtifactRecord getArtifacte(String name, String group, String version) {
+    public ArtifactRecord getArtifacte(String name, String group, String version) throws ArtifactNotFoundException {
         for (File f : pathes) {
             Optional<ArtifactRecord> ar = find(f, name, group, version);
             if (ar.isPresent())
                 return ar.get();
         }
 
-        throw new RuntimeException("Artifacte " + group + ":" + name + ":" + version + " not found");
+        throw new ArtifactNotFoundException(name, group, version);
     }
 
     private static Optional<ArtifactRecord> find(File repo, String name, String group, String version) {
         File ar = new File(repo + File.separator + group.replace('.',File.separatorChar)+File.separator+name);
+        if (!ar.isDirectory())
+            return Optional.empty();
         File[] versions = ar.listFiles(pathname -> pathname.isDirectory());
         Optional<String> ver = selectVersion(versions, version);
         if (!ver.isPresent())

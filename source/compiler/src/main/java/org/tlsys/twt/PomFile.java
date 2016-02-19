@@ -88,7 +88,7 @@ public final class PomFile {
     }
 
     public enum Scope {
-        JAR,COMPILE,RUNTIME,SYSTEM;
+        JAR,COMPILE,RUNTIME,SYSTEM,TEST,PROVIDED;
 
         public static Scope fromString(String scope) {
             if (scope == null || scope.isEmpty() || scope.equals("compile"))
@@ -99,6 +99,11 @@ public final class PomFile {
                 return RUNTIME;
             if (scope.equals("system"))
                 return SYSTEM;
+            if (scope.equals("test"))
+                return TEST;
+            if (scope.equals("provided"))
+                return PROVIDED;
+
 
             throw new IllegalArgumentException("Unknown scope \"" + scope + "\"");
         }

@@ -10,8 +10,6 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
-import org.tlsys.lex.Invoke;
-import org.tlsys.lex.StaticRef;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.*;
 import org.tlsys.twt.compile.TWTCompilePluginExtension;
@@ -73,6 +71,7 @@ public class GenerationTask extends DefaultTask {
                     for (String c : gt.getClasses()) {
                         cm.add(mainLoader.getJsClassLoader().loadClass(c));
                     }
+                    cm.detectReplace();
 
                     Class cl = mainLoader.loadClass(gt.generator());
                     MainGenerator mg = (MainGenerator) cl.newInstance();

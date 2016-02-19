@@ -10,14 +10,12 @@ import org.tlsys.lex.Invoke;
 import org.tlsys.lex.NewClass;
 import org.tlsys.lex.VVar;
 import org.tlsys.lex.declare.*;
-import org.tlsys.twt.CompileContext;
 import org.tlsys.twt.CompileException;
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.DomNode;
 import org.tlsys.twt.annotations.ReplaceClass;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 public class ClassCompiler {
@@ -153,17 +151,17 @@ public class ClassCompiler {
         }
     }
 
-    private static void compileExecuteCode(TreeCompiler com,  VExecute method, JCTree.JCMethodDecl dec) throws CompileException {
+    private static void compileExecuteCode(TreeCompiler com, VExecute method, JCTree.JCMethodDecl dec) throws CompileException {
         if (dec.body == null)
             return;
 
         try {
             method.block = (VBlock) com.st(dec.body, method);
             if (method instanceof VConstructor) {
-                VConstructor cons = (VConstructor)method;
+                VConstructor cons = (VConstructor) method;
                 if (!method.block.operations.isEmpty()) {
                     if (method.block.operations.get(0) instanceof Invoke) {
-                        Invoke inv = (Invoke)method.block.operations.get(0);
+                        Invoke inv = (Invoke) method.block.operations.get(0);
                         if (inv.getMethod() instanceof VConstructor) {
                             cons.parentConstructorInvoke = inv;
                             cons.block.operations.remove(0);
@@ -172,15 +170,15 @@ public class ClassCompiler {
                 }
             }
         } catch (Throwable e) {
-            throw new CompileException("Can't compile " + method.getParent().fullName+"::"+method.getRunTimeName(), e);
+            throw new CompileException("Can't compile " + method.getParent().fullName + "::" + method.getRunTimeName(), e);
         }
     }
 
     private static void findReplaceMethod(CompileContext ctx) {
         for (Pair p : ctx.pairs) {
             for (Member m : p.members.values())
-            if (m instanceof VMethod)
-                findReplaceMethodInClass((VMethod) m);
+                if (m instanceof VMethod)
+                    findReplaceMethodInClass((VMethod) m);
         }
     }
 
@@ -201,11 +199,12 @@ public class ClassCompiler {
     }
 
     private static void findReplaceMethodInClass(VMethod member) {
-        if (member.isThis("toString"))
+        if (member.isThis("onMessage"))
             System.out.println("123");
         List<VMethod> methods = getAllMethodsNyName(member.getParent(), member.getRunTimeName());
 
-        METHOD:for (VMethod m : methods) {
+        METHOD:
+        for (VMethod m : methods) {
             if (m == member)
                 continue;
 
@@ -223,20 +222,22 @@ public class ClassCompiler {
             break;
         }
 
-        METHOD:for (VMethod m : methods) {
+        METHOD:
+        for (VMethod m : methods) {
             if (m == member)
                 continue;
 
+            if (m.arguments.isEmpty())
+                continue;
             if (m.arguments.size() != member.arguments.size())
                 continue;
 
             for (VArgument a : m.arguments) {
-                for (VArgument b : member   .arguments) {
+                for (VArgument b : member.arguments) {
                     if (a.generic) {
                         if (!b.getType().isParent(a.getType()))
                             continue METHOD;
-                    } else
-                    if (a.getType() != b.getType())
+                    } else// if (a.getType() != b.getType())
                         continue METHOD;
                 }
             }

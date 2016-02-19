@@ -4,8 +4,8 @@ import org.tlsys.lex.CanUse;
 import org.tlsys.lex.Collect;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VExecute;
+import org.tlsys.lex.declare.VMethod;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,10 +29,18 @@ public class CompileModuls {
         public ClassRecord(VClass clazz) {
             this.clazz = clazz;
         }
+
+        public boolean isExist(VExecute e) {
+            return exe.contains(e);
+        }
     }
 
     public Collection<ClassRecord> getRecords() {
         return classes.values();
+    }
+
+    public boolean isExist(VClass clazz) {
+        return classes.containsKey(clazz);
     }
 
     /**
@@ -52,6 +60,39 @@ public class CompileModuls {
         }
 
         return cr;
+    }
+
+    /**
+     * Ищет не используемые методы, которые подменяют используемые
+     */
+    public void detectReplace() {
+        for (ClassRecord cr : classes.values()) {
+            System.out.println("CHECK " + cr.getClazz());
+
+            for (VMethod m : cr.getClazz().methods) {
+                System.out.print("METHOD " + m.alias + " ");
+                if (m.getReplace() == null) {
+                    System.out.println("not have replacment");
+                    continue;
+                }
+                if (m.getReplace().getParent() == cr.getClazz()) {
+                    System.out.println("self replace");
+                    continue;
+                }
+                ClassRecord cc = classes.get(m.getReplace().getParent());
+                if (cc == null) {
+                    System.out.println("parent class not using");
+                    continue;
+                }
+                if (cc.isExist(m.getReplace())) {
+                    System.out.println("added");
+                    add(m);
+                }
+
+                System.out.println("not using");
+            }
+            System.out.println("-----------\n\n");
+        }
     }
 
     /**

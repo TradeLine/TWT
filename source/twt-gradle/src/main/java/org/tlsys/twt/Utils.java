@@ -6,6 +6,7 @@ import org.gradle.api.artifacts.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 final class Utils {
     private Utils() {
@@ -33,6 +34,8 @@ final class Utils {
         return d;
     }
 
+    private static final Logger LOG = Logger.getLogger(Utils.class.getName());
+
     public static Collection<DClassLoader> loadClass(ArtifactRecolver artifactRecolver, DLoader loader, Dependency dependency) throws IOException {
         if (dependency instanceof ProjectDependency) {
             ProjectDependency pd = (ProjectDependency)dependency;
@@ -46,7 +49,13 @@ final class Utils {
 
         if (dependency instanceof ExternalModuleDependency) {
             ExternalModuleDependency emd  = (ExternalModuleDependency)dependency;
-            ArtifactRecord ar = artifactRecolver.getArtifacte(emd.getName(), emd.getGroup(), emd.getVersion());
+            ArtifactRecord ar = null;
+            try {
+                ar = artifactRecolver.getArtifacte(emd.getName(), emd.getGroup(), emd.getVersion());
+            } catch (ArtifactNotFoundException e) {
+                LOG.info(e.getMessage());
+                return Collections.EMPTY_LIST;
+            }
             return Arrays.asList(loadClass(artifactRecolver, loader, ar));
         }
 
