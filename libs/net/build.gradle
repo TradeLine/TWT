@@ -17,7 +17,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId 'org.tlsys'
-            artifactId 'twt-dom'
+            artifactId 'twt-net'
             version '1.0'
             from components.java
         }
@@ -33,6 +33,7 @@ dependencies{
     compile files("${System.properties['java.home']}/../lib/tools.jar")
     compile name:'twt-shared', group:'org.tlsys', version:'1.0'
     compile project(":rt")
+    compile project(":events")
 }
 
 apply plugin: 'twt-gradle'

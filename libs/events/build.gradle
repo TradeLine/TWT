@@ -17,7 +17,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId 'org.tlsys'
-            artifactId 'twt-dom'
+            artifactId 'twt-events'
             version '1.0'
             from components.java
         }
