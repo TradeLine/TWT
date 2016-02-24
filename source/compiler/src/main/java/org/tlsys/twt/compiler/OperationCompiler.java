@@ -20,9 +20,14 @@ class OperationCompiler {
 
             for (Symbol.VarSymbol ee : ms.getParameters())
                 aclass.add(c.loadClass(ee.type));
-            if (e.def != null)
-                throw new RuntimeException("Annonimus class not supported yet!");
-            VClass classIns = c.loadClass(e.type);
+            VClass classIns = null;
+            if (e.def != null) {
+                classIns = ClassCompiler.createAnnonimusClass(e.def, c.getClassLoader());
+                //throw new RuntimeException("Annonimus class not supported yet!");
+            } else {
+                classIns = c.loadClass(e.type);
+            }
+
 
             if (classIns.isParent(classIns.getClassLoader().loadClass(Enum.class.getName()))) {
                 VConstructor con = classIns.getConstructor(classIns.getClassLoader().loadClass(String.class.getName()), classIns.getClassLoader().loadClass("int"));

@@ -47,6 +47,18 @@ public class ClassCompiler {
         findReplaceMethod(cc);
     }
 
+    public static AnnonimusClass createAnnonimusClass(JCTree.JCClassDecl c, VClassLoader vClassLoader) throws CompileException {
+        AnnonimusClass as = new AnnonimusClass(null, c.sym);
+        as.setClassLoader(vClassLoader);
+        Pair p = new Pair(as, c);
+        setExtends(p, vClassLoader);
+        searchMembers(p);
+        compileCode(p, VExecute.class);
+        compileCode(p, VVar.class);
+        findReplaceMethod(p);
+        return as;
+    }
+
     private static void compileClassDefine(VClass parent, JCTree.JCClassDecl des, CompileContext context, ClassItemListener listener) {
         VClass v = createClassFromDes(parent, des, context.getLoader());
         context.addPair(des, v);
@@ -73,81 +85,94 @@ public class ClassCompiler {
         return v;
     }
 
+
+    private static void searchMembers(Pair pair) throws CompileException {
+        try {
+            for (JCTree t : pair.desl.defs) {
+                Member m = CompilerTools.createMember(pair.vclass, t);
+                if (m != null)
+                    pair.members.put(t, m);
+            }
+        } catch (VClassNotFoundException e) {
+            throw new CompileException("Error compile " + pair.vclass.realName, e);
+        }
+    }
+
     private static void searchMembers(CompileContext ctx) throws CompileException {
         for (Pair p : ctx.pairs) {
-            try {
-                for (JCTree t : p.desl.defs) {
-                    Member m = CompilerTools.createMember(p.vclass, t);
-                    if (m != null)
-                        p.members.put(t, m);
-                }
-            } catch (VClassNotFoundException e) {
-                throw new CompileException("Error compile " + p.vclass.realName, e);
-            }
+            searchMembers(p);
+        }
+    }
+
+    private static void setExtends(Pair pair, VClassLoader loader) throws VClassNotFoundException {
+        JCTree.JCExpression ex = pair.desl.getExtendsClause();
+        if (ex != null) {
+            pair.vclass.extendsClass = loader.loadClass(ex.type.tsym.toString());
+        } else {
+            Type.ClassType ct = (Type.ClassType) pair.desl.type;
+
+            pair.vclass.extendsClass = TypeUtil.loadClass(loader, ct.supertype_field);
+            //p.vclass.extendsClass = loader.loadClass(java.lang.Object.class.getName());
+        }
+        if (pair.vclass.alias != null && pair.vclass.alias.equals(java.lang.Object.class.getName()))
+            pair.vclass.extendsClass = null;
+        for (JCTree.JCExpression e : pair.desl.implementing) {
+            pair.vclass.implementsList.add(loader.loadClass(e.type.tsym.toString()));
         }
     }
 
     private static void setExtends(CompileContext ctx) throws VClassNotFoundException {
         for (Pair p : ctx.pairs) {
-            JCTree.JCExpression ex = p.desl.getExtendsClause();
-            if (ex != null) {
-                p.vclass.extendsClass = ctx.getLoader().loadClass(ex.type.tsym.toString());
-            } else {
-                Type.ClassType ct = (Type.ClassType) p.desl.type;
+            setExtends(p, ctx.getLoader());
+        }
+    }
 
-                p.vclass.extendsClass = TypeUtil.loadClass(ctx.getLoader(), ct.supertype_field);
-                //p.vclass.extendsClass = loader.loadClass(java.lang.Object.class.getName());
+    public static void compileCode(Pair p, Class forClass) throws CompileException {
+        TreeCompiler com = new TreeCompiler(p.vclass);
+        for (Map.Entry<JCTree, Member> e : p.members.entrySet()) {
+            Member member = e.getValue();
+            if (!forClass.isInstance(member))
+                continue;
+            JCTree tree = e.getKey();
+
+            if (tree instanceof JCTree.JCVariableDecl) {
+                JCTree.JCVariableDecl v = (JCTree.JCVariableDecl) tree;
+                VField f = (VField) member;
+                if (v.init == null)
+                    f.init = OperationCompiler.getInitValueForType(f.getType());
+                else {
+                    f.init = com.op(v.init, f.getParent());
+                    VClass enumClass = f.getParent().getClassLoader().loadClass(Enum.class.getName());
+                    if (f.getParent() != enumClass && f.getParent().isParent(enumClass)) {
+                        NewClass nc = (NewClass) f.init;
+                        nc.addArg(new Const(f.alias != null ? f.alias : f.name, f.getParent().getClassLoader().loadClass(String.class.getName())));
+                        nc.addArg(new Const(f.getParent().fields.indexOf(f), f.getParent().getClassLoader().loadClass("int")));
+                    }
+                }
+                continue;
             }
-            if (p.vclass.alias != null && p.vclass.alias.equals(java.lang.Object.class.getName()))
-                p.vclass.extendsClass = null;
-            for (JCTree.JCExpression e : p.desl.implementing) {
-                p.vclass.implementsList.add(ctx.getLoader().loadClass(e.type.tsym.toString()));
+
+            if (member instanceof VExecute) {
+                compileExecuteCode(com, (VExecute) member, (JCTree.JCMethodDecl) tree);
+                continue;
             }
+
+            if (member instanceof StaticBlock) {
+                StaticBlock sb = (StaticBlock) member;
+                JCTree.JCBlock b = (JCTree.JCBlock) tree;
+                for (JCTree.JCStatement t : b.getStatements()) {
+                    sb.getBlock().add(com.st(t, sb));
+                }
+                continue;
+            }
+
+            throw new RuntimeException("Code analize for " + tree.getClass().getName() + " not ready yet");
         }
     }
 
     public static void compileCode(CompileContext ctx, Class forClass) throws CompileException {
         for (Pair p : ctx.pairs) {
-            TreeCompiler com = new TreeCompiler(p.vclass);
-            for (Map.Entry<JCTree, Member> e : p.members.entrySet()) {
-                Member member = e.getValue();
-                if (!forClass.isInstance(member))
-                    continue;
-                JCTree tree = e.getKey();
-
-                if (tree instanceof JCTree.JCVariableDecl) {
-                    JCTree.JCVariableDecl v = (JCTree.JCVariableDecl) tree;
-                    VField f = (VField) member;
-                    if (v.init == null)
-                        f.init = OperationCompiler.getInitValueForType(f.getType());
-                    else {
-                        f.init = com.op(v.init, f.getParent());
-                        VClass enumClass = f.getParent().getClassLoader().loadClass(Enum.class.getName());
-                        if (f.getParent() != enumClass && f.getParent().isParent(enumClass)) {
-                            NewClass nc = (NewClass) f.init;
-                            nc.addArg(new Const(f.alias != null ? f.alias : f.name, f.getParent().getClassLoader().loadClass(String.class.getName())));
-                            nc.addArg(new Const(f.getParent().fields.indexOf(f), f.getParent().getClassLoader().loadClass("int")));
-                        }
-                    }
-                    continue;
-                }
-
-                if (member instanceof VExecute) {
-                    compileExecuteCode(com, (VExecute) member, (JCTree.JCMethodDecl) tree);
-                    continue;
-                }
-
-                if (member instanceof StaticBlock) {
-                    StaticBlock sb = (StaticBlock) member;
-                    JCTree.JCBlock b = (JCTree.JCBlock) tree;
-                    for (JCTree.JCStatement t : b.getStatements()) {
-                        sb.getBlock().add(com.st(t, sb));
-                    }
-                    continue;
-                }
-
-                throw new RuntimeException("Code analize for " + tree.getClass().getName() + " not ready yet");
-            }
+            compileCode(p, forClass);
         }
     }
 
@@ -174,11 +199,15 @@ public class ClassCompiler {
         }
     }
 
+    private static void findReplaceMethod(Pair p) {
+        for (Member m : p.members.values())
+            if (m instanceof VMethod)
+                findReplaceMethodInClass((VMethod) m);
+    }
+
     private static void findReplaceMethod(CompileContext ctx) {
         for (Pair p : ctx.pairs) {
-            for (Member m : p.members.values())
-                if (m instanceof VMethod)
-                    findReplaceMethodInClass((VMethod) m);
+            findReplaceMethod(p);
         }
     }
 
