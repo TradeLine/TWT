@@ -25,8 +25,10 @@ public class ProjectSourceDClassLoader extends SourceClassLoader {
 
 
         sourcees = SourceFinder.getCompileClasses(classDir, name -> {
+            System.out.print("Search " + name + "...");
             String classFilePath = name.replace('.', File.separatorChar) + ".java";
             File f = new File(sourceDir + File.separator + classFilePath);
+            System.out.println(f);
             if (f.isFile()) {
                 return Optional.of(f);
             }

@@ -22,6 +22,7 @@ public class SourceFinder {
     }
 
     public static Set<File> getCompileClasses(File file, SourceProvider sourceProvider) throws IOException {
+        System.out.println("Scan " + file + "...");
         if (!file.isDirectory())
             return null;
         HashSet<File> out = new HashSet<>();
@@ -36,6 +37,7 @@ public class SourceFinder {
                 continue;
             if (!f.getName().endsWith(".class"))
                 continue;
+            System.out.print("CHECK " + f + "...");
             try (FileInputStream fis = new FileInputStream(f)) {
                 ClassReader cr = new ClassReader(fis);
                 ClassNode classNode = new ClassNode();
@@ -44,12 +46,18 @@ public class SourceFinder {
                 if (classNode.visibleAnnotations != null)
                     for (Object o : classNode.visibleAnnotations) {
                         AnnotationNode an = (AnnotationNode) o;
+                        System.out.println("@" + an.desc);
                         if (an.desc.equals("L" + JSClass.class.getName().replace('.', '/') + ";")) {
                             if (classNode.name.contains("$")) {
                                 String cn = classNode.name.substring(0, classNode.name.indexOf("$")).replace('/', '.');
                                 sourceProvider.getSourceForClass(cn).ifPresent(e->out.add(e));
                             } else {
-                                sourceProvider.getSourceForClass(classNode.name.replace('/', '.')).ifPresent(e->out.add(e));
+                                if (sourceProvider.getSourceForClass(classNode.name.replace('/', '.')).isPresent()) {
+                                    out.add(sourceProvider.getSourceForClass(classNode.name.replace('/', '.')).get());
+                                    System.out.println("DONE");
+                                } else {
+                                    System.out.println("NOT FOUND");
+                                }
                             }
                         }
                     }

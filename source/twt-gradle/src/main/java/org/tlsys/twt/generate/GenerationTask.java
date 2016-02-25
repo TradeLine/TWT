@@ -49,6 +49,7 @@ public class GenerationTask extends DefaultTask {
 
         try {
             File classDir = new File(getProject().getBuildDir().getAbsolutePath()+File.separator+"classes"+File.separator+extension.getSourceName());
+            System.out.println("CLASSES \"" + classDir + "\"");
             ProjectSourceDClassLoader mainLoader = new ProjectSourceDClassLoader(sources.get(), classDir, artifactRecolver, loader, getProject());
             loader.add(mainLoader);
 
@@ -61,6 +62,12 @@ public class GenerationTask extends DefaultTask {
                     CompileModuls cm = new CompileModuls();
                     Optional<VMethod> mainMethod = null;
                     if (gt.main() != null) {
+
+                        System.out.println("-----CLASSES-----[" + mainLoader.getJsClassLoader().classes.size()+"]");
+                        for (VClass cl : mainLoader.getJsClassLoader().classes) {
+                            System.out.println("->" + cl.realName);
+                        }
+                        System.out.println("-----CLASSES-----");
                         VClass mainClass = mainLoader.getJsClassLoader().loadClass(gt.main());
                         mainMethod = mainClass.getMethodByName("main").stream().filter(e->e.getParent() == mainClass).findFirst();
                         if (!mainMethod.isPresent())

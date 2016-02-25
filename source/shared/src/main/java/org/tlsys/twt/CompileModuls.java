@@ -53,6 +53,7 @@ public class CompileModuls {
         ClassRecord cr = classes.get(clazz);
         if (cr == null) {
             cr = new ClassRecord(clazz);
+            System.out.println("adding class " + clazz.realName);
             classes.put(clazz, cr);
             Collect c = Collect.create();
             clazz.getUsing(c);
@@ -87,6 +88,7 @@ public class CompileModuls {
                 if (cc.isExist(m.getReplace())) {
                     System.out.println("added");
                     add(m);
+                    continue;
                 }
 
                 System.out.println("not using");

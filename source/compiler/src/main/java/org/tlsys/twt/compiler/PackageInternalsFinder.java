@@ -64,11 +64,12 @@ public class PackageInternalsFinder {
     private List<JavaFileObject> processJar(URL packageFolderURL, boolean recursive) {
         List<JavaFileObject> result = new ArrayList<JavaFileObject>();
 
+        URLConnection urlConnection = null;
         try {
 
-            URLConnection urlConnection = packageFolderURL.openConnection();
+            urlConnection = packageFolderURL.openConnection();
             if (!(urlConnection instanceof JarURLConnection)) {
-                // weird file in the classpath
+                urlConnection.getInputStream().close();
                 return Collections.emptyList();
             }
             String jarUri = packageFolderURL.toExternalForm().split("!")[0];
@@ -83,10 +84,11 @@ public class PackageInternalsFinder {
                 String name = jarEntry.getName();
                 addFileObject(jarUri, name, rootEntryName, rootEnd, result, recursive);
             }
-        }
-        catch (IOException e) {
+            jarConn.getJarFile().close();
+        }catch (IOException e) {
             throw new RuntimeException("Wasn't able to open " + packageFolderURL + " as a jar file", e);
         }
+
         return result;
     }
 
