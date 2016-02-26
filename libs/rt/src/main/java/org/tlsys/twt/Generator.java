@@ -164,6 +164,7 @@ public class Generator implements MainGenerator {
         VMethod codeMethod = scriptClass.getMethodByName("code").get(0);
 
         VClass classBoolean = cl.loadClass("boolean");
+        VClass classInt = cl.loadClass("int");
         VClass classValueProvider = cl.loadClass(ValueProvider.class.getName());
         VClass classMethodRecord = cl.loadClass(MethodRecord.class.getName());
         VClass classTypeProvider = cl.loadClass(TypeProvider.class.getName());
@@ -174,7 +175,7 @@ public class Generator implements MainGenerator {
         VMethod methodSetSuper = classClassRecord.getMethod("setSuper", classTypeProvider);
         VMethod methodAddImplement = classClassRecord.getMethod("addImplement", classTypeProvider);
         VConstructor methodConstructor = classMethodRecord.getConstructor(classString, classString, objectClass, classBoolean);//получаем конструктор MethodRecord
-        VMethod addFieldMethod = classClassRecord.getMethod("addField", classString, classString, classTypeProvider, classString, classBoolean);
+        VMethod addFieldMethod = classClassRecord.getMethod("addField", classString, classString, classTypeProvider, classString, classInt);
         VMethod setDomNodeMethod = classClassRecord.getMethod("setDomNode", classString);
 
         VConstructor argumentConstructor = classArgumentRecord.getConstructor(classString, classBoolean, classTypeProvider);
@@ -211,7 +212,7 @@ public class Generator implements MainGenerator {
 
             //inv.arguments.add(getValueViaProvider((Value)f.init));
             inv.arguments.add(new Const(initBody.toString().replace("\"", "\\\""), classString));
-            inv.arguments.add(new Const(f.isStatic(), classBoolean));
+            inv.arguments.add(new Const(f.getModificators(), classInt));
             lastScope = inv;
         }
 

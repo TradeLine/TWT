@@ -1,9 +1,8 @@
 package org.tlsys.twt.rt.java.lang.reflect;
 
 import org.tlsys.twt.Script;
-import org.tlsys.twt.annotations.*;
-import org.tlsys.twt.NativeCodeGenerator;
-import org.tlsys.twt.rt.java.lang.TClassLoader;
+import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.annotations.ReplaceClass;
 
 import java.lang.reflect.Field;
 
@@ -17,14 +16,14 @@ public class TField {
     private final String jsName;
     private Class type;
     private final Class declaringClass;
-    private final boolean staticFlag;
+    private int modificators;
 
-    public TField(String name, String jsName, Class declaringClass, boolean staticFlag, Class type) {
+    public TField(String name, String jsName, Class declaringClass, Class type, int modificators) {
         this.name = name;
         this.jsName = jsName;
         this.type = type;
         this.declaringClass = declaringClass;
-        this.staticFlag = staticFlag;
+        this.modificators = modificators;
     }
 
     public String getName() {
@@ -44,5 +43,9 @@ public class TField {
 
     public void set(Object obj, Object value) {
         Script.code(obj,"[",jsName,"]=",value);
+    }
+
+    public int getModifiers() {
+        return modificators;
     }
 }

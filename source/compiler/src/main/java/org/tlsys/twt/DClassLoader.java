@@ -85,9 +85,17 @@ public abstract class DClassLoader extends URLClassLoader {
 
         }
         try {
+            System.out.print(closed + ">>");
+            if (this instanceof JarDClassLoader) {
+                System.out.print("JAR " + ((JarDClassLoader)this).getFile());
+            }else
+                System.out.print(getName());
+            System.out.print(" class \"" + name + "\"...");
             Class cl = super.loadClass(name);
+            System.out.println("FOUNDED");
             return cl;
         } catch (ClassNotFoundException e) {
+            System.out.println("NOT FOUNDED");
         }
         for (ClassLoader cl : getParents()) {
             try {
@@ -99,6 +107,13 @@ public abstract class DClassLoader extends URLClassLoader {
         return getSystemClassLoader().loadClass(name);
     }
 
+    private boolean closed = false;
+
+    @Override
+    public void close() throws IOException {
+        super.close();
+        closed = true;
+    }
 
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {

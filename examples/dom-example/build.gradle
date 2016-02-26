@@ -23,28 +23,32 @@ repositories {
 
 
 dependencies {
-    providedCompile group: 'org.tlsys', name:'twt-shared', version:'1.0'
     providedCompile group: 'org.tlsys', name:'twt-rt', version:'1.0'
+    providedCompile group: 'org.tlsys', name:'twt-shared', version:'1.0'
     providedCompile group: 'org.tlsys', name:'twt-dom', version:'1.0'
     providedCompile group: 'org.tlsys', name:'twt-events', version:'1.0'
+    providedCompile group: 'org.tlsys', name:'twt-json', version:'1.0'
     providedCompile group: 'org.tlsys', name:'twt-net', version:'1.0'
     providedCompile group:'javax', name:'javaee-api',version:'7.0'
 }
 
-apply plugin: 'twt-gradle'
+apply plugin: 'twt-build'
 apply plugin: 'wildfly'
 
 
-classes{
-    dependsOn generateTWT
+buildTwt{
+    target().addClass('org.tlsys.Main')
+            .out('main.js')
+            .generator('org.tlsys.twt.Generator')
+            .main('org.tlsys.Main')
 }
-
+/*
 TWT.target()
         .addClass("org.tlsys.Main")
         .out("main.js")
         .generator("org.tlsys.twt.Generator")
         .main("org.tlsys.Main");
-
+*/
 war {
     from('./build/main.js') {
         include 'main.js'

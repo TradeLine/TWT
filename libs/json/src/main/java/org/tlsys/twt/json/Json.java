@@ -8,11 +8,18 @@ import org.tlsys.twt.classes.ClassStorage;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 @JSClass
 public class Json {
     public static String toJSON(Object obj) {
+        Console.info("try convert object to JSON");
+        Console.dir(obj);
+        if (Script.isUndefined(obj))
+            return null;
         try {
+            if (Script.typeOf(obj)=="number")
+                return ""+obj;
             if (obj == null)
                 return "null";
             if (obj instanceof String) {
@@ -23,6 +30,7 @@ public class Json {
             if (cl.isPrimitive()) {
                 return obj.toString();
             }
+            Console.info("-1");
 
             if (cl.isArray()) {
                 String out = "[";
@@ -37,6 +45,7 @@ public class Json {
                 out += "]";
                 return out;
             }
+            Console.info("-2");
 
             if (Iterable.class.isAssignableFrom(cl)) {
                 Iterable im = (Iterable) obj;
@@ -51,19 +60,29 @@ public class Json {
                 out += "]";
                 return out;
             }
+            Console.info("-3");
 
             String out = "{\"@type\":\"" + cl.getName() + "\"";
             Class clazz = cl;
+            Console.info("-4");
             while (clazz != null) {
+                Console.info("-4.1");
                 for (Field f : clazz.getFields()) {
+                    if (Modifier.isStatic(f.getModifiers()));
+                    Console.info("-4.2 convert " + clazz.getName() + "::" + f.getName());
                     out += ",\"" + f.getName() + "\":" + toJSON(f.get(obj));
                 }
+                Console.info("-4.3");
                 clazz = clazz.getSuperclass();
+                Console.info("-4.4");
                 if (clazz == Object.class)
                     break;
+                Console.info("-4.5");
             }
+            Console.info("-5");
             return out + "}";
         } catch (IllegalAccessException e) {
+            Console.info("ERROR");
             throw new RuntimeException(e);
         }
     }
@@ -156,6 +175,7 @@ public class Json {
             Console.info("LINE-11");
             return o;
         } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            Console.info("ERROR2");
             throw new RuntimeException(e);
         }
     }

@@ -1,0 +1,1 @@
+apply plugin: 'idea'apply plugin: "java"subprojects {    apply plugin: "java"    apply plugin: 'idea'    repositories {        mavenCentral()        mavenLocal()    }    sourceCompatibility = JavaVersion.VERSION_1_8    targetCompatibility = JavaVersion.VERSION_1_8}
