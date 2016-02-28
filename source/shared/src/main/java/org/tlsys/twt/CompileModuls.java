@@ -17,15 +17,19 @@ import java.util.HashSet;
  */
 public class CompileModuls {
     private final HashMap<VClass, ClassRecord> classes = new HashMap<>();
+
     public class ClassRecord {
         private final VClass clazz;
         private final HashSet<VExecute> exe = new HashSet<>();
+
         public VClass getClazz() {
             return clazz;
         }
+
         public HashSet<VExecute> getExe() {
             return exe;
         }
+
         public ClassRecord(VClass clazz) {
             this.clazz = clazz;
         }
@@ -57,6 +61,7 @@ public class CompileModuls {
             classes.put(clazz, cr);
             Collect c = Collect.create();
             clazz.getUsing(c);
+            System.out.println("added " + clazz.realName);
             add(c);
         }
 
@@ -67,14 +72,27 @@ public class CompileModuls {
      * Ищет не используемые методы, которые подменяют используемые
      */
     public void detectReplace() {
-        for (ClassRecord cr : classes.values()) {
-            System.out.println("CHECK " + cr.getClazz());
-
-            for (VMethod m : cr.getClazz().methods) {
-                System.out.print("METHOD " + m.alias + " ");
-                if (m.getReplace() == null) {
-                    System.out.println("not have replacment");
-                    continue;
+        System.out.println("search replace...");
+        CLASSES:
+        while (true) {
+            for (ClassRecord cr : classes.values()) {
+                for (VMethod m : cr.getClazz().methods) {
+                    if (m.getReplace() == null) {
+                        continue;
+                    }
+                    if (m.getReplace().getParent() == cr.getClazz()) {
+                        continue;
+                    }
+                    ClassRecord cc = classes.get(m.getReplace().getParent());
+                    if (cc == null) {
+                        continue;
+                    }
+                    if (cc.isExist(m.getReplace())) {
+                        int size = classes.size();
+                        add(m);
+                        if (classes.size() != size)
+                            continue CLASSES;
+                    }
                 }
                 if (m.getReplace().getParent() == cr.getClazz()) {
                     System.out.println("self replace");
@@ -93,12 +111,13 @@ public class CompileModuls {
 
                 System.out.println("not using");
             }
-            System.out.println("-----------\n\n");
+            return;
         }
     }
 
     /**
      * Добовляет в компиляцию метод
+     *
      * @param exe метод, который обязательно надо скомпилировать
      * @return запись о компилируемых методах класса
      */
@@ -116,9 +135,9 @@ public class CompileModuls {
     public void add(Collect collect) {
         for (CanUse cu : collect.get()) {
             if (cu instanceof VExecute)
-                add((VExecute)cu);
+                add((VExecute) cu);
             if (cu instanceof VClass)
-                add((VClass)cu);
+                add((VClass) cu);
         }
     }
 }

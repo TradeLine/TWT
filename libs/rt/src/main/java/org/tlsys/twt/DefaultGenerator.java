@@ -3,18 +3,13 @@ package org.tlsys.twt;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.annotations.CastAdapter;
-import org.tlsys.twt.annotations.InvokeGen;
 import org.tlsys.twt.classes.ArrayBuilder;
 import org.tlsys.twt.classes.ClassStorage;
-import org.tlsys.twt.classes.TypeProvider;
-import org.tlsys.twt.rt.java.lang.TClass;
-import org.tlsys.twt.rt.java.lang.TClassLoader;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.function.Predicate;
 
 public class DefaultGenerator implements ICodeGenerator {
@@ -272,6 +267,15 @@ public class DefaultGenerator implements ICodeGenerator {
                 case AND://>
                     p.append("&&");
                     break;
+                case BITOR:
+                    p.append("|");
+                    break;
+                case BITAND:
+                    p.append("&");
+                    break;
+                case BITXOR:
+                    p.append("^");
+                    break;
                 default:
                     throw new RuntimeException("Not support type " + o.getBitType());
             }
@@ -283,6 +287,8 @@ public class DefaultGenerator implements ICodeGenerator {
         addGen(VBlock.class, (c, o, p, g) -> {
             p.append("{");
             for (Operation op : o.operations) {
+                if (op == null)
+                    continue;
                 g.operation(c, op, p);
                 if (op instanceof VBlock)
                     continue;

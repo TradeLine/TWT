@@ -8,6 +8,7 @@ import org.tlsys.twt.rt.java.lang.reflect.TField;
 import org.tlsys.twt.rt.java.lang.reflect.TMethod;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 @JSClass
 @ClassName("java.lang.Class")
@@ -234,7 +235,7 @@ public class TClass {
 
         for (int i = 0; i < cr.getFields().length(); i++) {
             FieldRecord fr = cr.getFields().get(i);
-            if (fr.isStaticFlag()) {
+            if (Modifier.isStatic(fr.getModificators())) {
                 Script.code(this, "[", fr.getJsName(), "]=eval(", fr.getInitValue(), ")");
             }
         }
@@ -371,7 +372,7 @@ public class TClass {
             fields = new Field[classRecord.getFields().length()];
             for (int i = 0; i < fields.length; i++) {
                 FieldRecord fr = classRecord.getFields().get(i);
-                TField f = new TField(fr.getName(), fr.getJsName(), CastUtil.cast(this), fr.isStaticFlag(), fr.getType().getType());
+                TField f = new TField(fr.getName(), fr.getJsName(), CastUtil.cast(this), fr.getType().getType(), fr.getModificators());
                 fields[i] = CastUtil.cast(f);
             }
         }

@@ -22,3 +22,6 @@ dependencies{
     compile files("${System.properties['java.home']}/../lib/tools.jar")
     testCompile 'junit:junit:4.12'
 }
+build {
+    dependsOn publishToMavenLocal
+}

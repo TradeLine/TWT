@@ -30,8 +30,9 @@ public class TObject {
 
     //@InvokeGen("org.tlsys.twt.rt.java.lang.ObjectInvokeAdapter")
     @MethodName("getClass")
+    @InvokeGen(ObjectInvokeAdapter.class)
     public Class getJClass() {
-        return Script.code(this,"[",TClass.CLASS_IMP,"]");
+        throw new RuntimeException("Not supported");
     }
 
     public String toString() {
@@ -40,5 +41,18 @@ public class TObject {
 
     public boolean equals(Object obj) {
         return Script.code(this.hashCode(),"==",obj.hashCode());
+    }
+
+    public static Class getClassOfObject(Object object) {
+        if (Script.typeOf(object) == "number") {
+            if (Script.code(object,"%1===0"))
+                return Integer.class;
+            else
+                return Float.class;
+        }
+
+        if (Script.typeOf(object) == "string")
+            return String.class;
+        return Script.code(object,"[",TClass.CLASS_IMP,"]");
     }
 }

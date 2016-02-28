@@ -34,8 +34,8 @@ dependencies {
     compile name:'twt-shared', group:'org.tlsys', version:'1.0'
 }
 
-apply plugin: 'twt-gradle'
+apply plugin: 'twt-compile'
 
-classes{
-    dependsOn compileTWT
+build {
+    dependsOn publishToMavenLocal
 }

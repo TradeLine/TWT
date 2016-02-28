@@ -17,8 +17,11 @@ class StatementCompiler {
     static {
         addProcSt(JCTree.JCBlock.class, (c, e, o) -> {
             VBlock b = new VBlock(o);
-            for (JCTree.JCStatement t : e.getStatements())
-                b.operations.add(c.st(t, b));
+            for (JCTree.JCStatement t : e.getStatements()) {
+                Operation oo = c.st(t, b);
+                if (o != null)
+                    b.operations.add(oo);
+            }
             return b;
         });
 
@@ -54,7 +57,8 @@ class StatementCompiler {
                     i.elseBlock = (VBlock) oo;
                 } else {
                     VBlock b = new VBlock(i);
-                    b.operations.add(oo);
+                    if (oo != null)
+                        b.operations.add(oo);
                     i.elseBlock = b;
                 }
             }
@@ -132,6 +136,8 @@ class StatementCompiler {
             }
         });
 
+        addProcSt(JCTree.JCSkip.class, (c,e,p)->null);
+
         addProcSt(JCTree.JCWhileLoop.class, (c, e, o) -> {
             Value v = c.op(e.cond, o);
             WhileLoop fe = new WhileLoop(o);
@@ -139,7 +145,8 @@ class StatementCompiler {
             Operation op = c.st(e.body, fe);
             if (!(op instanceof VBlock)) {
                 VBlock b = new VBlock(fe);
-                b.operations.add(op);
+                if (op != null)
+                    b.operations.add(op);
                 op = b;
             }
             fe.block = (VBlock) op;
@@ -168,7 +175,8 @@ class StatementCompiler {
             Operation oo = c.st(e.body, f);
             if (!(oo instanceof VBlock)) {
                 VBlock b = new VBlock(f);
-                b.operations.add(oo);
+                if (oo != null)
+                    b.operations.add(oo);
                 oo = b;
             }
             f.block = (VBlock) oo;
@@ -221,7 +229,9 @@ class StatementCompiler {
                 ca.value = cc.getExpression()==null?null:c.op(cc.getExpression(), s);
                 ca.block = new VBlock(ca);
                 for (JCTree.JCStatement ss : cc.getStatements()) {
-                    ca.block.operations.add(c.st(ss, ca.block));
+                    Operation oo = c.st(ss, ca.block);
+                    if (oo != null)
+                        ca.block.operations.add(oo);
                 }
                 s.cases.add(ca);
             }

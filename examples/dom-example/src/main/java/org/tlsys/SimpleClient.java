@@ -2,6 +2,7 @@ package org.tlsys;
 
 import org.tlsys.twt.Console;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.events.WebSocket;
 
 @JSClass
 public class SimpleClient extends WebSocket {

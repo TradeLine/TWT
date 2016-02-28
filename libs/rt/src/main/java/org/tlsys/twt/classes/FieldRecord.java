@@ -12,19 +12,19 @@ public class FieldRecord {
     private ClassRecord parent;
     private String initValue;
     private TypeProvider type;
-    private boolean staticFlag;
+    private int mods;
 
-    public FieldRecord(String jsName, String name, ClassRecord parent, TypeProvider type, String initValue, boolean staticFlag) {
+    public FieldRecord(String jsName, String name, ClassRecord parent, TypeProvider type, String initValue, int mods) {
         this.jsName = jsName;
         this.name = name;
         this.parent = parent;
         this.type = type;
         this.initValue = initValue;
-        this.staticFlag = staticFlag;
+        this.mods = mods;
     }
 
-    public boolean isStaticFlag() {
-        return staticFlag;
+    public int getModificators() {
+        return mods;
     }
 
     public String getJsName() {

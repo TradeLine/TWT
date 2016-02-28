@@ -1,4 +1,4 @@
-package org.tlsys.twt.generate;
+package org.tlsys.twt.build;
 
 import java.util.ArrayList;
 import java.util.Arrays;

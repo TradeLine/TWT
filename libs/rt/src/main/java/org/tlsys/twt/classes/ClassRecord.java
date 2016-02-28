@@ -4,8 +4,6 @@ import org.tlsys.twt.JArray;
 import org.tlsys.twt.NativeCodeGenerator;
 import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.JSClass;
-import org.tlsys.twt.rt.java.lang.TClass;
-import org.tlsys.twt.rt.java.lang.reflect.TField;
 
 @JSClass
 @CodeGenerator(NativeCodeGenerator.class)
@@ -72,8 +70,8 @@ public class ClassRecord {
         return superClass;
     }
 
-    public ClassRecord addField(String jsName, String name, TypeProvider type, String initValue, boolean staticFlag) {
-        FieldRecord fr = new FieldRecord(jsName, name, this, type, initValue, staticFlag);
+    public ClassRecord addField(String jsName, String name, TypeProvider type, String initValue, int mods) {
+        FieldRecord fr = new FieldRecord(jsName, name, this, type, initValue, mods);
         fields.add(fr);
         return this;
     }
