@@ -8,7 +8,7 @@ import org.tlsys.twt.rt.java.lang.TThrowable;
 
 @JSClass
 public abstract class WebSocket {
-    private final Object js;
+    private Object js;
     public WebSocket(String url) {
         js = Script.code("new WebSocket(",url,")");
 

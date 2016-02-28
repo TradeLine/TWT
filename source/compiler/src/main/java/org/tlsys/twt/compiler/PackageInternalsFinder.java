@@ -62,6 +62,7 @@ public class PackageInternalsFinder {
     }
 
     private List<JavaFileObject> processJar(URL packageFolderURL, boolean recursive) {
+        //System.out.println("PROCESS JAR " + packageFolderURL + ", " + packageFolderURL.getClass());
         List<JavaFileObject> result = new ArrayList<JavaFileObject>();
 
         URLConnection urlConnection = null;
@@ -84,9 +85,11 @@ public class PackageInternalsFinder {
                 String name = jarEntry.getName();
                 addFileObject(jarUri, name, rootEntryName, rootEnd, result, recursive);
             }
-            jarConn.getJarFile().close();
+            //jarConn.getJarFile().close();
         }catch (IOException e) {
             throw new RuntimeException("Wasn't able to open " + packageFolderURL + " as a jar file", e);
+        } catch (IllegalStateException e) {
+            throw new RuntimeException("Can't read URL " + packageFolderURL, e);
         }
 
         return result;

@@ -189,7 +189,9 @@ public class TClass {
         for (int i = 0; i < cr.getImplementations().length(); i++) {
             implementList.add(cr.getImplementations().get(i).getType());
         }
-
+        
+        Console.info("=========Creating class " + cr.getName()+"...=========");
+        Console.dir(cr);
         //Script.code(cons,".c=",this);
 
 
@@ -209,16 +211,21 @@ public class TClass {
                     arguments += mr.getArguments().get(j).getName();
                     a.add(mr.getArguments().get(j).getName());
                 }
+                
+                Console.info(cr.getName()+"->"+mr.getName()+"(" + arguments + ")");
+                Console.dir(mr.getArguments());
+                Console.info("len="+mr.getArguments().length());
 
                 if (domNode == null) {
 
-                    a.add(Script.code("'var o = new ", cons, "();" + "o.'+", mr.getJsName(), "+'('+", arguments, "+'); return o;'"));
+                    a.add(Script.code("'var o = new ", cons, "();" + "o.'+", mr.getJsName(), "+'.apply(o,arguments); return o;'"));
 
                 } else {
                     a.add(Script.code("'var o = document.createElement(", this.domNode, ");" +
                             "var o = document.createElement(", this.domNode, ");" +
                             "for(var k in ", cons, ".prototype) o[k]=", cons, ".prototype[k];" +
-                            "o.'+", mr.getJsName(), "+'('+", arguments, "+');return o;'"));
+                            "o.'+", mr.getJsName(), "+'.apply(o, arguments);return o;'"));
+                    Console.info("CONSTRUCTOR OF " + cr.getName()+"=" + a.get(a.length()-1));
                 }
                 Script.code(this, "['n'+", mr.getJsName(), "]=Function.apply(null,", a.getJSArray(), ")");
             }
@@ -240,9 +247,11 @@ public class TClass {
             }
         }
 
+        Console.info("======="+cr.getName() + " copy parent==========");
         Class t = superClass;
         while (t != null) {
             TClass tt = CastUtil.cast(t);
+            Console.info("----Read class " + tt.getName()+"----");
             for (int i = 0; i < tt.classRecord.getMethods().length(); i++) {
                 MethodRecord mr = tt.classRecord.getMethods().get(i);
                 if (mr.getName() == null)
@@ -252,8 +261,11 @@ public class TClass {
                         continue;
                     Script.code(this, "[", mr.getJsName(), "]=", mr.getBody());
                 } else {
-                    if (Script.hasOwnProperty(Script.code(cons, ".prototype"), mr.getJsName()))
+                    if (Script.hasOwnProperty(Script.code(cons, ".prototype"), mr.getJsName())) {
+                        Console.info("Method " + mr.getName() + " exist!");
                         continue;
+                    }
+                    Console.info("Method " + mr.getName() + " copped!");
                     Script.code(cons, ".prototype[", mr.getJsName(), "]=", mr.getBody());
                     if (mr.getName().equals("toString") && mr.getArguments().length() == 0) {
                         Script.code(cons, ".prototype.toString=", mr.getBody());
@@ -372,6 +384,7 @@ public class TClass {
             fields = new Field[classRecord.getFields().length()];
             for (int i = 0; i < fields.length; i++) {
                 FieldRecord fr = classRecord.getFields().get(i);
+                Console.info("FIELD " + fr.getName() + " " + Modifier.isStatic(fr.getModificators()));
                 TField f = new TField(fr.getName(), fr.getJsName(), CastUtil.cast(this), fr.getType().getType(), fr.getModificators());
                 fields[i] = CastUtil.cast(f);
             }

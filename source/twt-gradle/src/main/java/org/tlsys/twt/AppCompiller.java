@@ -13,7 +13,15 @@ import org.tlsys.twt.compiler.SourceCompiler;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ProjectDependency;
+import org.tlsys.twt.compiler.LibLoader;
+import org.tlsys.twt.compiler.ModuleInfo;
 
 /**
  * Created by Субочев Антон on 26.02.2016.
@@ -22,6 +30,17 @@ public class AppCompiller {
 
     public static File getClassDir(Project project) {
         return new File(project.getBuildDir().getAbsolutePath() + File.separator + "classes" + File.separator + "main");
+    }
+
+    public static Set<File> getSourceOfProject(Project project) {
+        JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
+        SourceSetContainer ssc = javaConvention.getSourceSets();
+        SourceSet ss = ssc.getByName("main");
+        HashSet<File> out = new HashSet<>();
+        for (File f : ss.getJava()) {
+            out.add(f);
+        }
+        return out;
     }
 
     public static App compileApp(Task task) throws IOException, CompileException {
@@ -42,20 +61,39 @@ public class AppCompiller {
             SourceSet ss = ssc.getByName("main");
 
             Optional<File> sources = ss.getAllSource().getSrcDirs().stream().filter(e -> e.getName().equals("java")).findFirst();
-            if (!sources.isPresent())
+            if (!sources.isPresent()) {
                 throw new IOException("Can't find directore with java source");
+            }
 
             File classDir = getClassDir(task.getProject());
-            ProjectSourceDClassLoader mainLoader = new ProjectSourceDClassLoader(sources.get(), classDir, artifactRecolver, loader, task.getProject());
-            loader.add(mainLoader);
+            GradleTWTSourceProject mainLoader = new GradleTWTSourceProject(task.getProject(), artifactRecolver, loader);
+            //ProjectSourceDClassLoader mainLoader = new ProjectSourceDClassLoader(sources.get(), classDir, artifactRecolver, loader, task.getProject());
 
+            ArrayList<File> pathes = new ArrayList<>();
+            for (Configuration c : task.getProject().getConfigurations()) {
+                for (Dependency d : c.getDependencies()) {
+                    if (d instanceof ProjectDependency) {
+                        ProjectDependency pd = (ProjectDependency) d;
+                        pathes.add(new File(pd.getDependencyProject().getBuildDir() + File.separator + "classes" + File.separator + "main"));
+                    }
+                }
+            }
+
+            for (File f : task.getProject().getConfigurations().getByName("compile")) {
+                pathes.add(f);
+            }
+
+            //LibLoader.loadLibsFor(mainLoader, pathes);
+            loader.add(mainLoader);
+            //ModuleInfo mi = new ModuleInfo(mainLoader.getName(), LibLoader.getAllDependencys(mainLoader));
             SourceCompiler.compile(mainLoader);
 
-            return new App(loader, classDir, mainLoader);
-        } catch (Throwable e){
-            for(DClassLoader cl : loader.getLoaders()) {
+            return new App(loader, classDir, mainLoader/*, mi*/);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            for (TWTModule cl : loader.getLoaders()) {
                 try {
-                    cl.close();
+                    cl.getJavaClassLoader().close();
                 } catch (IOException io) {
                     //ignore
                 }
@@ -65,17 +103,28 @@ public class AppCompiller {
     }
 
     public static class App {
+
         private final DLoader loader;
         private final File classDir;
-        private final ProjectSourceDClassLoader mainLoader;
+        private final GradleTWTSourceProject mainLoader;
+        //private final ModuleInfo info;
 
-        public App(DLoader loader, File classDir, ProjectSourceDClassLoader mainLoader) {
+        public App(DLoader loader, File classDir, GradleTWTSourceProject mainLoader/*, ModuleInfo info*/) {
             this.loader = loader;
             this.classDir = classDir;
             this.mainLoader = mainLoader;
+            //this.info = info;
         }
 
-        public ProjectSourceDClassLoader getMainLoader() {
+        /*
+        public ModuleInfo getInfo() {
+            return info;
+        }
+*/
+        
+        
+
+        public GradleTWTSourceProject getMainLoader() {
             return mainLoader;
         }
 
@@ -84,9 +133,9 @@ public class AppCompiller {
         }
 
         public void close() {
-            for(DClassLoader cl : loader.getLoaders()) {
+            for (TWTModule cl : loader.getLoaders()) {
                 try {
-                    cl.close();
+                    cl.getJavaClassLoader().close();
                 } catch (IOException io) {
                     //ignore
                 }

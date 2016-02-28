@@ -45,6 +45,10 @@ public class Try extends Operation {
         private Context parentContext;
         private DeclareVar declareVar;
 
+        public DeclareVar getDeclareVar() {
+            return declareVar;
+        }
+        
         public Catch(Context parentContext, DeclareVar declareVar) {
             this.parentContext = parentContext;
             this.declareVar = declareVar;

@@ -11,7 +11,7 @@ import java.io.PrintStream;
 public interface ICodeGenerator {
     public void generateClass(GenerationContext context, CompileModuls.ClassRecord record, PrintStream ps) throws CompileException;
     public boolean operation(GenerationContext context, Operation operation, PrintStream out) throws CompileException;
-    public default void generateExecute(GenerationContext context, VExecute execute, PrintStream ps) throws CompileException {
+    public default void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
         throw new RuntimeException("Not supported");
     }
 }

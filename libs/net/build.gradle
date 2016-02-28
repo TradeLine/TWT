@@ -36,8 +36,8 @@ dependencies{
     compile project(":events")
 }
 
-apply plugin: 'twt-gradle'
+apply plugin: 'twt-compile'
 
-classes{
-    dependsOn compileTWT
+build{
+    dependsOn publishToMavenLocal
 }

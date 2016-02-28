@@ -10,7 +10,7 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
 
 
     @Override
-    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps) throws CompileException {
+    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
         super.generateMethodStart(context, execute, ps);
         VClass arrayBuilderClass = execute.getParent();
         VClass classClass = arrayBuilderClass.getClassLoader().loadClass(Class.class.getName());

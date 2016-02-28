@@ -60,6 +60,13 @@ public final class PomFile {
         public File getJar() {
             return jar;
         }
+
+        @Override
+        public String toString() {
+            return "JarDependency{" + "jar=" + jar + '}';
+        }
+        
+        
     }
 
     public static class ArtifactDependency extends Dependency {
@@ -85,6 +92,13 @@ public final class PomFile {
         public String getVersion() {
             return version;
         }
+
+        @Override
+        public String toString() {
+            return "ArtifactDependency{" + "name=" + name + ", group=" + group + ", version=" + version + '}';
+        }
+        
+        
     }
 
     public enum Scope {

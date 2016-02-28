@@ -17,6 +17,7 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
     public VClass returnType;
     private String name;
     public String alias;
+    public boolean force;
 
     public String getRunTimeName() {
         return name;

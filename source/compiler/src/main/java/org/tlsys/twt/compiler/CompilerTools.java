@@ -13,17 +13,21 @@ import org.tlsys.twt.annotations.MethodName;
 import javax.lang.model.element.Modifier;
 import java.util.Optional;
 import java.util.Set;
+import org.tlsys.twt.annotations.ForceInject;
 
 public class CompilerTools {
+
     public static Member createMember(VClass clazz, JCTree decl) throws VClassNotFoundException {
         if (decl instanceof JCTree.JCMethodDecl) {
             JCTree.JCMethodDecl m = (JCTree.JCMethodDecl) decl;
             if (m.name.toString().equals("<init>")) {
                 VConstructor v = createConstructorMember(clazz, m);
                 clazz.constructors.add(v);
+                v.force = isAnnatationExist(m.getModifiers(), ForceInject.class);
                 return v;
             }
             VMethod v = createMethodMember(clazz, m);
+            v.force = isAnnatationExist(m.getModifiers(), ForceInject.class);
             clazz.methods.add(v);
             return v;
         }
@@ -48,14 +52,15 @@ public class CompilerTools {
         VConstructor con = new VConstructor(clazz, mem.sym);
         con.setModificators(toFlags(mem.getModifiers().getFlags()));
         readExecutable(mem, con);
+        //VClass enumClass = clazz.getClassLoader().loadClass(Enum.class.getName());
         return con;
     }
 
     private static void readExecutable(JCTree.JCMethodDecl mem, VExecute m) throws VClassNotFoundException {
         getAnnatationValueClass(mem.getModifiers(), CodeGenerator.class).ifPresent(
-                e->m.generator=e
+                e -> m.generator = e
         );
-        getAnnatationValueClass(mem.getModifiers(), InvokeGen.class).ifPresent(e->m.invokeGenerator=e);
+        getAnnatationValueClass(mem.getModifiers(), InvokeGen.class).ifPresent(e -> m.invokeGenerator = e);
         m.setModificators(toFlags(mem.getModifiers().getFlags()));
         for (JCTree.JCVariableDecl v : mem.getParameters()) {
             //Set<Modifier> mm = v.getModifiers().getFlags();
@@ -81,6 +86,19 @@ public class CompilerTools {
                 ordinal.name = "ordinal";
                 m.arguments.add(ordinal);
             }
+
+            //Если конструктор этого класса имеет родителя, при этом не является
+            //интерфейсом,enum'мом и не обявлен как статический, то добавляем
+            //его аргумент на this родителя
+            if (m.getParent().getParent() != null
+                    && !java.lang.reflect.Modifier.isInterface(m.getParent().getModificators())
+                    && !java.lang.reflect.Modifier.isStatic(m.getParent().getModificators())
+                    && !m.getParent().isParent(enumClass)) {
+
+                VArgument parent = new VArgument(m.getParent().getParent(), null);
+                parent.name = "this$0";
+                m.arguments.add(0, parent);
+            }
         }
     }
 
@@ -88,7 +106,7 @@ public class CompilerTools {
         VMethod m = new VMethod(clazz, null, mem.sym);
         m.setRuntimeName(mem.getName().toString());
         m.alias = m.getRunTimeName();
-        getAnnatationValueString(mem.getModifiers(), MethodName.class).ifPresent(e->m.alias = e);
+        getAnnatationValueString(mem.getModifiers(), MethodName.class).ifPresent(e -> m.alias = e);
         m.returnType = TypeUtil.loadClass(clazz.getClassLoader(), mem.restype.type);
         readExecutable(mem, m);
         return m;
@@ -101,29 +119,48 @@ public class CompilerTools {
         return v;
     }
 
-    private static int toFlags(Set<Modifier> mod) {
+    public static int toFlags(Set<Modifier> mod) {
         int out = 0;
-        if (mod.contains(Modifier.PUBLIC))
+        if (mod.contains(Modifier.PUBLIC)) {
             out = out | java.lang.reflect.Modifier.PUBLIC;
-        if (mod.contains(Modifier.PROTECTED))
+        }
+        if (mod.contains(Modifier.PROTECTED)) {
             out = out | java.lang.reflect.Modifier.PROTECTED;
-        if (mod.contains(Modifier.PRIVATE))
+        }
+        if (mod.contains(Modifier.PRIVATE)) {
             out = out | java.lang.reflect.Modifier.PRIVATE;
-        if (mod.contains(Modifier.STATIC))
+        }
+        if (mod.contains(Modifier.STATIC)) {
             out = out | java.lang.reflect.Modifier.STATIC;
-        if (mod.contains(Modifier.FINAL))
+        }
+        if (mod.contains(Modifier.FINAL)) {
             out = out | java.lang.reflect.Modifier.FINAL;
-        if (mod.contains(Modifier.TRANSIENT))
+        }
+        if (mod.contains(Modifier.TRANSIENT)) {
             out = out | java.lang.reflect.Modifier.TRANSIENT;
-        if (mod.contains(Modifier.VOLATILE))
+        }
+        if (mod.contains(Modifier.VOLATILE)) {
             out = out | java.lang.reflect.Modifier.VOLATILE;
-        if (mod.contains(Modifier.SYNCHRONIZED))
+        }
+        if (mod.contains(Modifier.SYNCHRONIZED)) {
             out = out | java.lang.reflect.Modifier.SYNCHRONIZED;
-        if (mod.contains(Modifier.NATIVE))
+        }
+        if (mod.contains(Modifier.NATIVE)) {
             out = out | java.lang.reflect.Modifier.NATIVE;
-        if (mod.contains(Modifier.STRICTFP))
+        }
+        if (mod.contains(Modifier.STRICTFP)) {
             out = out | java.lang.reflect.Modifier.STRICT;
+        }
         return out;
+    }
+
+    public static boolean isAnnatationExist(JCTree.JCModifiers modifiers, Class annatationClass) {
+        for (JCTree.JCAnnotation an : modifiers.getAnnotations()) {
+            if (an.type.toString().equals(annatationClass.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static Optional<String> getAnnatationValueClass(JCTree.JCModifiers modifiers, Class annatationClass) {

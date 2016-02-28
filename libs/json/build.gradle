@@ -35,8 +35,8 @@ dependencies{
     compile project(":rt")
 }
 
-apply plugin: 'twt-gradle'
+apply plugin: 'twt-compile'
 
-classes{
-    dependsOn compileTWT
+build{
+    dependsOn publishToMavenLocal
 }

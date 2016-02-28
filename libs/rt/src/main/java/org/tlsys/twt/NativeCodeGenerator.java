@@ -27,6 +27,19 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         }
 
         ps.append("};\n");
+        
+        
+        for (VField f : clazz.fields) {
+            if (!f.isStatic())
+                continue;
+            ps.append(clazz.fullName+".").append(f.name);
+            ps.append("=");
+            if (f.init != null) {
+                
+                operation(ctx, f.init, ps);
+            } else ps.append("null");
+            ps.append(";");
+        }
 
 
 
@@ -40,7 +53,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         */
 
         for (VExecute m : record.getExe()) {
-            ctx.getGenerator(m).generateExecute(ctx, m, ps);
+            ctx.getGenerator(m).generateExecute(ctx, m, ps, null);
             if (m instanceof VConstructor)
                 ps.append(m.getParent().fullName).append(".n").append(m.getRunTimeName()).append("=function(){var o=new ").append(m.getParent().fullName).append("();o.").append(m.getRunTimeName()).append(".apply(o,arguments);return o;};");
         }
@@ -89,7 +102,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
     }
 
     @Override
-    public void generateExecute(GenerationContext ctx, VExecute meth, PrintStream ps) throws CompileException {
+    public void generateExecute(GenerationContext ctx, VExecute meth, PrintStream ps, CompileModuls moduls) throws CompileException {
         if (meth.block == null) {
             generateMethodNull(ctx, meth, ps);
             return;

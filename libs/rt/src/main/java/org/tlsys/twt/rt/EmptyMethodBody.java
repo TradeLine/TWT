@@ -19,6 +19,6 @@ public class EmptyMethodBody implements ICodeGenerator {
     }
 
     @Override
-    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps) throws CompileException {
+    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
     }
 }
