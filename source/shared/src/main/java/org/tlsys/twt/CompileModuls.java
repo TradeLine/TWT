@@ -2,15 +2,11 @@ package org.tlsys.twt;
 
 import org.tlsys.lex.CanUse;
 import org.tlsys.lex.Collect;
-import org.tlsys.lex.declare.VClass;
-import org.tlsys.lex.declare.VExecute;
-import org.tlsys.lex.declare.VMethod;
+import org.tlsys.lex.declare.*;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import org.tlsys.lex.declare.VClassLoader;
-import org.tlsys.lex.declare.VConstructor;
 
 /**
  * Класс, содержащий в себе информацию о нужных для компиляции классах методах

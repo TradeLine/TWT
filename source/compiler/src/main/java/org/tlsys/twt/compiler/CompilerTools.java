@@ -5,15 +5,14 @@ import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.declare.*;
-import org.tlsys.twt.InvokeGenerator;
 import org.tlsys.twt.annotations.CodeGenerator;
+import org.tlsys.twt.annotations.ForceInject;
 import org.tlsys.twt.annotations.InvokeGen;
 import org.tlsys.twt.annotations.MethodName;
 
 import javax.lang.model.element.Modifier;
 import java.util.Optional;
 import java.util.Set;
-import org.tlsys.twt.annotations.ForceInject;
 
 public class CompilerTools {
 

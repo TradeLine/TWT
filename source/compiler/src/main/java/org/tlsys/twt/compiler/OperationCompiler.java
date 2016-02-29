@@ -155,9 +155,11 @@ class OperationCompiler {
         });
 
         addProc(JCTree.JCMethodInvocation.class, (c, e, o) -> {
+            System.out.println("=======INVOKE " + e + "=======");
             Value self = null;
             VExecute method = null;
             if (e.meth instanceof JCTree.JCFieldAccess) {
+                System.out.println("By field " + e.meth);
                 JCTree.JCFieldAccess f = (JCTree.JCFieldAccess) e.meth;
                 self = Objects.requireNonNull(c.op(f.selected, o));
                 try {
@@ -168,15 +170,17 @@ class OperationCompiler {
                 }
             }
             if (self == null || method == null && e.meth instanceof JCTree.JCIdent) {
+                System.out.println("By indent "+e.meth);
                 JCTree.JCIdent in = (JCTree.JCIdent) e.meth;
                 Symbol.MethodSymbol m = (Symbol.MethodSymbol) in.sym;
+                self = new This(c.getCurrentClass());
                 if (in.name.toString().equals("super") || in.name.toString().equals("this")) {
-                    self = new This(c.getCurrentClass());
                     method = c.loadClass(m.owner.type).getConstructor(m);
                 } else {
-                    self = new This(c.getCurrentClass());
                     method = c.loadClass(m.owner.type).getMethod(m);
                 }
+                System.out.println("selfType="+self.getType().realName);
+                System.out.println("method=" + method);
             }
             if (self == null || method == null)
                 throw new RuntimeException("Self or method is NULL");
@@ -185,21 +189,44 @@ class OperationCompiler {
             if (method instanceof VConstructor && method.getParent().isParent(method.getParent().getClassLoader().loadClass(Enum.class.getName()))) {
                 VBlock block = (VBlock)o;
                 VConstructor cons = (VConstructor)block.getParentContext();
+                System.out.println("=======CALLING CONSTRUCTOR ENUM=======");
                 return new Invoke(method, new This(cons.getParent())).addArg(cons.arguments.get(0)).addArg(cons.arguments.get(1));
             }
             if (method.isStatic())
                 self = new StaticRef(method.getParent());
+            else {
+                if (! (method instanceof VConstructor)) {
+                    System.out.println("Check call parent class...");
+                    Optional<VClass> dep = c.getCurrentClass().getDependencyParent();
+                    System.out.println("DEP for " + c.getCurrentClass() + " is " + (dep.isPresent()?dep.get().realName:"NONE"));
+
+                    if (method.getParent() != c.getCurrentClass() && dep.isPresent() && dep.get().isParent(method.getParent())) {
+                        System.out.println("Try change self... before=" + self.getType().realName + " to " + dep.get().realName);
+                        self = new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass()));
+                        System.out.println("Changed!");
+                    }
+                }
+            }
+
             Invoke i = new Invoke(method, self);
-            for (int c1 = 0; c1 < method.arguments.size(); c1++) {
+            System.out.println("Calling " + i.getMethod().getParent().realName + "=>" + i.getMethod().alias);
+
+            int argInc = 0;
+            if (i.getMethod() instanceof VConstructor && i.getMethod().getParent() == self.getType() && i.getMethod().getParent().getDependencyParent().isPresent()) {
+                argInc=1;
+                i.addArg(new GetField(self, TypeUtil.getParentThis(i.getMethod().getParent())));
+            }
+
+            for (int c1 = argInc; c1 < method.arguments.size(); c1++) {
                 if (method.arguments.get(c1).var) {
                     NewArrayItems nai = new NewArrayItems(method.arguments.get(c1).getType().getArrayClass());
                     for (int c2 = c1; c2 < e.args.size(); c2++) {
-                        nai.elements.add(c.op(e.args.get(c2), o));
+                        nai.elements.add(c.op(e.args.get(c2 - argInc), o));
                     }
                     i.arguments.add(nai);
                     break;
                 } else {
-                    i.arguments.add(c.op(e.args.get(c1), o));
+                    i.arguments.add(c.op(e.args.get(c1 - argInc), o));
                 }
             }
             i.returnType = c.loadClass(e.type);
@@ -214,6 +241,7 @@ class OperationCompiler {
                 i.arguments.add(c.op(ee, o));
             }
             */
+            System.out.println("=======INVOKE DONE=======");
             return i;
         });
 
@@ -335,7 +363,10 @@ class OperationCompiler {
                 String name = e.name.toString();
                 
                 if (name.equals("this")) {
-                    throw new RuntimeException("Not supported parent this parent class");
+                    System.out.println("Getting parent link of class " + c.getCurrentClass().realName + "...");
+                    return new This(c.getCurrentClass().getParent());
+                    //return new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass()));
+                    //throw new RuntimeException("Not supported parent this parent class");
                     //return c.getCurrentClass().getParentVar();
                 }
                 

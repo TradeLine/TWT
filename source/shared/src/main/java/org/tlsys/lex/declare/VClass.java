@@ -6,14 +6,8 @@ import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 
 import java.io.*;
-import java.lang.reflect.Array;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.function.BooleanSupplier;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class VClass extends VLex implements Member, Using, Context, Serializable, CodeDynLoad {
 
@@ -83,6 +77,23 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         if (fullName == null)
             System.out.println("123");
         return this.fullName.equals(name) || name.equals(this.alias);
+    }
+
+    public Optional<VClass> getDependencyParent() {
+        try {
+            return getDependencyParent(getClassLoader().loadClass(Enum.class.getName()));
+        } catch (VClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Optional<VClass> getDependencyParent(VClass enumClass) {
+            if (getParent() != null
+                    && !java.lang.reflect.Modifier.isInterface(getModificators())
+                    && !java.lang.reflect.Modifier.isStatic(getModificators())
+                    && !isParent(enumClass))
+                return Optional.of(getParent());
+            return Optional.empty();
     }
 
     @Override
@@ -263,6 +274,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     public VMethod getMethod(Symbol.MethodSymbol symbol) throws MethodNotFoundException {
+        Objects.requireNonNull(symbol, "Argument symbol is NULL");
         try {
             return getMethod(symbol.name.toString(), getMethodArgs(symbol));
         } catch (VClassNotFoundException e) {
@@ -273,12 +285,16 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     private List<VClass> getMethodArgs(Symbol.MethodSymbol symbol) throws VClassNotFoundException {
         List<VClass> args = new ArrayList<>();
         
-        VClass enumClass = getClassLoader().loadClass(Enum.class.getName());
+        //VClass enumClass = getClassLoader().loadClass(Enum.class.getName());
+        if (symbol.name.toString().equals("<init>"))
+            getDependencyParent().ifPresent(e->args.add(e));
+        /*
         if (getParent() != null
                     && !java.lang.reflect.Modifier.isInterface(getModificators())
                     && !java.lang.reflect.Modifier.isStatic(getModificators())
                     && !isParent(enumClass))
-            args.add(getParent());
+                    */
+
         
         if (symbol.params != null) {
             for (Symbol.VarSymbol e : symbol.params) {

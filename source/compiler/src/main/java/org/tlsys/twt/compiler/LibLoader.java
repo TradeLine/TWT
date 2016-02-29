@@ -5,14 +5,6 @@
  */
 package org.tlsys.twt.compiler;
 
-import java.io.File;
-import java.io.IOException;
-import java.security.cert.PKIXRevocationChecker;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
 /**
  *
  * @author subochev

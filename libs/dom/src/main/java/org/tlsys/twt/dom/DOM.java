@@ -94,6 +94,12 @@ public final class DOM {
         Script.code(parent,".removeChild(",element,")");
     }
 
+    public static void clearChildOfNode(Object element) {
+        for (Object o : childNodes(element)) {
+            removeChild(o);
+        }
+    }
+
     public static Object[] getElementsByTagName(Object element, String tag) {
         JArray ar = new JArray();
         ar.setJSArray(Script.code(element,".getElementsByTagName(",tag,")"));

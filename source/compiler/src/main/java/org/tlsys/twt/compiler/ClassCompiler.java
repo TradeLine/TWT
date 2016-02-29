@@ -1,24 +1,16 @@
 package org.tlsys.twt.compiler;
 
 import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.ModifiersTree;
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.TypeUtil;
-import org.tlsys.lex.Const;
-import org.tlsys.lex.Invoke;
-import org.tlsys.lex.NewClass;
-import org.tlsys.lex.VVar;
+import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.CompileException;
-import org.tlsys.twt.annotations.ClassName;
-import org.tlsys.twt.annotations.CodeGenerator;
-import org.tlsys.twt.annotations.DomNode;
-import org.tlsys.twt.annotations.ReplaceClass;
+import org.tlsys.twt.annotations.*;
 
 import java.util.*;
-import org.tlsys.twt.annotations.ForceInject;
 
 public class ClassCompiler {
 
@@ -29,8 +21,27 @@ public class ClassCompiler {
      * @param classLoader загрузчик, для найденых классов
      * @param listener    сообщает когда находится класс
      */
-    public static void compile(Collection<CompilationUnitTree> classes, VClassLoader classLoader, ClassItemListener listener) throws CompileException {
+    public static void compile(List<CompilationUnitTree> classes, VClassLoader classLoader, ClassItemListener listener) throws CompileException {
         CompileContext cc = new CompileContext(classLoader);
+
+        System.out.println("search enum....");
+        ENUM_SEARCH:
+        for (CompilationUnitTree cu : classes) {
+            for (Tree tt : cu.getTypeDecls()) {
+                if (tt instanceof JCTree.JCClassDecl) {
+                    JCTree.JCClassDecl cl = (JCTree.JCClassDecl) tt;
+                    Optional<String> st = CompilerTools.getAnnatationValueClass(cl.getModifiers(), ReplaceClass.class);
+                    if (st.isPresent() && st.get().equals(Enum.class.getName())) {
+                        for (Tree tt2 : cu.getTypeDecls()) {
+                            compileClassDefine(null, (JCTree.JCClassDecl) tt2, cc, listener);
+                        }
+                        classes.remove(cu);
+                        break ENUM_SEARCH;
+
+                    }
+                }
+            }
+        }
 
         for (CompilationUnitTree cu : classes) {
             for (Tree tt : cu.getTypeDecls()) {
@@ -61,7 +72,7 @@ public class ClassCompiler {
         return as;
     }
 
-    private static void compileClassDefine(VClass parent, JCTree.JCClassDecl des, CompileContext context, ClassItemListener listener) {
+    private static void compileClassDefine(VClass parent, JCTree.JCClassDecl des, CompileContext context, ClassItemListener listener) throws VClassNotFoundException {
         VClass v = createClassFromDes(parent, des, context.getLoader());
         context.addPair(des, v);
         if (listener != null)
@@ -74,18 +85,26 @@ public class ClassCompiler {
         }
     }
 
-    private static VClass createClassFromDes(VClass parent, JCTree.JCClassDecl c, VClassLoader vClassLoader) {
+    private static VClass createClassFromDes(VClass parent, JCTree.JCClassDecl c, VClassLoader vClassLoader) throws VClassNotFoundException {
         VClass v = new VClass(parent, c.sym);
         v.name = c.name.toString();
         v.realName = c.sym.toString();
         v.fullName = v.realName;
         v.force = CompilerTools.isAnnatationExist(c.getModifiers(), ForceInject.class);
         v.setModificators(CompilerTools.toFlags(c.getModifiers().getFlags()));
-        CompilerTools.getAnnatationValueClass(c.getModifiers(), CodeGenerator.class).ifPresent(e -> v.codeGenerator = e);
+        v.setClassLoader(vClassLoader);
+
         CompilerTools.getAnnatationValueString(c.getModifiers(), ClassName.class).ifPresent(e -> v.alias = e);
         CompilerTools.getAnnatationValueClass(c.getModifiers(), ReplaceClass.class).ifPresent(e -> v.alias = e);
+
+        if (!Enum.class.getName().equals(v.alias))
+            if (v.getDependencyParent(vClassLoader.loadClass(Enum.class.getName())).isPresent()) {//если класс имеет жетскую привязку к родителю
+                    TypeUtil.createParentThis(v);//то создаем this на родителя
+            }
+
+        CompilerTools.getAnnatationValueClass(c.getModifiers(), CodeGenerator.class).ifPresent(e -> v.codeGenerator = e);
+
         CompilerTools.getAnnatationValueString(c.getModifiers(), DomNode.class).ifPresent(e -> v.domNode = e);
-        v.setClassLoader(vClassLoader);
         return v;
     }
 
@@ -142,7 +161,7 @@ public class ClassCompiler {
             if (tree instanceof JCTree.JCVariableDecl) {
                 JCTree.JCVariableDecl v = (JCTree.JCVariableDecl) tree;
                 VField f = (VField) member;
-                
+
                 if (v.init == null) {
                     if (!java.lang.reflect.Modifier.isStatic(f.getModificators()))
                         f.init = OperationCompiler.getInitValueForType(f.getType());
@@ -197,6 +216,10 @@ public class ClassCompiler {
                             cons.parentConstructorInvoke = inv;
                             cons.block.operations.remove(0);
                         }
+                    }
+                    if (method.getParent().getDependencyParent().isPresent()) {//если класс имеет жесткую привязку к родителю
+                        SetField sf = new SetField(new This(method.getParent()), TypeUtil.getParentThis(method.getParent()), cons.arguments.get(0), Assign.AsType.ASSIGN);//то формируем присваение аргумента (this родителя) в локальную переменную
+                        method.block.operations.add(0, sf);
                     }
                 }
             }
