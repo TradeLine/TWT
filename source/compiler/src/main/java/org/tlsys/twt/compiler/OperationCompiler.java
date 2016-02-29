@@ -210,11 +210,26 @@ class OperationCompiler {
 
             Invoke i = new Invoke(method, self);
             System.out.println("Calling " + i.getMethod().getParent().realName + "=>" + i.getMethod().alias);
+            System.out.println("Arg count = " + i.getMethod().arguments.size());
 
             int argInc = 0;
-            if (i.getMethod() instanceof VConstructor && i.getMethod().getParent() == self.getType() && i.getMethod().getParent().getDependencyParent().isPresent()) {
+            System.out.println("1=>" + (i.getMethod() instanceof VConstructor));
+            System.out.println("2=>" + (i.getMethod().getParent() == self.getType()));
+            System.out.println("2.1=>" + i.getMethod().getParent());
+            System.out.println("2.2=>" + self.getType());
+            System.out.println("3=>" + (i.getMethod().getParent().getDependencyParent().isPresent()));
+            if (i.getMethod() instanceof VConstructor && self.getType().isParent(i.getMethod().getParent()) && i.getMethod().getParent().getDependencyParent().isPresent()) {
+                System.out.println("first arg is parent this " + self.getType());
+                System.out.println("Context class = " + o.getClass().getName());
                 argInc=1;
-                i.addArg(new GetField(self, TypeUtil.getParentThis(i.getMethod().getParent())));
+                if (o instanceof VBlock && ((VBlock)o).getParentContext() instanceof VConstructor) {
+                    VBlock block = (VBlock)o;
+                    VConstructor cons = (VConstructor)block.getParentContext();
+                    i.addArg(cons.arguments.get(0));
+                } else
+                    i.addArg(new GetField(self, TypeUtil.getParentThis(self.getType())));
+            } else {
+                System.out.println("No parent argument");
             }
 
             for (int c1 = argInc; c1 < method.arguments.size(); c1++) {
