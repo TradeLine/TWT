@@ -20,7 +20,7 @@ public class ArrayCodeGenerator implements ICodeGenerator {
     }
 
     @Override
-    public void generateExecute(GenerationContext ctx, VExecute execute, PrintStream ps) throws CompileException {
+    public void generateExecute(GenerationContext ctx, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
         ICodeGenerator defaultCG = ctx.getGenerator(execute.getParent());
         ArrayClass ac = (ArrayClass)execute.getParent();
         if (execute == ac.constructor) {

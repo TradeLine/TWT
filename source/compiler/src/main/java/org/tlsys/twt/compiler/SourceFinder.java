@@ -49,7 +49,9 @@ public class SourceFinder {
                                 String cn = classNode.name.substring(0, classNode.name.indexOf("$")).replace('/', '.');
                                 sourceProvider.getSourceForClass(cn).ifPresent(e->out.add(e));
                             } else {
-                                sourceProvider.getSourceForClass(classNode.name.replace('/', '.')).ifPresent(e->out.add(e));
+                                if (sourceProvider.getSourceForClass(classNode.name.replace('/', '.')).isPresent()) {
+                                    out.add(sourceProvider.getSourceForClass(classNode.name.replace('/', '.')).get());
+                                }
                             }
                         }
                     }

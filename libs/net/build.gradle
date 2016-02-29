@@ -38,6 +38,6 @@ dependencies{
 
 apply plugin: 'twt-compile'
 
-build {
+build{
     dependsOn publishToMavenLocal
 }

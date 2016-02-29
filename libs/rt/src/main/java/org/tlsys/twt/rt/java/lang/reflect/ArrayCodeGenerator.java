@@ -12,7 +12,7 @@ import java.io.PrintStream;
 
 public class ArrayCodeGenerator extends DefaultGenerator {
     @Override
-    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps) throws CompileException {
+    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
         /*
         if (execute.alias.equals("get")) {
             ICodeGenerator gen = context.getGenerator(execute.getParent());

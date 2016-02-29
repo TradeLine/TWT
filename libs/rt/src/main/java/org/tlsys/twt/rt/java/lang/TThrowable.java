@@ -1,6 +1,7 @@
 package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.twt.CastUtil;
+import org.tlsys.twt.Console;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
@@ -47,9 +48,12 @@ public class TThrowable {
     }
 
     public String toString() {
-        String s = getClass().getName();
-        String message = getMessage();
-        return (message != null) ? (s + ": " + message) : s;
+        String out = getClass().getName();
+        if (getMessage() != null)
+            out = out + ": " + getMessage();
+        if (getCause() != null)
+            out = out + ": " + getCause();
+        return out;
     }
 
     public static Object jsErrorConvert(Object o) {
@@ -61,7 +65,7 @@ public class TThrowable {
             if (message.endsWith(" of null"))
                 return new NullPointerException();
         }
-        String message = Script.code(o,".message");
+        String message = Script.code(o,".toString()");
         return new RuntimeException(message);
     }
 }

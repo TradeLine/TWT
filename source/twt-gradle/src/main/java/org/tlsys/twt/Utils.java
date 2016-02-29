@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
+@SuppressWarnings("unchecked")
 final class Utils {
     private Utils() {
     }
@@ -16,35 +17,35 @@ final class Utils {
         return project.getName()+"-"+project.getName()+"-"+project.getVersion();
     }
 
-    public static DClassLoader loadClass(ArtifactRecolver artifactRecolver, DLoader loader, ArtifactRecord artifactRecord) {
-        Optional<DClassLoader> res = loader.getByName(artifactRecord.getJar().getAbsolutePath());
+    public static TWTModule loadClass(ArtifactRecolver artifactRecolver, DLoader loader, ArtifactRecord artifactRecord) throws IOException {
+        Optional<TWTModule> res = loader.getByName(artifactRecord.getJar().getAbsolutePath());
         if (res.isPresent())
             return res.get();
-        ExternalDClassLoader dd = new ExternalDClassLoader(loader, artifactRecolver, artifactRecord);
+        GradleExternalModule dd = new GradleExternalModule(loader, artifactRecolver, artifactRecord);
         loader.add(dd);
         return dd;
     }
 
-    public static DClassLoader loadClass(DLoader loader, File jarFile) {
-        Optional<DClassLoader> res = loader.getByName(jarFile.getAbsolutePath());
+    public static TWTModule loadClass(DLoader loader, File jarFile) throws IOException {
+        Optional<TWTModule> res = loader.getByName(jarFile.getAbsolutePath());
         if (res.isPresent())
             return res.get();
-        JarDClassLoader d = new JarDClassLoader(loader, jarFile, jarFile.getAbsolutePath());
+        GradleJarModule d = new GradleJarModule(jarFile, jarFile.getAbsolutePath());
         loader.add(d);
         return d;
     }
 
     private static final Logger LOG = Logger.getLogger(Utils.class.getName());
 
-    public static Collection<DClassLoader> loadClass(ArtifactRecolver artifactRecolver, DLoader loader, Dependency dependency) throws IOException {
+    public static Collection<TWTModule> loadClass(ArtifactRecolver artifactRecolver, DLoader loader, Dependency dependency) throws IOException {
         if (dependency instanceof ProjectDependency) {
             ProjectDependency pd = (ProjectDependency)dependency;
-            Optional<DClassLoader> p = loader.getByName(Utils.getDClassLoaderName(pd.getDependencyProject()));
+            Optional<TWTModule> p = loader.getByName(Utils.getDClassLoaderName(pd.getDependencyProject()));
             if (p.isPresent())
                 return Arrays.asList(p.get());
-            DClassLoader cd = new GradleProjectDClassLoader(pd.getDependencyProject(), artifactRecolver, loader);
-            loader.add(cd);
-            return Arrays.asList(cd);
+            GradleProjectTWTModule mod = new GradleProjectTWTModule(pd.getDependencyProject(), artifactRecolver, loader);
+            loader.add(mod);
+            return Arrays.asList(mod);
         }
 
         if (dependency instanceof ExternalModuleDependency) {
@@ -62,7 +63,7 @@ final class Utils {
         if (dependency instanceof SelfResolvingDependency) {
             SelfResolvingDependency srd = (SelfResolvingDependency)dependency;
             Set<File> file = srd.resolve();
-            ArrayList<DClassLoader> out = new ArrayList<DClassLoader>(file.size());
+            ArrayList<TWTModule> out = new ArrayList<>(file.size());
             for (File f : file) {
                 out.add(loadClass(loader, f));
             }

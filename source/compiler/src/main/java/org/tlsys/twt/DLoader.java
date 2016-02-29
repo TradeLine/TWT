@@ -8,16 +8,16 @@ import java.util.*;
  * @author Субочев Антон
  */
 public final class DLoader {
-    private final Map<String,DClassLoader> loaders = new HashMap<String, DClassLoader>();
-    public Optional<DClassLoader> getByName(String name) {
+    private final Map<String,TWTModule> loaders = new HashMap<>();
+    public Optional<TWTModule> getByName(String name) {
         return Optional.ofNullable(loaders.get(name));
     }
 
-    public void add(DClassLoader loader) {
+    public void add(TWTModule loader) {
         loaders.put(loader.getName(), loader);
     }
 
-    public Collection<DClassLoader> getLoaders() {
+    public Collection<TWTModule> getLoaders() {
         return loaders.values();
     }
 }

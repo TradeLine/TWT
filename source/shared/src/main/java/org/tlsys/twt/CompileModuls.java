@@ -9,6 +9,8 @@ import org.tlsys.lex.declare.VMethod;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import org.tlsys.lex.declare.VClassLoader;
+import org.tlsys.lex.declare.VConstructor;
 
 /**
  * Класс, содержащий в себе информацию о нужных для компиляции классах методах
@@ -16,9 +18,11 @@ import java.util.HashSet;
  * @author Субочев Антон
  */
 public class CompileModuls {
+
     private final HashMap<VClass, ClassRecord> classes = new HashMap<>();
 
     public class ClassRecord {
+
         private final VClass clazz;
         private final HashSet<VExecute> exe = new HashSet<>();
 
@@ -60,8 +64,19 @@ public class CompileModuls {
             classes.put(clazz, cr);
             Collect c = Collect.create();
             clazz.getUsing(c);
-            System.out.println("added " + clazz.realName);
             add(c);
+
+            for (VMethod m : clazz.methods) {
+                if (m.force) {
+                    add(m);
+                }
+            }
+
+            for (VConstructor m : clazz.constructors) {
+                if (m.force) {
+                    add(m);
+                }
+            }
         }
 
         return cr;
@@ -71,7 +86,6 @@ public class CompileModuls {
      * Ищет не используемые методы, которые подменяют используемые
      */
     public void detectReplace() {
-        System.out.println("search replace...");
         CLASSES:
         while (true) {
             for (ClassRecord cr : classes.values()) {
@@ -89,8 +103,9 @@ public class CompileModuls {
                     if (cc.isExist(m.getReplace())) {
                         int size = classes.size();
                         add(m);
-                        if (classes.size() != size)
+                        if (classes.size() != size) {
                             continue CLASSES;
+                        }
                     }
                 }
             }
@@ -106,8 +121,9 @@ public class CompileModuls {
      */
     public ClassRecord add(VExecute exe) {
         ClassRecord cr = add(exe.getParent());
-        if (cr.getExe().contains(exe))
+        if (cr.getExe().contains(exe)) {
             return cr;
+        }
         cr.getExe().add(exe);
         Collect c = Collect.create();
         exe.getUsing(c);
@@ -117,10 +133,25 @@ public class CompileModuls {
 
     public void add(Collect collect) {
         for (CanUse cu : collect.get()) {
-            if (cu instanceof VExecute)
+            if (cu instanceof VExecute) {
                 add((VExecute) cu);
-            if (cu instanceof VClass)
+            }
+            if (cu instanceof VClass) {
                 add((VClass) cu);
+            }
+        }
+    }
+
+    public void addForced(VClassLoader loader) {
+        for (VClass cl : loader.classes) {
+            if (!cl.force) {
+                continue;
+            }
+            add(cl);
+        }
+
+        for (VClassLoader p : loader.parents) {
+            addForced(p);
         }
     }
 }

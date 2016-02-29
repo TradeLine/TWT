@@ -1,6 +1,7 @@
 package org.tlsys.twt.compiler;
 
 import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.ModifiersTree;
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
@@ -17,6 +18,7 @@ import org.tlsys.twt.annotations.DomNode;
 import org.tlsys.twt.annotations.ReplaceClass;
 
 import java.util.*;
+import org.tlsys.twt.annotations.ForceInject;
 
 public class ClassCompiler {
 
@@ -77,6 +79,8 @@ public class ClassCompiler {
         v.name = c.name.toString();
         v.realName = c.sym.toString();
         v.fullName = v.realName;
+        v.force = CompilerTools.isAnnatationExist(c.getModifiers(), ForceInject.class);
+        v.setModificators(CompilerTools.toFlags(c.getModifiers().getFlags()));
         CompilerTools.getAnnatationValueClass(c.getModifiers(), CodeGenerator.class).ifPresent(e -> v.codeGenerator = e);
         CompilerTools.getAnnatationValueString(c.getModifiers(), ClassName.class).ifPresent(e -> v.alias = e);
         CompilerTools.getAnnatationValueClass(c.getModifiers(), ReplaceClass.class).ifPresent(e -> v.alias = e);
@@ -138,9 +142,11 @@ public class ClassCompiler {
             if (tree instanceof JCTree.JCVariableDecl) {
                 JCTree.JCVariableDecl v = (JCTree.JCVariableDecl) tree;
                 VField f = (VField) member;
-                if (v.init == null)
-                    f.init = OperationCompiler.getInitValueForType(f.getType());
-                else {
+                
+                if (v.init == null) {
+                    if (!java.lang.reflect.Modifier.isStatic(f.getModificators()))
+                        f.init = OperationCompiler.getInitValueForType(f.getType());
+                } else {
                     f.init = com.op(v.init, f.getParent());
                     VClass enumClass = f.getParent().getClassLoader().loadClass(Enum.class.getName());
                     if (f.getParent() != enumClass && f.getParent().isParent(enumClass)) {
@@ -228,8 +234,6 @@ public class ClassCompiler {
     }
 
     private static void findReplaceMethodInClass(VMethod member) {
-        if (member.isThis("onMessage"))
-            System.out.println("123");
         List<VMethod> methods = getAllMethodsNyName(member.getParent(), member.getRunTimeName());
 
         METHOD:

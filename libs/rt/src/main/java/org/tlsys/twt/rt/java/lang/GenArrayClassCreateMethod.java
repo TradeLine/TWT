@@ -17,7 +17,7 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
     //TODO дописать генератор тела функции для создания класса-массива
 
     @Override
-    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps) throws CompileException {
+    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
         VClass classClass = execute.getParent();
         VClass classClassStorage = classClass.getClassLoader().loadClass(ClassStorage.class.getName());
         VClass classClassRecord = classClass.getClassLoader().loadClass(ClassRecord.class.getName());
@@ -46,7 +46,7 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
         drecord.init = Generator.genClassRecord(context, classClass.getArrayClass(), execute1 -> true, () -> new NewClass(constructorClassRecord)
                 .addArg(new VBinar(new Const("$", stringClass), new GetField(new This(classClass), jsNameField), stringClass, VBinar.BitType.PLUS))
                 .addArg(new VBinar(new Const("[", stringClass), new GetField(new This(classClass), nameField), stringClass, VBinar.BitType.PLUS)
-                ));
+                ),moduls);
 
         Value lastScope = clazzRecord;
 

@@ -27,16 +27,26 @@ class OperationCompiler {
             } else {
                 classIns = c.loadClass(e.type);
             }
+            
+            VClass enumClass = classIns.getClassLoader().loadClass(Enum.class.getName());
 
 
-            if (classIns.isParent(classIns.getClassLoader().loadClass(Enum.class.getName()))) {
+            if (classIns.isParent(enumClass)) {
                 VConstructor con = classIns.getConstructor(classIns.getClassLoader().loadClass(String.class.getName()), classIns.getClassLoader().loadClass("int"));
                 NewClass nc = new NewClass(con);
                 return nc;
             }
-
+            
             VConstructor con = classIns.getConstructor((Symbol.MethodSymbol) e.constructor);
+            
             NewClass nc = new NewClass(con);
+            
+            if (con.getParent().getParent() != null
+                    && !java.lang.reflect.Modifier.isInterface(con.getParent().getModificators())
+                    && !java.lang.reflect.Modifier.isStatic(con.getParent().getModificators())
+                    && !con.getParent().isParent(enumClass))
+                nc.arguments.add(new This(con.getParent().getParent()));
+            
             for (JCTree.JCExpression ee : e.args)
                 nc.arguments.add(c.op(ee, o));
             return nc;
@@ -323,9 +333,12 @@ class OperationCompiler {
             Value scope = c.op(e.selected, o);
             if (scope instanceof StaticRef) {
                 String name = e.name.toString();
+                
                 if (name.equals("this")) {
-                    return c.getCurrentClass().getParentVar();
+                    throw new RuntimeException("Not supported parent this parent class");
+                    //return c.getCurrentClass().getParentVar();
                 }
+                
 
                 if (name.equals("class")) {
                     return scope;

@@ -174,7 +174,7 @@ public class Json {
             }
             Console.info("LINE-11");
             return o;
-        } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+        } catch (Throwable e) {
             Console.info("ERROR2");
             throw new RuntimeException(e);
         }

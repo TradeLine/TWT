@@ -8,6 +8,7 @@ import org.tlsys.twt.classes.ClassStorage;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.function.Predicate;
@@ -121,6 +122,9 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         });
         addGen(GetField.class, (c, o, p, g) -> {
+            if (Modifier.isFinal(o.getField().getModificators()) && o.getField().init != null && (o.getField().init instanceof Const)) {
+                return g.operation(c, o.getField().init, p);
+            }
             g.operation(c, o.getScope(), p);
             p.append(".");
             p.append(o.getField().name);
@@ -533,6 +537,7 @@ public class DefaultGenerator implements ICodeGenerator {
                         first = false;
                     }
                     p.append(") {");
+                    ca.getDeclareVar().getVar().name=evar.name;
                     g.operation(c, ca.block, p);
                     p.append("break ").append(lab).append(";}");
                 }
@@ -583,7 +588,7 @@ public class DefaultGenerator implements ICodeGenerator {
     }
 
     @Override
-    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps) throws CompileException {
+    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
         if (execute instanceof VConstructor) {
             VConstructor c = (VConstructor)execute;
             if (c.parentConstructorInvoke != null) {
@@ -594,7 +599,10 @@ public class DefaultGenerator implements ICodeGenerator {
                 if (f.isStatic())
                     continue;
                 ps.append("this.").append(f.name).append("=");
-                operation(context, f.init, ps);
+                if (f.init==null)
+                    ps.append("null");
+                else
+                    operation(context, f.init, ps);
                 ps.append(";");
             }
         }
@@ -627,6 +635,8 @@ public class DefaultGenerator implements ICodeGenerator {
 
     @Override
     public boolean operation(GenerationContext context, Operation op, PrintStream out) throws CompileException {
+        if (op == null)
+            return false;
         Gen g = generators.get(op.getClass());
         if (g != null) {
             return g.gen(context, op, out, this);

@@ -31,10 +31,11 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     private transient VClassLoader classLoader;
     private int modificators;
     private VClass parent;
-    private VField parentVar;
+    //private VField parentVar;
     private transient Class javaClass;
     public String realName;
     public String domNode;
+    public boolean force;
 
     public ArrayList<VField> fields = new ArrayList<>();
     public ArrayList<VConstructor> constructors = new ArrayList<>();
@@ -271,6 +272,14 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     private List<VClass> getMethodArgs(Symbol.MethodSymbol symbol) throws VClassNotFoundException {
         List<VClass> args = new ArrayList<>();
+        
+        VClass enumClass = getClassLoader().loadClass(Enum.class.getName());
+        if (getParent() != null
+                    && !java.lang.reflect.Modifier.isInterface(getModificators())
+                    && !java.lang.reflect.Modifier.isStatic(getModificators())
+                    && !isParent(enumClass))
+            args.add(getParent());
+        
         if (symbol.params != null) {
             for (Symbol.VarSymbol e : symbol.params) {
                 args.add(TypeUtil.loadClass(getClassLoader(), e.type));
@@ -324,7 +333,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     public ArrayClass getArrayClass() {
         return Objects.requireNonNull(getClassLoader(), "ClassLoader not set for class " + fullName).getArrayClass(this);
     }
-
+/*
     public VField getParentVar() {
         if (parentVar == null) {
             if (isInterface() || isStatic() || getParent() == null)
@@ -334,6 +343,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         }
         return parentVar;
     }
+    */
 
     @Override
     public void saveCode(ObjectOutputStream outputStream) throws IOException {

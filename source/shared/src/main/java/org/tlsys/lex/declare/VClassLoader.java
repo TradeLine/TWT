@@ -97,11 +97,14 @@ public class VClassLoader implements Serializable {
         name = name.replace('$','.');
         if (classes == null)
             classes = new ArrayList<>();
+        System.out.print("->" + getName() + " " + name+"...");
         for (VClass v : classes) {
             if (v.isThis(name)) {
+                System.out.println("OK");
                 return v;
             }
         }
+        System.out.println("NONE " + parents + " name=" + getName() + " hash=" + hashCode() + " " + getClass().getName());
 
         for (VClassLoader v : parents) {
             try {

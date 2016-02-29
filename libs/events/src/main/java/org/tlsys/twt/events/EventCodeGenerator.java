@@ -6,15 +6,28 @@ import org.tlsys.lex.declare.VMethod;
 import org.tlsys.twt.*;
 
 import java.io.PrintStream;
+import java.util.Objects;
+import org.tlsys.lex.Const;
+import org.tlsys.lex.Invoke;
+import org.tlsys.lex.StaticRef;
+import org.tlsys.lex.VIf;
 
 public class EventCodeGenerator extends DefaultGenerator {
     @Override
-    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps) throws CompileException {
+    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
         VClass eventListenerClass = context.getCurrentClass().getClassLoader().loadClass(Events.EventListener.class.getName());
         VClass objectClass = context.getCurrentClass().getClassLoader().loadClass(Object.class.getName());
+        VClass objectsClass = context.getCurrentClass().getClassLoader().loadClass(Objects.class.getName());
+        VClass stringClass = context.getCurrentClass().getClassLoader().loadClass(String.class.getName());
         VMethod onEventMethod = eventListenerClass.getMethod("onEvent",objectClass,objectClass);
         if (execute.alias.equals("addEventListener")) {
             ps.append("{");
+            Invoke inv = new Invoke(objectsClass.getMethod("requireNonNull", objectClass,stringClass), new StaticRef(objectsClass)).addArg(execute.arguments.get(0)).addArg(new Const("Argument listener is NULL",stringClass));
+            moduls.add(inv.getMethod());
+            context.getGenerator(objectsClass).operation(context,
+            inv
+                    , ps);
+            ps.append(";");
 
             //Функция события
             ps.append("var f=function(e){")

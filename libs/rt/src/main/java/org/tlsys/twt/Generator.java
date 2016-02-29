@@ -7,6 +7,7 @@ import org.tlsys.twt.classes.*;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -63,7 +64,9 @@ public class Generator implements MainGenerator {
 
         VClass classLoader = projectClassLoader.loadClass(ClassLoader.class.getName());
         VClass classClass = projectClassLoader.loadClass(Class.class.getName());
+        VClass objectClass = projectClassLoader.loadClass(Object.class.getName());
         VClass classField = projectClassLoader.loadClass(Field.class.getName());
+        VClass obejctsClass = projectClassLoader.loadClass(Objects.class.getName());
 
 
         VClass classClassRecord = projectClassLoader.loadClass(ClassRecord.class.getName());
@@ -87,6 +90,8 @@ public class Generator implements MainGenerator {
         addFullClass(classMethodRecord, compileModuls);
         addFullClass(classArgumentRecord, compileModuls);
         addFullClass(classTypeProvider, compileModuls);
+        addFullClass(objectClass, compileModuls);
+        addFullClass(obejctsClass, compileModuls);
         addFullClass(projectClassLoader.loadClass(ArrayBuilder.class.getName()), compileModuls);
 
 
@@ -132,7 +137,7 @@ public class Generator implements MainGenerator {
                     ()-> new NewClass(classClassRecord.constructors.get(0))
                                 .addArg(new Const(cr.getClazz().fullName, classString))
                                 .addArg(new Const(cr.getClazz().alias, classString))
-                    );
+                    ,compileModuls);
 
             //gc = new MainGenerationContext(classClassStorage, compileModuls);
             Invoke inv = new Invoke(storageAddMethod, storage)
@@ -151,7 +156,7 @@ public class Generator implements MainGenerator {
         MainGenerationContext.getGeneratorFor(method).operation(gc, inv, out);
     }
 
-    public static Value genClassRecord(GenerationContext gc, VClass vClass, Predicate<VExecute> exeNeed, Supplier<Value> newClass) throws CompileException {
+    public static Value genClassRecord(GenerationContext gc, VClass vClass, Predicate<VExecute> exeNeed, Supplier<Value> newClass, CompileModuls moduls) throws CompileException {
         VClassLoader cl = vClass.getClassLoader();
         VClass classString = cl.loadClass(String.class.getName());
         VClass objectClass = cl.loadClass(Object.class.getName());
@@ -253,9 +258,9 @@ public class Generator implements MainGenerator {
                 sos.getStream().append("){");
 
                 if (cg != null) {
-                    cg.generateExecute(gc2, e, sos.getStream());
+                    cg.generateExecute(gc2, e, sos.getStream(), moduls);
                 } else {
-                    hc2.generateExecute(gc2, e, sos.getStream());
+                    hc2.generateExecute(gc2, e, sos.getStream(), moduls);
                 }
                 sos.getStream().append("}");
 

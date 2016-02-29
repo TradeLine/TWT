@@ -2,6 +2,14 @@ apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'idea'
 
+/*
+buildscript {
+    dependencies {
+        classpath group: 'org.tlsys', name:'twt-gradle', version:'1.0'
+    }
+}
+*/
+
 repositories {
     mavenLocal()
     mavenCentral()

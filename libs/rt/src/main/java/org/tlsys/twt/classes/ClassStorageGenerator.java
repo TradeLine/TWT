@@ -7,7 +7,7 @@ import java.io.PrintStream;
 
 public class ClassStorageGenerator extends NativeCodeGenerator {
     @Override
-    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps) throws CompileException {
+    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
         generateMethodStart(context, execute, ps);
         ps.append("{return ");
         operation(context, Generator.storage, ps);
