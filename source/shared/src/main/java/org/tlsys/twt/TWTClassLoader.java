@@ -5,20 +5,10 @@
  */
 package org.tlsys.twt;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import static java.lang.ClassLoader.getSystemClassLoader;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
@@ -35,7 +25,6 @@ public abstract class TWTClassLoader extends URLClassLoader {
 
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
-        System.out.println("RES " + name);
         final Set<URL> urls = new HashSet<>();
         for (ClassLoader cl : parents) {
             urls.addAll(Collections.list(cl.getResources(name)));
@@ -57,7 +46,6 @@ public abstract class TWTClassLoader extends URLClassLoader {
             urls.addAll(Collections.list(cl.findResources(name)));
         }
         urls.addAll(Collections.list(super.findResources(name)));
-        System.out.println("FIND RESOURSES " + name + " " + urls + " [" + parents + "<=>" + getModule().getParents() + "]");
         return Collections.enumeration(urls);
     }
 
@@ -68,7 +56,6 @@ public abstract class TWTClassLoader extends URLClassLoader {
 
     @Override
     public URL findResource(String name) {
-        System.out.println("FIND RES " + name);
         return super.findResource(name); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -111,13 +98,10 @@ public abstract class TWTClassLoader extends URLClassLoader {
         //if (classes.containsKey(name))
             //return classes.get(name);
         try {
-            System.out.println("SEARCH " + name + " => " + getModule().getName()+"...");
             Class cl = super.loadClass(name);
-            System.out.println("FOUNDED " + name + " => " + getModule().getName());
             //classes.put(name, cl);
             return cl;
         } catch (ClassNotFoundException e) {
-            System.out.println("NOT FOUND " + name + "=>" + getModule().getName() + "PARENTS={" + parents + "<=>" + getModule().getParents()+"}");
         }
 
         for (TWTClassLoader cl : parents) {

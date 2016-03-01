@@ -163,8 +163,10 @@ public class ClassCompiler {
                 VField f = (VField) member;
 
                 if (v.init == null) {
-                    if (!java.lang.reflect.Modifier.isStatic(f.getModificators()))
+                    if (!java.lang.reflect.Modifier.isFinal(f.getModificators()))
                         f.init = OperationCompiler.getInitValueForType(f.getType());
+                    else
+                        f.init = null;
                 } else {
                     f.init = com.op(v.init, f.getParent());
                     VClass enumClass = f.getParent().getClassLoader().loadClass(Enum.class.getName());

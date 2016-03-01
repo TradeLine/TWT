@@ -5,7 +5,6 @@
  */
 package org.tlsys.twt;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -20,11 +19,8 @@ public class GradleExternalModule extends TWTModuleLoader {
         super(artifactRecord.getJar());
         name = artifactRecord.getJar().getAbsolutePath();
         loader.add(this);
-        
-        System.out.println("Create gradle external " + name+"...");
 
         for (PomFile.Dependency d : PomFile.getDependecy(artifactRecord.getPom())) {
-            System.out.println("ADD DEPENDENCY " + d);
             if (d instanceof PomFile.ArtifactDependency) {
                 PomFile.ArtifactDependency ad = (PomFile.ArtifactDependency) d;
                 try {

@@ -1,16 +1,14 @@
 package org.tlsys.lex.declare;
 
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
 import org.tlsys.twt.CompileException;
 
-import javax.lang.model.type.NullType;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.function.UnaryOperator;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class VClassLoader implements Serializable {
     private static final long serialVersionUID = -8477730129932068195L;
@@ -97,14 +95,11 @@ public class VClassLoader implements Serializable {
         name = name.replace('$','.');
         if (classes == null)
             classes = new ArrayList<>();
-        System.out.print("->" + getName() + " " + name+"...");
         for (VClass v : classes) {
             if (v.isThis(name)) {
-                System.out.println("OK");
                 return v;
             }
         }
-        System.out.println("NONE " + parents + " name=" + getName() + " hash=" + hashCode() + " " + getClass().getName());
 
         for (VClassLoader v : parents) {
             try {

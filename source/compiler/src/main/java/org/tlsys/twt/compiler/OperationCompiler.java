@@ -155,11 +155,9 @@ class OperationCompiler {
         });
 
         addProc(JCTree.JCMethodInvocation.class, (c, e, o) -> {
-            System.out.println("=======INVOKE " + e + "=======");
             Value self = null;
             VExecute method = null;
             if (e.meth instanceof JCTree.JCFieldAccess) {
-                System.out.println("By field " + e.meth);
                 JCTree.JCFieldAccess f = (JCTree.JCFieldAccess) e.meth;
                 self = Objects.requireNonNull(c.op(f.selected, o));
                 try {
@@ -170,7 +168,6 @@ class OperationCompiler {
                 }
             }
             if (self == null || method == null && e.meth instanceof JCTree.JCIdent) {
-                System.out.println("By indent "+e.meth);
                 JCTree.JCIdent in = (JCTree.JCIdent) e.meth;
                 Symbol.MethodSymbol m = (Symbol.MethodSymbol) in.sym;
                 self = new This(c.getCurrentClass());
@@ -179,48 +176,31 @@ class OperationCompiler {
                 } else {
                     method = c.loadClass(m.owner.type).getMethod(m);
                 }
-                System.out.println("selfType="+self.getType().realName);
-                System.out.println("method=" + method);
             }
             if (self == null || method == null)
                 throw new RuntimeException("Self or method is NULL");
 
-            //self.getType().getMethod(e)
             if (method instanceof VConstructor && method.getParent().isParent(method.getParent().getClassLoader().loadClass(Enum.class.getName()))) {
                 VBlock block = (VBlock)o;
                 VConstructor cons = (VConstructor)block.getParentContext();
-                System.out.println("=======CALLING CONSTRUCTOR ENUM=======");
                 return new Invoke(method, new This(cons.getParent())).addArg(cons.arguments.get(0)).addArg(cons.arguments.get(1));
             }
             if (method.isStatic())
                 self = new StaticRef(method.getParent());
             else {
                 if (! (method instanceof VConstructor)) {
-                    System.out.println("Check call parent class...");
                     Optional<VClass> dep = c.getCurrentClass().getDependencyParent();
-                    System.out.println("DEP for " + c.getCurrentClass() + " is " + (dep.isPresent()?dep.get().realName:"NONE"));
 
                     if (method.getParent() != c.getCurrentClass() && dep.isPresent() && dep.get().isParent(method.getParent())) {
-                        System.out.println("Try change self... before=" + self.getType().realName + " to " + dep.get().realName);
                         self = new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass()));
-                        System.out.println("Changed!");
                     }
                 }
             }
 
             Invoke i = new Invoke(method, self);
-            System.out.println("Calling " + i.getMethod().getParent().realName + "=>" + i.getMethod().alias);
-            System.out.println("Arg count = " + i.getMethod().arguments.size());
 
             int argInc = 0;
-            System.out.println("1=>" + (i.getMethod() instanceof VConstructor));
-            System.out.println("2=>" + (i.getMethod().getParent() == self.getType()));
-            System.out.println("2.1=>" + i.getMethod().getParent());
-            System.out.println("2.2=>" + self.getType());
-            System.out.println("3=>" + (i.getMethod().getParent().getDependencyParent().isPresent()));
             if (i.getMethod() instanceof VConstructor && self.getType().isParent(i.getMethod().getParent()) && i.getMethod().getParent().getDependencyParent().isPresent()) {
-                System.out.println("first arg is parent this " + self.getType());
-                System.out.println("Context class = " + o.getClass().getName());
                 argInc=1;
                 if (o instanceof VBlock && ((VBlock)o).getParentContext() instanceof VConstructor) {
                     VBlock block = (VBlock)o;
@@ -228,8 +208,6 @@ class OperationCompiler {
                     i.addArg(cons.arguments.get(0));
                 } else
                     i.addArg(new GetField(self, TypeUtil.getParentThis(self.getType())));
-            } else {
-                System.out.println("No parent argument");
             }
 
             for (int c1 = argInc; c1 < method.arguments.size(); c1++) {
@@ -245,18 +223,6 @@ class OperationCompiler {
                 }
             }
             i.returnType = c.loadClass(e.type);
-            /*
-            if (i.getType() != retType) {
-                Cast cast = new Cast(retType, i);
-                return cast;
-            }
-            */
-            /*
-            for (JCTree.JCExpression ee : e.args) {
-                i.arguments.add(c.op(ee, o));
-            }
-            */
-            System.out.println("=======INVOKE DONE=======");
             return i;
         });
 
@@ -378,7 +344,6 @@ class OperationCompiler {
                 String name = e.name.toString();
                 
                 if (name.equals("this")) {
-                    System.out.println("Getting parent link of class " + c.getCurrentClass().realName + "...");
                     return new This(c.getCurrentClass().getParent());
                     //return new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass()));
                     //throw new RuntimeException("Not supported parent this parent class");
@@ -391,8 +356,15 @@ class OperationCompiler {
                 }
             }
             VField field = (VField) scope.getType().find((Symbol.VarSymbol) e.sym, v -> true).orElseThrow(() ->
-                    new CompileException("Can't find field " + e.name.toString() + " in " + scope.getType().fullName)
+                    new CompileException("Can't find field " + e.name.toString())
             );
+
+            Optional<VClass> dep = c.getCurrentClass().getDependencyParent();
+
+            if (field.getParent() != c.getCurrentClass() && dep.isPresent() && dep.get().isParent(field.getParent())) {
+                scope = new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass()));
+            }
+
             GetField gf = new GetField(scope, field);
             return gf;
         });

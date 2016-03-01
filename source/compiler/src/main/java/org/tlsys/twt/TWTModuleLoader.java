@@ -5,6 +5,8 @@
  */
 package org.tlsys.twt;
 
+import org.tlsys.lex.declare.VClassLoader;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +14,6 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import org.tlsys.lex.declare.VClassLoader;
 
 /**
  *
@@ -25,7 +26,6 @@ public abstract class TWTModuleLoader implements TWTModule {
     protected final HashSet<TWTModule> parents = new HashSet<>();
     
     public void addParent(TWTModule module) {
-        System.out.println("ADD PARENT " + getName() + " =>" + module.getName());
         parents.add(module);
         
         getJavaClassLoader().parents.add(module.getJavaClassLoader());
