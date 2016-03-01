@@ -381,6 +381,7 @@ public class TClass {
 
     public Field[] getFields() {
         if (fields == null) {
+            Console.info("Create fields for " + getName());
             fields = new Field[classRecord.getFields().length()];
             for (int i = 0; i < fields.length; i++) {
                 FieldRecord fr = classRecord.getFields().get(i);

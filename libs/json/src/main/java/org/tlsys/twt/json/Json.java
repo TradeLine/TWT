@@ -66,11 +66,12 @@ public class Json {
             Class clazz = cl;
             Console.info("-4");
             while (clazz != null) {
-                Console.info("-4.1");
+                Console.info("-4.1 class=" + clazz.getName() + " field size=" + clazz.getFields().length);
                 for (Field f : clazz.getFields()) {
-                    if (Modifier.isStatic(f.getModifiers()));
-                    Console.info("-4.2 convert " + clazz.getName() + "::" + f.getName());
-                    out += ",\"" + f.getName() + "\":" + toJSON(f.get(obj));
+                    if (!Modifier.isStatic(f.getModifiers())) {
+                        Console.info("-4.2 convert " + clazz.getName() + "::" + f.getName());
+                        out += ",\"" + f.getName() + "\":" + toJSON(f.get(obj));
+                    }
                 }
                 Console.info("-4.3");
                 clazz = clazz.getSuperclass();
@@ -95,16 +96,16 @@ public class Json {
     public static Object readObject(Object ina, Class needClass, JDictionary<Object> ids) {
         Console.info("READ=");
         Console.dir(ina);
-        Console.info("LINE-1");
+        Console.info("LINE-1 start read...");
         try {
-            Console.info("LINE-1-1");
+            Console.info("LINE-1-1 is null?");
             if (ina == null)
                 return null;
-            Console.info("LINE-1-2");
+            Console.info("LINE-1-2 is simple type?");
             String type = Script.typeOf(ina);
             if (type.equals("boolean") || type.equals("number") || type.equals("string"))
                 return ina;
-            Console.info("LINE-2");
+            Console.info("LINE-2 is array?");
             if (Script.code("Array.isArray(", ina, ")")) {
                 Console.info("LINE-2-1");
                 Console.info("Need class=");
