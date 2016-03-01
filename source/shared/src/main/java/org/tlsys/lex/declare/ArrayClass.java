@@ -1,8 +1,7 @@
 package org.tlsys.lex.declare;
 
+import org.tlsys.lex.Collect;
 import org.tlsys.lex.Const;
-import org.tlsys.lex.Invoke;
-import org.tlsys.lex.This;
 import org.tlsys.twt.CompileException;
 
 import java.lang.reflect.Modifier;
@@ -32,6 +31,12 @@ public class ArrayClass extends VClass {
         }
     }
 
+    @Override
+    public void getUsing(Collect c) {
+        super.getUsing(c);
+        c.add(getComponent());
+    }
+
     public ArrayClass(VClass component) {
         super(null, null);
         this.component = component;
@@ -47,13 +52,13 @@ public class ArrayClass extends VClass {
             throw new IllegalStateException("Array type already inited");
         //VClass classClass;
         extendsClass = intType.getClassLoader().loadClass(Object.class.getName());
-        lengthField = new VField(intType, Modifier.PUBLIC | Modifier.FINAL, null, this);
+        lengthField = new VField(intType, Modifier.PUBLIC, null, this);
         lengthField.name = LENGTH;
         lengthField.alias = "length";
         lengthField.init = new Const(0, intType);
         fields.add(lengthField);
 
-        jsArray = new VField(intType, Modifier.PRIVATE | Modifier.FINAL, null, this);
+        jsArray = new VField(intType, Modifier.PRIVATE, null, this);
         jsArray.name = ARRAY;
         jsArray.alias = "jsArray";
         jsArray.init = new Const(null, extendsClass);
@@ -104,4 +109,6 @@ public class ArrayClass extends VClass {
                 "component=" + component +
                 '}';
     }
+
+
 }
