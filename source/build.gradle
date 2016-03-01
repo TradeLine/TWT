@@ -1,8 +1,16 @@
-import javax.lang.model.SourceVersion
 apply plugin: 'java'
 apply plugin: 'idea'
 group 'org.tlsys'
 version = '1.0'
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+subprojects {
+    apply plugin: "java"
+    apply plugin: 'idea'
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    compileJava.options.encoding = 'UTF-8'
+}
