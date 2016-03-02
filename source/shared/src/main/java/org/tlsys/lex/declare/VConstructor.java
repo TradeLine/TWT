@@ -37,6 +37,11 @@ public class VConstructor extends VExecute {
             c.add(parentConstructorInvoke);
     }
 
+    @Override
+    public String getDescription() {
+        return "<init>(" + getArgumentDescription() + ")";
+    }
+
     Object writeReplace() throws ObjectStreamException {
         if (getParent().getClassLoader() != VClass.getCurrentClassLoader()) {
             ArrayList<VClass> args = new ArrayList<>(arguments.size());
@@ -45,15 +50,6 @@ public class VConstructor extends VExecute {
             return new MethodRef(getParent(), args);
         }
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return "VConstructor{" +
-                "name='" + getRunTimeName() + '\'' +
-                ", alias='" + alias + '\'' +
-                ", parent=" + getParent() +
-                '}';
     }
 
     private static class MethodRef implements Serializable {

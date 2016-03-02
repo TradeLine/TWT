@@ -70,6 +70,7 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
         if (block != null)
             c.add(block);
     }
+    public abstract String getDescription();
 
     @Override
     public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
@@ -89,6 +90,18 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
             block = null;
     }
 
+    public String getArgumentDescription() {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (VArgument a : arguments) {
+            if (!first)
+                sb.append("; ");
+            sb.append(a.getType().realName);
+            first = false;
+        }
+        return sb.toString();
+    }
+
     @Override
     public void saveCode(ObjectOutputStream outputStream) throws IOException {
         outputStream.writeBoolean(block != null);
@@ -98,10 +111,6 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
 
     @Override
     public String toString() {
-        return "VExecute{" +
-                "name='" + name + '\'' +
-                ", alias='" + alias + '\'' +
-                ", parent=" + parent +
-                '}';
+        return getParent().realName+"::"+getDescription();
     }
 }

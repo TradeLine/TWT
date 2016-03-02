@@ -85,18 +85,34 @@ public class CompileModuls {
         CLASSES:
         while (true) {
             for (ClassRecord cr : classes.values()) {
+                boolean log = false;
+                if (cr.getClazz().realName.equals("org.tlsys.admin.TextTableRender")) {
+                    log = true;
+                }
                 for (VMethod m : cr.getClazz().methods) {
+                    if (m.isStatic())
+                        continue;
+                    if (log)
+                        System.out.println("Check method " + m + "...");
                     if (m.getReplace() == null) {
+                        if (log)
+                            System.out.println("no replace....");
                         continue;
                     }
                     if (m.getReplace().getParent() == cr.getClazz()) {
+                        if (log)
+                            System.out.println("replace self");
                         continue;
                     }
                     ClassRecord cc = classes.get(m.getReplace().getParent());
                     if (cc == null) {
+                        if (log)
+                            System.out.println("replaced class not build");
                         continue;
                     }
                     if (cc.isExist(m.getReplace())) {
+                        if (log)
+                            System.out.println("add for compile!");
                         int size = classes.size();
                         add(m);
                         if (classes.size() != size) {

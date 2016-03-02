@@ -38,17 +38,9 @@ public class VMethod extends VExecute {
     public VMethod() {
     }
 
+    @Override
     public String getDescription() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getParent().realName).append("::").append(getRunTimeName()).append("(");
-        boolean first = true;
-        for (VArgument a : arguments) {
-            if (!first)
-                sb.append("; ");
-            sb.append(a.getType().realName);
-        }
-        sb.append(")");
-        return sb.toString();
+        return (alias!=null?alias:getRunTimeName()) + "(" + getArgumentDescription() + ")";
     }
 
     @Override
@@ -61,11 +53,6 @@ public class VMethod extends VExecute {
         if (replace != null)
             return replace.getRunTimeName();
         return super.getRunTimeName();
-    }
-
-    @Override
-    public String toString() {
-        return getDescription();
     }
 
     Object writeReplace() throws ObjectStreamException {
