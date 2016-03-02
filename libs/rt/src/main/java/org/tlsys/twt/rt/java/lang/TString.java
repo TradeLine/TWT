@@ -1,8 +1,8 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.*;
-import org.tlsys.twt.NativeCodeGenerator;
 
 @JSClass
 @ClassName("java.lang.String")
@@ -31,6 +31,12 @@ public final class TString {
     public static String valueOf(Object obj) {
         if (obj == null)
             return "null";
+        if (obj.getClass()==String.class)
+            return CastUtil.cast(obj);
+
+        if (obj.getClass()==Integer.class || obj.getClass()==Float.class)
+            return Script.code(obj,".toString()");
+
         return "Not supported";
         //return obj.toString();
     }

@@ -557,6 +557,24 @@ public class DefaultGenerator implements ICodeGenerator {
             return g.operation(c, new Invoke(method, new StaticRef(o.getClazz())).addArg(o.getValue()), p);
         });
 
+        addGen(Switch.class, (c,o,p,g)->{
+            p.append("switch(");
+            g.operation(c, o.getValue(),p);
+            p.append("){");
+            for (Switch.Case ca : o.getCases()) {
+                if (ca.value == null)
+                    p.append("default:");
+                else {
+                    p.append("case ");
+                    g.operation(c, ca.value, p);
+                    p.append(":");
+                }
+                g.operation(c, ca.block, p);
+            }
+            p.append("}");
+            return true;
+        });
+
         /*
         addGen(ForEach.class, (c,o,p,g)->{
             VClass iter = c.getCurrentClass().getClassLoader().loadClass(Iterable.class.getName());
@@ -589,27 +607,31 @@ public class DefaultGenerator implements ICodeGenerator {
 
     @Override
     public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
-        if (execute instanceof VConstructor) {
-            VConstructor c = (VConstructor)execute;
-            if (c.parentConstructorInvoke != null) {
-                operation(context, c.parentConstructorInvoke, ps);
-                ps.append(";");
+        try {
+            if (execute instanceof VConstructor) {
+                VConstructor c = (VConstructor) execute;
+                if (c.parentConstructorInvoke != null) {
+                    operation(context, c.parentConstructorInvoke, ps);
+                    ps.append(";");
+                }
+                for (VField f : c.getParent().fields) {
+                    if (f.isStatic())
+                        continue;
+                    ps.append("this.").append(f.name).append("=");
+                    if (f.init == null)
+                        ps.append("null");
+                    else
+                        operation(context, f.init, ps);
+                    ps.append(";");
+                }
             }
-            for (VField f : c.getParent().fields) {
-                if (f.isStatic())
-                    continue;
-                ps.append("this.").append(f.name).append("=");
-                if (f.init==null)
-                    ps.append("null");
-                else
-                    operation(context, f.init, ps);
-                ps.append(";");
-            }
-        }
 
-        for (Operation op: execute.block.operations) {
-            operation(context, op, ps);
-            ps.append(";");
+            for (Operation op : execute.block.operations) {
+                operation(context, op, ps);
+                ps.append(";");
+            }
+        } catch (Throwable e) {
+            throw new CompileException("Can't generate " + execute.getParent().realName + "::"+execute.alias, e);
         }
     }
 
