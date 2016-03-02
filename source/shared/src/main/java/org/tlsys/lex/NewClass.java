@@ -5,7 +5,6 @@ import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VConstructor;
 
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -34,6 +33,8 @@ public class NewClass extends Value {
     @Override
     public void getUsing(Collect c) {
         c.add(constructor);
+        for (Value v : arguments)
+            c.add(v);
     }
 
     @Override
