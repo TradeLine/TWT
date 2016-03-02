@@ -259,23 +259,43 @@ public class ClassCompiler {
     }
 
     private static void findReplaceMethodInClass(VMethod member) {
-        List<VMethod> methods = getAllMethodsNyName(member.getParent(), member.getRunTimeName());
 
+        boolean log = false;
+        if (member.getParent().realName.equals("org.tlsys.admin.TextTableRender")) {
+            log = true;
+        }
+
+        if (log) {
+            System.out.println("CHECK " + member + "...");
+            //System.out.println("CHECK First level...");
+        }
+
+        List<VMethod> methods = getAllMethodsNyName(member.getParent(), member.getRunTimeName());
         METHOD:
         for (VMethod m : methods) {
             if (m == member)
                 continue;
 
-            if (m.arguments.size() != member.arguments.size())
-                continue;
+            if (log)
+                System.out.println("--1--CHECK " + member.getDescription() + " and " + m);
 
-            for (VArgument a : m.arguments) {
-                for (VArgument b : member.arguments) {
-                    if (a.getType() != b.getType())
-                        continue METHOD;
-                }
+            if (m.arguments.size() != member.arguments.size()) {
+                if (log)
+                System.out.println("bad argument count");
+                continue;
             }
 
+            for (int i = 0; i < m.arguments.size(); i++) {
+                //for (VArgument b : member.arguments) {
+                    if (m.arguments.get(i).getType() != member.arguments.get(i).getType()) {
+                        System.out.println("bad argument type: need="+m.arguments.get(i).getType()+" but have " + member.arguments.get(i).getType());
+                        continue METHOD;
+                    }
+                //}
+            }
+
+            if (log)
+            System.out.println("Setted replaced to " + m);
             member.setReplace(m);
             break;
         }
@@ -284,19 +304,32 @@ public class ClassCompiler {
         for (VMethod m : methods) {
             if (m == member)
                 continue;
+            if (log)
+            System.out.println("--2--CHECK " + member.getDescription() + " and " + m);
 
-            if (m.arguments.isEmpty())
+            if (m.arguments.isEmpty()) {
+                if (log)
+                System.out.println("Arguments empty...");
                 continue;
-            if (m.arguments.size() != member.arguments.size())
+            }
+            if (m.arguments.size() != member.arguments.size()) {
+                if (log)
+                System.out.println("Difrent argument count");
                 continue;
+            }
 
             for (VArgument a : m.arguments) {
                 for (VArgument b : member.arguments) {
                     if (a.generic) {
-                        if (!b.getType().isParent(a.getType()))
+                        if (!b.getType().isParent(a.getType())) {
+                            if (log)
+                            System.out.println("Bad argument generic type");
                             continue METHOD;
-                    } else// if (a.getType() != b.getType())
+                        }
+                    } else {
+                        System.out.println("Bad argument type");
                         continue METHOD;
+                    }
                 }
             }
             member.getParent().methods.add(StatementCompiler.createBrig(m, member));

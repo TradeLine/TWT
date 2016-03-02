@@ -40,12 +40,15 @@ class OperationCompiler {
             VConstructor con = classIns.getConstructor((Symbol.MethodSymbol) e.constructor);
             
             NewClass nc = new NewClass(con);
+            Optional<VClass> parentClass = con.getParent().getDependencyParent();
             
-            if (con.getParent().getParent() != null
-                    && !java.lang.reflect.Modifier.isInterface(con.getParent().getModificators())
-                    && !java.lang.reflect.Modifier.isStatic(con.getParent().getModificators())
-                    && !con.getParent().isParent(enumClass))
-                nc.arguments.add(new This(con.getParent().getParent()));
+            if (parentClass.isPresent()) {
+                Optional<VClass> currentParentClass = c.getCurrentClass().getDependencyParent();
+                if (currentParentClass.isPresent() && currentParentClass.get()==parentClass.get()) {
+                    nc.arguments.add(new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass())));
+                } else
+                    nc.arguments.add(new This(parentClass.get()));
+            }
             
             for (JCTree.JCExpression ee : e.args)
                 nc.arguments.add(c.op(ee, o));
