@@ -44,4 +44,14 @@ public class GenerationTarget {
     public ArrayList<String> getClasses() {
         return classes;
     }
+
+    @Override
+    public String toString() {
+        return "GenerationTarget{" +
+                "classes=" + classes +
+                ", mainClass='" + mainClass + '\'' +
+                ", fileName='" + fileName + '\'' +
+                ", generator='" + generator + '\'' +
+                '}';
+    }
 }

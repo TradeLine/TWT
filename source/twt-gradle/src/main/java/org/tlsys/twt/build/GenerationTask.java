@@ -1,6 +1,7 @@
 package org.tlsys.twt.build;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
@@ -9,14 +10,8 @@ import org.tlsys.twt.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import org.gradle.api.tasks.InputFiles;
+import java.util.*;
 
 public class GenerationTask extends DefaultTask {
 
@@ -56,6 +51,7 @@ public class GenerationTask extends DefaultTask {
                 app = AppCompiller.compileApp(this);
                 renaming(app.getMainLoader().getTWTClassLoader());
                 for (GenerationTarget gt : getTargets()) {
+                    System.out.println("Build target " + gt + "...");
                     File outFile = new File(getProject().getBuildDir(), gt.out());
                     try (PrintStream ps = new PrintStream(new FileOutputStream(outFile))) {
                         CompileModuls cm = new CompileModuls();
@@ -74,6 +70,23 @@ public class GenerationTask extends DefaultTask {
                         }
                         cm.addForced(app.getMainLoader().getTWTClassLoader());
                         cm.detectReplace();
+
+                        System.out.println("Compile classes:");
+                        for (CompileModuls.ClassRecord cr : cm.getRecords()) {
+                            System.out.println("--+"+cr.getClazz().realName);
+                            for (VExecute e : cr.getExe()) {
+                                System.out.print("--|--" + e.getDescription());
+                                if (e instanceof VMethod) {
+                                    VMethod m = (VMethod)e;
+                                    if (m.getReplace() != null)
+                                        System.out.println(" replaced by " + m.getReplace());
+                                    else
+                                        System.out.println(" no replace");
+                                }
+                                System.out.println();
+                            }
+                            System.out.println();
+                        }
 
                         Class cl = app.getMainLoader().getJavaClassLoader().loadClass(gt.generator());
                         MainGenerator mg = (MainGenerator) cl.newInstance();
