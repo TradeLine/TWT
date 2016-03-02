@@ -3,7 +3,6 @@ package org.tlsys.lex;
 import com.sun.tools.javac.code.Symbol;
 import org.tlsys.lex.declare.VBlock;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -14,6 +13,14 @@ public class Switch extends Operation {
     public final ArrayList<Case> cases = new ArrayList<>();
     private Context parentContext;
     private Value value;
+
+    public Value getValue() {
+        return value;
+    }
+
+    public ArrayList<Case> getCases() {
+        return cases;
+    }
 
     public Switch(Context parentContext, Value value) {
         this.parentContext = parentContext;
