@@ -12,10 +12,16 @@ public final class DOM {
     }
 
     public static void setAttribute(Object element, String name, String value) {
+        Objects.requireNonNull(element, "Element is NULL");
+        if (value == null) {
+            removeAttribute(element, name);
+            return;
+        }
         Script.code(element,".setAttribute(",name,",",value,")");
     }
 
     public static Object[] childNodes(Object element) {
+        Objects.requireNonNull(element, "Element is NULL");
         JArray ar = new JArray();
         ar.setJSArray(Script.code(element,".childNodes"));
 
@@ -83,11 +89,13 @@ public final class DOM {
     }
 
     public static Object getChild(Object element, int index) {
+        Objects.requireNonNull(element, "Element is NULL");
         //TODO добавитиь проверку index: не выходит лион за пределы
         return Script.code(element,".childNodes.item(",index,")");
     }
 
     public static void removeChild(Object element) {
+        Objects.requireNonNull(element, "Element is NULL");
         Object parent = getParent(element);
         if (parent == null)
             return;
@@ -95,12 +103,15 @@ public final class DOM {
     }
 
     public static void clearChildOfNode(Object element) {
+        Objects.requireNonNull(element, "Element is NULL");
         for (Object o : childNodes(element)) {
             removeChild(o);
         }
     }
 
     public static Object[] getElementsByTagName(Object element, String tag) {
+        Objects.requireNonNull(element, "Element is NULL");
+        Objects.requireNonNull(tag, "Tag is NULL");
         JArray ar = new JArray();
         ar.setJSArray(Script.code(element,".getElementsByTagName(",tag,")"));
 
@@ -111,11 +122,15 @@ public final class DOM {
         return out;
     }
 
-    public static void setHTML(Object dom, String html) {
-        Script.code(dom,".innerHTML=",html);
+    public static void setHTML(Object element, String html) {
+        Objects.requireNonNull(element, "Element is NULL");
+        if (html == null)
+            html = "";
+        Script.code(element,".innerHTML=",html);
     }
-    public static String getHTML(Object dom) {
-        return Script.code(dom,".innerHTML");
+    public static String getHTML(Object element) {
+        Objects.requireNonNull(element, "Element is NULL");
+        return Script.code(element,".innerHTML");
     }
 
     public static Object getParent(Object element) {
@@ -125,14 +140,18 @@ public final class DOM {
         return null;
     }
 
-    public static Object queryFirst(Object element, String html) {
-        Object dom = Script.code(element,".querySelector(",html,")");
+    public static Object queryFirst(Object element, String selector) {
+        Objects.requireNonNull(element, "Element is NULL");
+        Objects.requireNonNull(selector, "Selector is NULL");
+        Object dom = Script.code(element,".querySelector(",selector,")");
         if (dom == null || Script.isUndefined(dom))
             return null;
         return dom;
     }
 
-    public static Object[] query(Object element, Object selector) {
+    public static Object[] query(Object element, String selector) {
+        Objects.requireNonNull(element, "Element is NULL");
+        Objects.requireNonNull(selector, "Selector is NULL");
         JArray ar = new JArray();
         ar.setJSArray(Script.code(element,".querySelectorAll(",selector,")"));
 
@@ -141,5 +160,13 @@ public final class DOM {
             out[i] = ar.get(i);
         }
         return out;
+    }
+
+    public static ClassList getCssClassList(Object element) {
+        Objects.requireNonNull(element, "Element is NULL");
+        Object o = Script.code(element,".classList");
+        if (o == null || Script.isUndefined(o))
+            return null;
+        return new ClassList(o);
     }
 }
