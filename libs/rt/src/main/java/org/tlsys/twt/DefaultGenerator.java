@@ -280,6 +280,9 @@ public class DefaultGenerator implements ICodeGenerator {
                 case BITXOR:
                     p.append("^");
                     break;
+                case MOD:
+                    p.append("%");
+                    break;
                 default:
                     throw new RuntimeException("Not support type " + o.getBitType());
             }

@@ -281,6 +281,9 @@ class OperationCompiler {
                 case BITXOR:
                     type = VBinar.BitType.BITXOR;
                     break;
+                case MOD:
+                    type = VBinar.BitType.MOD;
+                    break;
                 default:
                     throw new RuntimeException("Not supported binar operation " + e.getTag());
             }

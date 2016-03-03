@@ -62,6 +62,7 @@ public class VBinar extends Value {
         OR,//||
         AND,//&&
         NE,//!=
+        MOD,//%
 
         LT,//<
         LE,//<=
