@@ -190,8 +190,6 @@ public class TClass {
             implementList.add(cr.getImplementations().get(i).getType());
         }
         
-        Console.info("=========Creating class " + cr.getName()+"...=========");
-        Console.dir(cr);
         //Script.code(cons,".c=",this);
 
 
@@ -212,10 +210,6 @@ public class TClass {
                     a.add(mr.getArguments().get(j).getName());
                 }
                 
-                Console.info(cr.getName()+"->"+mr.getName()+"(" + arguments + ")");
-                Console.dir(mr.getArguments());
-                Console.info("len="+mr.getArguments().length());
-
                 if (domNode == null) {
 
                     a.add(Script.code("'var o = new ", cons, "();" + "o.'+", mr.getJsName(), "+'.apply(o,arguments); return o;'"));
@@ -225,7 +219,6 @@ public class TClass {
                             "var o = document.createElement(", this.domNode, ");" +
                             "for(var k in ", cons, ".prototype) o[k]=", cons, ".prototype[k];" +
                             "o.'+", mr.getJsName(), "+'.apply(o, arguments);return o;'"));
-                    Console.info("CONSTRUCTOR OF " + cr.getName()+"=" + a.get(a.length()-1));
                 }
                 Script.code(this, "['n'+", mr.getJsName(), "]=Function.apply(null,", a.getJSArray(), ")");
             }
@@ -247,11 +240,17 @@ public class TClass {
             }
         }
 
-        Console.info("======="+cr.getName() + " copy parent==========");
-        Class t = superClass;
+        //Class t = superClass;
+        copyPropertyFromClass(superClass);
+
+        for (int i = 0; i < cr.getStatics().length(); i++) {
+            Script.code(cr.getStatics().get(i), "()");
+        }
+    }
+
+    private void copyPropertyFromClass(Class t) {
         while (t != null) {
             TClass tt = CastUtil.cast(t);
-            Console.info("----Read class " + tt.getName()+"----");
             for (int i = 0; i < tt.classRecord.getMethods().length(); i++) {
                 MethodRecord mr = tt.classRecord.getMethods().get(i);
                 if (mr.getName() == null)
@@ -262,10 +261,8 @@ public class TClass {
                     Script.code(this, "[", mr.getJsName(), "]=", mr.getBody());
                 } else {
                     if (Script.hasOwnProperty(Script.code(cons, ".prototype"), mr.getJsName())) {
-                        Console.info("Method " + mr.getName() + " exist!");
                         continue;
                     }
-                    Console.info("Method " + mr.getName() + " copped!");
                     Script.code(cons, ".prototype[", mr.getJsName(), "]=", mr.getBody());
                     if (mr.getName().equals("toString") && mr.getArguments().length() == 0) {
                         Script.code(cons, ".prototype.toString=", mr.getBody());
@@ -273,30 +270,6 @@ public class TClass {
                 }
             }
             t = t.getSuperclass();
-        }
-
-
-        /*
-        if (superClass != null) {
-
-
-
-
-            TClass ss = CastUtil.cast(superClass);
-            ss.initMethods();
-            for (int i = 0; i < ss.methods.length(); i++) {
-                initMethods();
-                TMethod mm = getMethodByJSName(ss.methods.get(i).jsName);
-                if (mm == null) {
-                    mm = ss.methods.get(i);
-
-                }
-            }
-        }
-        */
-
-        for (int i = 0; i < cr.getStatics().length(); i++) {
-            Script.code(cr.getStatics().get(i), "()");
         }
     }
 

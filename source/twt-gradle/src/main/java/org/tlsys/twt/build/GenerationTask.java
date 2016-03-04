@@ -53,7 +53,7 @@ public class GenerationTask extends DefaultTask {
                 for (GenerationTarget gt : getTargets()) {
                     System.out.println("Build target " + gt + "...");
                     File outFile = new File(getProject().getBuildDir(), gt.out());
-                    try (PrintStream ps = new PrintStream(new FileOutputStream(outFile))) {
+                    try (PrintStream ps = new PrintStream(new FileOutputStream(outFile), false, "UTF-8")) {
                         CompileModuls cm = new CompileModuls();
                         Optional<VMethod> mainMethod = null;
                         if (gt.main() != null) {
