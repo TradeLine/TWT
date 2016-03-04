@@ -25,6 +25,15 @@ public class JArray<E> {
         Script.code(this.o,".splice(",index,",0,",o,")");
     }
 
+    public boolean remove(E value) {
+        int i = indexOf(value);
+        if (i >= 0) {
+            remove(i);
+            return true;
+        }
+        return false;
+    }
+
     public void remove(int index) {
         Script.code(o,".splice(",index,",1)");
     }
@@ -45,5 +54,9 @@ public class JArray<E> {
                 return i;
         }
         return -1;
+    }
+
+    public boolean contains(E value) {
+        return indexOf(value)>=0;
     }
 }
