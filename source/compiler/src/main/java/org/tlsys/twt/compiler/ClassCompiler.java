@@ -99,7 +99,8 @@ public class ClassCompiler {
 
         if (!Enum.class.getName().equals(v.alias))
             if (v.getDependencyParent(vClassLoader.loadClass(Enum.class.getName())).isPresent()) {//если класс имеет жетскую привязку к родителю
-                    TypeUtil.createParentThis(v);//то создаем this на родителя
+                System.out.println("CHILD " + v + " <=" + v.getDependencyParent().get() + " - " + v.hashCode());
+                TypeUtil.createParentThis(v);//то создаем this на родителя
             }
 
         CompilerTools.getAnnatationValueClass(c.getModifiers(), CodeGenerator.class).ifPresent(e -> v.codeGenerator = e);
@@ -260,7 +261,7 @@ public class ClassCompiler {
 
     private static void findReplaceMethodInClass(VMethod member) {
 
-        boolean log = false;
+        boolean log = true;
         if (member.getParent().realName.equals("org.tlsys.admin.TextTableRender")) {
             log = true;
         }
@@ -281,21 +282,21 @@ public class ClassCompiler {
 
             if (m.arguments.size() != member.arguments.size()) {
                 if (log)
-                System.out.println("bad argument count");
+                    System.out.println("bad argument count");
                 continue;
             }
 
             for (int i = 0; i < m.arguments.size(); i++) {
                 //for (VArgument b : member.arguments) {
-                    if (m.arguments.get(i).getType() != member.arguments.get(i).getType()) {
-                        System.out.println("bad argument type: need="+m.arguments.get(i).getType()+" but have " + member.arguments.get(i).getType());
-                        continue METHOD;
-                    }
+                if (m.arguments.get(i).getType() != member.arguments.get(i).getType()) {
+                    System.out.println("bad argument type: need=" + m.arguments.get(i).getType() + " but have " + member.arguments.get(i).getType());
+                    continue METHOD;
+                }
                 //}
             }
 
             if (log)
-            System.out.println("Setted replaced to " + m);
+                System.out.println("Setted replaced to " + m);
             member.setReplace(m);
             break;
         }
@@ -304,17 +305,19 @@ public class ClassCompiler {
         for (VMethod m : methods) {
             if (m == member)
                 continue;
+            if (m.getParent() == member.getParent())
+                continue;
             if (log)
-            System.out.println("--2--CHECK " + member.getDescription() + " and " + m);
+                System.out.println("--2--CHECK " + member.getDescription() + " and " + m);
 
             if (m.arguments.isEmpty()) {
                 if (log)
-                System.out.println("Arguments empty...");
+                    System.out.println("Arguments empty...");
                 continue;
             }
             if (m.arguments.size() != member.arguments.size()) {
                 if (log)
-                System.out.println("Difrent argument count");
+                    System.out.println("Difrent argument count");
                 continue;
             }
 
@@ -323,7 +326,7 @@ public class ClassCompiler {
                     if (a.generic) {
                         if (!b.getType().isParent(a.getType())) {
                             if (log)
-                            System.out.println("Bad argument generic type");
+                                System.out.println("Bad argument generic type");
                             continue METHOD;
                         }
                     } else {

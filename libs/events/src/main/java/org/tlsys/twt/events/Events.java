@@ -53,10 +53,12 @@ public class Events {
 
     @CodeGenerator(EventCodeGenerator.class)
     public static void addEventListener(Object object, String eventType, EventListener listener, boolean useCapture) {
+        listener.onEvent(listener, null);
     }
 
     @CodeGenerator(EventCodeGenerator.class)
     public static void removeEventListener(Object object, String eventType, EventListener listener, boolean useCapture) {
+        listener.onEvent(listener, null);
     }
 
     @JSClass

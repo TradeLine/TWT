@@ -205,6 +205,11 @@ public class Generator implements MainGenerator {
                     .addArg(getClassViaTypeProvider(vClass.extendsClass));
         }
 
+        for (VClass imp : vClass.implementsList) {
+            lastScope = new Invoke(methodAddImplement, lastScope)
+                    .addArg(getClassViaTypeProvider(imp));
+        }
+
         for (VField f : vClass.fields) {
 
             Invoke inv = new Invoke(addFieldMethod, lastScope)

@@ -9,6 +9,7 @@ import org.tlsys.twt.CompileException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 class StatementCompiler {
 
@@ -255,6 +256,10 @@ class StatementCompiler {
     }
 
     public static VMethod createBrig(VMethod from, VMethod to) {
+        if (from.getParent() == to.getParent())
+            throw new IllegalArgumentException("Can't create brige for self type");
+        Objects.requireNonNull(from, "Argument \"from\" is NULL");
+        Objects.requireNonNull(from, "Argument \"to\" is NULL");
         VMethod rep = new VMethod(to.getParent(), null, null);
         rep.setReplace(from);
         rep.arguments.addAll(from.arguments);
@@ -264,6 +269,9 @@ class StatementCompiler {
         Invoke inv = new Invoke(to, new This(to.getParent()));
         inv.arguments.addAll(rep.arguments);
         inv.returnType = to.returnType;
+
+
+        Objects.requireNonNull(from.returnType, "return type of " + from + " is nullJARR");
 
         if (!(from.returnType instanceof ArrayClass) && from.returnType.isThis("void")) {
             rep.block.add(inv);

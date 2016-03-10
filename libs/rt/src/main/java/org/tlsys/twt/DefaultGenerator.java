@@ -1,5 +1,6 @@
 package org.tlsys.twt;
 
+import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.annotations.CastAdapter;
@@ -11,6 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class DefaultGenerator implements ICodeGenerator {
@@ -43,8 +45,14 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(This.class, (c, o, p, g) -> {
-            if (o.getType() != c.getCurrentClass())
-                throw new RuntimeException("Not support other this type");
+            if (o.getType() != c.getCurrentClass()) {
+                Optional<VClass> cl = c.getCurrentClass().getDependencyParent();
+                if (cl.isPresent() && cl.get() == o.getType()) {
+                    System.out.println("getting this of parent " + c.getCurrentClass().hashCode() + " " + c.getCurrentClass());
+                    return g.operation(c, TypeUtil.getParentThis(c.getCurrentClass()), p);
+                }
+                throw new RuntimeException("Not support other this type. Current " + c.getCurrentClass() + ", this=" + o.getType());
+            }
             p.append("this");
             return true;
         });

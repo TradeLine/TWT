@@ -19,7 +19,7 @@ public final class TypeUtil {
             if (f.name.equals("this$0"))
                 return f;
         }
-        throw new VFieldNotFoundException("this$0");
+        throw new VFieldNotFoundException(clazz, "this$0");
     }
 
     public static VField createParentThis(VClass clazz) {

@@ -436,7 +436,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         for (VField f : fields)
             if (name.equals(f.name) || name.equals(f.alias))
                 return f;
-        throw new VFieldNotFoundException(name);
+        throw new VFieldNotFoundException(this, name);
     }
 
     private static class ClassRef implements Serializable {
