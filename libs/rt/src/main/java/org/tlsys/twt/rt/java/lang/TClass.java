@@ -165,31 +165,21 @@ public class TClass {
     }
 
     public void initFor(ClassRecord cr) {
+        Console.info("CREATE CLASS " + cr.getName() + "...");
         domNode = cr.getDomNode();
         this.jsName = cr.getJsName();
         classRecord = cr;
         this.name = cr.getName();
         String fieldInitFlag = cr.getJsName() + "_";
         String functionBody = "";
-        /*
-        String fieldInit = "if (!this."+fieldInitFlag+"){";
-
-        for (int i = 0; i < cr.getFields().length(); i++) {
-            FieldRecord fr = cr.getFields().get(i);
-            if (!fr.isStaticFlag()) {
-                fieldInit+="this."+fr.getJsName()+"="+fr.getInitValue()+";";
-            }
-        }
-        fieldInit+="this.fieldInitFlag=true;}";
-        */
-        //Object functionFieldInit = Script.code("new Function(",fieldInit,")");
 
         if (cr.getSuper() != null)
             superClass = cr.getSuper().getType();
+
         for (int i = 0; i < cr.getImplementations().length(); i++) {
             implementList.add(cr.getImplementations().get(i).getType());
         }
-        
+
         //Script.code(cons,".c=",this);
 
 
@@ -209,7 +199,7 @@ public class TClass {
                     arguments += mr.getArguments().get(j).getName();
                     a.add(mr.getArguments().get(j).getName());
                 }
-                
+
                 if (domNode == null) {
 
                     a.add(Script.code("'var o = new ", cons, "();" + "o.'+", mr.getJsName(), "+'.apply(o,arguments); return o;'"));
@@ -240,8 +230,12 @@ public class TClass {
             }
         }
 
-        //Class t = superClass;
         copyPropertyFromClass(superClass);
+
+        Console.info("creating class " + getName() + "... implement size list = " + implementList.length());
+        for (int i = 0; i < implementList.length(); i++) {
+            copyPropertyFromClass(implementList.get(0));
+        }
 
         for (int i = 0; i < cr.getStatics().length(); i++) {
             Script.code(cr.getStatics().get(i), "()");
@@ -249,6 +243,8 @@ public class TClass {
     }
 
     private void copyPropertyFromClass(Class t) {
+        if (t != null)
+            Console.info("ADD CLASS " + getName() + " <= " + t.getName());
         while (t != null) {
             TClass tt = CastUtil.cast(t);
             for (int i = 0; i < tt.classRecord.getMethods().length(); i++) {
@@ -354,11 +350,9 @@ public class TClass {
 
     public Field[] getFields() {
         if (fields == null) {
-            Console.info("Create fields for " + getName());
             fields = new Field[classRecord.getFields().length()];
             for (int i = 0; i < fields.length; i++) {
                 FieldRecord fr = classRecord.getFields().get(i);
-                Console.info("FIELD " + fr.getName() + " " + Modifier.isStatic(fr.getModificators()));
                 TField f = new TField(fr.getName(), fr.getJsName(), CastUtil.cast(this), fr.getType().getType(), fr.getModificators());
                 fields[i] = CastUtil.cast(f);
             }
