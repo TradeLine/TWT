@@ -137,7 +137,7 @@ public final class DOM {
         Object o = Script.code(element,".parentElement");
         if (o == null || Script.isUndefined(o))
             return null;
-        return null;
+        return o;
     }
 
     public static Object queryFirst(Object element, String selector) {
