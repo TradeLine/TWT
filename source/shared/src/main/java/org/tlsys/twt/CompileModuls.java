@@ -86,9 +86,11 @@ public class CompileModuls {
         while (true) {
             for (ClassRecord cr : classes.values()) {
                 boolean log = false;
+                /*
                 if (cr.getClazz().realName.equals("org.tlsys.admin.TextTableRender")) {
                     log = true;
                 }
+                */
                 for (VMethod m : cr.getClazz().methods) {
                     if (m.isStatic())
                         continue;
