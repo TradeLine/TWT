@@ -30,7 +30,7 @@ final class Utils {
         Optional<TWTModule> res = loader.getByName(jarFile.getAbsolutePath());
         if (res.isPresent())
             return res.get();
-        GradleJarModule d = new GradleJarModule(jarFile, jarFile.getAbsolutePath());
+        GradleJarModule d = new GradleJarModule(jarFile, null, jarFile.getAbsolutePath());
         loader.add(d);
         return d;
     }

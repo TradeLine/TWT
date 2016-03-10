@@ -5,6 +5,9 @@
  */
 package org.tlsys.twt;
 
+import org.tlsys.lex.declare.VClassLoader;
+import org.tlsys.twt.compiler.SourceFinder;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -13,8 +16,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import org.tlsys.lex.declare.VClassLoader;
-import org.tlsys.twt.compiler.SourceFinder;
 
 /**
  *
@@ -35,8 +36,8 @@ public abstract class TWTModuleSource extends TWTModuleLoader {
 
     private final Set<File> sourcees;
 
-    public TWTModuleSource(File classses, File sources) throws IOException {
-        super(classses);
+    public TWTModuleSource(File classses, File sources, File resource) throws IOException {
+        super(classses, resource);
 
         sourcees = findSource(classses, sources);
     }

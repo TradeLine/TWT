@@ -40,12 +40,12 @@ public abstract class TWTModuleLoader implements TWTModule {
     
     
 
-    public TWTModuleLoader(File file) throws IOException {
+    public TWTModuleLoader(File file, File resourec) throws IOException {
         if (file.isFile()) {
             loader = new JarClassLoader(file, this);
         } else {
             if (file.isDirectory()) {
-                loader = new DirectoryClassLoader(file, this);
+                loader = new DirectoryClassLoader(file, resourec, this);
             } else {
                 throw new IOException("Can't load " + file + ": unknown file");
             }

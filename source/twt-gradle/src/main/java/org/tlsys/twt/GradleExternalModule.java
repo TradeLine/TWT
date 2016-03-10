@@ -16,7 +16,7 @@ public class GradleExternalModule extends TWTModuleLoader {
     private final String name;
     
     public GradleExternalModule(DLoader loader, ArtifactRecolver artifactRecolver, ArtifactRecord artifactRecord) throws IOException {
-        super(artifactRecord.getJar());
+        super(artifactRecord.getJar(), null);
         name = artifactRecord.getJar().getAbsolutePath();
         loader.add(this);
 

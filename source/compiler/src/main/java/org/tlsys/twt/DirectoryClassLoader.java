@@ -7,12 +7,6 @@ package org.tlsys.twt;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -23,14 +17,17 @@ public class DirectoryClassLoader extends TWTClassLoader {
     private final File root;
     private final TWTModule module;
 
-    public DirectoryClassLoader(File director, TWTModule module) throws IOException {
+    public DirectoryClassLoader(File director, File resources, TWTModule module) throws IOException {
         if (!director.isDirectory()) {
             throw new IOException("File " + director + " must be directory");
         }
         this.root = director;
         this.module = module;
-        
+
         addURL(director.toURI().toURL());
+        if (resources != null)
+            addURL(resources.toURI().toURL());
+        System.out.println("CREATE DIRECTORY CLASS LOADER!\nSOURCE=" + director + "\nRESURCE=" + resources);
     }
 
     @Override

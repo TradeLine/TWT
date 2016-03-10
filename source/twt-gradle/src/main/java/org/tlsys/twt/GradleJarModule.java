@@ -16,8 +16,8 @@ public class GradleJarModule extends TWTModuleLoader {
 
     private final String name;
     
-    public GradleJarModule(File file, String name) throws IOException {
-        super(file);
+    public GradleJarModule(File file, File resource, String name) throws IOException {
+        super(file, resource);
         this.name = name;
     }
 
