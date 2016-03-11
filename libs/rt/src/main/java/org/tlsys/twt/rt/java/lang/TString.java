@@ -1,6 +1,8 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.twt.ApplyInvoke;
 import org.tlsys.twt.CastUtil;
+import org.tlsys.twt.JArray;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.*;
 
@@ -88,4 +90,9 @@ public final class TString {
     @NotCompile
     @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native String endsWith(String suffix);
+
+    @InvokeGen(ApplyInvoke.class)
+    public String[] split(String regex) {
+        return JArray.fromJSArray(Script.code(this,".split(new RegExp(",regex,"))"), String.class);
+    }
 }

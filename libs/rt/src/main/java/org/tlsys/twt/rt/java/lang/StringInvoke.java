@@ -1,6 +1,8 @@
 package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.lex.Invoke;
+import org.tlsys.lex.StaticRef;
+import org.tlsys.lex.declare.VMethod;
 import org.tlsys.twt.CompileException;
 import org.tlsys.twt.GenerationContext;
 import org.tlsys.twt.ICodeGenerator;
@@ -41,7 +43,7 @@ public class StringInvoke implements InvokeGenerator {
             stringCG.operation(ctx, invoke.getSelf(), ps);
             ps.append(".substring(");
             ctx.getGenerator(invoke.arguments.get(0).getType()).operation(ctx, invoke.arguments.get(0), ps);
-            if (invoke.arguments.size()>1) {
+            if (invoke.arguments.size() > 1) {
                 ps.append(",");
                 ctx.getGenerator(invoke.arguments.get(1).getType()).operation(ctx, invoke.arguments.get(1), ps);
             }
@@ -53,7 +55,7 @@ public class StringInvoke implements InvokeGenerator {
             stringCG.operation(ctx, invoke.getSelf(), ps);
             ps.append(".indexOf(");
             ctx.getGenerator(invoke.arguments.get(0).getType()).operation(ctx, invoke.arguments.get(0), ps);
-            if (invoke.arguments.size()>1) {
+            if (invoke.arguments.size() > 1) {
                 ps.append(",");
                 ctx.getGenerator(invoke.arguments.get(1).getType()).operation(ctx, invoke.arguments.get(1), ps);
             }
@@ -65,7 +67,7 @@ public class StringInvoke implements InvokeGenerator {
             stringCG.operation(ctx, invoke.getSelf(), ps);
             ps.append(".lastIndexOf(");
             ctx.getGenerator(invoke.arguments.get(0).getType()).operation(ctx, invoke.arguments.get(0), ps);
-            if (invoke.arguments.size()>1) {
+            if (invoke.arguments.size() > 1) {
                 ps.append(",");
                 ctx.getGenerator(invoke.arguments.get(1).getType()).operation(ctx, invoke.arguments.get(1), ps);
             }
@@ -99,6 +101,23 @@ public class StringInvoke implements InvokeGenerator {
             return true;
         }
 
+        if (invoke.getMethod().alias.equals("split")) {
+            if (invoke.arguments.size() == 1) {
+                /*
+                VClass stringClass = invoke.getMethod().getParent();
+                VClass objectClass = stringClass.getClassLoader().loadClass(Object.class.getName());
+                VClass arrayClass = stringClass.getClassLoader().loadClass(JArray.class.getName());
+                VClass classClass = stringClass.getClassLoader().loadClass(Class.class.getName());
+                VMethod fromJSArrayMethod = arrayClass.getMethod("fromJSArray", objectClass, classClass);
+                //return JArray.fromJSArray(Script.code(str,".split(new RegExp(",regexp,"))"), String.class);
+                new Return(new Invoke(fromJSArrayMethod, new StaticRef(arrayClass)).addArg());
+                */
+
+                VMethod staticSplitMethod = invoke.getMethod().getParent().getMethod("split", invoke.getMethod().getParent(), invoke.getMethod().getParent());
+                return stringCG.operation(ctx, new Invoke(staticSplitMethod, new StaticRef(invoke.getMethod().getParent())).addArg(invoke.getSelf()).addArg(invoke.arguments.get(0)), ps);
+            }
+        }
+
 
 
         /*
@@ -109,6 +128,6 @@ public class StringInvoke implements InvokeGenerator {
         }
         */
 
-        throw new RuntimeException("Method "+invoke.getMethod().alias+" not processed");
+        throw new RuntimeException("Method " + invoke.getMethod().alias + " not processed");
     }
 }
