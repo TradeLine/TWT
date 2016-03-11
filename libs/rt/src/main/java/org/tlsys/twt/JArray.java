@@ -3,6 +3,8 @@ package org.tlsys.twt;
 import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.JSClass;
 
+import java.lang.reflect.Array;
+
 @JSClass
 @CodeGenerator(NativeCodeGenerator.class)
 public class JArray<E> {
@@ -58,5 +60,15 @@ public class JArray<E> {
 
     public boolean contains(E value) {
         return indexOf(value)>=0;
+    }
+
+    public static <T> T[] fromJSArray(Object array, Class<T> clazz) {
+        int len = Script.code(array,".length");
+        T[] m = CastUtil.cast(Array.newInstance(clazz, len));
+        for (int i = 0; i < len; i++) {
+            m[i] = Script.code(array,"[",i,"]");
+        }
+
+        return m;
     }
 }
