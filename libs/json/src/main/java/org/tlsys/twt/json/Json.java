@@ -1,5 +1,6 @@
 package org.tlsys.twt.json;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Console;
 import org.tlsys.twt.JDictionary;
 import org.tlsys.twt.Script;
@@ -9,6 +10,7 @@ import org.tlsys.twt.classes.ClassStorage;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Date;
 
 @JSClass
 public class Json {
@@ -60,6 +62,12 @@ public class Json {
                 out += "]";
                 return out;
             }
+
+            if (obj.getClass() == Date.class) {
+                Date data = (Date)obj;
+                return data.getTime()+"";
+            }
+
             Console.info("-3");
 
             String out = "{\"@type\":\"" + cl.getName() + "\"";
@@ -135,6 +143,10 @@ public class Json {
             Console.info("LINE-5");
             if (needClass == null && (className == null || Script.isUndefined(className))) {
                 throw new RuntimeException("Can't get class name...");
+            }
+            if (needClass == Date.class) {
+                long time = CastUtil.cast(ina);
+                return new Date(time);
             }
             Console.info("LINE-6");
             Class objClass;

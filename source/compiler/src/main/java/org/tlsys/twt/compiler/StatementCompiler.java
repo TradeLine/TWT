@@ -111,29 +111,39 @@ class StatementCompiler {
                 wl.block.operations.add(c.st(e.body, wl.block));
                 return block;
             } else {
+                VBlock block = new VBlock(o);
+
+                VClass intClass = c.getCurrentClass().getClassLoader().loadClass("int");
+                SVar arVar = new SVar(v.getType(), null);
+                arVar.name="l" + Integer.toString(arVar.hashCode(), Character.MAX_RADIX);
+                DeclareVar ar = new DeclareVar(arVar);
+                ar.init = v;
+                block.add(ar);
+
                 ArrayClass ac = (ArrayClass)v.getType();
                 ForLoop forLoop = new ForLoop(o);
                 forLoop.block = new VBlock(forLoop);
-                VClass intClass = c.getCurrentClass().getClassLoader().loadClass("int");
+
                 SVar itVar = new SVar(intClass, null);
                 itVar.name="i" + Integer.toString(itVar.hashCode(), Character.MAX_RADIX);
                 DeclareVar it = new DeclareVar(itVar);
                 it.init = new Const(0, intClass);
                 forLoop.init = it;
                 forLoop.update = new Increment(itVar, Increment.IncType.PRE_INC, intClass);
-                forLoop.value = new VBinar(itVar, new GetField(v, v.getType().getField("length")),c.getCurrentClass().getClassLoader().loadClass("boolean"), VBinar.BitType.LT);
+                forLoop.value = new VBinar(itVar, new GetField(arVar, arVar.getType().getField("length")),c.getCurrentClass().getClassLoader().loadClass("boolean"), VBinar.BitType.LT);
 
                 SVar el = new SVar(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type), e.var.sym);
                 el.name=e.var.name.toString();
                 DeclareVar dv = new DeclareVar(el);
-                dv.init = new ArrayGet(v, itVar);
+                dv.init = new ArrayGet(arVar, itVar);
                 forLoop.block.operations.add(dv);
 
 
                 if (e.body != null) {
                     forLoop.block.operations.add(c.st(e.body, forLoop.block));
                 }
-                return forLoop;
+                block.add(forLoop);
+                return block;
             }
         });
 

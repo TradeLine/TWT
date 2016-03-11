@@ -21,15 +21,7 @@ public final class DOM {
     }
 
     public static Object[] childNodes(Object element) {
-        Objects.requireNonNull(element, "Element is NULL");
-        JArray ar = new JArray();
-        ar.setJSArray(Script.code(element,".childNodes"));
-
-        Object[] out = new Object[ar.length()];
-        for (int i = 0; i < out.length; i++) {
-            out[i] = ar.get(i);
-        }
-        return out;
+        return JArray.fromJSArray(Script.code(element,".childNodes"), Object.class);
     }
 
 
@@ -168,5 +160,16 @@ public final class DOM {
         if (o == null || Script.isUndefined(o))
             return null;
         return new ClassList(o);
+    }
+
+    public static DomStyle getStyle(Object element) {
+        Objects.requireNonNull(element);
+        DomStyle ds = Script.code(element,".TWT_DOM_STYLE");
+        if (ds == null || Script.isUndefined(ds)) {
+            ds = new DomStyle(Script.code(element, ".style"));
+            Script.code(element,".TWT_DOM_STYLE=",ds);
+            return ds;
+        }
+        return ds;
     }
 }
