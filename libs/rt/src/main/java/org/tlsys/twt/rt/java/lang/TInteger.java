@@ -27,6 +27,9 @@ public class TInteger extends Number {
     }
 
     public static int parseInt(String s, int radix) {
+        boolean b = Script.code("isNaN(",s,")");
+        if (b)
+            throw new NumberFormatException(s);
         return Script.code("parseInt(",s,",",radix,")");
     }
 

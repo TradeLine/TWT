@@ -16,6 +16,9 @@ public class TLong extends Number {
     public TLong(long value) {
         this.value = value;
     }
+    public TLong(TLong value) {
+        this.value = value.longValue();
+    }
 
     public TLong(String s) {
         this(parseLong(s));
@@ -46,6 +49,9 @@ public class TLong extends Number {
     }
 
     public static long parseLong(String s, int radix) {
+        boolean b = Script.code("isNaN(",s,")");
+        if (b)
+            throw new NumberFormatException(s);
         return Script.code("parseInt(", s, ",", radix, ")");
     }
 }
