@@ -29,4 +29,27 @@ public class DomStyle {
     public DomStyle setP(String name, int value) {
         return set(name, value+"%");
     }
+
+    public NumerateProperty width() {
+        return new NumerateProperty("width");
+    }
+
+    public NumerateProperty height() {
+        return new NumerateProperty("height");
+    }
+
+    public class NumerateProperty {
+        private final String name;
+
+        public NumerateProperty(String name) {
+            this.name = name;
+        }
+
+        public DomStyle setPx(int value){
+            return set(name, value+"px");
+        }
+        public DomStyle setP(int value) {
+            return set(name, value+"%");
+        }
+    }
 }
