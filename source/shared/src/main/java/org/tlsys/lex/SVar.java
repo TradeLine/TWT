@@ -41,6 +41,8 @@ public class SVar extends Value {
 
     public SVar(String realName, String alias, VClass clazz) {
         this.clazz = Objects.requireNonNull(clazz);
+        this.realName = realName;
+        this.aliasName = alias;
     }
 
     @Override
