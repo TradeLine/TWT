@@ -95,7 +95,7 @@ public class DefaultGenerator implements ICodeGenerator {
             if (o.getSelf() instanceof This) {//вызов конструктора
                 This self = (This) o.getSelf();
 
-                if (o.getMethod().getParent() != o.getSelf().getType()) {//чужого
+                if (o.getMethod().getParent() != o.getSelf().getType() || o.getMethod() instanceof VConstructor) {//чужого
                     c.getGenerator(self.getType()).operation(c, new StaticRef(o.getMethod().getParent()), p);
                     p.append(".");
 
@@ -118,11 +118,11 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(VArgument.class, (c, o, p, g) -> {
-            p.append(o.name);
+            p.append(o.getRuntimeName());
             return true;
         });
         addGen(DeclareVar.class, (c, o, p, g) -> {
-            p.append("var ").append(o.getVar().name);
+            p.append("var ").append(o.getVar().getRuntimeName());
             if (o.init != null) {
                 p.append("=");
                 g.operation(c, o.init, p);
@@ -135,7 +135,7 @@ public class DefaultGenerator implements ICodeGenerator {
             }
             g.operation(c, o.getScope(), p);
             p.append(".");
-            p.append(o.getField().name);
+            p.append(o.getField().getRuntimeName());
             return true;
         });
 
@@ -160,7 +160,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 return g.operation(c, lastScope, p);
             }
             VMethod getMethod = o.getType().getClassLoader().loadClass(ClassStorage.class.getName()).getMethod("get", o.getType().getClassLoader().loadClass(Object.class.getName()));
-            p.append(Generator.storage.name).append(".").append(getMethod.getRunTimeName()).append("(").append(Generator.storage.name).append(".").append(o.getType().fullName).append(")");
+            p.append(Generator.storage.getRuntimeName()).append(".").append(getMethod.getRunTimeName()).append("(").append(Generator.storage.getRuntimeName()).append(".").append(o.getType().fullName).append(")");
             //throw new RuntimeException("Class ref not supported yet");
             return true;
         });
@@ -213,13 +213,13 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(SVar.class, (c, o, p, g) -> {
-            p.append(o.name);
+            p.append(o.getRuntimeName());
             return true;
         });
 
         addGen(SetField.class, (c, o, p, g) -> {
             g.operation(c, o.getScope(), p);
-            p.append(".").append(o.getField().name).append("=");
+            p.append(".").append(o.getField().getRuntimeName()).append("=");
             g.operation(c, o.getValue(), p);
             return true;
         });
@@ -531,10 +531,9 @@ public class DefaultGenerator implements ICodeGenerator {
 
                 VMethod convertMethod = errorClass.getMethod("jsErrorConvert", objectClass);
 
-                SVar evar = new SVar(errorClass, null);
-                evar.name = c.genLocalName();
+                SVar evar = new SVar(c.genLocalName(), errorClass);
                 String lab = c.genLocalName();
-                p.append("catch(").append(evar.name).append("){");
+                p.append("catch(").append(evar.getRuntimeName()).append("){");
                 g.operation(c, new Assign(evar, new Invoke(convertMethod, new StaticRef(errorClass)).addArg(evar), evar.getType(), Assign.AsType.ASSIGN), p);
                 p.append(";");
                 p.append(lab).append(":{");
@@ -548,11 +547,11 @@ public class DefaultGenerator implements ICodeGenerator {
                         first = false;
                     }
                     p.append(") {");
-                    ca.getDeclareVar().getVar().name=evar.name;
+                    ca.getDeclareVar().getVar().setRuntimeName(evar.getRuntimeName());
                     g.operation(c, ca.block, p);
                     p.append("break ").append(lab).append(";}");
                 }
-                p.append("throw ").append(evar.name).append("}}");
+                p.append("throw ").append(evar.getRuntimeName()).append("}}");
             } else {
                 p.append("catch(e){throw e;}");
             }
@@ -628,7 +627,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 for (VField f : c.getParent().fields) {
                     if (f.isStatic())
                         continue;
-                    ps.append("this.").append(f.name).append("=");
+                    ps.append("this.").append(f.getRuntimeName()).append("=");
                     if (f.init == null)
                         ps.append("null");
                     else

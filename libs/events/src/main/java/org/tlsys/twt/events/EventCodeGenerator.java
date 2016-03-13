@@ -31,24 +31,24 @@ public class EventCodeGenerator extends DefaultGenerator {
 
             //Функция события
             ps.append("var f=function(e){")
-                    .append(execute.arguments.get(2).name).append(".")
+                    .append(execute.arguments.get(2).getRuntimeName()).append(".")
                     .append(onEventMethod.getRunTimeName()).append("(this,e);")
                     .append("};");
 
-            String contener = execute.arguments.get(0).name+".E";
+            String contener = execute.arguments.get(0).getRuntimeName()+".E";
             //создаем контейнер событий
             ps.append(contener).append("=").append(contener).append("||[];");
 
             ps.append(contener)
-                    .append(".push({o:").append(execute.arguments.get(2).name)
-                    .append(",n:").append(execute.arguments.get(1).name)
-                    .append(",u:").append(execute.arguments.get(3).name)
+                    .append(".push({o:").append(execute.arguments.get(2).getRuntimeName())
+                    .append(",n:").append(execute.arguments.get(1).getRuntimeName())
+                    .append(",u:").append(execute.arguments.get(3).getRuntimeName())
                     .append(",f:f")
                     .append("});");
 
-            ps.append(execute.arguments.get(0).name).append(".addEventListener(")
-                    .append(execute.arguments.get(1).name)
-                    .append(",f,").append(execute.arguments.get(3).name).append(");");
+            ps.append(execute.arguments.get(0).getRuntimeName()).append(".addEventListener(")
+                    .append(execute.arguments.get(1).getRuntimeName())
+                    .append(",f,").append(execute.arguments.get(3).getRuntimeName()).append(");");
 
             ps.append("}");
             return;
@@ -56,16 +56,16 @@ public class EventCodeGenerator extends DefaultGenerator {
 
         if (execute.alias.equals("removeEventListener")) {
             ps.append("{");
-            String contener = execute.arguments.get(0).name+".E";
+            String contener = execute.arguments.get(0).getRuntimeName()+".E";
             ps.append("if (!").append(contener).append(")return;");
 
             ps.append("for(var i=0;i<").append(contener).append(".length;i++){")
                     .append("var g=").append(contener).append("[i];")
-                    .append("if (g.o==").append(execute.arguments.get(2).name)
-                    .append("&&g.n==").append(execute.arguments.get(1).name)
-                    .append("&&g.u==").append(execute.arguments.get(3).name)
+                    .append("if (g.o==").append(execute.arguments.get(2).getRuntimeName())
+                    .append("&&g.n==").append(execute.arguments.get(1).getRuntimeName())
+                    .append("&&g.u==").append(execute.arguments.get(3).getRuntimeName())
                     .append("){").append(contener).append(".splice(i,1);")
-                        .append(execute.arguments.get(0).name).append(".removeEventListener(g.n,g.f,g.u);")
+                        .append(execute.arguments.get(0).getRuntimeName()).append(".removeEventListener(g.n,g.f,g.u);")
                     .append("break;")
                     .append("}")
                     .append("}");

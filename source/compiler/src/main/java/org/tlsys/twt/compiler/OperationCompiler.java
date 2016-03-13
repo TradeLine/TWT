@@ -74,7 +74,7 @@ class OperationCompiler {
                     return var.get();
                 }
             }
-            throw new RuntimeException("Unknown indent " + e + ", class=" + (e!=null?e.getClass().getName():"NULL"));
+            throw new RuntimeException("Unknown indent " + e + ", class=" + (e.sym!=null?e.sym.getClass().getName():"NULL"));
         });
 
         addProc(JCTree.JCLiteral.class, (c, e, o) -> {
