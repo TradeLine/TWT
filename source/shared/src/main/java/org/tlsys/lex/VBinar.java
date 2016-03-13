@@ -58,6 +58,7 @@ public class VBinar extends Value {
     public enum BitType {
         PLUS,//+
         MINUS,//-
+        MUL,//*
         EQ,//==
         OR,//||
         AND,//&&

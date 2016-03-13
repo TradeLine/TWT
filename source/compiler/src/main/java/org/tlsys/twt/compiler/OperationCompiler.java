@@ -245,6 +245,9 @@ class OperationCompiler {
                 case EQ:
                     type = VBinar.BitType.EQ;
                     break;
+                case MUL:
+                    type = VBinar.BitType.MUL;
+                    break;
                 case OR:
                     type = VBinar.BitType.OR;
                     break;

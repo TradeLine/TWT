@@ -255,6 +255,9 @@ public class DefaultGenerator implements ICodeGenerator {
                 case MINUS:
                     p.append("-");
                     break;
+                case MUL:
+                    p.append("*");
+                    break;
                 case EQ:
                     p.append("==");
                     break;
