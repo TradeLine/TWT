@@ -17,7 +17,7 @@ public class ApplyInvoke implements InvokeGenerator {
         } else {
             VClass classClass = clazz.getClassLoader().loadClass(Class.class.getName());
             icg.operation(ctx, new StaticRef(clazz), ps);
-            ps.append(".").append(classClass.getField("cons").name).append(".prototype");
+            ps.append(".").append(classClass.getField("cons").getRuntimeName()).append(".prototype");
         }
         ps.append(".").append(invoke.getMethod().getRunTimeName()).append(".call(");
         icg.operation(ctx, invoke.getSelf(), ps);

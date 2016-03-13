@@ -165,7 +165,6 @@ public class TClass {
     }
 
     public void initFor(ClassRecord cr) {
-        Console.info("CREATE CLASS " + cr.getName() + "...");
         domNode = cr.getDomNode();
         this.jsName = cr.getJsName();
         classRecord = cr;
@@ -232,7 +231,6 @@ public class TClass {
 
         copyPropertyFromClass(superClass);
 
-        Console.info("creating class " + getName() + "... implement size list = " + implementList.length());
         for (int i = 0; i < implementList.length(); i++) {
             copyPropertyFromClass(implementList.get(0));
         }
@@ -243,8 +241,6 @@ public class TClass {
     }
 
     private void copyPropertyFromClass(Class t) {
-        if (t != null)
-            Console.info("ADD CLASS " + getName() + " <= " + t.getName());
         while (t != null) {
             TClass tt = CastUtil.cast(t);
             for (int i = 0; i < tt.classRecord.getMethods().length(); i++) {

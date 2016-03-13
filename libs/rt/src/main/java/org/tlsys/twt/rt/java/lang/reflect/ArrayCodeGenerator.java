@@ -45,7 +45,7 @@ public class ArrayCodeGenerator extends DefaultGenerator {
                 ICodeGenerator cg = context.getGenerator(execute.getParent());
                 ps.append("return ");
                 cg.operation(context, new Invoke(getArrayClassMethod, execute.arguments.get(0)), ps);
-                ps.append(".n").append(ArrayClass.CONSTRUCTOR).append("(").append(execute.arguments.get(1).name).append(");");
+                ps.append(".n").append(ArrayClass.CONSTRUCTOR).append("(").append(execute.arguments.get(1).getRuntimeName()).append(");");
                 return;
             }
         }

@@ -18,7 +18,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         for (VField f : clazz.fields) {
             if (f.isStatic())
                 continue;
-            ps.append("this.").append(f.name);
+            ps.append("this.").append(f.getRuntimeName());
             if (f.init != null) {
                 ps.append("=");
                 operation(ctx, f.init, ps);
@@ -32,7 +32,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         for (VField f : clazz.fields) {
             if (!f.isStatic())
                 continue;
-            ps.append(clazz.fullName+".").append(f.name);
+            ps.append(clazz.fullName+".").append(f.getRuntimeName());
             ps.append("=");
             if (f.init != null) {
                 
@@ -76,7 +76,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         for (VArgument ar : meth.arguments) {
             if (!first)
                 ps.append(",");
-            ps.append(ar.name);
+            ps.append(ar.getRuntimeName());
             first = false;
         }
         ps.append(")\n");
@@ -175,7 +175,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             for(VArgument a : l.getMethod().arguments) {
                 if(!first)
                     ps.append(",");
-                ps.append(a.name);
+                ps.append(a.getRuntimeName());
                 first = false;
             }
             ps.append(")");

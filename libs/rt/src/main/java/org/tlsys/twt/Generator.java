@@ -59,8 +59,7 @@ public class Generator implements MainGenerator {
 
         VClass classClassStorage = projectClassLoader.loadClass(ClassStorage.class.getName());
 
-        storage = new SVar(classClassStorage, null);
-        storage.name = "S";
+        storage = new SVar("S", classClassStorage);
 
         VClass classLoader = projectClassLoader.loadClass(ClassLoader.class.getName());
         VClass classClass = projectClassLoader.loadClass(Class.class.getName());
@@ -213,8 +212,8 @@ public class Generator implements MainGenerator {
         for (VField f : vClass.fields) {
 
             Invoke inv = new Invoke(addFieldMethod, lastScope)
-                    .addArg(new Const(f.name, classString))
-                    .addArg(new Const(f.alias, classString))
+                    .addArg(new Const(f.getRuntimeName(), classString))
+                    .addArg(new Const(f.getRealName(), classString))
                     .addArg(getClassViaTypeProvider(f.getType()));
 
             StringOutputStream initBody = new StringOutputStream();
@@ -257,7 +256,7 @@ public class Generator implements MainGenerator {
                 for (VArgument a : e.arguments) {
                     if (!first)
                         sos.getStream().append(",");
-                    sos.getStream().append(a.name);
+                    sos.getStream().append(a.getRuntimeName());
                     first = false;
                 }
                 sos.getStream().append("){");
@@ -279,7 +278,7 @@ public class Generator implements MainGenerator {
 
             for (VArgument a : e.arguments) {
                 NewClass newArg = new NewClass(argumentConstructor)
-                        .addArg(new Const(a.name, classString))
+                        .addArg(new Const(a.getRuntimeName(), classString))
                         .addArg(new Const(a.var, classBoolean))
                         .addArg(getClassViaTypeProvider(a.getType()));
 
