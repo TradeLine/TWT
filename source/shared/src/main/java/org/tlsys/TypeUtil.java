@@ -16,7 +16,7 @@ public final class TypeUtil {
         if (!clazz.getDependencyParent().isPresent())
             throw new IllegalStateException("Class " + clazz.realName + " not need parent");
         for (VField f : clazz.fields) {
-            if (f.name.equals("this$0"))
+            if (f.getRealName().equals("this$0"))
                 return f;
         }
         throw new VFieldNotFoundException(clazz, "this$0");
@@ -30,9 +30,7 @@ public final class TypeUtil {
             throw new IllegalStateException("Parent this already added");
         } catch (VFieldNotFoundException e) {
         }
-        VField f = new VField(clazz.getParent(), Modifier.PRIVATE, null, clazz);
-        f.name = "this$0";
-        f.alias = "this$0";
+        VField f = new VField("this$0", clazz.getParent(), Modifier.PRIVATE, clazz);
         clazz.fields.add(f);
         return f;
     }

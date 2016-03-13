@@ -31,13 +31,13 @@ public class DeclareVar extends Operation implements Using {
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
         if (init != null && searchIn.test(init)) {
-            Optional<SVar> o = init.find(symbol,searchIn);
+            Optional<SVar> o = init.find(name,searchIn);
             if (o.isPresent())
                 return o;
         }
-        if (searchIn.test(var) && var.getSymbol()==symbol)
+        if (searchIn.test(var) && (name.equals(var.getRealName()) || name.equals(var.getAliasName())))
             return Optional.of(var);
         return Optional.empty();
     }

@@ -33,7 +33,7 @@ public class ArrayAssign extends Value {
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
         return Optional.empty();
     }
 

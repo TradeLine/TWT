@@ -22,12 +22,12 @@ public class Return extends Operation {
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
         if (value == null)
             return Optional.empty();
         if (!searchIn.test(value))
             return Optional.empty();
-        return value.find(symbol,searchIn);
+        return value.find(name,searchIn);
     }
 
     @Override

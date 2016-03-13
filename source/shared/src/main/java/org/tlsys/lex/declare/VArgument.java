@@ -5,18 +5,18 @@ import org.tlsys.lex.SVar;
 
 public class VArgument extends SVar {
     private static final long serialVersionUID = 8365717984255691676L;
-    public boolean var;
-    public boolean generic;
+    public final boolean var;
+    public final  boolean generic;
 
-    public VArgument() {
-    }
-
-    public VArgument(VClass clazz, Symbol.VarSymbol symbol) {
-        super(clazz, symbol);
-    }
-    public VArgument(VClass clazz, String name, boolean var) {
-        super(clazz, null);
-        this.name = name;
+    public VArgument(String realName, VClass clazz, boolean var, boolean generic) {
+        super(realName, clazz);
         this.var = var;
+        this.generic = generic;
+    }
+
+    public VArgument(String realName, String alias, VClass clazz, boolean var, boolean generic) {
+        super(realName, alias, clazz);
+        this.var = var;
+        this.generic = generic;
     }
 }

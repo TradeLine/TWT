@@ -48,7 +48,7 @@ public class CompilerTools {
     }
 
     private static VConstructor createConstructorMember(VClass clazz, JCTree.JCMethodDecl mem) throws VClassNotFoundException {
-        VConstructor con = new VConstructor(clazz, mem.sym);
+        VConstructor con = new VConstructor(clazz);
         con.setModificators(toFlags(mem.getModifiers().getFlags()));
         readExecutable(mem, con);
         //VClass enumClass = clazz.getClassLoader().loadClass(Enum.class.getName());
@@ -67,22 +67,17 @@ public class CompilerTools {
             if (arg instanceof ArrayClass) {
                 //VClass arg2 = vClassLoader.loadClass(v.type);
             }
-            VArgument a = new VArgument(arg, v.sym);
-            a.generic = v.type instanceof Type.TypeVar;
-            a.var = (v.mods.flags & Flags.VARARGS) != 0;
-            a.name = v.name.toString();
+            VArgument a = new VArgument(v.name.toString(),arg, (v.mods.flags & Flags.VARARGS) != 0, v.type instanceof Type.TypeVar);
             m.arguments.add(a);
         }
 
         if (m instanceof VConstructor) {
             VClass enumClass = m.getParent().getClassLoader().loadClass(Enum.class.getName());
             if (m.getParent() != enumClass && m.getParent().isParent(enumClass)) {
-                VArgument name = new VArgument(m.getParent().getClassLoader().loadClass(String.class.getName()), null);
-                name.name = "name";
+                VArgument name = new VArgument("name", m.getParent().getClassLoader().loadClass(String.class.getName()), false, false);
                 m.arguments.add(name);
 
-                VArgument ordinal = new VArgument(m.getParent().getClassLoader().loadClass("int"), null);
-                ordinal.name = "ordinal";
+                VArgument ordinal = new VArgument("ordinal", m.getParent().getClassLoader().loadClass("int"), false, false);
                 m.arguments.add(ordinal);
             }
 
@@ -94,15 +89,14 @@ public class CompilerTools {
                     && !java.lang.reflect.Modifier.isStatic(m.getParent().getModificators())
                     && !m.getParent().isParent(enumClass)) {
 
-                VArgument parent = new VArgument(m.getParent().getParent(), null);
-                parent.name = "this$0";
+                VArgument parent = new VArgument("this$0",m.getParent().getParent(), false, false);
                 m.arguments.add(0, parent);
             }
         }
     }
 
     private static VMethod createMethodMember(VClass clazz, JCTree.JCMethodDecl mem) throws VClassNotFoundException {
-        VMethod m = new VMethod(clazz, null, mem.sym);
+        VMethod m = new VMethod(clazz, null);
         m.setRuntimeName(mem.getName().toString());
         m.alias = m.getRunTimeName();
         getAnnatationValueString(mem.getModifiers(), MethodName.class).ifPresent(e -> m.alias = e);
@@ -112,8 +106,7 @@ public class CompilerTools {
     }
 
     private static VField createFieldMember(VClass clazz, JCTree.JCVariableDecl fie) throws VClassNotFoundException {
-        VField v = new VField(TypeUtil.loadClass(clazz.getClassLoader(), fie.type), toFlags(fie.getModifiers().getFlags()), fie.sym, clazz);
-        v.name = fie.getName().toString();
+        VField v = new VField(fie.getName().toString(),TypeUtil.loadClass(clazz.getClassLoader(), fie.type), toFlags(fie.getModifiers().getFlags()), clazz);
         clazz.fields.add(v);
         return v;
     }

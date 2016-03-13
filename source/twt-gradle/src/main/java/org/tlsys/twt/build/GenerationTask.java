@@ -133,10 +133,7 @@ public class GenerationTask extends DefaultTask {
             v.fullName = v.fullName.replace('.', '_') + "_" + Long.toString(++classNameIterator, Character.MAX_RADIX);
 
             for (VField f : v.fields) {
-                if (f.alias == null) {
-                    f.alias = f.name;
-                }
-                f.name = f.alias + Integer.toString(++fieldIterator, Character.MAX_RADIX);
+                f.setRuntimeName(f.getRealName() + Integer.toString(++fieldIterator, Character.MAX_RADIX));
             }
 
             for (VMethod m : v.methods) {
@@ -145,7 +142,7 @@ public class GenerationTask extends DefaultTask {
                 }
                 int argIterator = 0;
                 for (VArgument a : m.arguments) {
-                    a.name = a.name + "_" + Integer.toString(++argIterator, Character.MAX_RADIX);
+                    a.setRuntimeName(a.getRealName() + "_" + Integer.toString(++argIterator, Character.MAX_RADIX));
                 }
                 if (m.getReplace() == null) {
                     m.setRuntimeName(m.getRunTimeName() + "_" + Long.toString(++methodNameIterator, Character.MAX_RADIX));
@@ -158,7 +155,7 @@ public class GenerationTask extends DefaultTask {
                 m.setRuntimeName("c" + Integer.toString(++constructIterator, Character.MAX_RADIX));
                 int argIterator = 0;
                 for (VArgument a : m.arguments) {
-                    a.name = "a" + Integer.toString(++argIterator, Character.MAX_RADIX);
+                    a.setRuntimeName(a.getRealName() + "_" + Integer.toString(++argIterator, Character.MAX_RADIX));
                 }
             }
         }

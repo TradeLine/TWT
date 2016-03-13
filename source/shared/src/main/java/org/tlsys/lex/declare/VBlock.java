@@ -32,16 +32,16 @@ public class VBlock extends Operation implements Using, CanUse, Context {
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
         for (Operation o : operations) {
             if (!searchIn.test(o))
                 continue;
-            Optional<SVar> v = o.find(symbol, searchIn.and(e -> e != this));
+            Optional<SVar> v = o.find(name, searchIn.and(e -> e != this));
             if (v.isPresent())
                 return v;
         }
         if (searchIn.test(parentContext))
-            return parentContext.find(symbol, searchIn.and(e -> e != this));
+            return parentContext.find(name, searchIn.and(e -> e != this));
         return Optional.empty();
     }
 

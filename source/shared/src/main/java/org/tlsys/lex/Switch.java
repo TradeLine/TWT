@@ -28,21 +28,21 @@ public class Switch extends Operation {
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
         Optional<SVar> o = null;
         if (searchIn.test(value)) {
-            o = value.find(symbol, searchIn.and(e -> e == value));
+            o = value.find(name, searchIn.and(e -> e == value));
             if (o.isPresent())
                 return o;
         }
         for (Case c : cases) {
             if (!searchIn.test(c))
                 continue;
-            o = c.find(symbol, searchIn);
+            o = c.find(name, searchIn);
             if (o.isPresent())
                 return o;
         }
-        return parentContext.find(symbol, searchIn.and(e -> e != this));
+        return parentContext.find(name, searchIn.and(e -> e != this));
     }
 
     @Override
@@ -64,8 +64,8 @@ public class Switch extends Operation {
         }
 
         @Override
-        public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
-            return parent.find(symbol, searchIn.and(e -> e != this));
+        public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+            return parent.find(name, searchIn.and(e -> e != this));
         }
 
         @Override

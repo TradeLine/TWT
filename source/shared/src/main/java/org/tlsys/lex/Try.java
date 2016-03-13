@@ -26,9 +26,9 @@ public class Try extends Operation {
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
         if (searchIn.test(parentContext))
-            return parentContext.find(symbol, searchIn);
+            return parentContext.find(name, searchIn);
         return Optional.empty();
     }
 
@@ -55,15 +55,15 @@ public class Try extends Operation {
         }
 
         @Override
-        public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+        public Optional<SVar> find(String name, Predicate<Context> searchIn) {
             if (searchIn.test(declareVar)) {
-                Optional<SVar> o = declareVar.find(symbol, searchIn);
+                Optional<SVar> o = declareVar.find(name, searchIn);
                 if (o.isPresent())
                     return o;
             }
 
             if (searchIn.test(parentContext))
-                return parentContext.find(symbol, searchIn);
+                return parentContext.find(name, searchIn);
             return Optional.empty();
         }
 

@@ -54,17 +54,12 @@ public class StaticBlock implements Context,Member,CodeDynLoad {
     }
 
     @Override
-    public Symbol getSymbol() {
-        return null;
-    }
-
-    @Override
     public void getUsing(Collect c) {
 
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
-        return parent.find(symbol, searchIn);
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+        return parent.find(name, searchIn);
     }
 }

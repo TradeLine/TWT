@@ -173,7 +173,7 @@ public class ClassCompiler {
                     VClass enumClass = f.getParent().getClassLoader().loadClass(Enum.class.getName());
                     if (f.getParent() != enumClass && f.getParent().isParent(enumClass)) {
                         NewClass nc = (NewClass) f.init;
-                        nc.addArg(new Const(f.alias != null ? f.alias : f.name, f.getParent().getClassLoader().loadClass(String.class.getName())));
+                        nc.addArg(new Const(f.getAliasName() != null ? f.getAliasName() : f.getRealName(), f.getParent().getClassLoader().loadClass(String.class.getName())));
                         nc.addArg(new Const(f.getParent().fields.indexOf(f), f.getParent().getClassLoader().loadClass("int")));
                     }
                 }

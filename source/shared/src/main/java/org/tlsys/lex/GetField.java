@@ -34,9 +34,9 @@ public class GetField extends Value {
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
         if (searchIn.test(field))
-            return field.find(symbol, searchIn);
+            return field.find(name, searchIn);
         return Optional.empty();
     }
 

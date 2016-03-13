@@ -29,7 +29,6 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
 
     public ArrayList<VArgument> arguments = new ArrayList<>();
     private VClass parent;
-    private transient Symbol symbol;
     public transient VBlock block = null;
     public String generator = null;
     public String invokeGenerator = null;
@@ -37,14 +36,8 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
     public VExecute() {
     }
 
-    public VExecute(VClass parent, Symbol symbol) {
+    public VExecute(VClass parent) {
         this.parent = parent;
-        this.symbol = symbol;
-    }
-
-    @Override
-    public Symbol getSymbol() {
-        return symbol;
     }
 
     public VClass getParent() {
@@ -73,12 +66,13 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
     public abstract String getDescription();
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
-        for (VArgument a : arguments)
-            if (a.getSymbol() == symbol)
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+        for (VArgument a : arguments) {
+            if (name.equals(a.getAliasName()) || name.equals(a.getRealName()))
                 return Optional.of(a);
+        }
         if (searchIn.test(getParent()))
-            return getParent().find(symbol, searchIn);
+            return getParent().find(name, searchIn);
         return Optional.empty();
     }
 

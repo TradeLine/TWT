@@ -71,13 +71,12 @@ class StatementCompiler {
         });
 
         addProcSt(JCTree.JCVariableDecl.class, (c, e, o) -> {
-            SVar var = new SVar(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.type), e.sym);
+            SVar var = new SVar(e.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.type));
             DeclareVar dv = new DeclareVar(var);
             if (e.init == null)
                 dv.init = OperationCompiler.getInitValueForType(var.getType());
             else
                 dv.init = c.op(e.init, o);
-            var.name = e.name.toString();
             return dv;
         });
 
@@ -93,8 +92,8 @@ class StatementCompiler {
                 VClass classIterator = c.getCurrentClass().getClassLoader().loadClass(Iterator.class.getName());
 
 
-                SVar iterator = new SVar(classIterator, null);
-                iterator.name = "it" + Integer.toString(iterator.hashCode(), Character.MAX_RADIX);
+
+                SVar iterator = new SVar("it" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), classIterator);
                 DeclareVar it = new DeclareVar(iterator);
                 it.init = new Invoke(v.getType().getMethod("iterator"), v);
                 block.operations.add(it);
@@ -103,9 +102,8 @@ class StatementCompiler {
                 wl.block = new VBlock(wl);
                 block.operations.add(wl);
 
-                SVar var = new SVar(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type), e.var.sym);
+                SVar var = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type));
                 DeclareVar dv = new DeclareVar(var);
-                var.name = e.var.name.toString();
                 dv.init = new Invoke(classIterator.getMethod("next"), it.getVar());
                 wl.block.operations.add(dv);
                 wl.block.operations.add(c.st(e.body, wl.block));
@@ -114,8 +112,7 @@ class StatementCompiler {
                 VBlock block = new VBlock(o);
 
                 VClass intClass = c.getCurrentClass().getClassLoader().loadClass("int");
-                SVar arVar = new SVar(v.getType(), null);
-                arVar.name="l" + Integer.toString(arVar.hashCode(), Character.MAX_RADIX);
+                SVar arVar = new SVar("l" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), v.getType());
                 DeclareVar ar = new DeclareVar(arVar);
                 ar.init = v;
                 block.add(ar);
@@ -124,16 +121,14 @@ class StatementCompiler {
                 ForLoop forLoop = new ForLoop(o);
                 forLoop.block = new VBlock(forLoop);
 
-                SVar itVar = new SVar(intClass, null);
-                itVar.name="i" + Integer.toString(itVar.hashCode(), Character.MAX_RADIX);
+                SVar itVar = new SVar("i" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), intClass);
                 DeclareVar it = new DeclareVar(itVar);
                 it.init = new Const(0, intClass);
                 forLoop.init = it;
                 forLoop.update = new Increment(itVar, Increment.IncType.PRE_INC, intClass);
                 forLoop.value = new VBinar(itVar, new GetField(arVar, arVar.getType().getField("length")),c.getCurrentClass().getClassLoader().loadClass("boolean"), VBinar.BitType.LT);
 
-                SVar el = new SVar(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type), e.var.sym);
-                el.name=e.var.name.toString();
+                SVar el = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type));
                 DeclareVar dv = new DeclareVar(el);
                 dv.init = new ArrayGet(arVar, itVar);
                 forLoop.block.operations.add(dv);
@@ -217,9 +212,8 @@ class StatementCompiler {
             Try tr = new Try(o);
             tr.block = (VBlock) c.st(e.body, o);
             for (JCTree.JCCatch ca : e.catchers) {
-                SVar var = new SVar(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ca.param.type), ca.param.sym);
+                SVar var = new SVar(ca.param.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ca.param.type));
                 DeclareVar dv = new DeclareVar(var);
-                var.name = ca.param.name.toString();
                 Try.Catch cc = new Try.Catch(tr, dv);
                 if (ca.param.vartype instanceof JCTree.JCTypeUnion) {
                     JCTree.JCTypeUnion ut = (JCTree.JCTypeUnion)ca.param.vartype;
@@ -270,7 +264,7 @@ class StatementCompiler {
             throw new IllegalArgumentException("Can't create brige for self type");
         Objects.requireNonNull(from, "Argument \"from\" is NULL");
         Objects.requireNonNull(from, "Argument \"to\" is NULL");
-        VMethod rep = new VMethod(to.getParent(), null, null);
+        VMethod rep = new VMethod(to.getParent(), null);
         rep.setReplace(from);
         rep.arguments.addAll(from.arguments);
         rep.block = new VBlock(rep);

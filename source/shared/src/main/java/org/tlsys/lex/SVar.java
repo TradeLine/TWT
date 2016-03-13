@@ -7,19 +7,39 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class SVar extends Value implements HaveSymbol {
+public class SVar extends Value {
 
     private static final long serialVersionUID = 5407405178456004940L;
-    public String name;
+    protected String runtimeName;
+    protected String realName;
+    protected String aliasName;
     private VClass clazz;
-    boolean finalFlag;
-    private transient Symbol.VarSymbol symbol;
 
-    public SVar() {
+    public String getRuntimeName() {
+        if (runtimeName == null)
+            return getAliasName();
+        return runtimeName;
     }
 
-    public SVar(VClass clazz, Symbol.VarSymbol symbol) {
-        this.symbol = symbol;
+    public String getRealName() {
+        return realName;
+    }
+
+    public void setRuntimeName(String runtimeName) {
+        this.runtimeName = runtimeName;
+    }
+
+    public String getAliasName() {
+        if (aliasName == null)
+            return getRealName();
+        return aliasName;
+    }
+
+    public SVar(String realName, VClass clazz) {
+        this(realName, realName, clazz);
+    }
+
+    public SVar(String realName, String alias, VClass clazz) {
         this.clazz = Objects.requireNonNull(clazz);
     }
 
@@ -34,13 +54,8 @@ public class SVar extends Value implements HaveSymbol {
     }
 
     @Override
-    public Symbol getSymbol() {
-        return symbol;
-    }
-
-    @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
-        if (getSymbol() == symbol)
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+        if (name.equals(realName) || name.equals(aliasName))
             return Optional.of(this);
         return Optional.empty();
     }

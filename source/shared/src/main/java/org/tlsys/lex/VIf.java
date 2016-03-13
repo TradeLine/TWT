@@ -33,12 +33,12 @@ public class VIf extends Operation {
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
-        Optional<SVar> v = value.find(symbol, searchIn);
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+        Optional<SVar> v = value.find(name, searchIn);
         if (v.isPresent())
             return v;
         if (searchIn.test(parentContext))
-            return parentContext.find(symbol, e->e!=this);
+            return parentContext.find(name, e->e!=this);
         return Optional.empty();
     }
 

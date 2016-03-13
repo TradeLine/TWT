@@ -61,7 +61,8 @@ class OperationCompiler {
             if (e.sym instanceof Symbol.VarSymbol && (e.toString().equals("this") || e.toString().equals("super")))
                 return new This(c.loadClass(e.type));
             if (e.sym instanceof Symbol.VarSymbol) {
-                Optional<SVar> var = o.find((Symbol.VarSymbol) e.sym, v -> true);
+                Symbol.VarSymbol vv = (Symbol.VarSymbol)e.sym;
+                Optional<SVar> var = o.find(vv.name.toString(), v -> true);
                 if (var.isPresent()) {
                     if (var.get() instanceof VField) {
                         VField field = (VField)var.get();
@@ -73,7 +74,7 @@ class OperationCompiler {
                     return var.get();
                 }
             }
-            throw new RuntimeException("Unknown indent " + e);
+            throw new RuntimeException("Unknown indent " + e + ", class=" + (e!=null?e.getClass().getName():"NULL"));
         });
 
         addProc(JCTree.JCLiteral.class, (c, e, o) -> {
@@ -119,8 +120,7 @@ class OperationCompiler {
             Objects.requireNonNull(method, "Method for replace not found");
             Lambda l = new Lambda(method, o);
             for (JCTree.JCVariableDecl v : e.params) {
-                VArgument a = new VArgument(c.loadClass(v.type), v.sym);
-                a.name = v.name.toString();
+                VArgument a = new VArgument(v.name.toString(), c.loadClass(v.type), false, false);
                 l.arguments.add(a);
             }
             if (e.body instanceof JCTree.JCBlock) {
@@ -361,7 +361,7 @@ class OperationCompiler {
                     return scope;
                 }
             }
-            VField field = (VField) scope.getType().find((Symbol.VarSymbol) e.sym, v -> true).orElseThrow(() ->
+            VField field = (VField) scope.getType().find(((Symbol.VarSymbol) e.sym).name.toString(), v -> true).orElseThrow(() ->
                     new CompileException("Can't find field " + e.name.toString())
             );
 

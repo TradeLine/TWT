@@ -40,13 +40,13 @@ public class Lambda extends Value implements Context {
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
         for (VArgument a : arguments)
-            if (a.getSymbol() == symbol)
+            if (name.equals(a.getRealName()) || name.equals(a.getAliasName()))
                 return Optional.of(a);
         if (!searchIn.test(parentContext))
             return Optional.empty();
-        return parentContext.find(symbol, searchIn.and(e->e!=this));
+        return parentContext.find(name, searchIn.and(e->e!=this));
     }
 
     @Override

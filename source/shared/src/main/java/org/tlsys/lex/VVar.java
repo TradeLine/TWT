@@ -11,12 +11,11 @@ public class VVar extends SVar {
 
     private static final long serialVersionUID = -337151531062470578L;
 
-    public VVar(VClass clazz, Symbol.VarSymbol symbol) {
-        super(clazz, symbol);
+    public VVar(String realName, VClass clazz) {
+        super(realName, clazz);
     }
 
-    public VVar() {
+    public VVar(String realName, String alias, VClass clazz) {
+        super(realName, alias, clazz);
     }
-
-
 }

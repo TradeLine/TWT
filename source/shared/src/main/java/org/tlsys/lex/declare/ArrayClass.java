@@ -52,33 +52,29 @@ public class ArrayClass extends VClass {
             throw new IllegalStateException("Array type already inited");
         //VClass classClass;
         extendsClass = intType.getClassLoader().loadClass(Object.class.getName());
-        lengthField = new VField(intType, Modifier.PUBLIC, null, this);
-        lengthField.name = LENGTH;
-        lengthField.alias = "length";
+        lengthField = new VField(LENGTH, "length", intType, Modifier.PUBLIC, this);
         lengthField.init = new Const(0, intType);
         fields.add(lengthField);
 
-        jsArray = new VField(intType, Modifier.PRIVATE, null, this);
-        jsArray.name = ARRAY;
-        jsArray.alias = "jsArray";
+        jsArray = new VField(ARRAY, "jsArray", intType, Modifier.PRIVATE, this);
         jsArray.init = new Const(null, extendsClass);
         fields.add(jsArray);
 
 
 
-        get = new VMethod(this, null, null);
+        get = new VMethod(this, null);
         get.setRuntimeName(GET);
         get.alias="get";
-        get.arguments.add(new VArgument(intType, "i", false));
+        get.arguments.add(new VArgument("i", intType, false, false));
         get.block = new VBlock(get);
         get.returnType = component;
         get.setModificators(Modifier.PUBLIC);
 
-        set = new VMethod(this, null, null);
+        set = new VMethod(this, null);
         set.setRuntimeName(SET);
         set.alias="set";
-        set.arguments.add(new VArgument(intType, "i", false));
-        set.arguments.add(new VArgument(component, "v", false));
+        set.arguments.add(new VArgument("i", intType, false, false));
+        set.arguments.add(new VArgument("v", component, false, false));
         set.returnType = intType.getClassLoader().loadClass("void");
         set.block = new VBlock(set);
         set.setModificators(Modifier.PUBLIC);
@@ -89,10 +85,10 @@ public class ArrayClass extends VClass {
         methods.add(get);
         methods.add(set);
 
-        constructor = new VConstructor(this, null);
+        constructor = new VConstructor(this);
         constructor.setModificators(Modifier.PUBLIC);
         constructor.setRuntimeName(CONSTRUCTOR);
-        constructor.arguments.add(new VArgument(intType, "l", false));
+        constructor.arguments.add(new VArgument("l", intType, false, false));
         constructor.generator = ArrayCodeGenerator.class.getName();
         constructor.block = new VBlock(constructor);
         constructor.returnType = intType.getClassLoader().loadClass("void");

@@ -13,8 +13,8 @@ public class VConstructor extends VExecute {
 
     public Invoke parentConstructorInvoke;
 
-    public VConstructor(VClass parent, Symbol.MethodSymbol symbol) {
-        super(parent, symbol);
+    public VConstructor(VClass parent) {
+        super(parent);
         try {
             returnType = parent.getClassLoader().loadClass("void");
         } catch (VClassNotFoundException e) {

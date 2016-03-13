@@ -21,14 +21,14 @@ public class WhileLoop extends Operation {
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
         Optional<SVar> o = null;
         if (value != null && searchIn.test(value)) {
-            o = value.find(symbol, searchIn);
+            o = value.find(name, searchIn);
             if (o.isPresent())
                 return o;
         }
-        return parentContext.find(symbol, searchIn.and(e -> e != this));
+        return parentContext.find(name, searchIn.and(e -> e != this));
     }
 
     @Override

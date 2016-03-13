@@ -102,11 +102,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     @Override
-    public Symbol getSymbol() {
-        return classSymbol;
-    }
-
-    @Override
     public void getUsing(Collect c) {
         c.add(extendsClass);
         for (VClass v : implementsList)
@@ -320,29 +315,25 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
         for (VField f : fields) {
-            if (f.getSymbol() == symbol)
-                return Optional.of(f);
-            if (f.name.equals(symbol.name.toString()))
-                return Optional.of(f);
-            if (f.alias != null && f.alias.equals(symbol.name.toString()))
+            if (name.equals(f.getRealName()) || name.equals(f.getAliasName()))
                 return Optional.of(f);
         }
         if (extendsClass != null && searchIn.test(extendsClass)) {
-            Optional<SVar> v = extendsClass.find(symbol, searchIn);
+            Optional<SVar> v = extendsClass.find(name, searchIn);
             if (v.isPresent())
                 return v;
         }
         for (VClass c : implementsList) {
             if (!searchIn.test(c))
                 continue;
-            Optional<SVar> v = c.find(symbol, searchIn);
+            Optional<SVar> v = c.find(name, searchIn);
             if (v.isPresent())
                 return v;
         }
         if (getParent() != null && searchIn.test(getParent()))
-            return getParent().find(symbol, searchIn);
+            return getParent().find(name, searchIn);
         return Optional.empty();
     }
 
@@ -433,9 +424,10 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     public VField getField(String name) throws VFieldNotFoundException {
-        for (VField f : fields)
-            if (name.equals(f.name) || name.equals(f.alias))
+        for (VField f : fields) {
+            if (name.equals(f.getRealName()) || name.equals(f.getAliasName()))
                 return f;
+        }
         throw new VFieldNotFoundException(this, name);
     }
 

@@ -4,7 +4,6 @@ import com.sun.tools.javac.code.Symbol;
 import org.tlsys.lex.*;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -12,19 +11,19 @@ public class VField extends VVar implements Member, CodeDynLoad {
 
     private static final long serialVersionUID = -652517458481464235L;
     public transient Operation init;
-    public String alias;
-    private int modificators;
-    private transient Symbol.VarSymbol symbol;
-    private VClass parent;
+    private final int modificators;
+    private final VClass parent;
 
-    public VField(VClass clazz, int modificators, Symbol.VarSymbol symbol, VClass parent) {
-        super(clazz, symbol);
+    public VField(String realName, VClass clazz, int modificators, VClass parent) {
+        super(realName, clazz);
         this.modificators = modificators;
-        this.symbol = symbol;
         this.parent = parent;
     }
 
-    public VField() {
+    public VField(String realName, String alias, VClass clazz, int modificators, VClass parent) {
+        super(realName, alias, clazz);
+        this.modificators = modificators;
+        this.parent = parent;
     }
 
     @Override
@@ -34,7 +33,7 @@ public class VField extends VVar implements Member, CodeDynLoad {
 
     @Override
     public boolean isThis(String name) {
-        return this.name.equals(name) || name.equals(alias);
+        return name.equals(getRealName()) || name.equals(getAliasName());
     }
 
     @Override
@@ -43,23 +42,18 @@ public class VField extends VVar implements Member, CodeDynLoad {
     }
 
     @Override
-    public Symbol getSymbol() {
-        return symbol;
-    }
-
-    @Override
     public void getUsing(Collect c) {
         c.add(init, parent, getType());
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
         if (init != null && searchIn.test(init)) {
-            Optional<SVar> o = init.find(symbol, searchIn);
+            Optional<SVar> o = init.find(name, searchIn);
             if (o.isPresent())
                 return o;
         }
-        return super.find(symbol, searchIn);
+        return super.find(name, searchIn);
     }
 
     @Override
@@ -80,7 +74,7 @@ public class VField extends VVar implements Member, CodeDynLoad {
 
     Object writeReplace() throws ObjectStreamException {
         if (getParent().getClassLoader() != VClass.getCurrentClassLoader()) {
-            return new FieldRef(name, getParent());
+            return new FieldRef(realName, getParent());
         }
         return this;
     }

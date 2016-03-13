@@ -24,25 +24,25 @@ public class ForLoop extends Operation {
     }
 
     @Override
-    public Optional<SVar> find(Symbol.VarSymbol symbol, Predicate<Context> searchIn) {
+    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
         Optional<SVar> o = null;
         if (init != null && searchIn.test(init)) {
-            o = init.find(symbol, searchIn);
+            o = init.find(name, searchIn);
             if (o.isPresent())
                 return o;
         }
         if (value != null && searchIn.test(value)) {
-            o = value.find(symbol, searchIn);
+            o = value.find(name, searchIn);
             if (o.isPresent())
                 return o;
         }
 
         if (update != null && searchIn.test(update)) {
-            o = init.find(symbol, searchIn);
+            o = init.find(name, searchIn);
             if (o.isPresent())
                 return o;
         }
-        return parentContext.find(symbol, searchIn.and(e -> e != this));
+        return parentContext.find(name, searchIn.and(e -> e != this));
     }
 
     @Override

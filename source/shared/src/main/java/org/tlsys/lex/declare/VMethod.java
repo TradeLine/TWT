@@ -28,14 +28,9 @@ public class VMethod extends VExecute {
         return replace;
     }
 
-    public ArrayList<VMethod> brigFrom = new ArrayList<>();
-
-    public VMethod(VClass parent, VMethod brigTo, Symbol.MethodSymbol symbol) {
-        super(parent, symbol);
+    public VMethod(VClass parent, VMethod brigTo) {
+        super(parent);
         this.brigTo = brigTo;
-    }
-
-    public VMethod() {
     }
 
     @Override
