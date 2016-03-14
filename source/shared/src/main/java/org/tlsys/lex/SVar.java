@@ -56,7 +56,7 @@ public class SVar extends Value {
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
         if (name.equals(realName) || name.equals(aliasName))
             return Optional.of(this);
         return Optional.empty();

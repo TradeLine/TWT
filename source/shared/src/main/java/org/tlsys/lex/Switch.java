@@ -28,8 +28,8 @@ public class Switch extends Operation {
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
-        Optional<SVar> o = null;
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
+        Optional<Context> o = null;
         if (searchIn.test(value)) {
             o = value.find(name, searchIn.and(e -> e == value));
             if (o.isPresent())
@@ -64,7 +64,7 @@ public class Switch extends Operation {
         }
 
         @Override
-        public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+        public Optional<Context> find(String name, Predicate<Context> searchIn) {
             return parent.find(name, searchIn.and(e -> e != this));
         }
 

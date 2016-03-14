@@ -34,7 +34,7 @@ public class GetField extends Value {
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
         if (searchIn.test(field))
             return field.find(name, searchIn);
         return Optional.empty();

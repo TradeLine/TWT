@@ -26,7 +26,7 @@ public class Try extends Operation {
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
         if (searchIn.test(parentContext))
             return parentContext.find(name, searchIn);
         return Optional.empty();
@@ -55,9 +55,9 @@ public class Try extends Operation {
         }
 
         @Override
-        public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+        public Optional<Context> find(String name, Predicate<Context> searchIn) {
             if (searchIn.test(declareVar)) {
-                Optional<SVar> o = declareVar.find(name, searchIn);
+                Optional<Context> o = declareVar.find(name, searchIn);
                 if (o.isPresent())
                     return o;
             }

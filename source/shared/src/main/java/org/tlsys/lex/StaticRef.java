@@ -28,7 +28,7 @@ public class StaticRef extends Value {
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
-        return Optional.empty();
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
+        return ref.find(name, searchIn);
     }
 }

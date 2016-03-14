@@ -62,7 +62,7 @@ class OperationCompiler {
                 return new This(c.loadClass(e.type));
             if (e.sym instanceof Symbol.VarSymbol) {
                 Symbol.VarSymbol vv = (Symbol.VarSymbol)e.sym;
-                Optional<SVar> var = o.find(vv.name.toString(), v -> true);
+                Optional<Context> var = o.find(vv.name.toString(), v -> true);
                 if (var.isPresent()) {
                     if (var.get() instanceof VField) {
                         VField field = (VField)var.get();
@@ -71,7 +71,7 @@ class OperationCompiler {
                         else
                             return new GetField(new This(field.getParent()), field);
                     }
-                    return var.get();
+                    return (SVar)var.get();
                 }
             }
             throw new RuntimeException("Unknown indent " + e + ", class=" + (e.sym!=null?e.sym.getClass().getName():"NULL"));
@@ -368,19 +368,28 @@ class OperationCompiler {
             if (!(e.sym instanceof Symbol.VarSymbol)) {
                 System.out.println("UNKNOWN FIELD ASSCESS " + e);
             }
+            if (e.sym instanceof Symbol.VarSymbol) {
+                VClass scopeClass = scope.getType();
+                VField field = (VField) scope.getType().find(((Symbol.VarSymbol) e.sym).name.toString(), v -> v instanceof VField).orElseThrow(() ->
+                        new CompileException("Can't find field " + e.name.toString() + " in " + scopeClass.realName)
+                );
 
-            VField field = (VField) scope.getType().find(((Symbol.VarSymbol) e.sym).name.toString(), v -> true).orElseThrow(() ->
-                    new CompileException("Can't find field " + e.name.toString())
-            );
+                Optional<VClass> dep = c.getCurrentClass().getDependencyParent();
 
-            Optional<VClass> dep = c.getCurrentClass().getDependencyParent();
+                if (field.getParent() != c.getCurrentClass() && dep.isPresent() && dep.get().isParent(field.getParent())) {
+                    scope = new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass()));
+                }
 
-            if (field.getParent() != c.getCurrentClass() && dep.isPresent() && dep.get().isParent(field.getParent())) {
-                scope = new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass()));
+                GetField gf = new GetField(scope, field);
+                return gf;
             }
 
-            GetField gf = new GetField(scope, field);
-            return gf;
+            if (e.sym instanceof Symbol.ClassSymbol) {
+                String text = "scope = " + scope;
+                return new StaticRef((VClass) scope.find(e.name.toString(), v->v instanceof VClass).orElseThrow(()->new VClassNotFoundException(e.sym.name.toString() + ", " + text)));
+            }
+
+            throw new RuntimeException("Unknown indent! " + e + ", " + e.sym.getClass());
         });
 
         addProc(JCTree.JCNewArray.class, (c, e, o) -> {

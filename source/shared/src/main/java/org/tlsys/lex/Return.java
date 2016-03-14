@@ -22,7 +22,7 @@ public class Return extends Operation {
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
         if (value == null)
             return Optional.empty();
         if (!searchIn.test(value))

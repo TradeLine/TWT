@@ -28,7 +28,7 @@ public class FunctionRef extends Value {
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
         return Optional.empty();
     }
 

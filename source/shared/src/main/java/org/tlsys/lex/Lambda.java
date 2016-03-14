@@ -40,7 +40,7 @@ public class Lambda extends Value implements Context {
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
         for (VArgument a : arguments)
             if (name.equals(a.getRealName()) || name.equals(a.getAliasName()))
                 return Optional.of(a);

@@ -31,9 +31,9 @@ public class DeclareVar extends Operation implements Using {
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
         if (init != null && searchIn.test(init)) {
-            Optional<SVar> o = init.find(name,searchIn);
+            Optional<Context> o = init.find(name,searchIn);
             if (o.isPresent())
                 return o;
         }

@@ -283,16 +283,8 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     private List<VClass> getMethodArgs(Symbol.MethodSymbol symbol) throws VClassNotFoundException {
         List<VClass> args = new ArrayList<>();
         
-        //VClass enumClass = getClassLoader().loadClass(Enum.class.getName());
         if (symbol.name.toString().equals("<init>"))
             getDependencyParent().ifPresent(e->args.add(e));
-        /*
-        if (getParent() != null
-                    && !java.lang.reflect.Modifier.isInterface(getModificators())
-                    && !java.lang.reflect.Modifier.isStatic(getModificators())
-                    && !isParent(enumClass))
-                    */
-
         
         if (symbol.params != null) {
             for (Symbol.VarSymbol e : symbol.params) {
@@ -318,24 +310,29 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
+        System.out.println("search " + name + " in " +realName + ", child count = " + childs.size());
+        for (VClass p : childs) {
+            if (p.isThis(name) && searchIn.test(p))
+                return Optional.of(p);
+        }
         for (VField f : fields) {
+            if (!searchIn.test(f))
+                continue;
             if (name.equals(f.getRealName()) || name.equals(f.getAliasName()))
                 return Optional.of(f);
         }
-        if (extendsClass != null && searchIn.test(extendsClass)) {
-            Optional<SVar> v = extendsClass.find(name, searchIn);
+        if (extendsClass != null) {
+            Optional<Context> v = extendsClass.find(name, searchIn);
             if (v.isPresent())
                 return v;
         }
         for (VClass c : implementsList) {
-            if (!searchIn.test(c))
-                continue;
-            Optional<SVar> v = c.find(name, searchIn);
+            Optional<Context> v = c.find(name, searchIn);
             if (v.isPresent())
                 return v;
         }
-        if (getParent() != null && searchIn.test(getParent()))
+        if (getParent() != null)
             return getParent().find(name, searchIn);
         return Optional.empty();
     }
@@ -343,17 +340,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     public ArrayClass getArrayClass() {
         return Objects.requireNonNull(getClassLoader(), "ClassLoader not set for class " + fullName).getArrayClass(this);
     }
-/*
-    public VField getParentVar() {
-        if (parentVar == null) {
-            if (isInterface() || isStatic() || getParent() == null)
-                throw new IllegalStateException("Class " + fullName + " can't have parent var");
-            parentVar = new VField(getParent(), Modifier.PROTECTED | Modifier.FINAL, null, this);
-            fields.add(parentVar);
-        }
-        return parentVar;
-    }
-    */
 
     @Override
     public void saveCode(ObjectOutputStream outputStream) throws IOException {

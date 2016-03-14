@@ -33,8 +33,8 @@ public class VIf extends Operation {
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
-        Optional<SVar> v = value.find(name, searchIn);
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
+        Optional<Context> v = value.find(name, searchIn);
         if (v.isPresent())
             return v;
         if (searchIn.test(parentContext))

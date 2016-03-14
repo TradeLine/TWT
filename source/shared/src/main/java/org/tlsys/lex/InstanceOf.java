@@ -30,7 +30,7 @@ public class InstanceOf extends Value {
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
         if (searchIn.test(value))
             return value.find(name, searchIn.and(e->e!=this));
         return Optional.empty();

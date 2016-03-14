@@ -21,8 +21,8 @@ public class WhileLoop extends Operation {
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
-        Optional<SVar> o = null;
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
+        Optional<Context> o = null;
         if (value != null && searchIn.test(value)) {
             o = value.find(name, searchIn);
             if (o.isPresent())

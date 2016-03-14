@@ -66,7 +66,7 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
     public abstract String getDescription();
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
         for (VArgument a : arguments) {
             if (name.equals(a.getAliasName()) || name.equals(a.getRealName()))
                 return Optional.of(a);

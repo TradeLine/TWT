@@ -59,7 +59,7 @@ public class StaticBlock implements Context,Member,CodeDynLoad {
     }
 
     @Override
-    public Optional<SVar> find(String name, Predicate<Context> searchIn) {
+    public Optional<Context> find(String name, Predicate<Context> searchIn) {
         return parent.find(name, searchIn);
     }
 }
