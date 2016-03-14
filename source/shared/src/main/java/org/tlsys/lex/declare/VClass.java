@@ -21,6 +21,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     public String alias;
     public String codeGenerator = null;
     public VClass extendsClass;
+    private List<VClass> childs = new ArrayList<VClass>();
     public ArrayList<VClass> implementsList = new ArrayList<>();
     private transient VClassLoader classLoader;
     private int modificators;
@@ -43,6 +44,8 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     public VClass(VClass parent, Symbol.ClassSymbol classSymbol) {
         this.parent = parent;
+        if (parent != null)
+            parent.childs.add(this);
         this.classSymbol = classSymbol;
     }
 
