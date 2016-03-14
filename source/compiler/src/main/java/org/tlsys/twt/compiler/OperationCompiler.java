@@ -364,6 +364,11 @@ class OperationCompiler {
                     return scope;
                 }
             }
+
+            if (!(e.sym instanceof Symbol.VarSymbol)) {
+                System.out.println("UNKNOWN FIELD ASSCESS " + e);
+            }
+
             VField field = (VField) scope.getType().find(((Symbol.VarSymbol) e.sym).name.toString(), v -> true).orElseThrow(() ->
                     new CompileException("Can't find field " + e.name.toString())
             );
