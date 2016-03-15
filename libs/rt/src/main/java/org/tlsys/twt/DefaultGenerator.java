@@ -644,7 +644,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 ps.append(";");
             }
         } catch (Throwable e) {
-            throw new CompileException("Can't generate " + execute.getParent().realName + "::"+execute.alias, e);
+            throw new CompileException("Can't generate " + execute.getParent().getRealName() + "::"+execute.alias, e);
         }
     }
 

@@ -15,20 +15,50 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     private static final ThreadLocal<VClassLoader> currentClassLoader = new ThreadLocal<>();
     private static final int VCLASS = 2;
     private static final int REF = 3;
-    private transient final Symbol.ClassSymbol classSymbol;
+
+
     public String fullName;
     public String name;
     public String alias;
     public String codeGenerator = null;
     public VClass extendsClass;
     private List<VClass> childs = new ArrayList<VClass>();
+
+    public void addChild(VClass clazz) {
+        childs.add(clazz);
+    }
+
     public ArrayList<VClass> implementsList = new ArrayList<>();
     private transient VClassLoader classLoader;
     private int modificators;
     private VClass parent;
+
+    protected String realSimpleName;
+    protected Context parentContext;
+
+    public String getSimpleRealName() {
+        return realSimpleName;
+    }
+
+    public String getRealName() {
+        if (parentContext instanceof VPackage) {
+            VPackage p = (VPackage)parentContext;
+            if (p.getSimpleName() == null)
+                return getSimpleRealName();
+            return p.getName() + "." + getSimpleRealName();
+        }
+
+        if (parentContext instanceof VClass) {
+            VClass c = (VClass)parentContext;
+            return c.getRealName()+"$"+getSimpleRealName();
+        }
+
+        throw new RuntimeException("Unknown parent " + parentContext);
+    }
+
     //private VField parentVar;
     private transient Class javaClass;
-    public String realName;
+    //public String realName;
     public String domNode;
     public boolean force;
 
@@ -37,16 +67,25 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     public ArrayList<VMethod> methods = new ArrayList<>();
     public ArrayList<StaticBlock> statics = new ArrayList<>();
 
+    public Context getParentContext() {
+        return parentContext;
+    }
+
+    /*
     public VClass() {
         classSymbol = null;
         classLoader.classes.add(this);
     }
+    */
 
-    public VClass(VClass parent, Symbol.ClassSymbol classSymbol) {
+    protected VClass(String realSimpleName) {
+        this.realSimpleName = realSimpleName;
+    }
+
+    public VClass(String realSimpleName, Context parentContext, VClass parent, Symbol.ClassSymbol classSymbol) {
+        this.realSimpleName = realSimpleName;
+        this.parentContext = Objects.requireNonNull(parentContext, "Parent content is NULL");
         this.parent = parent;
-        if (parent != null)
-            parent.childs.add(this);
-        this.classSymbol = classSymbol;
     }
 
     public static VClassLoader getCurrentClassLoader() {
@@ -77,9 +116,9 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     @Override
     public boolean isThis(String name) {
         Objects.requireNonNull(name, "Name is NULL");
-        if (fullName == null)
-            System.out.println("123");
-        return this.fullName.equals(name) || name.equals(this.alias);
+        boolean b = this.fullName.equals(name) || name.equals(this.alias) || name.equals(getRealName());
+        System.out.println("Search " + name + " for " + getRealName() + " = " + b);
+        return b;
     }
 
     public Optional<VClass> getDependencyParent() {
@@ -131,10 +170,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     @Override
     public String toString() {
-        return "VClass{" +
-                "fullName='" + fullName + '\'' +
-                ", alias='" + alias + '\'' +
-                '}';
+        return getRealName();
     }
 
     public boolean isParent(VClass clazz) {
@@ -311,7 +347,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     @Override
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
-        System.out.println("search " + name + " in " +realName + ", child count = " + childs.size());
+        System.out.println("search " + name + " in " +getRealName() + ", child count = " + childs.size());
         for (VClass p : childs) {
             if (p.isThis(name) && searchIn.test(p))
                 return Optional.of(p);
@@ -338,7 +374,9 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     public ArrayClass getArrayClass() {
-        return Objects.requireNonNull(getClassLoader(), "ClassLoader not set for class " + fullName).getArrayClass(this);
+        if (getClassLoader() == null)
+            throw new NullPointerException("ClassLoader not set for class " + getRealName());
+        return getClassLoader().getArrayClass(this);
     }
 
     @Override
@@ -382,7 +420,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     public Class getJavaClass() {
         try {
             if (javaClass == null)
-                javaClass = getClassLoader().getJavaClassLoader().loadClass(realName);
+                javaClass = getClassLoader().getJavaClassLoader().loadClass(getRealName());
             return javaClass;
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -391,25 +429,14 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     private void writeObject(ObjectOutputStream out) throws Exception {
         out.defaultWriteObject();
-        /*
-        out.writeObject(constructors);
-        out.writeObject(fields);
-        out.writeObject(methods);
-        out.writeObject(statics);
-        */
     }
 
     private void readObject(ObjectInputStream in) throws Exception {
         if (this instanceof ArrayClass)
             throw new RuntimeException("Not supported");
         setClassLoader(getCurrentClassLoader());
+        System.out.println("CLASS READ " + System.identityHashCode(this));
         in.defaultReadObject();
-        /*
-        constructors = (ArrayList<VConstructor>) in.readObject();
-        fields = (ArrayList<VField>) in.readObject();
-        methods = (ArrayList<VMethod>) in.readObject();
-        statics = (ArrayList<StaticBlock>) in.readObject();
-        */
     }
 
     public VField getField(String name) throws VFieldNotFoundException {
@@ -458,6 +485,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         }
 
         Object readResolve() throws Exception {
+            System.out.println("ARRAY READ " + System.identityHashCode(component));
             return getComponent().getArrayClass();
         }
     }

@@ -365,13 +365,10 @@ class OperationCompiler {
                 }
             }
 
-            if (!(e.sym instanceof Symbol.VarSymbol)) {
-                System.out.println("UNKNOWN FIELD ASSCESS " + e);
-            }
             if (e.sym instanceof Symbol.VarSymbol) {
                 VClass scopeClass = scope.getType();
                 VField field = (VField) scope.getType().find(((Symbol.VarSymbol) e.sym).name.toString(), v -> v instanceof VField).orElseThrow(() ->
-                        new CompileException("Can't find field " + e.name.toString() + " in " + scopeClass.realName)
+                        new CompileException("Can't find field " + e.name.toString() + " in " + scopeClass.getRealName())
                 );
 
                 Optional<VClass> dep = c.getCurrentClass().getDependencyParent();

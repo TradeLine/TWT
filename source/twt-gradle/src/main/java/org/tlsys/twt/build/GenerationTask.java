@@ -73,7 +73,7 @@ public class GenerationTask extends DefaultTask {
 
                         System.out.println("Compile classes:");
                         for (CompileModuls.ClassRecord cr : cm.getRecords()) {
-                            System.out.println("--+"+cr.getClazz().realName);
+                            System.out.println("--+"+cr.getClazz().getRealName());
                             for (VExecute e : cr.getExe()) {
                                 System.out.print("--|--" + e.getDescription());
                                 if (e instanceof VMethod) {

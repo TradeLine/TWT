@@ -86,10 +86,54 @@ public class ClassCompiler {
     }
 
     private static VClass createClassFromDes(VClass parent, JCTree.JCClassDecl c, VClassLoader vClassLoader) throws VClassNotFoundException {
-        VClass v = new VClass(parent, c.sym);
+
+        String[] list = c.sym.toString().split("\\.");
+
+        System.out.println("Creating " + c.sym + "...");
+
+        Context parentContext = null;
+        if (parent != null) {
+            System.out.println("Parent class is not null");
+            parentContext = parent;
+        } else {
+            System.out.println("parent null... search next...");
+            if (list.length == 1) {
+                System.out.println("simple name class..");
+                parentContext = vClassLoader.getRootPackage();
+            } else {
+                System.out.println("dificlt name class...");
+                VPackage p = vClassLoader.getRootPackage();
+                for (int i = 0; i < list.length-1; i++) {
+                    System.out.println("Search " + list[i] + " in " + p.getName());
+                    Optional<VPackage> v = p.getPackage(list[i]);
+                    if (v.isPresent()) {
+                        System.out.println("getted");
+                        p = v.get();
+                    } else {
+                        System.out.println("Created");
+                        p = new VPackage(list[i], p);
+                    }
+                }
+                parentContext = p;
+            }
+        }
+
+        if (parentContext == null)
+            throw new RuntimeException("Can't find parent for class " + c.sym.toString());
+
+        VClass v = new VClass(list[list.length-1], parentContext, parent, c.sym);
+
+        if (parentContext instanceof VPackage) {
+            ((VPackage)parentContext).addChild(v);
+        } else if (parentContext instanceof VClass) {
+            ((VClass)parentContext).addChild(v);
+        } else {
+            throw new RuntimeException("Unknown parent " + parentContext);
+        }
+
         v.name = c.name.toString();
-        v.realName = c.sym.toString();
-        v.fullName = v.realName;
+        //v.realName = c.sym.toString();
+        v.fullName = v.getRealName();
         v.force = CompilerTools.isAnnatationExist(c.getModifiers(), ForceInject.class);
         v.setModificators(CompilerTools.toFlags(c.getModifiers().getFlags()));
         v.setClassLoader(vClassLoader);
@@ -118,7 +162,7 @@ public class ClassCompiler {
                     pair.members.put(t, m);
             }
         } catch (VClassNotFoundException e) {
-            throw new CompileException("Error compile " + pair.vclass.realName, e);
+            throw new CompileException("Error compile " + pair.vclass.getRealName(), e);
         }
     }
 
@@ -262,7 +306,7 @@ public class ClassCompiler {
     private static void findReplaceMethodInClass(VMethod member) {
 
         boolean log = true;
-        if (member.getParent().realName.equals("org.tlsys.admin.TextTableRender")) {
+        if (member.getParent().getRealName().equals("org.tlsys.admin.TextTableRender")) {
             log = true;
         }
 

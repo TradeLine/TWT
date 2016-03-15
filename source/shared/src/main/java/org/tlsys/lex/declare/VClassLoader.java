@@ -15,6 +15,12 @@ public class VClassLoader implements Serializable {
 
     private String name;
 
+    private final VPackage rootPackage = new VPackage(null, null);
+
+    public VPackage getRootPackage() {
+        return rootPackage;
+    }
+
     public ArrayList<VClass> classes = new ArrayList<>();
     public transient ArrayList<VClassLoader> parents = new ArrayList<>();
     private transient HashMap<VClass, ArrayClass> arrays = new HashMap<>();
@@ -92,7 +98,7 @@ public class VClassLoader implements Serializable {
     }
 
     public VClass loadClass(String name) throws VClassNotFoundException{
-        name = name.replace('$','.');
+        //name = name.replace('$','.');
         if (classes == null)
             classes = new ArrayList<>();
         for (VClass v : classes) {

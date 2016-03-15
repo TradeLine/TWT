@@ -5,6 +5,7 @@ import org.tlsys.lex.Const;
 import org.tlsys.twt.CompileException;
 
 import java.lang.reflect.Modifier;
+import java.util.Objects;
 
 public class ArrayClass extends VClass {
 
@@ -38,8 +39,8 @@ public class ArrayClass extends VClass {
     }
 
     public ArrayClass(VClass component) {
-        super(null, null);
-        this.component = component;
+        super(component.getSimpleRealName()+"[]");
+        this.component = Objects.requireNonNull(component, "Component is NULL");
         setClassLoader(component.getClassLoader());
 
         name = "["+component.name;
@@ -47,9 +48,16 @@ public class ArrayClass extends VClass {
         fullName = "[" + component.fullName;
     }
 
+    @Override
+    public String getRealName() {
+        return "[L"+component.getRealName()+";";
+    }
+
     public void init(VClass intType) throws CompileException {
         if (lengthField != null)
             throw new IllegalStateException("Array type already inited");
+
+        parentContext = component.getParentContext();
         //VClass classClass;
         extendsClass = intType.getClassLoader().loadClass(Object.class.getName());
         lengthField = new VField(LENGTH, "length", intType, Modifier.PUBLIC, this);

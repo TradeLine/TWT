@@ -14,7 +14,7 @@ public final class TypeUtil {
 
     public static VField getParentThis(VClass clazz) throws VFieldNotFoundException {
         if (!clazz.getDependencyParent().isPresent())
-            throw new IllegalStateException("Class " + clazz.realName + " not need parent");
+            throw new IllegalStateException("Class " + clazz.getRealName() + " not need parent");
         for (VField f : clazz.fields) {
             if (f.getRealName().equals("this$0"))
                 return f;
@@ -24,7 +24,7 @@ public final class TypeUtil {
 
     public static VField createParentThis(VClass clazz) {
         if (!clazz.getDependencyParent().isPresent())
-            throw new IllegalStateException("Class " + clazz.realName + " not need parent");
+            throw new IllegalStateException("Class " + clazz.getRealName() + " not need parent");
         try {
             getParentThis(clazz);
             throw new IllegalStateException("Parent this already added");
@@ -55,7 +55,9 @@ public final class TypeUtil {
 
         try {
             if (type.tsym.owner != null && type.tsym.owner instanceof Symbol.ClassSymbol) {
-                return loader.loadClass(loadClass(loader, type.tsym.owner.type).fullName + "." + type.tsym.name.toString());
+                String n = loadClass(loader, type.tsym.owner.type).getRealName() + "$" + type.tsym.name.toString();
+                System.out.println("Search subclass " + n);
+                return loader.loadClass(n);
             }
             return loader.loadClass(type.tsym.toString());
         } catch (VClassNotFoundException e) {

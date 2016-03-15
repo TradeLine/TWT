@@ -1,9 +1,7 @@
 package org.tlsys.lex.declare;
 
-import com.sun.tools.javac.code.Symbol;
 import org.tlsys.lex.Collect;
 import org.tlsys.lex.Context;
-import org.tlsys.lex.SVar;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -90,7 +88,7 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
         for (VArgument a : arguments) {
             if (!first)
                 sb.append("; ");
-            sb.append(a.getType().realName);
+            sb.append(a.getType().getRealName());
             first = false;
         }
         return sb.toString();
@@ -105,6 +103,6 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
 
     @Override
     public String toString() {
-        return getParent().realName+"::"+getDescription();
+        return getParent().getRealName()+"::"+getDescription();
     }
 }
