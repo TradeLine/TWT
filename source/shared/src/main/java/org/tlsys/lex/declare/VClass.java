@@ -129,11 +129,12 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     public Optional<VClass> getDependencyParent(VClass enumClass) {
-            if (getParent() != null
+
+            if (getParentContext() instanceof VClass
                     && !java.lang.reflect.Modifier.isInterface(getModificators())
                     && !java.lang.reflect.Modifier.isStatic(getModificators())
                     && !isParent(enumClass))
-                return Optional.of(getParent());
+                return Optional.of((VClass) getParentContext());
             return Optional.empty();
     }
 
