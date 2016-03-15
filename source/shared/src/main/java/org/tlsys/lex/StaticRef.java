@@ -31,4 +31,9 @@ public class StaticRef extends Value {
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
         return ref.find(name, searchIn);
     }
+
+    @Override
+    public String toString() {
+        return "REF:" + getType().getRealName();
+    }
 }

@@ -117,7 +117,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     public boolean isThis(String name) {
         Objects.requireNonNull(name, "Name is NULL");
         boolean b = this.fullName.equals(name) || name.equals(this.alias) || name.equals(getRealName());
-        System.out.println("Search " + name + " for " + getRealName() + " = " + b);
         return b;
     }
 
@@ -347,8 +346,9 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     @Override
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
-        System.out.println("search " + name + " in " +getRealName() + ", child count = " + childs.size());
         for (VClass p : childs) {
+            if (name.equals(p.getSimpleRealName()) && searchIn.test(p))
+                return Optional.of(p);
             if (p.isThis(name) && searchIn.test(p))
                 return Optional.of(p);
         }
@@ -435,7 +435,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         if (this instanceof ArrayClass)
             throw new RuntimeException("Not supported");
         setClassLoader(getCurrentClassLoader());
-        System.out.println("CLASS READ " + System.identityHashCode(this));
         in.defaultReadObject();
     }
 
@@ -485,7 +484,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         }
 
         Object readResolve() throws Exception {
-            System.out.println("ARRAY READ " + System.identityHashCode(component));
             return getComponent().getArrayClass();
         }
     }

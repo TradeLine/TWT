@@ -103,7 +103,7 @@ public class ClassCompiler {
             } else {
                 System.out.println("dificlt name class...");
                 VPackage p = vClassLoader.getRootPackage();
-                for (int i = 0; i < list.length-1; i++) {
+                for (int i = 0; i < list.length - 1; i++) {
                     System.out.println("Search " + list[i] + " in " + p.getName());
                     Optional<VPackage> v = p.getPackage(list[i]);
                     if (v.isPresent()) {
@@ -121,12 +121,12 @@ public class ClassCompiler {
         if (parentContext == null)
             throw new RuntimeException("Can't find parent for class " + c.sym.toString());
 
-        VClass v = new VClass(list[list.length-1], parentContext, parent, c.sym);
+        VClass v = new VClass(list[list.length - 1], parentContext, parent, c.sym);
 
         if (parentContext instanceof VPackage) {
-            ((VPackage)parentContext).addChild(v);
+            ((VPackage) parentContext).addChild(v);
         } else if (parentContext instanceof VClass) {
-            ((VClass)parentContext).addChild(v);
+            ((VClass) parentContext).addChild(v);
         } else {
             throw new RuntimeException("Unknown parent " + parentContext);
         }
@@ -175,7 +175,7 @@ public class ClassCompiler {
     private static void setExtends(Pair pair, VClassLoader loader) throws VClassNotFoundException {
         JCTree.JCExpression ex = pair.desl.getExtendsClause();
         if (ex != null) {
-            pair.vclass.extendsClass = loader.loadClass(ex.type.tsym.toString());
+            pair.vclass.extendsClass = TypeUtil.loadClass(loader, ex.type);
         } else {
             Type.ClassType ct = (Type.ClassType) pair.desl.type;
 
@@ -185,7 +185,12 @@ public class ClassCompiler {
         if (pair.vclass.alias != null && pair.vclass.alias.equals(java.lang.Object.class.getName()))
             pair.vclass.extendsClass = null;
         for (JCTree.JCExpression e : pair.desl.implementing) {
-            pair.vclass.implementsList.add(loader.loadClass(e.type.tsym.toString()));
+            /*
+            if (e.type.tsym.toString().contains("RenderPass") || e.type.tsym.toString().contains("RenderComponent"))
+                System.out.println("123");
+                */
+            VClass cl = TypeUtil.loadClass(loader, e.type);
+            pair.vclass.implementsList.add(cl);
         }
     }
 
