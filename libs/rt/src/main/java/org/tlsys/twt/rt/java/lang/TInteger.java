@@ -8,12 +8,11 @@ import org.tlsys.twt.annotations.ReplaceClass;
 
 @JSClass
 @ReplaceClass(Integer.class)
-@CastAdapter(BoxingCast.class)
 public final class TInteger extends Number {
 
-    public static final int MIN_VALUE = Script.code("Number.MIN_VALUE");
+    public static final int   MIN_VALUE = 0x80000000;
 
-    public static final int MAX_VALUE = Script.code("Number.MAX_VALUE");
+    public static final int   MAX_VALUE = 0x7fffffff;
 
     private final int value;
 
