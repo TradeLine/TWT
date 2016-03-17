@@ -262,4 +262,16 @@ public final class TMath {
     public static int max(int a, int b) {
         return (a >= b) ? a : b;
     }
+
+    public static double sinh(double a) {
+        return Script.code("Math.sinh(",a,")");
+    }
+
+    public static double cosh(double x) {
+        return Script.code("Math.cosh(",x,")");
+    }
+
+    public static double tanh(double x) {
+        return Script.code("Math.tanh(",x,")");
+    }
 }
