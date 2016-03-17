@@ -98,5 +98,6 @@ public class Main extends Parent<String> {
         Console.info(""+(byte)129);
 
         Console.info("a="+(a?"true":"false"));
+        Console.info("----------------------");
     }
 }
