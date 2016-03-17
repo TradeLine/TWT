@@ -14,6 +14,10 @@ public class Switch extends Operation {
     private Context parentContext;
     private Value value;
 
+    public Context getParentContext() {
+        return parentContext;
+    }
+
     public Value getValue() {
         return value;
     }
@@ -66,6 +70,10 @@ public class Switch extends Operation {
         @Override
         public Optional<Context> find(String name, Predicate<Context> searchIn) {
             return parent.find(name, searchIn.and(e -> e != this));
+        }
+
+        public Switch getParent() {
+            return parent;
         }
 
         @Override

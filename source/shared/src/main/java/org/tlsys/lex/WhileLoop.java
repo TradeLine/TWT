@@ -20,6 +20,10 @@ public class WhileLoop extends Operation {
     public WhileLoop() {
     }
 
+    public Context getParentContext() {
+        return parentContext;
+    }
+
     @Override
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
         Optional<Context> o = null;

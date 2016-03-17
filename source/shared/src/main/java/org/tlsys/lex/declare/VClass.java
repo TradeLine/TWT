@@ -23,6 +23,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     public String codeGenerator = null;
     public VClass extendsClass;
     private List<VClass> childs = new ArrayList<VClass>();
+    public String castGenerator;
 
     public void addChild(VClass clazz) {
         childs.add(clazz);

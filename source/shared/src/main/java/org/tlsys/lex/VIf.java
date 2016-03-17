@@ -14,6 +14,10 @@ public class VIf extends Operation {
     public VBlock elseBlock;
     private Context parentContext;
 
+    public Context getParentContext() {
+        return parentContext;
+    }
+
     public VIf() {
     }
 
