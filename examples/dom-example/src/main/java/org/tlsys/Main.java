@@ -6,12 +6,9 @@ import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.dom.Document;
 import org.tlsys.twt.events.Events;
 import org.tlsys.twt.json.Json;
-import org.tlsys.twt.rt.java.lang.TObject;
-
-import java.util.Date;
 
 @JSClass
-public class Main {
+public class Main extends Parent<String> {
 
     /*
     private static void attach(Object dom) {
