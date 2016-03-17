@@ -1,11 +1,13 @@
 package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.twt.Script;
+import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.annotations.ReplaceClass;
 
 @JSClass
-@ClassName("java.lang.Long")
+@ReplaceClass(Long.class)
 public class TLong extends Number {
 
     public static final int MIN_VALUE = Script.code("Number.MIN_VALUE");

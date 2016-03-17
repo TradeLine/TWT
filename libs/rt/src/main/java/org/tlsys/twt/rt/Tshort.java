@@ -6,7 +6,7 @@ import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.rt.java.lang.BoxingCast;
 
 @JSClass
-@ClassName(value = "int", primitive = true, nativeName = "I")
+@ClassName(value = "short", primitive = true, nativeName = "S")
 @CastAdapter(BoxingCast.class)
-public class Tint {
+public class Tshort {
 }
