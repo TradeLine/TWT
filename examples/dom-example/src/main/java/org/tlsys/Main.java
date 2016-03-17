@@ -6,10 +6,14 @@ import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.dom.Document;
 import org.tlsys.twt.events.Events;
 import org.tlsys.twt.json.Json;
+import org.tlsys.twt.rt.java.lang.TObject;
+
+import java.util.Date;
 
 @JSClass
-public class Main extends Parent<String> {
+public class Main {
 
+    /*
     private static void attach(Object dom) {
         //DOM.appendChild(Document.get(), dom)
         Script.code(Document.get(),".getElementsByTagName('body')[0].appendChild(", dom, ")");
@@ -55,15 +59,6 @@ public class Main extends Parent<String> {
 
         Events.addEventListener(t3, "click", el3, false);
 
-        /*
-        if (false) {
-            sc.onOpen();
-            sc.onClose(null);
-            sc.onError(null);
-            sc.onMessage(null);
-        }
-        */
-
 
         Butten connect = new Butten("Connect");
         Events.addEventListener(connect, "click", (s,e)->{
@@ -84,7 +79,27 @@ public class Main extends Parent<String> {
         super.doit(val);
     }
 
+    */
+    public static void doit1(Integer a) {
+        Console.info("INTEGER->"+a);
+    }
+
+    public static long doit2(int a) {
+        Console.info("INT=>"+a);
+        return a;
+    }
+
+
     public static void main() {
-        Main m = new Main();
+        //Main m = new Main();
+        boolean a = true;
+        Date d = new Date();
+        String aa = (d.getDate()<10?"0":"") + d.getDate();
+        Console.info("DAY=" + aa);
+        doit1(8);
+        doit2(new Integer(10));
+        Console.info(""+(byte)129);
+
+        Console.info("a="+(a?"true":"false"));
     }
 }
