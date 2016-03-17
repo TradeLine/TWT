@@ -86,7 +86,7 @@ public class BoxingCast implements ICastAdapter {
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
-                return new Invoke(vClass.getMethod("fromShort"), new StaticRef(vClass)).addArg(value);
+                return new Invoke(vClass.getMethod("fromShort", value.getType()), new StaticRef(vClass)).addArg(value);
             }
 
             if (int.class.getName().equals(vClass.alias)) {
@@ -104,7 +104,7 @@ public class BoxingCast implements ICastAdapter {
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
-                return new Invoke(vClass.getMethod("fromInt"), new StaticRef(vClass)).addArg(value);
+                return new Invoke(vClass.getMethod("fromInt", value.getType()), new StaticRef(vClass)).addArg(value);
             }
 
             if (long.class.getName().equals(vClass.alias)) {
@@ -118,7 +118,7 @@ public class BoxingCast implements ICastAdapter {
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
-                return new Invoke(vClass.getMethod("fromLong"), new StaticRef(vClass)).addArg(value);
+                return new Invoke(vClass.getMethod("fromLong", value.getType()), new StaticRef(vClass)).addArg(value);
             }
 
         }

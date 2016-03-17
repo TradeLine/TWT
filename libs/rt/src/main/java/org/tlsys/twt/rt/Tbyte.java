@@ -1,6 +1,7 @@
 package org.tlsys.twt.rt;
 
 import org.tlsys.twt.CastUtil;
+import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
@@ -11,24 +12,45 @@ import org.tlsys.twt.rt.java.lang.BoxingCast;
 @CastAdapter(BoxingCast.class)
 public class Tbyte {
     public static byte fromInt(int value) {
-        int r = (value % 256) + 256;
-        if (r > Byte.MAX_VALUE)
-            r-=256;
-        return CastUtil.cast(r);
+        value += 128;
+        int d = Script.code("Math.floor(",Math.abs(value) / 256,")");
+        int cof = d * 256;
+                //Script.code("Math.floor(",a,")");
+        if (value > 0) {
+            value = Math.abs(value) - cof;
+            return CastUtil.cast(value - 128);
+        } else {
+            value = value + cof;
+            return CastUtil.cast(value + 128);
+        }
     }
 
     public static byte fromLong(long value) {
-        long r = (value % 256) + 256;
-        if (r > Byte.MAX_VALUE)
-            r-=256;
-        return CastUtil.cast(r);
+        value += 128;
+        int d = Script.code("Math.floor(",Math.abs(value) / 256,")");
+        int cof = d * 256;
+        //Script.code("Math.floor(",a,")");
+        if (value > 0) {
+            value = Math.abs(value) - cof;
+            return CastUtil.cast(value - 128);
+        } else {
+            value = value + cof;
+            return CastUtil.cast(value + 128);
+        }
     }
 
     public static byte fromShort(short value) {
-        int r = (value % 256) + 256;
-        if (r > Byte.MAX_VALUE)
-            r-=256;
-        return CastUtil.cast(r);
+        value += 128;
+        int d = Script.code("Math.floor(",Math.abs(value) / 256,")");
+        int cof = d * 256;
+        //Script.code("Math.floor(",a,")");
+        if (value > 0) {
+            value = CastUtil.cast(Math.abs(value) - cof);
+            return CastUtil.cast(value - 128);
+        } else {
+            value = CastUtil.cast(value + cof);
+            return CastUtil.cast(value + 128);
+        }
     }
 
 

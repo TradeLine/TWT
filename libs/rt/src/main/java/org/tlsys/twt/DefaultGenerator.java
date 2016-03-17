@@ -294,6 +294,12 @@ public class DefaultGenerator implements ICodeGenerator {
                 case MOD:
                     p.append("%");
                     break;
+                case USR:
+                    p.append(">>>");
+                    break;
+                case DIV:
+                    p.append("/");
+                    break;
                 default:
                     throw new RuntimeException("Not support type " + o.getBitType());
             }
@@ -384,6 +390,9 @@ public class DefaultGenerator implements ICodeGenerator {
                     break;
                 case NOT:
                     p.append("!");
+                    break;
+                case NEG:
+                    p.append("");
                     break;
                 case POST_DEC:
                 case POST_INC:

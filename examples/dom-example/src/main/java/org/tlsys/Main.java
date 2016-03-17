@@ -8,7 +8,7 @@ import org.tlsys.twt.events.Events;
 import org.tlsys.twt.json.Json;
 
 @JSClass
-public class Main extends Parent<String> {
+public class Main {
 
     /*
     private static void attach(Object dom) {
@@ -88,16 +88,8 @@ public class Main extends Parent<String> {
 
 
     public static void main() {
-        //Main m = new Main();
-        boolean a = true;
-        Date d = new Date();
-        String aa = (d.getDate()<10?"0":"") + d.getDate();
-        Console.info("DAY=" + aa);
         doit1(8);
         doit2(new Integer(10));
         Console.info(""+(byte)129);
-
-        Console.info("a="+(a?"true":"false"));
-        Console.info("----------------------");
     }
 }
