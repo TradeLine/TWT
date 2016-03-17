@@ -106,7 +106,10 @@ class OperationCompiler {
         });
 
         addProc(JCTree.JCTypeCast.class, (c, e, o) -> {
-            return new Cast(c.loadClass(e.type), (Value) c.op(e.expr, o));
+            Value v = (Value) c.op(e.expr, o);
+            VClass type = c.loadClass(e.type);
+            return CompilerTools.cast(v,type);
+            //return new Cast(type, v);
         });
 
         addProc(JCTree.JCLambda.class, (c, e, o) -> {
@@ -213,6 +216,7 @@ class OperationCompiler {
                     i.addArg(new GetField(self, TypeUtil.getParentThis(self.getType())));
             }
 
+
             for (int c1 = argInc; c1 < method.arguments.size(); c1++) {
                 if (method.arguments.get(c1).var) {
                     NewArrayItems nai = new NewArrayItems(method.arguments.get(c1).getType().getArrayClass());
@@ -222,12 +226,17 @@ class OperationCompiler {
                     i.arguments.add(nai);
                     break;
                 } else {
-                    i.arguments.add(c.op(e.args.get(c1 - argInc), o));
+                    int index = c1 - argInc;
+                    VArgument arg =  i.getMethod().arguments.get(index);
+                    Value val = c.op(e.args.get(index), o);
+                    val = CompilerTools.cast(val, arg.getType());
+                    i.arguments.add(val);
                 }
             }
             i.returnType = c.loadClass(e.type);
             return i;
         });
+
 
         addProc(JCTree.JCConditional.class, (c, e, o) -> {
 

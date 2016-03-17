@@ -485,7 +485,7 @@ public class DefaultGenerator implements ICodeGenerator {
 
             if (ica == null)
                 throw new RuntimeException("Can't find cast adapter for " + o.getValue().getType().getJavaClass().getName());
-            g.operation(c, ica.cast(c, o.getValue(), o.getType()), p);
+            g.operation(c, ica.cast(o.getValue(), o.getType()), p);
             return true;
         });
 

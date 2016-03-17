@@ -4,15 +4,19 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.TypeUtil;
+import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
-import org.tlsys.twt.annotations.CodeGenerator;
-import org.tlsys.twt.annotations.ForceInject;
-import org.tlsys.twt.annotations.InvokeGen;
-import org.tlsys.twt.annotations.MethodName;
+import org.tlsys.twt.CompileException;
+import org.tlsys.twt.GenerationContext;
+import org.tlsys.twt.ICastAdapter;
+import org.tlsys.twt.annotations.*;
 
 import javax.lang.model.element.Modifier;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class CompilerTools {
 
@@ -176,5 +180,83 @@ public class CompilerTools {
             }
         }
         return Optional.empty();
+    }
+
+    public static Value cast(Value value, VClass type) throws CompileException {
+        //if (true)
+        //    return value;
+        if (value.getType().isParent(type))
+            return value;
+
+        ICastAdapter ica = getCastAdapter(value.getType());
+        return ica.cast(value, type);
+    }
+
+    private static ICastAdapter getCastAdapter(VClass clazz) {
+        VClass cl = clazz;
+        while (cl != null) {
+            if (cl.castGenerator != null && !cl.castGenerator.isEmpty()) {
+                try {
+
+                    return (ICastAdapter)cl.getJavaClass().getClassLoader().loadClass(cl.castGenerator).newInstance();
+
+                } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            cl = cl.extendsClass;
+        }
+        throw new RuntimeException("Can't find cast adapter for " + clazz.getRealName());
+    }
+
+    public static Optional<Context> findParentContext(Context from, Predicate<Context> check) {
+        while (from != null) {
+            if (check.test(from))
+                return Optional.of(from);
+            Optional<Context> p = getParent(from);
+            if (!p.isPresent())
+                return Optional.empty();
+            from = p.get();
+        }
+
+        return Optional.empty();
+    }
+
+    public static Optional<Context> getParent(Context context) {
+        Objects.requireNonNull(context);
+
+        if (context instanceof Switch) {
+            return Optional.ofNullable(((Switch)context).getParentContext());
+        }
+
+        if (context instanceof Switch.Case) {
+            return Optional.ofNullable(((Switch.Case)context).getParent());
+        }
+
+        if (context instanceof VIf) {
+            return Optional.ofNullable(((VIf)context).getParentContext());
+        }
+
+        if (context instanceof ForLoop) {
+            return Optional.ofNullable(((ForLoop)context).getParentContext());
+        }
+
+        if (context instanceof WhileLoop) {
+            return Optional.ofNullable(((WhileLoop)context).getParentContext());
+        }
+
+        if (context instanceof VBlock) {
+            return Optional.ofNullable(((VBlock)context).getParentContext());
+        }
+
+        if (context instanceof VMethod) {
+            return Optional.ofNullable(((VMethod)context).getParent());
+        }
+
+        if (context instanceof VClass) {
+            return Optional.ofNullable(((VClass)context).getParentContext());
+        }
+
+        throw new RuntimeException("Unknown context " + context.getClass().getName());
     }
 }

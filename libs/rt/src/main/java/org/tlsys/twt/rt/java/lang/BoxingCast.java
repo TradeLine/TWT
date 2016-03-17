@@ -1,5 +1,8 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.lex.Invoke;
+import org.tlsys.lex.NewClass;
+import org.tlsys.lex.StaticRef;
 import org.tlsys.lex.Value;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.twt.CompileException;
@@ -61,8 +64,105 @@ public class BoxingCast implements ICastAdapter {
     }
     */
 
+
     @Override
-    public Value cast(GenerationContext ctx, Value value, VClass to) throws CompileException {
-        throw new RuntimeException("not supported yet");
+    public Value cast(Value value, VClass vClass) throws CompileException {
+
+        if (char.class.getName().equals(value.getType().alias)) {
+            if (Character.class.getName().equals(vClass.alias)) {
+                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+            }
+        }
+
+        if (byte.class.getName().equals(value.getType().alias)) {
+            if (Byte.class.getName().equals(vClass.alias)) {
+                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+            }
+        }
+
+        if (short.class.getName().equals(value.getType().alias)) {
+            if (Short.class.getName().equals(vClass.alias)) {
+                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+            }
+
+            if (byte.class.getName().equals(vClass.alias)) {
+                return new Invoke(vClass.getMethod("fromShort"), new StaticRef(vClass)).addArg(value);
+            }
+
+            if (int.class.getName().equals(vClass.alias)) {
+                return value;
+            }
+
+            if (long.class.getName().equals(vClass.alias)) {
+                return value;
+            }
+        }
+
+        if (int.class.getName().equals(value.getType().alias)) {
+            if (Integer.class.getName().equals(vClass.alias)) {
+                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+            }
+
+            if (byte.class.getName().equals(vClass.alias)) {
+                return new Invoke(vClass.getMethod("fromInt"), new StaticRef(vClass)).addArg(value);
+            }
+
+            if (long.class.getName().equals(vClass.alias)) {
+                return value;
+            }
+        }
+
+        if (long.class.getName().equals(value.getType().alias)) {
+            if (Long.class.getName().equals(vClass.alias)) {
+                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+            }
+
+            if (byte.class.getName().equals(vClass.alias)) {
+                return new Invoke(vClass.getMethod("fromLong"), new StaticRef(vClass)).addArg(value);
+            }
+
+        }
+
+        if (float.class.getName().equals(value.getType().alias)) {
+            if (Float.class.getName().equals(vClass.alias)) {
+                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+            }
+        }
+
+        if (double.class.getName().equals(value.getType().alias)) {
+            if (Double.class.getName().equals(vClass.alias)) {
+                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+            }
+        }
+
+
+        VClass numberClass = vClass.getClassLoader().loadClass(Number.class.getName());
+
+        if (value.getType().isParent(numberClass)) {
+            if (int.class.getName().equals(vClass.alias)) {
+                return new Invoke(value.getType().getMethod("intValue"), value);
+            }
+
+            if (long.class.getName().equals(vClass.alias)) {
+                return new Invoke(value.getType().getMethod("longValue"), value);
+            }
+
+            if (float.class.getName().equals(vClass.alias)) {
+                return new Invoke(value.getType().getMethod("floatValue"), value);
+            }
+
+            if (double.class.getName().equals(vClass.alias)) {
+                return new Invoke(value.getType().getMethod("doubleValue"), value);
+            }
+
+            if (byte.class.getName().equals(vClass.alias)) {
+                return new Invoke(value.getType().getMethod("byteValue"), value);
+            }
+
+            if (short.class.getName().equals(vClass.alias)) {
+                return new Invoke(value.getType().getMethod("shortValue"), value);
+            }
+        }
+        throw new RuntimeException("Can't cast " + value.getType().getRealName() + " to " + vClass.getRealName());
     }
 }

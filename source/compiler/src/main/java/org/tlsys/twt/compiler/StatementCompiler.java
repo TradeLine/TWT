@@ -6,10 +6,7 @@ import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.CompileException;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 class StatementCompiler {
 
@@ -33,7 +30,26 @@ class StatementCompiler {
         addProcSt(JCTree.JCReturn.class, (c, e, o) -> {
             if (e.expr == null)
                 return new Return(null);
-            return new Return((Value) c.op(e.expr, o));
+
+            Optional<Context> ctx = CompilerTools.findParentContext(o, ee->ee instanceof VExecute || ee instanceof Lambda);
+
+            if (!ctx.isPresent())
+                throw new RuntimeException("Can't find root content for get return type");
+
+            VClass needClass = null;
+
+            if (ctx.get() instanceof Lambda) {
+                needClass = ((Lambda)ctx.get()).getMethod().returnType;
+            } else if (ctx.get() instanceof VExecute) {
+                needClass = ((VExecute)ctx.get()).returnType;
+            }
+
+            Objects.requireNonNull(needClass, "Need Class for return is NULL");
+
+            Value v = (Value) c.op(e.expr, o);
+            v = CompilerTools.cast(v, needClass);
+
+            return new Return(v);
         });
 
         addProcSt(JCTree.JCIf.class, (c, e, o) -> {

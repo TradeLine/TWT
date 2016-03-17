@@ -140,6 +140,8 @@ public class ClassCompiler {
 
         CompilerTools.getAnnatationValueString(c.getModifiers(), ClassName.class).ifPresent(e -> v.alias = e);
         CompilerTools.getAnnatationValueClass(c.getModifiers(), ReplaceClass.class).ifPresent(e -> v.alias = e);
+        CompilerTools.getAnnatationValueClass(c.getModifiers(), CastAdapter.class).ifPresent(e -> v.castGenerator = e);
+
 
         if (!Enum.class.getName().equals(v.alias))
             if (v.getDependencyParent(vClassLoader.loadClass(Enum.class.getName())).isPresent()) {//если класс имеет жетскую привязку к родителю
@@ -276,7 +278,7 @@ public class ClassCompiler {
                 }
             }
         } catch (Throwable e) {
-            throw new CompileException("Can't compile " + method.getParent().fullName + "::" + method.getRunTimeName(), e);
+            throw new CompileException("Can't compile " + method.getParent().getRealName() + "::" + method.getRunTimeName(), e);
         }
     }
 
