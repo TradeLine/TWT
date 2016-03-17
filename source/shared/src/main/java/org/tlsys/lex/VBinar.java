@@ -59,11 +59,14 @@ public class VBinar extends Value {
         PLUS,//+
         MINUS,//-
         MUL,//*
+        DIV,// /
         EQ,//==
         OR,//||
         AND,//&&
         NE,//!=
         MOD,//%
+
+        USR,//>>>
 
         LT,//<
         LE,//<=

@@ -99,6 +99,9 @@ class OperationCompiler {
                 case POSTINC:
                     type = Increment.IncType.POST_INC;
                     break;
+                case NEG:
+                    type = Increment.IncType.NEG;
+                    break;
             }
             if (type == null)
                 throw new RuntimeException("Unknown incremet type " + e.getTag());
@@ -295,6 +298,12 @@ class OperationCompiler {
                     break;
                 case MOD:
                     type = VBinar.BitType.MOD;
+                    break;
+                case DIV:
+                    type = VBinar.BitType.DIV;
+                    break;
+                case USR:
+                    type = VBinar.BitType.USR;
                     break;
                 default:
                     throw new RuntimeException("Not supported binar operation " + e.getTag());
