@@ -110,6 +110,14 @@ public class BoxingCast implements ICastAdapter {
             if (long.class.getName().equals(vClass.alias)) {
                 return value;
             }
+
+            if (float.class.getName().equals(vClass.alias)) {
+                return value;
+            }
+
+            if (double.class.getName().equals(vClass.alias)) {
+                return value;
+            }
         }
 
         if (long.class.getName().equals(value.getType().alias)) {
