@@ -35,4 +35,11 @@ public class Script {
 
         Script.code("alert(",text,")");
     }
+
+    public interface TimeoutCallback {
+        void onTimeout();
+    }
+
+    @InvokeGen(org.tlsys.twt.ScriptInvokeGenerator.class)
+    public static native long setTimeout(int timeOut, TimeoutCallback callback);
 }

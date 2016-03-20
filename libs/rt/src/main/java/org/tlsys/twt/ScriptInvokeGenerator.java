@@ -1,6 +1,7 @@
 package org.tlsys.twt;
 
 import org.tlsys.lex.*;
+import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VClassLoader;
 import org.tlsys.lex.declare.VMethod;
 import org.tlsys.twt.annotations.NotCompile;
@@ -67,6 +68,20 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
             ps.append(")");
             return true;
         }
+
+        if (invoke.getMethod().alias.equals("setTimeout")) {
+            ps.append("setTimeout(");
+            VClass callerClass = invoke.getMethod().getParent().getClassLoader().loadClass(Script.TimeoutCallback.class.getName());
+            ps.append("function(){");
+            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, new Invoke(callerClass.getMethod("onTimeout"), invoke.arguments.get(1)), ps);
+            ps.append(";}.bind(this)");
+            ps.append(",");
+            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
+            ps.append(")");
+            return true;
+        }
+
+
 
         throw new RuntimeException("Unknown method " + invoke.getMethod().alias);
     }

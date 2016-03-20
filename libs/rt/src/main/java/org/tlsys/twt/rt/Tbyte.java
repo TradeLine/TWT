@@ -16,8 +16,13 @@ public class Tbyte {
     @ForceInject
     public static byte fromInt(int value) {
 
+        /*
         int cut = value & 255;
-        return CastUtil.intToByte((value > 0) ? ((cut & 128)>0 ? -128 + (cut & 127): cut & 127) : (value & 128)>0 ? -128 + (value & 127): value & 127);
+        return CastUtil.intToByte((value > 0) ? ((cut & 128)>0 ? (cut & 127) - 128: cut & 127) : (value & 128)>0 ? (value & 127) - 128 : value & 127);
+        */
+
+        int cut = value & 255;
+        return CastUtil.intToByte((cut & 128) > 0 ? -128 + (cut & 127): cut & 127);
 
         /*
         value += 128;
