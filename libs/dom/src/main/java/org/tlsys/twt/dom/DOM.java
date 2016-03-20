@@ -1,5 +1,6 @@
 package org.tlsys.twt.dom;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.JArray;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
@@ -82,8 +83,8 @@ public final class DOM {
 
     public static Object getChild(Object element, int index) {
         Objects.requireNonNull(element, "Element is NULL");
-        //TODO добавитиь проверку index: не выходит лион за пределы
-        return Script.code(element,".childNodes.item(",index,")");
+        //TODO добавитиь проверку index: не выходит за пределы
+        return Script.code(element,".childNodes.item(", CastUtil.toObject(index),")");
     }
 
     public static void removeChild(Object element) {

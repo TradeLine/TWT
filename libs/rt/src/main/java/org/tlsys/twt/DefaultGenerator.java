@@ -139,7 +139,9 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         });
 
-        addGen(StaticRef.class, (c, o, p, g) -> {
+        //ClassRef
+
+        Gen<Value> classRef = (c, o, p, g) -> {
             VClass classClass = o.getType().getClassLoader().loadClass(Class.class.getName());
             ICodeGenerator icg = c.getGenerator(o.getType());
             if (icg != null && icg != g)
@@ -160,10 +162,18 @@ public class DefaultGenerator implements ICodeGenerator {
                 return g.operation(c, lastScope, p);
             }
             VMethod getMethod = o.getType().getClassLoader().loadClass(ClassStorage.class.getName()).getMethod("get", o.getType().getClassLoader().loadClass(Object.class.getName()));
-            p.append(Generator.storage.getRuntimeName()).append(".").append(getMethod.getRunTimeName()).append("(").append(Generator.storage.getRuntimeName()).append(".").append(o.getType().fullName).append(")");
+            VClass cl = null;
+            if (o instanceof ClassRef)
+                cl = ((ClassRef)o).refTo;
+            else
+                cl = o.getType();
+            p.append(Generator.storage.getRuntimeName()).append(".").append(getMethod.getRunTimeName()).append("(").append(Generator.storage.getRuntimeName()).append(".").append(cl.fullName).append(")");
             //throw new RuntimeException("Class ref not supported yet");
             return true;
-        });
+        };
+
+        addGen(StaticRef.class, classRef);
+        addGen(ClassRef.class, classRef);
 
         addGen(NewClass.class, (c, o, p, g) -> {
             InvokeGenerator ig = c.getInvokeGenerator(o.constructor);
@@ -611,7 +621,7 @@ public class DefaultGenerator implements ICodeGenerator {
         */
     }
 
-    public static <T> void addGen(Class<T> clazz, Gen<T> gen) {
+    public static <T> void addGen(Class<? extends T> clazz, Gen<? extends T> gen) {
         generators.put(clazz, gen);
     }
 

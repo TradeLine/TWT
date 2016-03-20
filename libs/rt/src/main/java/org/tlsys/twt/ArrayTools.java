@@ -11,6 +11,6 @@ public final class ArrayTools {
         Script.code(array, ".add(", element, ")");
     }
     public static <T> void remove(T[] array, int index) {
-        Script.code(array, ".remove(", index, ")");
+        Script.code(array, ".remove(", CastUtil.toObject(index), ")");
     }
 }

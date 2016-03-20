@@ -149,6 +149,12 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append(sr.getType().fullName);
             return true;
         }
+
+        if (op instanceof ClassRef) {
+            ClassRef sr = (ClassRef) op;
+            ps.append(sr.refTo.fullName);
+            return true;
+        }
 /*
         if (op instanceof NewClass) {
             NewClass nc = (NewClass) op;

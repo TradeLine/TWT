@@ -1,5 +1,6 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
@@ -16,27 +17,27 @@ public final class TMath {
     }
 
     public static double sin(double a) {
-        return Script.code("Math.sin(",a,")");
+        return CastUtil.toDouble(Script.code("Math.sin(",a,")"));
     }
 
     public static double cos(double a) {
-        return Script.code("Math.cos(",a,")");
+        return CastUtil.toDouble(Script.code("Math.cos(",a,")"));
     }
 
     public static double tan(double a) {
-        return Script.code("Math.tan(",a,")");
+        return CastUtil.toDouble(Script.code("Math.tan(",a,")"));
     }
 
     public static double asin(double a) {
-        return Script.code("Math.asin(",a,")");
+        return CastUtil.toDouble(Script.code("Math.asin(",a,")"));
     }
 
     public static double acos(double a) {
-        return Script.code("Math.acos(",a,")");
+        return CastUtil.toDouble(Script.code("Math.acos(", CastUtil.toObject(a),")"));
     }
 
     public static double atan(double a) {
-        return Script.code("Math.atan(",a,")");
+        return CastUtil.toDouble(Script.code("Math.atan(",CastUtil.toObject(a),")"));
     }
 
     public static double toRadians(double angdeg) {
@@ -48,51 +49,51 @@ public final class TMath {
     }
 
     public static double exp(double a) {
-        return Script.code("Math.exp(",a,")");
+        return CastUtil.toDouble(Script.code("Math.exp(",CastUtil.toObject(a),")"));
     }
 
     public static double log(double a) {
-        return Script.code("Math.log(",a,")");
+        return CastUtil.toDouble(Script.code("Math.log(",CastUtil.toObject(a),")"));
     }
 
     public static double log10(double a) {
-        return Script.code("Math.log10(",a,")");
+        return CastUtil.toDouble(Script.code("Math.log10(",CastUtil.toObject(a),")"));
     }
 
     public static double sqrt(double a) {
-        return Script.code("Math.sqrt(",a,")");
+        return CastUtil.toDouble(Script.code("Math.sqrt(",CastUtil.toObject(a),")"));
     }
 
     public static double cbrt(double a) {
-        return Script.code("Math.cbrt(",a,")");
+        return CastUtil.toDouble(Script.code("Math.cbrt(",CastUtil.toObject(a),")"));
     }
 
     public static double ceil(double a) {
-        return Script.code("Math.ceil(",a,")");
+        return CastUtil.toDouble(Script.code("Math.ceil(",CastUtil.toObject(a),")"));
     }
 
     public static double floor(double a) {
-        return Script.code("Math.floor(",a,")");
+        return CastUtil.toDouble(Script.code("Math.floor(",CastUtil.toObject(a),")"));
     }
 
     public static double atan2(double y, double x) {
-        return Script.code("Math.atan2(",y, ",", x,")");
+        return CastUtil.toDouble(Script.code("Math.atan2(",CastUtil.toObject(y), ",", CastUtil.toObject(x),")"));
     }
 
     public static double pow(double a, double b) {
-        return Script.code("Math.pow(",a, ",", b,")");
+        return CastUtil.toDouble(Script.code("Math.pow(",CastUtil.toObject(a), ",", CastUtil.toObject(b),")"));
     }
 
     public static int round(float a) {
-        return Script.code("Math.round(",a,")");
+        return CastUtil.toInt(Script.code("Math.round(",a,")"));
     }
 
     public static long round(double a) {
-        return Script.code("Math.round(",a,")");
+        return CastUtil.toLong(Script.code("Math.round(",CastUtil.toObject(a),")"));
     }
 
     public static double random() {
-        return Script.code("Math.random()");
+        return CastUtil.toDouble(Script.code("Math.random()"));
     }
 
     public static int addExact(int x, int y) {
@@ -268,14 +269,14 @@ public final class TMath {
     }
 
     public static double sinh(double a) {
-        return Script.code("Math.sinh(",a,")");
+        return CastUtil.toDouble(Script.code("Math.sinh(",CastUtil.toObject(a),")"));
     }
 
     public static double cosh(double x) {
-        return Script.code("Math.cosh(",x,")");
+        return CastUtil.toDouble(Script.code("Math.cosh(",CastUtil.toObject(x),")"));
     }
 
     public static double tanh(double x) {
-        return Script.code("Math.tanh(",x,")");
+        return CastUtil.toDouble(Script.code("Math.tanh(",CastUtil.toObject(x),")"));
     }
 }

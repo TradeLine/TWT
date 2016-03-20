@@ -1,10 +1,8 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
-import org.tlsys.twt.annotations.CastAdapter;
-import org.tlsys.twt.annotations.ClassName;
-import org.tlsys.twt.annotations.JSClass;
-import org.tlsys.twt.annotations.ReplaceClass;
+import org.tlsys.twt.annotations.*;
 
 @JSClass
 @ReplaceClass(Integer.class)
@@ -29,10 +27,10 @@ public final class TInteger extends Number {
     }
 
     public static int parseInt(String s, int radix) {
-        boolean b = Script.code("isNaN(",s,")");
+        boolean b = CastUtil.toBoolean(Script.code("isNaN(",s,")"));
         if (b)
             throw new NumberFormatException(s);
-        return Script.code("parseInt(",s,",",radix,")");
+        return CastUtil.toInt(Script.code("parseInt(",s,",",radix,")"));
     }
 
     public static String toString(int value) {
@@ -40,24 +38,28 @@ public final class TInteger extends Number {
     }
 
     public static String toString(int value, int radix) {
-        return Script.code(value,".toString(",radix,")");
+        return Script.code(CastUtil.toObject(value),".toString(",CastUtil.toObject(radix),")");
     }
 
+    @ForceInject
     @Override
     public int intValue() {
         return value;
     }
 
+    @ForceInject
     @Override
     public long longValue() {
         return value;
     }
 
+    @ForceInject
     @Override
     public float floatValue() {
         return value;
     }
 
+    @ForceInject
     @Override
     public double doubleValue() {
         return value;

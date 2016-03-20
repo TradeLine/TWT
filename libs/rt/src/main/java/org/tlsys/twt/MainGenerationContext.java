@@ -25,9 +25,10 @@ public class MainGenerationContext implements GenerationContext {
     }
 
     public static final ICodeGenerator getGeneratorFor(VClass clazz) {
+        Objects.requireNonNull(clazz);
         VClass cl = clazz;
         String generator = null;
-        while (true) {
+        while (cl != null) {
             if (cl.codeGenerator != null && !cl.codeGenerator.isEmpty()) {
                 generator = cl.codeGenerator;
                 break;

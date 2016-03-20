@@ -305,7 +305,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             }
         }
 
-        throw new MethodNotFoundException(this, alias, args);
+        throw new MethodNotFoundException(this, name, args);
     }
 
     public VMethod getMethod(Symbol.MethodSymbol symbol) throws MethodNotFoundException {

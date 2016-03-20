@@ -10,7 +10,7 @@ public class JDictionary<T> {
     private Object js = Script.code("{}");
 
     public void set(int key, T value) {
-        Script.code(js,"[",key,"]=",value);
+        Script.code(js,"[",CastUtil.toObject(key),"]=",value);
     }
 
     public void set(String key, T value) {
@@ -18,7 +18,7 @@ public class JDictionary<T> {
     }
 
     public T get(int key) {
-        Object o = Script.code(js,"[",key,"]");
+        Object o = Script.code(js,"[",CastUtil.toObject(key),"]");
         if (Script.isUndefined(o))
             return null;
         return CastUtil.cast(o);

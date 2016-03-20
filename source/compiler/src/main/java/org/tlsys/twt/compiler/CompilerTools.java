@@ -188,8 +188,12 @@ public class CompilerTools {
         if (value.getType().isParent(type))
             return value;
 
+        return new Cast(type, value);
+        /*
+
         ICastAdapter ica = getCastAdapter(value.getType());
         return ica.cast(value, type);
+        */
     }
 
     private static ICastAdapter getCastAdapter(VClass clazz) {

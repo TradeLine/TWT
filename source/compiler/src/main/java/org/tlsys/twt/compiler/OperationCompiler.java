@@ -379,7 +379,7 @@ class OperationCompiler {
                 
 
                 if (name.equals("class")) {
-                    return scope;
+                    return new ClassRef(scope.getType());
                 }
             }
 
