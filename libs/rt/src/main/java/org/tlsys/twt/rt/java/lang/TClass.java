@@ -28,7 +28,7 @@ public class TClass {
     private JArray<TMethod> methods;
     private ClassRecord classRecord;
     private String domNode;
-    private JDictionary<Object> lambdaList = new JDictionary<>();
+
     private JDictionary<TClass> annonimusList = new JDictionary<>();
     private Class arrayClass = null;
 
@@ -71,6 +71,12 @@ public class TClass {
     }
 
     public Object getLambda(String name, String methodName, Object method, Object scope) {
+        JDictionary<Object> lambdaList = Script.code(scope,".LAMBDA");
+        if (Script.isUndefined(lambdaList)) {
+            lambdaList = new JDictionary<>();
+            Script.code(scope,".LAMBDA=",lambdaList);
+        }
+
         Object t = lambdaList.get(name);
         if (t != null)
             return t;
