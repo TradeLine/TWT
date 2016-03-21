@@ -62,6 +62,10 @@ public class Main {
             SecondApi sa = new SecondApi(api, 2);
             sa.send("2222");
             Console.info("Send2");
+
+            Script.setTimeout(1000, ()->{
+                Console.dir(b2);
+            });
             /*
             api.call((s2->{
                 Console.info("2----resived " + s2);
