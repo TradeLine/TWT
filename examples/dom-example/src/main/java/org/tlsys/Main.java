@@ -6,7 +6,6 @@ import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.dom.DOM;
 import org.tlsys.twt.dom.Document;
 import org.tlsys.twt.events.Events;
-import org.tlsys.twt.json.Json;
 
 @JSClass
 public class Main {
@@ -49,17 +48,25 @@ public class Main {
         DOM.appendChild(o, b2);
 
         Events.addEventListener(b1, "click", (s,e)->{
+            SecondApi sa = new SecondApi(api, 1);
+            sa.send("1111");
             Console.info("Send1");
+            /*
             api.call((s2->{
-                Console.info("resived " + s2);
+                Console.info("1----resived " + s2);
             }), "REQUEST-1");
+            */
         }, false);
 
         Events.addEventListener(b2, "click", (s,e)->{
+            SecondApi sa = new SecondApi(api, 2);
+            sa.send("2222");
             Console.info("Send2");
+            /*
             api.call((s2->{
-                Console.info("resived " + s2);
+                Console.info("2----resived " + s2);
             }), "REQUEST-2");
+            */
         }, false);
     }
 }

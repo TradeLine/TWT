@@ -1,7 +1,6 @@
 package org.tlsys;
 
 import org.tlsys.twt.Console;
-import org.tlsys.twt.JDictionary;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.events.WebSocket;
 import org.tlsys.twt.json.Json;
@@ -24,7 +23,7 @@ public class SocketAPI extends WebSocket {
         Console.info("Getted " + s);
         Response rr = (Response) Json.fromJSON(s);
         Console.info("Search request " + rr.getId());
-        ResponceListener rl = api.outs.get(rr.getId());
+        ResponceListener rl = api.outs.remove(rr.getId());
         if (rl == null)
             Console.error("request #" + rr.getId() + " not found");
         else {
