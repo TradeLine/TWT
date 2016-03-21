@@ -142,8 +142,14 @@ public class DefaultGenerator implements ICodeGenerator {
         //ClassRef
 
         Gen<Value> classRef = (c, o, p, g) -> {
+            VClass cl = null;
+            if (o instanceof ClassRef)
+                cl = ((ClassRef)o).refTo;
+            else
+                cl = o.getType();
+
             VClass classClass = o.getType().getClassLoader().loadClass(Class.class.getName());
-            ICodeGenerator icg = c.getGenerator(o.getType());
+            ICodeGenerator icg = c.getGenerator(cl);
             if (icg != null && icg != g)
                 return icg.operation(c, o, p);
             if (o.getType() instanceof ArrayClass) {
@@ -162,11 +168,6 @@ public class DefaultGenerator implements ICodeGenerator {
                 return g.operation(c, lastScope, p);
             }
             VMethod getMethod = o.getType().getClassLoader().loadClass(ClassStorage.class.getName()).getMethod("get", o.getType().getClassLoader().loadClass(Object.class.getName()));
-            VClass cl = null;
-            if (o instanceof ClassRef)
-                cl = ((ClassRef)o).refTo;
-            else
-                cl = o.getType();
             p.append(Generator.storage.getRuntimeName()).append(".").append(getMethod.getRunTimeName()).append("(").append(Generator.storage.getRuntimeName()).append(".").append(cl.fullName).append(")");
             //throw new RuntimeException("Class ref not supported yet");
             return true;
@@ -556,6 +557,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 SVar evar = new SVar(c.genLocalName(), errorClass);
                 String lab = c.genLocalName();
                 p.append("catch(").append(evar.getRuntimeName()).append("){");
+                p.append("console.error(").append(evar.getRuntimeName()).append(".stack);");
                 g.operation(c, new Assign(evar, new Invoke(convertMethod, new StaticRef(errorClass)).addArg(evar), evar.getType(), Assign.AsType.ASSIGN), p);
                 p.append(";");
                 p.append(lab).append(":{");
@@ -573,6 +575,7 @@ public class DefaultGenerator implements ICodeGenerator {
                     g.operation(c, ca.block, p);
                     p.append("break ").append(lab).append(";}");
                 }
+
                 p.append("throw ").append(evar.getRuntimeName()).append("}}");
             } else {
                 p.append("catch(e){throw e;}");
