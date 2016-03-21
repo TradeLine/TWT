@@ -30,4 +30,16 @@ public class JDictionary<T> {
             return null;
         return CastUtil.cast(o);
     }
+
+    public T remove(int key) {
+        T r = get(key);
+        Script.code("delete ",js,"[", CastUtil.toObject(key),"]");
+        return r;
+    }
+
+    public T remove(String key) {
+        T r = get(key);
+        Script.code("delete ",js,"[", key,"]");
+        return r;
+    }
 }
