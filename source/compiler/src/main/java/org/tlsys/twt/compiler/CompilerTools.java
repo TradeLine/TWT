@@ -7,15 +7,16 @@ import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.CompileException;
-import org.tlsys.twt.GenerationContext;
 import org.tlsys.twt.ICastAdapter;
-import org.tlsys.twt.annotations.*;
+import org.tlsys.twt.annotations.CodeGenerator;
+import org.tlsys.twt.annotations.ForceInject;
+import org.tlsys.twt.annotations.InvokeGen;
+import org.tlsys.twt.annotations.MethodName;
 
 import javax.lang.model.element.Modifier;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class CompilerTools {
@@ -185,9 +186,13 @@ public class CompilerTools {
     public static Value cast(Value value, VClass type) throws CompileException {
         //if (true)
         //    return value;
-        if (value.getType().isParent(type))
+        if (value.getType() == type || value.getType().isParent(type))
             return value;
 
+        if (value instanceof Const && ((Const)value).getValue()==null)
+            return value;
+
+        System.out.println("=======================CAST " + value.getType().getRealName() + "@" + value.getType().hashCode() + "["+value.getType().getClassLoader().getName() + "] =>>>> " + type.getRealName() + "@" + type.hashCode() + "["+type.getClassLoader().getName()+"]");
         return new Cast(type, value);
         /*
 
