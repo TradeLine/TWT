@@ -266,6 +266,14 @@ public class CompilerTools {
             return Optional.ofNullable(((VClass)context).getParentContext());
         }
 
+        if (context instanceof Try) {
+            return Optional.ofNullable(((Try)context).getParentContext());
+        }
+
+        if (context instanceof Try.Catch) {
+            return Optional.ofNullable(((Try.Catch)context).getParentContext());
+        }
+
         throw new RuntimeException("Unknown context " + context.getClass().getName());
     }
 }
