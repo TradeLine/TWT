@@ -141,7 +141,7 @@ class OperationCompiler {
                         block.add(op);
                     l.setBlock(block);
                 } else
-                    throw new RuntimeException("No blocked lambdanot supportedf yet");
+                    throw new RuntimeException("No blocked lambda not supportedf yet");
             }
             return l;
         });

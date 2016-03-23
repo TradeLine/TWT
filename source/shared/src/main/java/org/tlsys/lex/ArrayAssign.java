@@ -1,6 +1,8 @@
 package org.tlsys.lex;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceControl;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.ArrayClass;
 import org.tlsys.lex.declare.VClass;
 
@@ -52,5 +54,9 @@ public class ArrayAssign extends Value {
 
     public Value getValue() {
         return value;
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
     }
 }
