@@ -1,5 +1,6 @@
 package org.tlsys.lex.declare;
 
+import org.tlsys.ArgumentModificator;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.Collect;
 import org.tlsys.lex.Context;
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -18,6 +20,12 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
     public String alias;
     public boolean force;
 
+    private final ArrayList<ArgumentModificator> mods = new ArrayList<>();
+
+    public ArrayList<ArgumentModificator> getMods() {
+        return mods;
+    }
+
     public String getRunTimeName() {
         return name;
     }
@@ -26,7 +34,18 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
         this.name = name;
     }
 
-    public ArrayList<VArgument> arguments = new ArrayList<>();
+    protected ArrayList<VArgument> arguments = new ArrayList<>();
+
+    public List<VArgument> getArguments() {
+        if (mods.isEmpty())
+            return arguments;
+        List<VArgument> args = new ArrayList<>(arguments.size());
+        for (ArgumentModificator am : mods)
+            args = am.getArguments(args);
+        args.addAll(arguments);
+        return args;
+    }
+
     private VClass parent;
     public transient VBlock block = null;
     public String generator = null;
@@ -57,7 +76,7 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
     @Override
     public void getUsing(Collect c) {
         c.add(returnType);
-        for (VArgument a : arguments)
+        for (VArgument a : getArguments())
             c.add(a);
         if (block != null)
             c.add(block);
@@ -66,7 +85,7 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
 
     @Override
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
-        for (VArgument a : arguments) {
+        for (VArgument a : getArguments()) {
             if (name.equals(a.getAliasName()) || name.equals(a.getRealName()))
                 return Optional.of(a);
         }
@@ -86,7 +105,7 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
     public String getArgumentDescription() {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
-        for (VArgument a : arguments) {
+        for (VArgument a : getArguments()) {
             if (!first)
                 sb.append("; ");
             sb.append(a.getType().getRealName());
@@ -110,5 +129,9 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
     public void visit(ReplaceVisiter replaceControl) {
         if (block != null)
         block.visit(replaceControl);
+    }
+
+    public void addArg(VArgument l) {
+        arguments.add(l);
     }
 }

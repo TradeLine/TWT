@@ -1,5 +1,6 @@
 package org.tlsys.lex;
 
+import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VField;
 import org.tlsys.lex.declare.VMethod;
 
@@ -13,4 +14,7 @@ import java.util.List;
 public interface ClassModificator extends Serializable{
     public List<VField> getFields(List<VField> fields);
     public List<VMethod> getMethods(List<VMethod> methods);
+
+    public default void onAdd(VClass clazz){}
+    public default void onRemove(VClass clazz){}
 }

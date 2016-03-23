@@ -2,6 +2,7 @@ package org.tlsys;
 
 import org.tlsys.lex.ClassModificator;
 import org.tlsys.lex.declare.VClass;
+import org.tlsys.lex.declare.VConstructor;
 import org.tlsys.lex.declare.VField;
 import org.tlsys.lex.declare.VMethod;
 
@@ -26,6 +27,10 @@ public class ParentClassModificator implements ClassModificator {
             throw new IllegalArgumentException("Class " + forClass.getRealName() + " already have parent link");
 
         field = new VField("this$0", "this$0", op.get(), Modifier.PRIVATE | Modifier.FINAL, forClass);
+
+        for (VConstructor c : forClass.constructors) {
+            c.getMods().add(new ParentArgumentModif(c));
+        }
     }
 
     public VField getParentField() {

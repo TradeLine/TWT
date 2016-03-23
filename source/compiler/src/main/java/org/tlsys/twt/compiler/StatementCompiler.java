@@ -282,12 +282,16 @@ class StatementCompiler {
         Objects.requireNonNull(from, "Argument \"to\" is NULL");
         VMethod rep = new VMethod(to.getParent(), null);
         rep.setReplace(from);
-        rep.arguments.addAll(from.arguments);
+        from.getArguments().forEach(e->{
+            rep.addArg(e);
+        });
         rep.block = new VBlock(rep);
         rep.alias = from.alias;
 
         Invoke inv = new Invoke(to, new This(to.getParent()));
-        inv.arguments.addAll(rep.arguments);
+        rep.getArguments().forEach(e->{
+            inv.arguments.add(e);
+        });
         inv.returnType = to.returnType;
 
 

@@ -36,7 +36,10 @@ class OperationCompiler {
                 NewClass nc = new NewClass(con);
                 return nc;
             }
-            
+
+            if (classIns.getRealName().contains("TArrayList")) {
+                System.out.println("->");
+            }
             VConstructor con = classIns.getConstructor((Symbol.MethodSymbol) e.constructor);
             
             NewClass nc = new NewClass(con);
@@ -181,6 +184,8 @@ class OperationCompiler {
                 Symbol.MethodSymbol m = (Symbol.MethodSymbol) in.sym;
                 self = new This(c.getCurrentClass());
                 if (in.name.toString().equals("super") || in.name.toString().equals("this")) {
+                    if (c.loadClass(m.owner.type).getRealName().contains("TArrayList"))
+                        System.out.println("->");
                     method = c.loadClass(m.owner.type).getConstructor(m);
                 } else {
                     method = c.loadClass(m.owner.type).getMethod(m);
@@ -190,9 +195,10 @@ class OperationCompiler {
                 throw new RuntimeException("Self or method is NULL");
 
             if (method instanceof VConstructor && method.getParent().isParent(method.getParent().getClassLoader().loadClass(Enum.class.getName()))) {
+                System.out.println("->");
                 VBlock block = (VBlock)o;
                 VConstructor cons = (VConstructor)block.getParentContext();
-                return new Invoke(method, new This(cons.getParent())).addArg(cons.arguments.get(0)).addArg(cons.arguments.get(1));
+                return new Invoke(method, new This(cons.getParent())).addArg(cons.getArguments().get(0)).addArg(cons.getArguments().get(1));
             }
             if (method.isStatic())
                 self = new StaticRef(method.getParent());
@@ -214,15 +220,15 @@ class OperationCompiler {
                 if (o instanceof VBlock && ((VBlock)o).getParentContext() instanceof VConstructor) {
                     VBlock block = (VBlock)o;
                     VConstructor cons = (VConstructor)block.getParentContext();
-                    i.addArg(cons.arguments.get(0));
+                    i.addArg(cons.getArguments().get(0));
                 } else
                     i.addArg(new GetField(self, TypeUtil.getParentThis(self.getType())));
             }
 
 
-            for (int c1 = argInc; c1 < method.arguments.size(); c1++) {
-                if (method.arguments.get(c1).var) {
-                    NewArrayItems nai = new NewArrayItems(method.arguments.get(c1).getType().getArrayClass());
+            for (int c1 = argInc; c1 < method.getArguments().size(); c1++) {
+                if (method.getArguments().get(c1).var) {
+                    NewArrayItems nai = new NewArrayItems(method.getArguments().get(c1).getType().getArrayClass());
                     for (int c2 = c1; c2 < e.args.size(); c2++) {
                         nai.elements.add(c.op(e.args.get(c2 - argInc), o));
                     }
@@ -230,7 +236,7 @@ class OperationCompiler {
                     break;
                 } else {
                     int index = c1 - argInc;
-                    VArgument arg =  i.getMethod().arguments.get(index);
+                    VArgument arg =  i.getMethod().getArguments().get(index);
                     Value val = c.op(e.args.get(index), o);
                     val = CompilerTools.cast(val, arg.getType());
                     i.arguments.add(val);

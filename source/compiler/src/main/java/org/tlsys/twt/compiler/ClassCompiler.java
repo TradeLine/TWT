@@ -5,6 +5,7 @@ import com.sun.source.tree.Tree;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.OtherClassLink;
+import org.tlsys.ParentClassModificator;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
@@ -54,6 +55,15 @@ public class ClassCompiler {
 
         setExtends(cc);
         searchMembers(cc);
+
+        for (Pair p : cc.pairs) {
+            if (p.vclass.getDependencyParent().isPresent()) {
+                System.out.println("->");
+                p.vclass.addMod(new ParentClassModificator(p.vclass));
+            }
+        }
+
+
 
         compileCode(cc, VExecute.class);
         compileCode(cc, VVar.class);
@@ -163,7 +173,7 @@ public class ClassCompiler {
         //v.realName = c.sym.toString();
         v.fullName = v.getRealName();
         v.force = CompilerTools.isAnnatationExist(c.getModifiers(), ForceInject.class);
-        v.setModificators(CompilerTools.toFlags(c.getModifiers().getFlags()));
+        v.setModificators(CompilerTools.toFlags(c.getModifiers()));
         v.setClassLoader(vClassLoader);
 
         CompilerTools.getAnnatationValueString(c.getModifiers(), ClassName.class).ifPresent(e -> v.alias = e);
@@ -171,11 +181,13 @@ public class ClassCompiler {
         CompilerTools.getAnnatationValueClass(c.getModifiers(), CastAdapter.class).ifPresent(e -> v.castGenerator = e);
 
 
+        /*
         if (!Enum.class.getName().equals(v.alias))
             if (v.getDependencyParent(vClassLoader.loadClass(Enum.class.getName())).isPresent()) {//если класс имеет жетскую привязку к родителю
                 System.out.println("CHILD " + v + " <=" + v.getDependencyParent().get() + " - " + v.hashCode());
                 TypeUtil.createParentThis(v);//то создаем this на родителя
             }
+            */
 
         CompilerTools.getAnnatationValueClass(c.getModifiers(), CodeGenerator.class).ifPresent(e -> v.codeGenerator = e);
 
@@ -300,7 +312,7 @@ public class ClassCompiler {
                         }
                     }
                     if (method.getParent().getDependencyParent().isPresent()) {//если класс имеет жесткую привязку к родителю
-                        SetField sf = new SetField(new This(method.getParent()), TypeUtil.getParentThis(method.getParent()), cons.arguments.get(0), Assign.AsType.ASSIGN);//то формируем присваение аргумента (this родителя) в локальную переменную
+                        SetField sf = new SetField(new This(method.getParent()), TypeUtil.getParentThis(method.getParent()), cons.getArguments().get(0), Assign.AsType.ASSIGN);//то формируем присваение аргумента (this родителя) в локальную переменную
                         method.block.operations.add(0, sf);
                     }
                 }
@@ -359,16 +371,16 @@ public class ClassCompiler {
             if (log)
                 System.out.println("--1--CHECK " + member.getDescription() + " and " + m);
 
-            if (m.arguments.size() != member.arguments.size()) {
+            if (m.getArguments().size() != member.getArguments().size()) {
                 if (log)
                     System.out.println("bad argument count");
                 continue;
             }
 
-            for (int i = 0; i < m.arguments.size(); i++) {
+            for (int i = 0; i < m.getArguments().size(); i++) {
                 //for (VArgument b : member.arguments) {
-                if (m.arguments.get(i).getType() != member.arguments.get(i).getType()) {
-                    System.out.println("bad argument type: need=" + m.arguments.get(i).getType() + " but have " + member.arguments.get(i).getType());
+                if (m.getArguments().get(i).getType() != member.getArguments().get(i).getType()) {
+                    System.out.println("bad argument type: need=" + m.getArguments().get(i).getType() + " but have " + member.getArguments().get(i).getType());
                     continue METHOD;
                 }
                 //}
@@ -389,19 +401,19 @@ public class ClassCompiler {
             if (log)
                 System.out.println("--2--CHECK " + member.getDescription() + " and " + m);
 
-            if (m.arguments.isEmpty()) {
+            if (m.getArguments().isEmpty()) {
                 if (log)
                     System.out.println("Arguments empty...");
                 continue;
             }
-            if (m.arguments.size() != member.arguments.size()) {
+            if (m.getArguments().size() != member.getArguments().size()) {
                 if (log)
                     System.out.println("Difrent argument count");
                 continue;
             }
 
-            for (VArgument a : m.arguments) {
-                for (VArgument b : member.arguments) {
+            for (VArgument a : m.getArguments()) {
+                for (VArgument b : member.getArguments()) {
                     if (a.generic) {
                         if (!b.getType().isParent(a.getType())) {
                             if (log)

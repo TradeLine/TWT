@@ -28,8 +28,16 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     private List<ClassModificator> mods = new ArrayList<>();
 
-    public List<ClassModificator> getMods() {
-        return mods;
+    public VClass addMod(ClassModificator modificator) {
+        if (mods.add(modificator))
+            modificator.onAdd(this);
+        return this;
+    }
+
+    public VClass removeMod(ClassModificator modificator) {
+        if (mods.remove(modificator))
+            modificator.onRemove(this);
+        return this;
     }
 
     public void addChild(VClass clazz) {
@@ -157,7 +165,8 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     public Optional<VClass> getDependencyParent(VClass enumClass) {
-
+        if (getRealName().contains("Script"))
+            System.out.println("123");
         if (getParentContext() instanceof VClass
                 && !java.lang.reflect.Modifier.isInterface(getModificators())
                 && !java.lang.reflect.Modifier.isStatic(getModificators())
@@ -218,13 +227,13 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     private boolean equalArgs(VExecute exe, List<VClass> args) throws MethodNotFoundException {
-        for (int i = 0; i < exe.arguments.size(); i++) {
-            VArgument a = exe.arguments.get(i);
+        for (int i = 0; i < exe.getArguments().size(); i++) {
+            VArgument a = exe.getArguments().get(i);
             if (a.var) {
                 ArrayClass ac = (ArrayClass) a.getType();
                 if (i >= args.size())
                     return true;
-                if (args.size() == exe.arguments.size() && args.get(i) instanceof ArrayClass && args.get(i) == ac)
+                if (args.size() == exe.getArguments().size() && args.get(i) instanceof ArrayClass && args.get(i) == ac)
                     return true;
 
                 for (int j = i; j < args.size(); j++) {
@@ -238,7 +247,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             if (!args.get(i).isParent(a.getType()))
                 return false;
         }
-        return exe.arguments.size() == args.size();
+        return exe.getArguments().size() == args.size();
     }
 
     public VConstructor getConstructor(VClass... args) throws MethodNotFoundException {

@@ -47,7 +47,7 @@ public class OtherClassLink implements ClassModificator {
             return (OtherClassLink) cm.get();
 
         OtherClassLink ocl = new OtherClassLink(forClass, toClass);
-        forClass.getMods().add(ocl);
+        forClass.addMod(ocl);
         return ocl;
     }
 }

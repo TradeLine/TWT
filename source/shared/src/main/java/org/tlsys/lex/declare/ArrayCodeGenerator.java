@@ -27,19 +27,19 @@ public class ArrayCodeGenerator implements ICodeGenerator {
             defaultCG.operation(ctx, new Invoke(execute.getParent().extendsClass.getConstructor(), new This(execute.getParent())), ps);
             ps.append(";");
 
-            ps.append("this.").append(ac.jsArray.getRuntimeName()).append("=new Array(").append(execute.arguments.get(0).getRuntimeName()).append(");");
-            defaultCG.operation(ctx, new SetField(new This(ac), ac.lengthField, execute.arguments.get(0), Assign.AsType.ASSIGN), ps);
+            ps.append("this.").append(ac.jsArray.getRuntimeName()).append("=new Array(").append(execute.getArguments().get(0).getRuntimeName()).append(");");
+            defaultCG.operation(ctx, new SetField(new This(ac), ac.lengthField, execute.getArguments().get(0), Assign.AsType.ASSIGN), ps);
             ps.append(";");
             return;
         }
 
         if (execute == ac.get) {
-            ps.append("return this.").append(ac.jsArray.getRuntimeName()).append("[").append(execute.arguments.get(0).getRuntimeName()).append("];");
+            ps.append("return this.").append(ac.jsArray.getRuntimeName()).append("[").append(execute.getArguments().get(0).getRuntimeName()).append("];");
             return;
         }
 
         if (execute == ac.set) {
-            ps.append("this.").append(ac.jsArray.getRuntimeName()).append("[").append(execute.arguments.get(0).getRuntimeName()).append("]=").append(execute.arguments.get(1).getRuntimeName()).append(";");
+            ps.append("this.").append(ac.jsArray.getRuntimeName()).append("[").append(execute.getArguments().get(0).getRuntimeName()).append("]=").append(execute.getArguments().get(1).getRuntimeName()).append(";");
             return;
         }
 

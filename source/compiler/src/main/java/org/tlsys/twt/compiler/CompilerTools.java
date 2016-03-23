@@ -54,7 +54,7 @@ public class CompilerTools {
 
     private static VConstructor createConstructorMember(VClass clazz, JCTree.JCMethodDecl mem) throws VClassNotFoundException {
         VConstructor con = new VConstructor(clazz);
-        con.setModificators(toFlags(mem.getModifiers().getFlags()));
+        con.setModificators(toFlags(mem.getModifiers()));
         readExecutable(mem, con);
         //VClass enumClass = clazz.getClassLoader().loadClass(Enum.class.getName());
         return con;
@@ -65,7 +65,7 @@ public class CompilerTools {
                 e -> m.generator = e
         );
         getAnnatationValueClass(mem.getModifiers(), InvokeGen.class).ifPresent(e -> m.invokeGenerator = e);
-        m.setModificators(toFlags(mem.getModifiers().getFlags()));
+        m.setModificators(toFlags(mem.getModifiers()));
         for (JCTree.JCVariableDecl v : mem.getParameters()) {
             //Set<Modifier> mm = v.getModifiers().getFlags();
             VClass arg = TypeUtil.loadClass(m.getParent().getClassLoader(), v.type);
@@ -73,19 +73,22 @@ public class CompilerTools {
                 //VClass arg2 = vClassLoader.loadClass(v.type);
             }
             VArgument a = new VArgument(v.name.toString(),arg, (v.mods.flags & Flags.VARARGS) != 0, v.type instanceof Type.TypeVar, null);
-            m.arguments.add(a);
+            m.addArg(a);
         }
+
+
 
         if (m instanceof VConstructor) {
             VClass enumClass = m.getParent().getClassLoader().loadClass(Enum.class.getName());
             if (m.getParent() != enumClass && m.getParent().isParent(enumClass)) {
                 VArgument name = new VArgument("name", m.getParent().getClassLoader().loadClass(String.class.getName()), false, false, null);
-                m.arguments.add(name);
+                m.addArg(name);
 
                 VArgument ordinal = new VArgument("ordinal", m.getParent().getClassLoader().loadClass("int"), false, false, null);
-                m.arguments.add(ordinal);
+                m.addArg(ordinal);
             }
 
+            /*
             //Если конструктор этого класса имеет родителя, при этом не является
             //интерфейсом,enum'мом и не обявлен как статический, то добавляем
             //его аргумент на this родителя
@@ -97,7 +100,9 @@ public class CompilerTools {
                 VArgument parent = new VArgument("this$0",m.getParent().getParent(), false, false, null);
                 m.arguments.add(0, parent);
             }
+            */
         }
+
     }
 
     private static VMethod createMethodMember(VClass clazz, JCTree.JCMethodDecl mem) throws VClassNotFoundException {
@@ -111,16 +116,26 @@ public class CompilerTools {
     }
 
     private static VField createFieldMember(VClass clazz, JCTree.JCVariableDecl fie) throws VClassNotFoundException {
-        VField v = new VField(fie.getName().toString(),TypeUtil.loadClass(clazz.getClassLoader(), fie.type), toFlags(fie.getModifiers().getFlags()), clazz);
+        VField v = new VField(fie.getName().toString(),TypeUtil.loadClass(clazz.getClassLoader(), fie.type), toFlags(fie.getModifiers()), clazz);
         clazz.addLocalField(v);
         return v;
     }
 
-    public static int toFlags(Set<Modifier> mod) {
+    public static int toFlags(JCTree.JCModifiers m) {
         int out = 0;
+        Set<Modifier> mod = m.getFlags();
+
+        if ((m.flags & 512L) != 0)
+            out = out | java.lang.reflect.Modifier.INTERFACE;
+
         if (mod.contains(Modifier.PUBLIC)) {
             out = out | java.lang.reflect.Modifier.PUBLIC;
         }
+
+        if (mod.contains(Modifier.ABSTRACT)) {
+            out = out | java.lang.reflect.Modifier.ABSTRACT;
+        }
+
         if (mod.contains(Modifier.PROTECTED)) {
             out = out | java.lang.reflect.Modifier.PROTECTED;
         }

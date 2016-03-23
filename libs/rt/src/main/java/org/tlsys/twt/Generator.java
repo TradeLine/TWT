@@ -253,7 +253,7 @@ public class Generator implements MainGenerator {
 
                 sos.getStream().append("function(");
                 boolean first = true;
-                for (VArgument a : e.arguments) {
+                for (VArgument a : e.getArguments()) {
                     if (!first)
                         sos.getStream().append(",");
                     sos.getStream().append(a.getRuntimeName());
@@ -276,7 +276,7 @@ public class Generator implements MainGenerator {
             }
             newMethod.arguments.add(new Const(e.isStatic(), classBoolean));
 
-            for (VArgument a : e.arguments) {
+            for (VArgument a : e.getArguments()) {
                 NewClass newArg = new NewClass(argumentConstructor)
                         .addArg(new Const(a.getRuntimeName(), classString))
                         .addArg(new Const(a.var, classBoolean))

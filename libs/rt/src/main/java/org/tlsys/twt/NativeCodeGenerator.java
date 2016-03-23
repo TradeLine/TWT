@@ -72,7 +72,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append(meth.getRunTimeName());
         ps.append("=function(");
         boolean first = true;
-        for (VArgument ar : meth.arguments) {
+        for (VArgument ar : meth.getArguments()) {
             if (!first)
                 ps.append(",");
             ps.append(ar.getRuntimeName());
@@ -177,7 +177,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append("{").append(l.getMethod().getRunTimeName()).append(":");
             ps.append("function(");
             boolean first = true;
-            for(VArgument a : l.getMethod().arguments) {
+            for(VArgument a : l.getMethod().getArguments()) {
                 if(!first)
                     ps.append(",");
                 ps.append(a.getRuntimeName());

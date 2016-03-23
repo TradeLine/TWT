@@ -31,7 +31,7 @@ public final class TypeUtil {
         if (clazz.getModificator(e->e instanceof ParentClassModificator).isPresent())
             throw new IllegalStateException("Parent this already added");
         ParentClassModificator pcm = new ParentClassModificator(clazz);
-        clazz.getMods().add(pcm);
+        clazz.addMod(pcm);
 
         return pcm.getParentField();
         /*
