@@ -1,5 +1,6 @@
 package org.tlsys.lex.declare;
 
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.Collect;
 import org.tlsys.lex.Context;
 
@@ -104,5 +105,10 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
     @Override
     public String toString() {
         return getParent().getRealName()+"::"+getDescription();
+    }
+
+    public void visit(ReplaceVisiter replaceControl) {
+        if (block != null)
+        block.visit(replaceControl);
     }
 }

@@ -2,6 +2,7 @@ package org.tlsys.lex.declare;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 
@@ -25,6 +26,12 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     private List<VClass> childs = new ArrayList<VClass>();
     public String castGenerator;
 
+    private List<ClassModificator> mods = new ArrayList<>();
+
+    public List<ClassModificator> getMods() {
+        return mods;
+    }
+
     public void addChild(VClass clazz) {
         childs.add(clazz);
     }
@@ -43,18 +50,23 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     public String getRealName() {
         if (parentContext instanceof VPackage) {
-            VPackage p = (VPackage)parentContext;
+            VPackage p = (VPackage) parentContext;
             if (p.getSimpleName() == null)
                 return getSimpleRealName();
             return p.getName() + "." + getSimpleRealName();
         }
 
         if (parentContext instanceof VClass) {
-            VClass c = (VClass)parentContext;
-            return c.getRealName()+"$"+getSimpleRealName();
+            VClass c = (VClass) parentContext;
+            return c.getRealName() + "$" + getSimpleRealName();
         }
 
-        throw new RuntimeException("Unknown parent " + parentContext);
+        return parentContext.hashCode() + "$" + getSimpleRealName();
+    }
+
+    public void visit(ReplaceVisiter replaceControl) {
+        for (VMethod m : methods)
+            m.visit(replaceControl);
     }
 
     //private VField parentVar;
@@ -63,10 +75,25 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     public String domNode;
     public boolean force;
 
-    public ArrayList<VField> fields = new ArrayList<>();
+    protected ArrayList<VField> fields = new ArrayList<>();
     public ArrayList<VConstructor> constructors = new ArrayList<>();
     public ArrayList<VMethod> methods = new ArrayList<>();
     public ArrayList<StaticBlock> statics = new ArrayList<>();
+
+    public Optional<ClassModificator> getModificator(Predicate<ClassModificator> test) {
+        for (ClassModificator cm : mods) {
+            if (test.test(cm))
+                return Optional.of(cm);
+        }
+        return Optional.empty();
+    }
+
+    public List<VField> getLocalFields() {
+        List<VField> f = new ArrayList<>(fields);
+        for (ClassModificator cm : mods)
+        f = cm.getFields(f);
+        return f;
+    }
 
     public Context getParentContext() {
         return parentContext;
@@ -131,12 +158,12 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     public Optional<VClass> getDependencyParent(VClass enumClass) {
 
-            if (getParentContext() instanceof VClass
-                    && !java.lang.reflect.Modifier.isInterface(getModificators())
-                    && !java.lang.reflect.Modifier.isStatic(getModificators())
-                    && !isParent(enumClass))
-                return Optional.of((VClass) getParentContext());
-            return Optional.empty();
+        if (getParentContext() instanceof VClass
+                && !java.lang.reflect.Modifier.isInterface(getModificators())
+                && !java.lang.reflect.Modifier.isStatic(getModificators())
+                && !isParent(enumClass))
+            return Optional.of((VClass) getParentContext());
+        return Optional.empty();
     }
 
     @Override
@@ -149,7 +176,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         c.add(extendsClass);
         for (VClass v : implementsList)
             c.add(v);
-        for (VField f : fields) {
+        for (VField f : getLocalFields()) {
             c.add(f);
         }
 
@@ -267,17 +294,18 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         }
 
         if (extendsClass != null) {
-            extendsClass.getMethodByName(name).forEach(e->{
+            extendsClass.getMethodByName(name).forEach(e -> {
                 if (!concateMethodWithArgs(methods, e.arguments))
                     methods.add(e);
             });
         }
 
         for (VClass c : implementsList) {
-            c.getMethodByName(name).forEach(e->{
+            c.getMethodByName(name).forEach(e -> {
                 if (!concateMethodWithArgs(methods, e.arguments))
                     methods.add(e);
-            });;
+            });
+            ;
         }
 
         return methods;
@@ -319,10 +347,10 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     private List<VClass> getMethodArgs(Symbol.MethodSymbol symbol) throws VClassNotFoundException {
         List<VClass> args = new ArrayList<>();
-        
+
         if (symbol.name.toString().equals("<init>"))
-            getDependencyParent().ifPresent(e->args.add(e));
-        
+            getDependencyParent().ifPresent(e -> args.add(e));
+
         if (symbol.params != null) {
             for (Symbol.VarSymbol e : symbol.params) {
                 args.add(TypeUtil.loadClass(getClassLoader(), e.type));
@@ -354,7 +382,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             if (p.isThis(name) && searchIn.test(p))
                 return Optional.of(p);
         }
-        for (VField f : fields) {
+        for (VField f : getLocalFields()) {
             if (!searchIn.test(f))
                 continue;
             if (name.equals(f.getRealName()) || name.equals(f.getAliasName()))
@@ -370,8 +398,8 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             if (v.isPresent())
                 return v;
         }
-        if (getParent() != null)
-            return getParent().find(name, searchIn);
+        if (getParentContext() != null)
+            return getParentContext().find(name, searchIn);
         return Optional.empty();
     }
 
@@ -389,7 +417,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         for (VMethod c : methods)
             c.saveCode(outputStream);
 
-        for (VField c : fields)
+        for (VField c : getLocalFields())
             c.saveCode(outputStream);
     }
 
@@ -401,7 +429,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         for (VMethod c : methods)
             c.loadCode(outputStream);
 
-        for (VField c : fields)
+        for (VField c : getLocalFields())
             c.loadCode(outputStream);
     }
 
@@ -441,11 +469,15 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     public VField getField(String name) throws VFieldNotFoundException {
-        for (VField f : fields) {
+        for (VField f : getLocalFields()) {
             if (name.equals(f.getRealName()) || name.equals(f.getAliasName()))
                 return f;
         }
         throw new VFieldNotFoundException(this, name);
+    }
+
+    public void addLocalField(VField v) {
+        fields.add(v);
     }
 
     private static class ClassRef implements Serializable {
@@ -489,4 +521,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             return getComponent().getArrayClass();
         }
     }
+
+
 }

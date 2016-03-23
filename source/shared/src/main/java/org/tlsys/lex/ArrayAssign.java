@@ -1,12 +1,10 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
-import org.tlsys.ReplaceControl;
+import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.ArrayClass;
 import org.tlsys.lex.declare.VClass;
 
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -31,7 +29,7 @@ public class ArrayAssign extends Value {
 
     @Override
     public VClass getType() {
-        return ((ArrayClass)var.getType()).getComponent();
+        return ((ArrayClass) var.getType()).getComponent();
     }
 
     @Override
@@ -58,5 +56,8 @@ public class ArrayAssign extends Value {
 
     @Override
     public void visit(ReplaceVisiter replaceControl) {
+        ReplaceHelper.replace(value, replaceControl).ifPresent(o -> value = o);
+        ReplaceHelper.replace(var, replaceControl).ifPresent(o -> var = o);
+        ReplaceHelper.replace(indexs, replaceControl).ifPresent(o -> indexs = o);
     }
 }

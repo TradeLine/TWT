@@ -2,7 +2,6 @@ package org.tlsys.twt;
 
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
-import org.tlsys.twt.*;
 
 import java.io.PrintStream;
 
@@ -15,7 +14,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         VClass clazz = record.getClazz();
         ps.append("var ").append(clazz.fullName).append("=function(){\n");
 
-        for (VField f : clazz.fields) {
+        for (VField f : clazz.getLocalFields()) {
             if (f.isStatic())
                 continue;
             ps.append("this.").append(f.getRuntimeName());
@@ -29,7 +28,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         ps.append("};\n");
         
         
-        for (VField f : clazz.fields) {
+        for (VField f : clazz.getLocalFields()) {
             if (!f.isStatic())
                 continue;
             ps.append(clazz.fullName+".").append(f.getRuntimeName());

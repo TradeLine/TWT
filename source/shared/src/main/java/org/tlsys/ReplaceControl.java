@@ -19,7 +19,7 @@ public class ReplaceControl {
     }
 
     public boolean isNew() {
-        return newOperation != operation;
+        return newOperation != null;
     }
 
     public Operation get() {

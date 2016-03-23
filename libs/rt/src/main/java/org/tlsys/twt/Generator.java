@@ -50,7 +50,7 @@ public class Generator implements MainGenerator {
         for (VMethod c : cl.methods)
             compileModuls.add(c);
 
-        for (VField c : cl.fields)
+        for (VField c : cl.getLocalFields())
             compileModuls.add(c.getType());
     }
 
@@ -209,7 +209,7 @@ public class Generator implements MainGenerator {
                     .addArg(getClassViaTypeProvider(imp));
         }
 
-        for (VField f : vClass.fields) {
+        for (VField f : vClass.getLocalFields()) {
 
             Invoke inv = new Invoke(addFieldMethod, lastScope)
                     .addArg(new Const(f.getRuntimeName(), classString))

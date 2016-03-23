@@ -56,6 +56,8 @@ public class VPackage implements Context, Serializable {
 
     @Override
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
-        return null;
+        if (parent != null)
+            return parent.find(name, searchIn);
+        return Optional.empty();
     }
 }

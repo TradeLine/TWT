@@ -1,6 +1,6 @@
 package org.tlsys.lex.declare;
 
-import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ArgumentModificator;
 import org.tlsys.lex.SVar;
 
 public class VArgument extends SVar {
@@ -8,15 +8,19 @@ public class VArgument extends SVar {
     public final boolean var;
     public final  boolean generic;
 
-    public VArgument(String realName, VClass clazz, boolean var, boolean generic) {
+    private final ArgumentModificator creator;
+
+    public VArgument(String realName, VClass clazz, boolean var, boolean generic, ArgumentModificator creator) {
         super(realName, clazz);
         this.var = var;
         this.generic = generic;
+        this.creator = creator;
     }
 
-    public VArgument(String realName, String alias, VClass clazz, boolean var, boolean generic) {
+    public VArgument(String realName, String alias, VClass clazz, boolean var, boolean generic, ArgumentModificator creator) {
         super(realName, alias, clazz);
         this.var = var;
         this.generic = generic;
+        this.creator = creator;
     }
 }

@@ -132,7 +132,7 @@ public class GenerationTask extends DefaultTask {
             }
             v.fullName = v.fullName.replace('.', '_') + "_" + Long.toString(++classNameIterator, Character.MAX_RADIX);
 
-            for (VField f : v.fields) {
+            for (VField f : v.getLocalFields()) {
                 f.setRuntimeName(f.getRealName() + Integer.toString(++fieldIterator, Character.MAX_RADIX));
             }
 

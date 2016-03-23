@@ -649,7 +649,7 @@ public class DefaultGenerator implements ICodeGenerator {
                     operation(context, c.parentConstructorInvoke, ps);
                     ps.append(";");
                 }
-                for (VField f : c.getParent().fields) {
+                for (VField f : c.getParent().getLocalFields()) {
                     if (f.isStatic())
                         continue;
                     ps.append("this.").append(f.getRuntimeName()).append("=");

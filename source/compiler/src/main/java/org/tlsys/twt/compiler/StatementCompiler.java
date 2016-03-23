@@ -31,7 +31,7 @@ class StatementCompiler {
             if (e.expr == null)
                 return new Return(null);
 
-            Optional<Context> ctx = CompilerTools.findParentContext(o, ee->ee instanceof VExecute || ee instanceof Lambda);
+            Optional<Context> ctx = TypeUtil.findParentContext(o, ee->ee instanceof VExecute || ee instanceof Lambda);
 
             if (!ctx.isPresent())
                 throw new RuntimeException("Can't find root content for get return type");

@@ -4,6 +4,7 @@ import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
+import org.tlsys.OtherClassLink;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
@@ -60,8 +61,8 @@ public class ClassCompiler {
         findReplaceMethod(cc);
     }
 
-    public static AnnonimusClass createAnnonimusClass(JCTree.JCClassDecl c, VClassLoader vClassLoader) throws CompileException {
-        AnnonimusClass as = new AnnonimusClass(null, c.sym);
+    public static AnnonimusClass createAnnonimusClass(Context context, JCTree.JCClassDecl c, VClassLoader vClassLoader) throws CompileException {
+        AnnonimusClass as = new AnnonimusClass(context, null, c.sym);
         as.setClassLoader(vClassLoader);
         Pair p = new Pair(as, c);
         setExtends(p, vClassLoader);
@@ -69,6 +70,33 @@ public class ClassCompiler {
         compileCode(p, VExecute.class);
         compileCode(p, VVar.class);
         findReplaceMethod(p);
+
+        as.visit((r)->{
+            System.out.println(r.get());
+            if (r.get() instanceof GetField) {
+                GetField gf = (GetField)r.get();
+                if (gf.getField().isStatic())
+                    return false;
+
+                OtherClassLink ocl = OtherClassLink.getOrCreate(as, gf.getField().getParent());
+
+                r.set(new GetField(ocl.getField(), gf.getField()));
+                return false;
+            }
+
+            if (r.get() instanceof SetField) {
+                SetField gf = (SetField)r.get();
+                if (gf.getField().isStatic())
+                    return true;
+
+                OtherClassLink ocl = OtherClassLink.getOrCreate(as, gf.getField().getParent());
+
+                r.set(new SetField(ocl.getField(), gf.getField(), gf.getValue(), gf.getOpType()));
+                return true;
+            }
+
+            return false;
+        });
         return as;
     }
 
@@ -225,7 +253,7 @@ public class ClassCompiler {
                     if (f.getParent() != enumClass && f.getParent().isParent(enumClass)) {
                         NewClass nc = (NewClass) f.init;
                         nc.addArg(new Const(f.getAliasName() != null ? f.getAliasName() : f.getRealName(), f.getParent().getClassLoader().loadClass(String.class.getName())));
-                        nc.addArg(new Const(f.getParent().fields.indexOf(f), f.getParent().getClassLoader().loadClass("int")));
+                        nc.addArg(new Const(f.getParent().getLocalFields().indexOf(f), f.getParent().getClassLoader().loadClass("int")));
                     }
                 }
                 continue;

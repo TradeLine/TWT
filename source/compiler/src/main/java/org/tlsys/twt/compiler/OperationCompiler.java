@@ -22,7 +22,7 @@ class OperationCompiler {
                 aclass.add(c.loadClass(ee.type));
             VClass classIns = null;
             if (e.def != null) {
-                classIns = ClassCompiler.createAnnonimusClass(e.def, c.getClassLoader());
+                classIns = ClassCompiler.createAnnonimusClass(o, e.def, c.getClassLoader());
                 //throw new RuntimeException("Annonimus class not supported yet!");
             } else {
                 classIns = c.loadClass(e.type);
@@ -126,7 +126,7 @@ class OperationCompiler {
             Objects.requireNonNull(method, "Method for replace not found");
             Lambda l = new Lambda(method, o);
             for (JCTree.JCVariableDecl v : e.params) {
-                VArgument a = new VArgument(v.name.toString(), c.loadClass(v.type), false, false);
+                VArgument a = new VArgument(v.name.toString(), c.loadClass(v.type), false, false, null);
                 l.arguments.add(a);
             }
             if (e.body instanceof JCTree.JCBlock) {

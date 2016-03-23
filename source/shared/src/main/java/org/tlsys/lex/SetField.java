@@ -1,6 +1,5 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VField;
 
@@ -37,6 +36,10 @@ public class SetField extends Value {
         this.field = field;
         this.value = value;
         this.type = type;
+    }
+
+    public Assign.AsType getOpType() {
+        return type;
     }
 
     @Override

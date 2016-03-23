@@ -1,7 +1,5 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
-import javafx.scene.layout.VBox;
 import org.tlsys.lex.declare.VArgument;
 import org.tlsys.lex.declare.VBlock;
 import org.tlsys.lex.declare.VClass;
@@ -28,6 +26,10 @@ public class Lambda extends Value implements Context {
     }
 
     public Lambda() {
+    }
+
+    public Context getParentContext() {
+        return parentContext;
     }
 
     public void setBlock(VBlock block) {

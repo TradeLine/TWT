@@ -1,6 +1,7 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 
 import java.util.Objects;
@@ -48,6 +49,12 @@ public class VBinar extends Value {
     @Override
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
         return Optional.empty();
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        ReplaceHelper.replace(left, replaceControl).ifPresent(o->left = o);
+        ReplaceHelper.replace(right, replaceControl).ifPresent(o->right = o);
     }
 
     @Override
