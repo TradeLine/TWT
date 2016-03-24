@@ -96,7 +96,7 @@ public class Json {
                 return ina;
             if (Script.code("Array.isArray(", ina, ")")) {
                 if (needClass.isArray()) {
-                    int arLen = Script.code(ina, ".length");
+                    int arLen = CastUtil.toInt(Script.code(ina, ".length"));
                     Object ar = Array.newInstance(needClass.getComponentType(), arLen);
                     for (int i = 0; i < arLen; i++) {
                         Array.set(ar, i, readObject(Script.code(ina, "[", i, "]"), needClass.getComponentType(), ids));
@@ -105,7 +105,7 @@ public class Json {
                 }
                 throw new RuntimeException("Not supported array type");
             }
-            if (Script.code(ina, ".hasOwnProperty('@ref')")) {
+            if (CastUtil.toBoolean(Script.code(ina, ".hasOwnProperty('@ref')"))) {
                 return ids.get(Script.code(ina, "['@ref']"));
             }
             String className = Script.code(ina, "['@type']");
@@ -129,8 +129,8 @@ public class Json {
                 return readObject(Script.code(ina, "['@items']"), objClass, ids);
             }
             Object o = objClass.newInstance();
-            if (Script.code(ina, ".hasOwnProperty('@id')")) {
-                int id = Script.code(ina, "['@id']");
+            if (CastUtil.toBoolean(Script.code(ina, ".hasOwnProperty('@id')")) ){
+                int id = CastUtil.toInt(Script.code(ina, "['@id']"));
                 ids.set(id, o);
             }
 
@@ -138,7 +138,7 @@ public class Json {
             while (oo != null) {
                 Field[] fields = oo.getFields();
                 for (Field f : fields) {
-                    if (Script.code(ina, ".hasOwnProperty(", f.getName(), ")")) {
+                    if (CastUtil.toBoolean(Script.code(ina, ".hasOwnProperty(", f.getName(), ")"))) {
                         Object t = Script.code(ina, "[", f.getName(), "]");
                         f.set(o, readObject(t, f.getType(), ids));
                     }

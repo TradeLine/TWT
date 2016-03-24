@@ -56,9 +56,17 @@ public class Events {
         listener.onEvent(listener, null);
     }
 
+    public static void addEventListener(Object object, String eventType, EventListener listener) {
+        addEventListener(object, eventType, listener, false);
+    }
+
     @CodeGenerator(EventCodeGenerator.class)
     public static void removeEventListener(Object object, String eventType, EventListener listener, boolean useCapture) {
         listener.onEvent(listener, null);
+    }
+
+    public static void removeEventListener(Object object, String eventType, EventListener listener) {
+        removeEventListener(object, eventType, listener, false);
     }
 
     @JSClass

@@ -1,5 +1,6 @@
 package org.tlsys.twt.rt.java.util;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
@@ -34,7 +35,7 @@ public class TArrayList<E> implements List<E> {
 
     @Override
     public int size() {
-        return Script.code(jsArray, ".length");
+        return CastUtil.toInt(Script.code(jsArray, ".length"));
     }
 
     @Override
@@ -121,35 +122,35 @@ public class TArrayList<E> implements List<E> {
 
     @Override
     public E get(int index) {
-        return Script.code(jsArray, "[", index, "]");
+        return Script.code(jsArray, "[", CastUtil.toObject(index), "]");
     }
 
     @Override
     public E set(int index, E element) {
-        Script.code(jsArray, "[", index, "]=", element);
+        Script.code(jsArray, "[", CastUtil.toObject(index), "]=", element);
         return element;
     }
 
     @Override
     public void add(int index, E element) {
-        Script.code(jsArray, ".splice(", index, ",0,", element, ")");
+        Script.code(jsArray, ".splice(", CastUtil.toObject(index), ",0,", element, ")");
     }
 
     @Override
     public E remove(int index) {
         E e = get(index);
-        Script.code(jsArray, ".splice(", index, ",1)");
+        Script.code(jsArray, ".splice(", CastUtil.toObject(index), ",1)");
         return e;
     }
 
     @Override
     public int indexOf(Object o) {
-        return Script.code(jsArray, ".indexOf(", o, ")");
+        return CastUtil.toInt(Script.code(jsArray, ".indexOf(", o, ")"));
     }
 
     @Override
     public int lastIndexOf(Object o) {
-        return Script.code(jsArray, ".lastIndexOf(", o, ")");
+        return CastUtil.toInt(Script.code(jsArray, ".lastIndexOf(", o, ")"));
     }
 
     @Override
@@ -165,7 +166,7 @@ public class TArrayList<E> implements List<E> {
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
         TArrayList aa = new TArrayList<E>();
-        aa.jsArray = Script.code(jsArray, ".slice(", fromIndex, ",", toIndex, ")");
+        aa.jsArray = Script.code(jsArray, ".slice(", CastUtil.toObject(fromIndex), ",", CastUtil.toObject(toIndex), ")");
         return aa;
     }
 
@@ -174,11 +175,6 @@ public class TArrayList<E> implements List<E> {
 
         public IteratorImp(int index) {
             this.index = index;
-            Script.code("console.dir(arguments)");
-            Script.code("console.info('init iterator width ' +",index,")");
-            Script.code("console.info('hasNext ' +",hasNext(),")");
-            Script.code("console.info('size= ' +",size(),")");
-            Script.code("console.info('size2= ' +",TArrayList.this.size(),")");
         }
 
         public IteratorImp() {

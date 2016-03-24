@@ -38,26 +38,33 @@ final class Utils {
     private static final Logger LOG = Logger.getLogger(Utils.class.getName());
 
     public static Collection<TWTModule> loadClass(ArtifactRecolver artifactRecolver, DLoader loader, Dependency dependency) throws IOException {
+
+        //System.out.println("====LOAD DEPENDENCY " + dependency + "  :  " + dependency.getClass().getName());
+
         if (dependency instanceof ProjectDependency) {
             ProjectDependency pd = (ProjectDependency)dependency;
-            Optional<TWTModule> p = loader.getByName(Utils.getDClassLoaderName(pd.getDependencyProject()));
-            if (p.isPresent())
+            String name = Utils.getDClassLoaderName(pd.getDependencyProject());
+            System.out.print("PROJECT " + pd.getName() + "/"+name+"...");
+            Optional<TWTModule> p = loader.getByName(name);
+            if (p.isPresent()) {
+                System.out.println("GETTED");
                 return Arrays.asList(p.get());
+            }
+            System.out.println("LOADED");
             GradleProjectTWTModule mod = new GradleProjectTWTModule(pd.getDependencyProject(), artifactRecolver, loader);
-            loader.add(mod);
+            loader.add(name, mod);
             return Arrays.asList(mod);
         }
 
         if (dependency instanceof ExternalModuleDependency) {
             ExternalModuleDependency emd  = (ExternalModuleDependency)dependency;
-            ArtifactRecord ar = null;
             try {
-                ar = artifactRecolver.getArtifacte(emd.getName(), emd.getGroup(), emd.getVersion());
+                ArtifactRecord ar = artifactRecolver.getArtifacte(emd.getName(), emd.getGroup(), emd.getVersion());
+                return Arrays.asList(loadClass(artifactRecolver, loader, ar));
             } catch (ArtifactNotFoundException e) {
                 LOG.info(e.getMessage());
                 return Collections.EMPTY_LIST;
             }
-            return Arrays.asList(loadClass(artifactRecolver, loader, ar));
         }
 
         if (dependency instanceof SelfResolvingDependency) {

@@ -22,7 +22,7 @@ class OperationCompiler {
                 aclass.add(c.loadClass(ee.type));
             VClass classIns = null;
             if (e.def != null) {
-                classIns = ClassCompiler.createAnnonimusClass(e.def, c.getClassLoader());
+                classIns = ClassCompiler.createAnnonimusClass(o, e.def, c.getClassLoader());
                 //throw new RuntimeException("Annonimus class not supported yet!");
             } else {
                 classIns = c.loadClass(e.type);
@@ -36,7 +36,10 @@ class OperationCompiler {
                 NewClass nc = new NewClass(con);
                 return nc;
             }
-            
+
+            if (classIns.getRealName().contains("TArrayList")) {
+                System.out.println("->");
+            }
             VConstructor con = classIns.getConstructor((Symbol.MethodSymbol) e.constructor);
             
             NewClass nc = new NewClass(con);
@@ -99,6 +102,9 @@ class OperationCompiler {
                 case POSTINC:
                     type = Increment.IncType.POST_INC;
                     break;
+                case NEG:
+                    type = Increment.IncType.NEG;
+                    break;
             }
             if (type == null)
                 throw new RuntimeException("Unknown incremet type " + e.getTag());
@@ -106,7 +112,10 @@ class OperationCompiler {
         });
 
         addProc(JCTree.JCTypeCast.class, (c, e, o) -> {
-            return new Cast(c.loadClass(e.type), (Value) c.op(e.expr, o));
+            Value v = (Value) c.op(e.expr, o);
+            VClass type = c.loadClass(e.type);
+            return CompilerTools.cast(v,type);
+            //return new Cast(type, v);
         });
 
         addProc(JCTree.JCLambda.class, (c, e, o) -> {
@@ -120,7 +129,7 @@ class OperationCompiler {
             Objects.requireNonNull(method, "Method for replace not found");
             Lambda l = new Lambda(method, o);
             for (JCTree.JCVariableDecl v : e.params) {
-                VArgument a = new VArgument(v.name.toString(), c.loadClass(v.type), false, false);
+                VArgument a = new VArgument(v.name.toString(), c.loadClass(v.type), false, false, null);
                 l.arguments.add(a);
             }
             if (e.body instanceof JCTree.JCBlock) {
@@ -135,7 +144,7 @@ class OperationCompiler {
                         block.add(op);
                     l.setBlock(block);
                 } else
-                    throw new RuntimeException("No blocked lambdanot supportedf yet");
+                    throw new RuntimeException("No blocked lambda not supportedf yet");
             }
             return l;
         });
@@ -175,6 +184,8 @@ class OperationCompiler {
                 Symbol.MethodSymbol m = (Symbol.MethodSymbol) in.sym;
                 self = new This(c.getCurrentClass());
                 if (in.name.toString().equals("super") || in.name.toString().equals("this")) {
+                    if (c.loadClass(m.owner.type).getRealName().contains("TArrayList"))
+                        System.out.println("->");
                     method = c.loadClass(m.owner.type).getConstructor(m);
                 } else {
                     method = c.loadClass(m.owner.type).getMethod(m);
@@ -184,9 +195,10 @@ class OperationCompiler {
                 throw new RuntimeException("Self or method is NULL");
 
             if (method instanceof VConstructor && method.getParent().isParent(method.getParent().getClassLoader().loadClass(Enum.class.getName()))) {
+                System.out.println("->");
                 VBlock block = (VBlock)o;
                 VConstructor cons = (VConstructor)block.getParentContext();
-                return new Invoke(method, new This(cons.getParent())).addArg(cons.arguments.get(0)).addArg(cons.arguments.get(1));
+                return new Invoke(method, new This(cons.getParent())).addArg(cons.getArguments().get(0)).addArg(cons.getArguments().get(1));
             }
             if (method.isStatic())
                 self = new StaticRef(method.getParent());
@@ -208,26 +220,32 @@ class OperationCompiler {
                 if (o instanceof VBlock && ((VBlock)o).getParentContext() instanceof VConstructor) {
                     VBlock block = (VBlock)o;
                     VConstructor cons = (VConstructor)block.getParentContext();
-                    i.addArg(cons.arguments.get(0));
+                    i.addArg(cons.getArguments().get(0));
                 } else
                     i.addArg(new GetField(self, TypeUtil.getParentThis(self.getType())));
             }
 
-            for (int c1 = argInc; c1 < method.arguments.size(); c1++) {
-                if (method.arguments.get(c1).var) {
-                    NewArrayItems nai = new NewArrayItems(method.arguments.get(c1).getType().getArrayClass());
+
+            for (int c1 = argInc; c1 < method.getArguments().size(); c1++) {
+                if (method.getArguments().get(c1).var) {
+                    NewArrayItems nai = new NewArrayItems(method.getArguments().get(c1).getType().getArrayClass());
                     for (int c2 = c1; c2 < e.args.size(); c2++) {
                         nai.elements.add(c.op(e.args.get(c2 - argInc), o));
                     }
                     i.arguments.add(nai);
                     break;
                 } else {
-                    i.arguments.add(c.op(e.args.get(c1 - argInc), o));
+                    int index = c1 - argInc;
+                    VArgument arg =  i.getMethod().getArguments().get(index);
+                    Value val = c.op(e.args.get(index), o);
+                    val = CompilerTools.cast(val, arg.getType());
+                    i.arguments.add(val);
                 }
             }
             i.returnType = c.loadClass(e.type);
             return i;
         });
+
 
         addProc(JCTree.JCConditional.class, (c, e, o) -> {
 
@@ -286,6 +304,12 @@ class OperationCompiler {
                     break;
                 case MOD:
                     type = VBinar.BitType.MOD;
+                    break;
+                case DIV:
+                    type = VBinar.BitType.DIV;
+                    break;
+                case USR:
+                    type = VBinar.BitType.USR;
                     break;
                 default:
                     throw new RuntimeException("Not supported binar operation " + e.getTag());
@@ -361,7 +385,7 @@ class OperationCompiler {
                 
 
                 if (name.equals("class")) {
-                    return scope;
+                    return new ClassRef(scope.getType());
                 }
             }
 

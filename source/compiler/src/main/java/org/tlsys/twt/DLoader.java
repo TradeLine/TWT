@@ -13,8 +13,12 @@ public final class DLoader {
         return Optional.ofNullable(loaders.get(name));
     }
 
+    public void add(String name, TWTModule loader) {
+        loaders.put(name, loader);
+    }
+
     public void add(TWTModule loader) {
-        loaders.put(loader.getName(), loader);
+        add(loader.getName(), loader);
     }
 
     public Collection<TWTModule> getLoaders() {

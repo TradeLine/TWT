@@ -16,6 +16,10 @@ public class ForLoop extends Operation {
     public VBlock block;
     private Context parentContext;
 
+    public Context getParentContext() {
+        return parentContext;
+    }
+
     public ForLoop() {
     }
 

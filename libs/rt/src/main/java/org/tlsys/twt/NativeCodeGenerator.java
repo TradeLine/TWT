@@ -2,7 +2,6 @@ package org.tlsys.twt;
 
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
-import org.tlsys.twt.*;
 
 import java.io.PrintStream;
 
@@ -15,7 +14,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         VClass clazz = record.getClazz();
         ps.append("var ").append(clazz.fullName).append("=function(){\n");
 
-        for (VField f : clazz.fields) {
+        for (VField f : clazz.getLocalFields()) {
             if (f.isStatic())
                 continue;
             ps.append("this.").append(f.getRuntimeName());
@@ -29,7 +28,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         ps.append("};\n");
         
         
-        for (VField f : clazz.fields) {
+        for (VField f : clazz.getLocalFields()) {
             if (!f.isStatic())
                 continue;
             ps.append(clazz.fullName+".").append(f.getRuntimeName());
@@ -73,7 +72,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append(meth.getRunTimeName());
         ps.append("=function(");
         boolean first = true;
-        for (VArgument ar : meth.arguments) {
+        for (VArgument ar : meth.getArguments()) {
             if (!first)
                 ps.append(",");
             ps.append(ar.getRuntimeName());
@@ -149,6 +148,12 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append(sr.getType().fullName);
             return true;
         }
+
+        if (op instanceof ClassRef) {
+            ClassRef sr = (ClassRef) op;
+            ps.append(sr.refTo.fullName);
+            return true;
+        }
 /*
         if (op instanceof NewClass) {
             NewClass nc = (NewClass) op;
@@ -172,7 +177,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append("{").append(l.getMethod().getRunTimeName()).append(":");
             ps.append("function(");
             boolean first = true;
-            for(VArgument a : l.getMethod().arguments) {
+            for(VArgument a : l.getMethod().getArguments()) {
                 if(!first)
                     ps.append(",");
                 ps.append(a.getRuntimeName());

@@ -24,7 +24,7 @@ public class JArray<E> {
     }
 
     public void add(E o, int index) {
-        Script.code(this.o,".splice(",index,",0,",o,")");
+        Script.code(this.o,".splice(",CastUtil.toObject(index),",0,",o,")");
     }
 
     public boolean remove(E value) {
@@ -37,17 +37,17 @@ public class JArray<E> {
     }
 
     public void remove(int index) {
-        Script.code(o,".splice(",index,",1)");
+        Script.code(o,".splice(",CastUtil.toObject(index),",1)");
     }
 
     public E get(int index) {
         if (index < 0 || index>=length())
             return null;
-        return Script.code(o,"[",index,"]");
+        return Script.code(o,"[",CastUtil.toObject(index),"]");
     }
 
     public int length() {
-        return Script.code(o,".length");
+        return CastUtil.toInt(Script.code(o,".length"));
     }
 
     public int indexOf(E object) {
@@ -63,7 +63,7 @@ public class JArray<E> {
     }
 
     public static <T> T[] fromJSArray(Object array, Class<T> clazz) {
-        int len = Script.code(array,".length");
+        int len = CastUtil.toInt(Script.code(array,".length"));
         T[] m = CastUtil.cast(Array.newInstance(clazz, len));
         for (int i = 0; i < len; i++) {
             m[i] = Script.code(array,"[",i,"]");

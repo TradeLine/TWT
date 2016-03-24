@@ -87,6 +87,7 @@ public class PackageInternalsFinder {
             }
             //jarConn.getJarFile().close();
         }catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException("Wasn't able to open " + packageFolderURL + " as a jar file", e);
         } catch (IllegalStateException e) {
             throw new RuntimeException("Can't read URL " + packageFolderURL, e);

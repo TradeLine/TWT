@@ -1,6 +1,5 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
 import org.tlsys.lex.declare.DeclareVar;
 import org.tlsys.lex.declare.VBlock;
 import org.tlsys.lex.declare.VClass;
@@ -19,6 +18,10 @@ public class Try extends Operation {
     private Context parentContext;
 
     public Try() {
+    }
+
+    public Context getParentContext() {
+        return parentContext;
     }
 
     public Try(Context parentContext) {
@@ -52,6 +55,10 @@ public class Try extends Operation {
         public Catch(Context parentContext, DeclareVar declareVar) {
             this.parentContext = parentContext;
             this.declareVar = declareVar;
+        }
+
+        public Context getParentContext() {
+            return parentContext;
         }
 
         @Override

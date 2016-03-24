@@ -52,6 +52,7 @@ public class Increment extends Value {
         POST_INC,//X++
         PRE_DEC,//--X
         POST_DEC,//X--
-        NOT//!
+        NOT,//!X
+        NEG//-X
     }
 }

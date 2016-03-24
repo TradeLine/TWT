@@ -1,5 +1,6 @@
 package org.tlsys.twt.dom;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
 
@@ -12,11 +13,11 @@ public class ClassList {
     }
 
     public int length() {
-        return Script.code(classList, ".length");
+        return CastUtil.toInt(Script.code(classList, ".length"));
     }
 
     public String get(int index) {
-        return Script.code(classList, ".item(", index, ")");
+        return Script.code(classList, ".item(", CastUtil.toObject(index), ")");
     }
 
     public void remove(String... names) {

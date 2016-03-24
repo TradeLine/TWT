@@ -8,7 +8,7 @@ import org.tlsys.lex.declare.VClass;
 
 public class DefaultCast implements ICastAdapter {
     @Override
-    public Value cast(GenerationContext ctx, Value value, VClass to) throws CompileException {
+    public Value cast(Value value, VClass to) throws CompileException {
         if (!(to instanceof ArrayClass) && to.alias.equals(String.class.getName())) {
             return new Invoke(value.getType().getMethod("toString"), value);
         } else {

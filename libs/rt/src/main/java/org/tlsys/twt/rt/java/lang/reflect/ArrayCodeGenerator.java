@@ -1,7 +1,6 @@
 package org.tlsys.twt.rt.java.lang.reflect;
 
 import org.tlsys.lex.Invoke;
-import org.tlsys.lex.Operation;
 import org.tlsys.lex.declare.ArrayClass;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VExecute;
@@ -38,14 +37,14 @@ public class ArrayCodeGenerator extends DefaultGenerator {
 
         if (execute.alias.equals("newInstance")) {
             VClass intClass = execute.getParent().getClassLoader().loadClass("int");
-            if (execute.arguments.get(1).getType() == intClass) {
+            if (execute.getArguments().get(1).getType() == intClass) {
                 VClass arrayClass = execute.getParent();
                 VClass classClass = arrayClass.getClassLoader().loadClass(Class.class.getName());
                 VMethod getArrayClassMethod = classClass.getMethod("getArrayClass");
                 ICodeGenerator cg = context.getGenerator(execute.getParent());
                 ps.append("return ");
-                cg.operation(context, new Invoke(getArrayClassMethod, execute.arguments.get(0)), ps);
-                ps.append(".n").append(ArrayClass.CONSTRUCTOR).append("(").append(execute.arguments.get(1).getRuntimeName()).append(");");
+                cg.operation(context, new Invoke(getArrayClassMethod, execute.getArguments().get(0)), ps);
+                ps.append(".n").append(ArrayClass.CONSTRUCTOR).append("(").append(execute.getArguments().get(1).getRuntimeName()).append(");");
                 return;
             }
         }

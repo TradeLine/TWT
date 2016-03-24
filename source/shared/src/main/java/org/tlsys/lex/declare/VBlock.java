@@ -1,10 +1,10 @@
 package org.tlsys.lex.declare;
 
-import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -47,5 +47,14 @@ public class VBlock extends Operation implements Using, CanUse, Context {
 
     public Context getParentContext() {
         return parentContext;
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        for (int i = 0; i < operations.size(); i++) {
+            Optional<Operation> op = ReplaceHelper.replace(operations.get(i), replaceControl);
+            if (op.isPresent())
+                operations.set(i, op.get());
+        }
     }
 }

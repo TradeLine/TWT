@@ -4,7 +4,12 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.TypeUtil;
+import org.tlsys.lex.Cast;
+import org.tlsys.lex.Const;
+import org.tlsys.lex.Value;
 import org.tlsys.lex.declare.*;
+import org.tlsys.twt.CompileException;
+import org.tlsys.twt.ICastAdapter;
 import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.ForceInject;
 import org.tlsys.twt.annotations.InvokeGen;
@@ -49,7 +54,7 @@ public class CompilerTools {
 
     private static VConstructor createConstructorMember(VClass clazz, JCTree.JCMethodDecl mem) throws VClassNotFoundException {
         VConstructor con = new VConstructor(clazz);
-        con.setModificators(toFlags(mem.getModifiers().getFlags()));
+        con.setModificators(toFlags(mem.getModifiers()));
         readExecutable(mem, con);
         //VClass enumClass = clazz.getClassLoader().loadClass(Enum.class.getName());
         return con;
@@ -60,27 +65,30 @@ public class CompilerTools {
                 e -> m.generator = e
         );
         getAnnatationValueClass(mem.getModifiers(), InvokeGen.class).ifPresent(e -> m.invokeGenerator = e);
-        m.setModificators(toFlags(mem.getModifiers().getFlags()));
+        m.setModificators(toFlags(mem.getModifiers()));
         for (JCTree.JCVariableDecl v : mem.getParameters()) {
             //Set<Modifier> mm = v.getModifiers().getFlags();
             VClass arg = TypeUtil.loadClass(m.getParent().getClassLoader(), v.type);
             if (arg instanceof ArrayClass) {
                 //VClass arg2 = vClassLoader.loadClass(v.type);
             }
-            VArgument a = new VArgument(v.name.toString(),arg, (v.mods.flags & Flags.VARARGS) != 0, v.type instanceof Type.TypeVar);
-            m.arguments.add(a);
+            VArgument a = new VArgument(v.name.toString(),arg, (v.mods.flags & Flags.VARARGS) != 0, v.type instanceof Type.TypeVar, null);
+            m.addArg(a);
         }
+
+
 
         if (m instanceof VConstructor) {
             VClass enumClass = m.getParent().getClassLoader().loadClass(Enum.class.getName());
             if (m.getParent() != enumClass && m.getParent().isParent(enumClass)) {
-                VArgument name = new VArgument("name", m.getParent().getClassLoader().loadClass(String.class.getName()), false, false);
-                m.arguments.add(name);
+                VArgument name = new VArgument("name", m.getParent().getClassLoader().loadClass(String.class.getName()), false, false, null);
+                m.addArg(name);
 
-                VArgument ordinal = new VArgument("ordinal", m.getParent().getClassLoader().loadClass("int"), false, false);
-                m.arguments.add(ordinal);
+                VArgument ordinal = new VArgument("ordinal", m.getParent().getClassLoader().loadClass("int"), false, false, null);
+                m.addArg(ordinal);
             }
 
+            /*
             //Если конструктор этого класса имеет родителя, при этом не является
             //интерфейсом,enum'мом и не обявлен как статический, то добавляем
             //его аргумент на this родителя
@@ -89,10 +97,12 @@ public class CompilerTools {
                     && !java.lang.reflect.Modifier.isStatic(m.getParent().getModificators())
                     && !m.getParent().isParent(enumClass)) {
 
-                VArgument parent = new VArgument("this$0",m.getParent().getParent(), false, false);
+                VArgument parent = new VArgument("this$0",m.getParent().getParent(), false, false, null);
                 m.arguments.add(0, parent);
             }
+            */
         }
+
     }
 
     private static VMethod createMethodMember(VClass clazz, JCTree.JCMethodDecl mem) throws VClassNotFoundException {
@@ -106,16 +116,26 @@ public class CompilerTools {
     }
 
     private static VField createFieldMember(VClass clazz, JCTree.JCVariableDecl fie) throws VClassNotFoundException {
-        VField v = new VField(fie.getName().toString(),TypeUtil.loadClass(clazz.getClassLoader(), fie.type), toFlags(fie.getModifiers().getFlags()), clazz);
-        clazz.fields.add(v);
+        VField v = new VField(fie.getName().toString(),TypeUtil.loadClass(clazz.getClassLoader(), fie.type), toFlags(fie.getModifiers()), clazz);
+        clazz.addLocalField(v);
         return v;
     }
 
-    public static int toFlags(Set<Modifier> mod) {
+    public static int toFlags(JCTree.JCModifiers m) {
         int out = 0;
+        Set<Modifier> mod = m.getFlags();
+
+        if ((m.flags & 512L) != 0)
+            out = out | java.lang.reflect.Modifier.INTERFACE;
+
         if (mod.contains(Modifier.PUBLIC)) {
             out = out | java.lang.reflect.Modifier.PUBLIC;
         }
+
+        if (mod.contains(Modifier.ABSTRACT)) {
+            out = out | java.lang.reflect.Modifier.ABSTRACT;
+        }
+
         if (mod.contains(Modifier.PROTECTED)) {
             out = out | java.lang.reflect.Modifier.PROTECTED;
         }
@@ -177,4 +197,41 @@ public class CompilerTools {
         }
         return Optional.empty();
     }
+
+    public static Value cast(Value value, VClass type) throws CompileException {
+        //if (true)
+        //    return value;
+        if (value.getType() == type || value.getType().isParent(type))
+            return value;
+
+        if (value instanceof Const && ((Const)value).getValue()==null)
+            return value;
+
+        System.out.println("=======================CAST " + value.getType().getRealName() + "@" + value.getType().hashCode() + "["+value.getType().getClassLoader().getName() + "] =>>>> " + type.getRealName() + "@" + type.hashCode() + "["+type.getClassLoader().getName()+"]");
+        return new Cast(type, value);
+        /*
+
+        ICastAdapter ica = getCastAdapter(value.getType());
+        return ica.cast(value, type);
+        */
+    }
+
+    private static ICastAdapter getCastAdapter(VClass clazz) {
+        VClass cl = clazz;
+        while (cl != null) {
+            if (cl.castGenerator != null && !cl.castGenerator.isEmpty()) {
+                try {
+
+                    return (ICastAdapter)cl.getJavaClass().getClassLoader().loadClass(cl.castGenerator).newInstance();
+
+                } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            cl = cl.extendsClass;
+        }
+        throw new RuntimeException("Can't find cast adapter for " + clazz.getRealName());
+    }
+
+
 }

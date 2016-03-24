@@ -1,9 +1,9 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VExecute;
-import org.tlsys.lex.declare.VMethod;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -54,5 +54,15 @@ public class Invoke extends Value {
     @Override
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
         return Optional.empty();
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        ReplaceHelper.replace(self, replaceControl).ifPresent(e->self = e);
+        for (int i =0; i < arguments.size(); i++) {
+            Optional<Operation> op = ReplaceHelper.replace(arguments.get(i), replaceControl);
+            if (op.isPresent())
+                arguments.set(i, (Value) op.get());
+        }
     }
 }

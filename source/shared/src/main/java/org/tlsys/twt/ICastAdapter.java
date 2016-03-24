@@ -5,5 +5,5 @@ import org.tlsys.lex.Value;
 import org.tlsys.lex.declare.VClass;
 
 public interface ICastAdapter {
-    public Value cast(GenerationContext ctx, Value value, VClass to) throws CompileException;
+    public Value cast(Value value, VClass to) throws CompileException;
 }

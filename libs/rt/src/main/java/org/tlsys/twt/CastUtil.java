@@ -12,4 +12,37 @@ public final class CastUtil {
 
     @InvokeGen(org.tlsys.twt.CastInvoke.class)
     public native static <T> T cast(Object obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static int toInt(Object obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static int toDouble(Object obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static long toLong(Object obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static byte toByte(Object obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static short toShort(Object obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static boolean toBoolean(Object obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static Object toObject(int obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static Object toObject(double obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static Object toObject(long obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static Object toObject(short obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static byte intToByte(int obj);
 }

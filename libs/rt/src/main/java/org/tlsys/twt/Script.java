@@ -21,7 +21,7 @@ public class Script {
     public native static boolean isPrototypeOf(Object args, Class clazz);
 
     public static boolean hasOwnProperty(Object object, String name) {
-        return Script.code(object,".hasOwnProperty(",name,")");
+        return CastUtil.toBoolean(Script.code(object,".hasOwnProperty(",name,")"));
     }
 
     public void tt(){}
@@ -35,4 +35,11 @@ public class Script {
 
         Script.code("alert(",text,")");
     }
+
+    public interface TimeoutCallback {
+        void onTimeout();
+    }
+
+    @InvokeGen(org.tlsys.twt.ScriptInvokeGenerator.class)
+    public static native long setTimeout(int timeOut, TimeoutCallback callback);
 }

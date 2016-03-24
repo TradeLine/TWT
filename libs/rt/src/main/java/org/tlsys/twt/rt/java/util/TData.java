@@ -1,5 +1,6 @@
 package org.tlsys.twt.rt.java.util;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
@@ -14,7 +15,7 @@ public class TData {
     private transient Object data;
 
     public TData(long time) {
-        data = Script.code("new Date(",time,")");
+        data = Script.code("new Date(",CastUtil.toObject(time),")");
     }
 
     public TData() {
@@ -22,11 +23,11 @@ public class TData {
     }
 
     public long getTime() {
-        return Script.code(data,".getTime()");
+        return CastUtil.toLong(Script.code(data,".getTime()"));
     }
 
     public void setTime(long time) {
-        Script.code(data,".setTime(",time,")");
+        Script.code(data,".setTime(",CastUtil.toObject(time),")");
     }
 
     public int getMonth() {
@@ -35,11 +36,11 @@ public class TData {
     }
 
     public int getDate() {
-        return Script.code(data,".getDate()");
+        return CastUtil.toInt(Script.code(data,".getDate()"));
     }
 
     @Deprecated
     public int getYear() {
-        return Script.code(data,".getFullYear()");
+        return CastUtil.toInt(Script.code(data,".getFullYear()"));
     }
 }

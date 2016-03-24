@@ -27,7 +27,6 @@ public class DirectoryClassLoader extends TWTClassLoader {
         addURL(director.toURI().toURL());
         if (resources != null)
             addURL(resources.toURI().toURL());
-        System.out.println("CREATE DIRECTORY CLASS LOADER!\nSOURCE=" + director + "\nRESURCE=" + resources);
     }
 
     @Override
