@@ -1,6 +1,7 @@
 package org.tlsys.lex.declare;
 
-import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.Collect;
 import org.tlsys.lex.Invoke;
 
@@ -40,6 +41,13 @@ public class VConstructor extends VExecute {
     @Override
     public String getDescription() {
         return "<init>(" + getArgumentDescription() + ")";
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        if (parentConstructorInvoke != null)
+            ReplaceHelper.replace(parentConstructorInvoke, replaceControl).ifPresent(e->parentConstructorInvoke = e);
     }
 
     Object writeReplace() throws ObjectStreamException {

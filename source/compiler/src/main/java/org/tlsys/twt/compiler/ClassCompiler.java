@@ -5,7 +5,6 @@ import com.sun.source.tree.Tree;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.OtherClassLink;
-import org.tlsys.ParentClassModificator;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
@@ -13,6 +12,7 @@ import org.tlsys.twt.CompileException;
 import org.tlsys.twt.annotations.*;
 
 import java.util.*;
+import java.util.function.Function;
 
 public class ClassCompiler {
 
@@ -57,9 +57,14 @@ public class ClassCompiler {
         searchMembers(cc);
 
         for (Pair p : cc.pairs) {
+//            parentThisReplacer.apply(p.vclass);
+
             if (p.vclass.getDependencyParent().isPresent()) {
+
+                OtherClassLink.getOrCreate(p.vclass, p.vclass.getDependencyParent().get());
                 System.out.println("->");
-                p.vclass.addMod(new ParentClassModificator(p.vclass));
+
+                //p.vclass.addMod(new ParentClassModificator(p.vclass));
             }
         }
 
@@ -71,8 +76,33 @@ public class ClassCompiler {
         findReplaceMethod(cc);
     }
 
+    private static Function<VClass, Void> parentThisReplacer = as->{
+        as.visit((r)->{
+            if (r.get() instanceof This) {
+                This t = (This)r.get();
+                if (t.getType() != as) {
+                    OtherClassLink ocl = OtherClassLink.getOrCreate(as, t.getType());
+
+                    r.set(new GetField(new This(as), ocl.getField()));
+                }
+                return false;
+            }
+            return true;
+        });
+        return null;
+    };
+
     public static AnnonimusClass createAnnonimusClass(Context context, JCTree.JCClassDecl c, VClassLoader vClassLoader) throws CompileException {
         AnnonimusClass as = new AnnonimusClass(context, null, c.sym);
+
+        VClass parentClazz = vClassLoader.loadClass(AnnonimusClass.extractParentClassName(c.sym));
+        as.setParentContext(parentClazz);
+        as.fullName = as.getRealName();
+        as.setParentContext(context);
+
+        parentClazz.addChild(as);
+        vClassLoader.classes.add(as);
+
         as.setClassLoader(vClassLoader);
         Pair p = new Pair(as, c);
         setExtends(p, vClassLoader);
@@ -81,8 +111,28 @@ public class ClassCompiler {
         compileCode(p, VVar.class);
         findReplaceMethod(p);
 
+        //as.setModificators(as.getModificators());
+
+        //заменяет все this родителя на проброшеную переменную
+        parentThisReplacer.apply(as);
+
+        as.visit(r->{
+            if (r.get() instanceof SVar) {
+                SVar v = (SVar)r.get();
+                Optional<Context> ctx = TypeUtil.findParentContext(v, e->e != as);
+
+                if (ctx.isPresent()) {
+                    System.out.println("OWN " + v);
+                } else {
+                    System.out.println("EXTENDS " + v);
+                }
+            }
+            return true;
+        });
+
+
+        /*
         as.visit((r)->{
-            System.out.println(r.get());
             if (r.get() instanceof GetField) {
                 GetField gf = (GetField)r.get();
                 if (gf.getField().isStatic())
@@ -107,6 +157,17 @@ public class ClassCompiler {
 
             return false;
         });
+        */
+
+        /*
+        VPackage pac = (VPackage) TypeUtil.findParentContext(as.extendsClass, e->e instanceof VPackage).get();
+        as.setParentContext(pac);
+        */
+
+
+        as.setParentContext(parentClazz);
+
+
         return as;
     }
 
@@ -303,18 +364,20 @@ public class ClassCompiler {
             method.block = (VBlock) com.st(dec.body, method);
             if (method instanceof VConstructor) {
                 VConstructor cons = (VConstructor) method;
-                if (!method.block.operations.isEmpty()) {
-                    if (method.block.operations.get(0) instanceof Invoke) {
-                        Invoke inv = (Invoke) method.block.operations.get(0);
+                if (!method.block.getNativeOperations().isEmpty()) {
+                    if (method.block.getNativeOperations().get(0) instanceof Invoke) {
+                        Invoke inv = (Invoke) method.block.getNativeOperations().get(0);
                         if (inv.getMethod() instanceof VConstructor) {
                             cons.parentConstructorInvoke = inv;
-                            cons.block.operations.remove(0);
+                            cons.block.getNativeOperations().remove(0);
                         }
                     }
+                    /*
                     if (method.getParent().getDependencyParent().isPresent()) {//если класс имеет жесткую привязку к родителю
                         SetField sf = new SetField(new This(method.getParent()), TypeUtil.getParentThis(method.getParent()), cons.getArguments().get(0), Assign.AsType.ASSIGN);//то формируем присваение аргумента (this родителя) в локальную переменную
-                        method.block.operations.add(0, sf);
+                        method.block.getNativeOperations().add(0, sf);
                     }
+                    */
                 }
             }
         } catch (Throwable e) {

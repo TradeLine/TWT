@@ -1,6 +1,5 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
 import org.tlsys.lex.declare.VClass;
 
 import java.util.Objects;
@@ -14,6 +13,7 @@ public class SVar extends Value {
     protected String realName;
     protected String aliasName;
     private VClass clazz;
+    private Context parentContext;
 
     public String getRuntimeName() {
         if (runtimeName == null)
@@ -35,14 +35,23 @@ public class SVar extends Value {
         return aliasName;
     }
 
-    public SVar(String realName, VClass clazz) {
-        this(realName, realName, clazz);
+    public SVar(String realName, VClass clazz, Context parentContext) {
+        this(realName, realName, clazz, parentContext);
     }
 
-    public SVar(String realName, String alias, VClass clazz) {
+    public SVar(String realName, String alias, VClass clazz, Context parentContext) {
+        this.parentContext = parentContext;
         this.clazz = Objects.requireNonNull(clazz);
         this.realName = realName;
         this.aliasName = alias;
+    }
+
+    public Context getParentContext() {
+        return parentContext;
+    }
+
+    public void setParentContext(Context parentContext) {
+        this.parentContext = parentContext;
     }
 
     @Override

@@ -14,9 +14,10 @@ public final class TypeUtil {
     private TypeUtil() {
     }
 
+    /*
     public static VField getParentThis(VClass clazz) throws VFieldNotFoundException {
         return ((ParentClassModificator)clazz.getModificator(e->e instanceof ParentClassModificator).orElseThrow(()->new VFieldNotFoundException(clazz, "this$0"))).getParentField();
-        /*
+        / *
         if (!clazz.getDependencyParent().isPresent())
             throw new IllegalStateException("Class " + clazz.getRealName() + " not need parent");
         for (VField f : clazz.fields) {
@@ -24,7 +25,7 @@ public final class TypeUtil {
                 return f;
         }
         throw new VFieldNotFoundException(clazz, "this$0");
-        */
+        * /
     }
 
     public static VField createParentThis(VClass clazz) {
@@ -34,7 +35,7 @@ public final class TypeUtil {
         clazz.addMod(pcm);
 
         return pcm.getParentField();
-        /*
+        / *
 
         if (!clazz.getDependencyParent().isPresent())
             throw new IllegalStateException("Class " + clazz.getRealName() + " not need parent");
@@ -46,8 +47,9 @@ public final class TypeUtil {
         VField f = new VField("this$0", clazz.getParent(), Modifier.PRIVATE, clazz);
         clazz.fields.add(f);
         return f;
-        */
+        * /
     }
+    */
 
     public static VClass loadClass(VClassLoader loader, Type type) throws VClassNotFoundException {
         Objects.requireNonNull(type, "Type is NULL");
@@ -73,6 +75,18 @@ public final class TypeUtil {
                 System.out.println("Search subclass " + n);
                 return loader.loadClass(n);
             }
+
+            if (AnnonimusClass.isAnnonimusClass(type.tsym)) {
+                VClass parentClazz = loader.loadClass(AnnonimusClass.extractParentClassName(type.tsym));
+                String simpleName = AnnonimusClass.extractSimpleName(type.tsym);
+                return (VClass) parentClazz.find(simpleName, e->e instanceof AnnonimusClass).get();
+                //System.out.println("IS ANNONUMUS!");
+            }
+
+            /*
+            if (type.tsym.toString().contains("<anonymous"))
+                System.out.println("123");
+                */
             return loader.loadClass(type.tsym.toString());
         } catch (VClassNotFoundException e) {
             throw e;
@@ -94,6 +108,10 @@ public final class TypeUtil {
 
     public static Optional<Context> getParent(Context context) {
         Objects.requireNonNull(context);
+
+        if (context instanceof SVar) {
+            return Optional.ofNullable(((SVar)context).getParentContext());
+        }
 
         if (context instanceof Switch) {
             return Optional.ofNullable(((Switch)context).getParentContext());

@@ -1,6 +1,7 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
 
 import java.util.Objects;
@@ -49,5 +50,19 @@ public class VIf extends Operation {
     @Override
     public void getUsing(Collect c) {
         c.add(thenBlock).add(elseBlock).add(value);
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+
+        if (value != null)
+            ReplaceHelper.replace(value, replaceControl).ifPresent(e->value = e);
+
+        if (thenBlock != null)
+            ReplaceHelper.replace(thenBlock, replaceControl).ifPresent(e->thenBlock = e);
+
+        if (elseBlock != null)
+            ReplaceHelper.replace(elseBlock, replaceControl).ifPresent(e->elseBlock = e);
     }
 }

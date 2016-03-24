@@ -1,6 +1,7 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VField;
 
@@ -43,5 +44,11 @@ public class GetField extends Value {
     @Override
     public void getUsing(Collect c) {
         c.add(field);
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        ReplaceHelper.replace(scope, replaceControl).ifPresent(e->scope = e);
     }
 }

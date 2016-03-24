@@ -2,6 +2,7 @@ package org.tlsys.twt.compiler;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree;
+import org.tlsys.OtherClassLink;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
@@ -12,6 +13,18 @@ import java.util.*;
 class OperationCompiler {
 
     private static final Map<Class, ProcEx> exProc = new HashMap<>();
+
+    private static List<VClass> buildConstructorInvokeTypes(VClass vClass) {
+        Objects.requireNonNull(vClass);
+        List<VClass> argsParamClasses = new ArrayList<VClass>();
+
+        vClass.getModificator(ee -> ee.getClass() == OtherClassLink.class).ifPresent(e3 -> {
+            OtherClassLink o2 = (OtherClassLink) e3;
+            argsParamClasses.add(o2.getToClass());
+        });
+
+        return argsParamClasses;
+    }
 
     static {
         addProc(JCTree.JCNewClass.class, (c, e, o) -> {
@@ -27,7 +40,7 @@ class OperationCompiler {
             } else {
                 classIns = c.loadClass(e.type);
             }
-            
+
             VClass enumClass = classIns.getClassLoader().loadClass(Enum.class.getName());
 
 
@@ -37,22 +50,45 @@ class OperationCompiler {
                 return nc;
             }
 
-            if (classIns.getRealName().contains("TArrayList")) {
-                System.out.println("->");
-            }
-            VConstructor con = classIns.getConstructor((Symbol.MethodSymbol) e.constructor);
-            
+            List<VClass> argsParamClasses = buildConstructorInvokeTypes(classIns);//new ArrayList<VClass>();
+
+
+            /*
+            classIns.getModificator(ee->ee.getClass() == OtherClassLink.class).ifPresent(e3->{
+                OtherClassLink o2 = (OtherClassLink)e3;
+                argsParamClasses.add(o2.getToClass());
+            });
+            */
+
+            for (JCTree.JCExpression ee : e.args)
+                argsParamClasses.add(c.loadClass(ee.type));
+
+            VConstructor con = classIns.getConstructor(argsParamClasses);
+
             NewClass nc = new NewClass(con);
             Optional<VClass> parentClass = con.getParent().getDependencyParent();
-            
-            if (parentClass.isPresent()) {
+
+            for (VArgument arg : con.getArguments()) {
+                if (arg.getCreator() != null) {
+                    if (arg.getCreator() instanceof OtherClassLink.ArgumentLink) {
+                        VClass aa = arg.getType();
+                        nc.addArg(new This(arg.getType()));
+                    }
+                }
+            }
+
+
+            if (!(classIns instanceof AnnonimusClass) && parentClass.isPresent()) {
                 Optional<VClass> currentParentClass = c.getCurrentClass().getDependencyParent();
+                /*
                 if (currentParentClass.isPresent() && currentParentClass.get()==parentClass.get()) {
                     nc.arguments.add(new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass())));
                 } else
-                    nc.arguments.add(new This(parentClass.get()));
+                */
+                nc.arguments.add(new This(parentClass.get()));
             }
-            
+
+
             for (JCTree.JCExpression ee : e.args)
                 nc.arguments.add(c.op(ee, o));
             return nc;
@@ -64,20 +100,20 @@ class OperationCompiler {
             if (e.sym instanceof Symbol.VarSymbol && (e.toString().equals("this") || e.toString().equals("super")))
                 return new This(c.loadClass(e.type));
             if (e.sym instanceof Symbol.VarSymbol) {
-                Symbol.VarSymbol vv = (Symbol.VarSymbol)e.sym;
+                Symbol.VarSymbol vv = (Symbol.VarSymbol) e.sym;
                 Optional<Context> var = o.find(vv.name.toString(), v -> true);
                 if (var.isPresent()) {
                     if (var.get() instanceof VField) {
-                        VField field = (VField)var.get();
+                        VField field = (VField) var.get();
                         if (field.isStatic())
-                            return new GetField(new StaticRef(field.getParent()),field);
+                            return new GetField(new StaticRef(field.getParent()), field);
                         else
                             return new GetField(new This(field.getParent()), field);
                     }
-                    return (SVar)var.get();
+                    return (SVar) var.get();
                 }
             }
-            throw new RuntimeException("Unknown indent " + e + ", class=" + (e.sym!=null?e.sym.getClass().getName():"NULL"));
+            throw new RuntimeException("Unknown indent " + e + ", class=" + (e.sym != null ? e.sym.getClass().getName() : "NULL"));
         });
 
         addProc(JCTree.JCLiteral.class, (c, e, o) -> {
@@ -114,7 +150,7 @@ class OperationCompiler {
         addProc(JCTree.JCTypeCast.class, (c, e, o) -> {
             Value v = (Value) c.op(e.expr, o);
             VClass type = c.loadClass(e.type);
-            return CompilerTools.cast(v,type);
+            return CompilerTools.cast(v, type);
             //return new Cast(type, v);
         });
 
@@ -129,7 +165,7 @@ class OperationCompiler {
             Objects.requireNonNull(method, "Method for replace not found");
             Lambda l = new Lambda(method, o);
             for (JCTree.JCVariableDecl v : e.params) {
-                VArgument a = new VArgument(v.name.toString(), c.loadClass(v.type), false, false, null);
+                VArgument a = new VArgument(v.name.toString(), c.loadClass(v.type), false, false, l, null);
                 l.arguments.add(a);
             }
             if (e.body instanceof JCTree.JCBlock) {
@@ -183,47 +219,88 @@ class OperationCompiler {
                 JCTree.JCIdent in = (JCTree.JCIdent) e.meth;
                 Symbol.MethodSymbol m = (Symbol.MethodSymbol) in.sym;
                 self = new This(c.getCurrentClass());
+
+                if (in.name.toString().equals("this") || in.name.toString().equals("super")) {
+                    VClass cc = null;
+                    if (in.name.toString().equals("this"))
+                        cc = c.getCurrentClass();
+                    if (in.name.toString().equals("super")) {
+                        cc = c.getCurrentClass().extendsClass;
+                    }
+                    List<VClass> args = buildConstructorInvokeTypes(cc);
+                    for (JCTree.JCExpression ee : e.args) {
+                        args.add(TypeUtil.loadClass(c.getClassLoader(), ee.type));
+                    }
+                    try {
+                        method = cc.getConstructor(args);
+                    } catch (CompileException ex) {
+                        throw ex;
+                    }
+                } else {
+                    List<VClass> args = new ArrayList<VClass>();
+                    for (JCTree.JCExpression ee : e.args) {
+                        args.add(TypeUtil.loadClass(c.getClassLoader(), ee.type));
+                    }
+                    method = self.getType().getMethod(in.name.toString(), args);
+                }
+                /*
                 if (in.name.toString().equals("super") || in.name.toString().equals("this")) {
                     if (c.loadClass(m.owner.type).getRealName().contains("TArrayList"))
                         System.out.println("->");
                     method = c.loadClass(m.owner.type).getConstructor(m);
                 } else {
-                    method = c.loadClass(m.owner.type).getMethod(m);
+                    //method = c.loadClass(m.owner.type).getMethod(m);
+
                 }
+                */
             }
             if (self == null || method == null)
                 throw new RuntimeException("Self or method is NULL");
 
             if (method instanceof VConstructor && method.getParent().isParent(method.getParent().getClassLoader().loadClass(Enum.class.getName()))) {
                 System.out.println("->");
-                VBlock block = (VBlock)o;
-                VConstructor cons = (VConstructor)block.getParentContext();
+                VBlock block = (VBlock) o;
+                VConstructor cons = (VConstructor) block.getParentContext();
                 return new Invoke(method, new This(cons.getParent())).addArg(cons.getArguments().get(0)).addArg(cons.getArguments().get(1));
             }
             if (method.isStatic())
                 self = new StaticRef(method.getParent());
-            else {
-                if (! (method instanceof VConstructor)) {
-                    Optional<VClass> dep = c.getCurrentClass().getDependencyParent();
-
-                    if (method.getParent() != c.getCurrentClass() && dep.isPresent() && dep.get().isParent(method.getParent())) {
-                        self = new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass()));
-                    }
-                }
-            }
 
             Invoke i = new Invoke(method, self);
 
+
             int argInc = 0;
-            if (i.getMethod() instanceof VConstructor && self.getType().isParent(i.getMethod().getParent()) && i.getMethod().getParent().getDependencyParent().isPresent()) {
-                argInc=1;
-                if (o instanceof VBlock && ((VBlock)o).getParentContext() instanceof VConstructor) {
-                    VBlock block = (VBlock)o;
-                    VConstructor cons = (VConstructor)block.getParentContext();
-                    i.addArg(cons.getArguments().get(0));
-                } else
-                    i.addArg(new GetField(self, TypeUtil.getParentThis(self.getType())));
+            if (method instanceof VConstructor) {
+                for (VArgument arg : method.getArguments()) {
+                    if (arg.getCreator() == null)
+                        continue;
+
+                    if (arg.getCreator().getClass() == OtherClassLink.ArgumentLink.class) {
+                        OtherClassLink.ArgumentLink al = (OtherClassLink.ArgumentLink) arg.getCreator();
+
+                        OtherClassLink ocl = (OtherClassLink) method.getParent().getModificator(ee -> ee.getClass() == OtherClassLink.class && ((OtherClassLink) ee).getToClass() == al.getToClass()).get();
+                        i.addArg(new GetField(new This(ocl.getField().getParent()),ocl.getField()));
+                        argInc++;
+                        break;
+                    }
+
+                    throw new RuntimeException("Unknown exception");
+                }
             }
+
+
+            /*
+            if (i.getMethod() instanceof VConstructor && self.getType().isParent(i.getMethod().getParent()) && i.getMethod().getParent().getDependencyParent().isPresent()) {
+                argInc = 1;
+                if (o instanceof VBlock && ((VBlock) o).getParentContext() instanceof VConstructor) {
+                    VBlock block = (VBlock) o;
+                    VConstructor cons = (VConstructor) block.getParentContext();
+                    i.addArg(cons.getArguments().get(0));
+                } /* else
+                    i.addArg(new GetField(self, TypeUtil.getParentThis(self.getType())));
+                    * /
+            }
+                */
 
 
             for (int c1 = argInc; c1 < method.getArguments().size(); c1++) {
@@ -236,7 +313,7 @@ class OperationCompiler {
                     break;
                 } else {
                     int index = c1 - argInc;
-                    VArgument arg =  i.getMethod().getArguments().get(index);
+                    VArgument arg = i.getMethod().getArguments().get(index);
                     Value val = c.op(e.args.get(index), o);
                     val = CompilerTools.cast(val, arg.getType());
                     i.arguments.add(val);
@@ -375,14 +452,14 @@ class OperationCompiler {
             Value scope = c.op(e.selected, o);
             if (scope instanceof StaticRef) {
                 String name = e.name.toString();
-                
+
                 if (name.equals("this")) {
                     return new This(c.getCurrentClass().getParent());
                     //return new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass()));
                     //throw new RuntimeException("Not supported parent this parent class");
                     //return c.getCurrentClass().getParentVar();
                 }
-                
+
 
                 if (name.equals("class")) {
                     return new ClassRef(scope.getType());
@@ -397,9 +474,11 @@ class OperationCompiler {
 
                 Optional<VClass> dep = c.getCurrentClass().getDependencyParent();
 
+                /*
                 if (field.getParent() != c.getCurrentClass() && dep.isPresent() && dep.get().isParent(field.getParent())) {
                     scope = new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass()));
                 }
+                */
 
                 GetField gf = new GetField(scope, field);
                 return gf;
@@ -407,7 +486,7 @@ class OperationCompiler {
 
             if (e.sym instanceof Symbol.ClassSymbol) {
                 String text = "scope = " + scope;
-                return new StaticRef((VClass) scope.find(e.name.toString(), v->v instanceof VClass).orElseThrow(()->new VClassNotFoundException(e.sym.name.toString() + ", " + text)));
+                return new StaticRef((VClass) scope.find(e.name.toString(), v -> v instanceof VClass).orElseThrow(() -> new VClassNotFoundException(e.sym.name.toString() + ", " + text)));
             }
 
             throw new RuntimeException("Unknown indent! " + e + ", " + e.sym.getClass());
@@ -437,7 +516,7 @@ class OperationCompiler {
         });
 
 
-        addProc(JCTree.JCPrimitiveTypeTree.class, (c,e,o)->{
+        addProc(JCTree.JCPrimitiveTypeTree.class, (c, e, o) -> {
             return new StaticRef(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.type));
         });
     }

@@ -1,6 +1,7 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
 
 import java.util.Objects;
@@ -52,5 +53,14 @@ public class ForLoop extends Operation {
     @Override
     public void getUsing(Collect c) {
         c.add(init, value, update, block);
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        ReplaceHelper.replace(init, replaceControl).ifPresent(e->init = e);
+        ReplaceHelper.replace(value, replaceControl).ifPresent(e->value = e);
+        ReplaceHelper.replace(update, replaceControl).ifPresent(e->update = e);
+        ReplaceHelper.replace(block, replaceControl).ifPresent(e->block = e);
     }
 }

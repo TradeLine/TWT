@@ -73,7 +73,7 @@ public class ArrayClass extends VClass {
         get = new VMethod(this, null);
         get.setRuntimeName(GET);
         get.alias="get";
-        get.addArg(new VArgument("i", intType, false, false, null));
+        get.addArg(new VArgument("i", intType, false, false, get, null));
         get.block = new VBlock(get);
         get.returnType = component;
         get.setModificators(Modifier.PUBLIC);
@@ -81,8 +81,8 @@ public class ArrayClass extends VClass {
         set = new VMethod(this, null);
         set.setRuntimeName(SET);
         set.alias="set";
-        set.addArg(new VArgument("i", intType, false, false, null));
-        set.addArg(new VArgument("v", component, false, false, null));
+        set.addArg(new VArgument("i", intType, false, false, set, null));
+        set.addArg(new VArgument("v", component, false, false, set, null));
         set.returnType = intType.getClassLoader().loadClass("void");
         set.block = new VBlock(set);
         set.setModificators(Modifier.PUBLIC);
@@ -96,7 +96,7 @@ public class ArrayClass extends VClass {
         constructor = new VConstructor(this);
         constructor.setModificators(Modifier.PUBLIC);
         constructor.setRuntimeName(CONSTRUCTOR);
-        constructor.addArg(new VArgument("l", intType, false, false, null));
+        constructor.addArg(new VArgument("l", intType, false, false, constructor, null));
         constructor.generator = ArrayCodeGenerator.class.getName();
         constructor.block = new VBlock(constructor);
         constructor.returnType = intType.getClassLoader().loadClass("void");

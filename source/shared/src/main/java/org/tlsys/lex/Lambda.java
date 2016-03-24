@@ -1,5 +1,7 @@
 package org.tlsys.lex;
 
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VArgument;
 import org.tlsys.lex.declare.VBlock;
 import org.tlsys.lex.declare.VClass;
@@ -59,5 +61,11 @@ public class Lambda extends Value implements Context {
     @Override
     public void getUsing(Collect c) {
         c.add(arguments.stream().toArray(VArgument[]::new)).add(block);
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        ReplaceHelper.replace(block, replaceControl).ifPresent(e->block = e);
     }
 }

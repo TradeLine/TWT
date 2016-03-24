@@ -1,5 +1,7 @@
 package org.tlsys.lex;
 
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VField;
 
@@ -50,6 +52,12 @@ public class SetField extends Value {
     @Override
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
         return Optional.empty();
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        ReplaceHelper.replace(scope,replaceControl).ifPresent(e->scope = e);
     }
 
     @Override

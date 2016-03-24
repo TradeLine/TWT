@@ -18,7 +18,7 @@ class StatementCompiler {
             for (JCTree.JCStatement t : e.getStatements()) {
                 Operation oo = c.st(t, b);
                 if (o != null)
-                    b.operations.add(oo);
+                    b.add(oo);
             }
             return b;
         });
@@ -62,7 +62,7 @@ class StatementCompiler {
                     i.thenBlock = (VBlock) oo;
                 } else {
                     VBlock b = new VBlock(i);
-                    b.operations.add(oo);
+                    b.add(oo);
                     i.thenBlock = b;
                 }
 
@@ -75,7 +75,7 @@ class StatementCompiler {
                 } else {
                     VBlock b = new VBlock(i);
                     if (oo != null)
-                        b.operations.add(oo);
+                        b.add(oo);
                     i.elseBlock = b;
                 }
             }
@@ -87,7 +87,7 @@ class StatementCompiler {
         });
 
         addProcSt(JCTree.JCVariableDecl.class, (c, e, o) -> {
-            SVar var = new SVar(e.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.type));
+            SVar var = new SVar(e.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.type), o);
             DeclareVar dv = new DeclareVar(var);
             if (e.init == null)
                 dv.init = OperationCompiler.getInitValueForType(var.getType());
@@ -109,26 +109,26 @@ class StatementCompiler {
 
 
 
-                SVar iterator = new SVar("it" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), classIterator);
+                SVar iterator = new SVar("it" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), classIterator, block);
                 DeclareVar it = new DeclareVar(iterator);
                 it.init = new Invoke(v.getType().getMethod("iterator"), v);
-                block.operations.add(it);
+                block.add(it);
                 WhileLoop wl = new WhileLoop(block);
                 wl.value = new Invoke(classIterator.getMethod("hasNext"), it.getVar());
                 wl.block = new VBlock(wl);
-                block.operations.add(wl);
+                block.add(wl);
 
-                SVar var = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type));
+                SVar var = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type), block);
                 DeclareVar dv = new DeclareVar(var);
                 dv.init = new Invoke(classIterator.getMethod("next"), it.getVar());
-                wl.block.operations.add(dv);
-                wl.block.operations.add(c.st(e.body, wl.block));
+                wl.block.add(dv);
+                wl.block.add(c.st(e.body, wl.block));
                 return block;
             } else {
                 VBlock block = new VBlock(o);
 
                 VClass intClass = c.getCurrentClass().getClassLoader().loadClass("int");
-                SVar arVar = new SVar("l" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), v.getType());
+                SVar arVar = new SVar("l" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), v.getType(), block);
                 DeclareVar ar = new DeclareVar(arVar);
                 ar.init = v;
                 block.add(ar);
@@ -137,21 +137,21 @@ class StatementCompiler {
                 ForLoop forLoop = new ForLoop(o);
                 forLoop.block = new VBlock(forLoop);
 
-                SVar itVar = new SVar("i" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), intClass);
+                SVar itVar = new SVar("i" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), intClass, forLoop);
                 DeclareVar it = new DeclareVar(itVar);
                 it.init = new Const(0, intClass);
                 forLoop.init = it;
                 forLoop.update = new Increment(itVar, Increment.IncType.PRE_INC, intClass);
                 forLoop.value = new VBinar(itVar, new GetField(arVar, arVar.getType().getField("length")),c.getCurrentClass().getClassLoader().loadClass("boolean"), VBinar.BitType.LT);
 
-                SVar el = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type));
+                SVar el = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type), forLoop.block);
                 DeclareVar dv = new DeclareVar(el);
                 dv.init = new ArrayGet(arVar, itVar);
-                forLoop.block.operations.add(dv);
+                forLoop.block.add(dv);
 
 
                 if (e.body != null) {
-                    forLoop.block.operations.add(c.st(e.body, forLoop.block));
+                    forLoop.block.add(c.st(e.body, forLoop.block));
                 }
                 block.add(forLoop);
                 return block;
@@ -168,7 +168,7 @@ class StatementCompiler {
             if (!(op instanceof VBlock)) {
                 VBlock b = new VBlock(fe);
                 if (op != null)
-                    b.operations.add(op);
+                    b.add(op);
                 op = b;
             }
             fe.block = (VBlock) op;
@@ -198,7 +198,7 @@ class StatementCompiler {
             if (!(oo instanceof VBlock)) {
                 VBlock b = new VBlock(f);
                 if (oo != null)
-                    b.operations.add(oo);
+                    b.add(oo);
                 oo = b;
             }
             f.block = (VBlock) oo;
@@ -228,9 +228,10 @@ class StatementCompiler {
             Try tr = new Try(o);
             tr.block = (VBlock) c.st(e.body, o);
             for (JCTree.JCCatch ca : e.catchers) {
-                SVar var = new SVar(ca.param.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ca.param.type));
+                SVar var = new SVar(ca.param.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ca.param.type), null);
                 DeclareVar dv = new DeclareVar(var);
                 Try.Catch cc = new Try.Catch(tr, dv);
+                var.setParentContext(cc);
                 if (ca.param.vartype instanceof JCTree.JCTypeUnion) {
                     JCTree.JCTypeUnion ut = (JCTree.JCTypeUnion)ca.param.vartype;
                     for (JCTree.JCExpression ee : ut.alternatives)
@@ -252,7 +253,7 @@ class StatementCompiler {
                 for (JCTree.JCStatement ss : cc.getStatements()) {
                     Operation oo = c.st(ss, ca.block);
                     if (oo != null)
-                        ca.block.operations.add(oo);
+                        ca.block.add(oo);
                 }
                 s.cases.add(ca);
             }

@@ -1,6 +1,5 @@
 package org.tlsys.twt;
 
-import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.annotations.CastAdapter;
@@ -47,10 +46,12 @@ public class DefaultGenerator implements ICodeGenerator {
         addGen(This.class, (c, o, p, g) -> {
             if (o.getType() != c.getCurrentClass()) {
                 Optional<VClass> cl = c.getCurrentClass().getDependencyParent();
+                /*
                 if (cl.isPresent() && cl.get() == o.getType()) {
                     System.out.println("getting this of parent " + c.getCurrentClass().hashCode() + " " + c.getCurrentClass());
                     return g.operation(c, TypeUtil.getParentThis(c.getCurrentClass()), p);
                 }
+                */
                 throw new RuntimeException("Not support other this type. Current " + c.getCurrentClass() + ", this=" + o.getType());
             }
             p.append("this");
@@ -321,7 +322,7 @@ public class DefaultGenerator implements ICodeGenerator {
 
         addGen(VBlock.class, (c, o, p, g) -> {
             p.append("{");
-            for (Operation op : o.operations) {
+            for (Operation op : o.getOperations()) {
                 if (op == null)
                     continue;
                 g.operation(c, op, p);
@@ -554,7 +555,7 @@ public class DefaultGenerator implements ICodeGenerator {
 
                 VMethod convertMethod = errorClass.getMethod("jsErrorConvert", objectClass);
 
-                SVar evar = new SVar(c.genLocalName(), errorClass);
+                SVar evar = new SVar(c.genLocalName(), errorClass, o.block);
                 String lab = c.genLocalName();
                 p.append("catch(").append(evar.getRuntimeName()).append("){");
                 p.append("console.error(").append(evar.getRuntimeName()).append(".stack);");
@@ -661,7 +662,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 }
             }
 
-            for (Operation op : execute.block.operations) {
+            for (Operation op : execute.block.getOperations()) {
                 operation(context, op, ps);
                 ps.append(";");
             }

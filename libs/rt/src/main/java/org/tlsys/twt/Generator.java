@@ -27,7 +27,7 @@ public class Generator implements MainGenerator {
     private static Value getValueViaProvider(Value value) throws VClassNotFoundException {
         VClass typeValueProvider = value.getType().getClassLoader().loadClass(ValueProvider.class.getName());
         VBlock body = new VBlock();
-        body.operations.add(new Return(value));
+        body.add(new Return(value));
         Lambda lambda = new Lambda(typeValueProvider.methods.get(0), null);
         lambda.setBlock(body);
         return lambda;
@@ -36,7 +36,7 @@ public class Generator implements MainGenerator {
     private static Value getClassViaTypeProvider(VClass vClass) throws VClassNotFoundException {
         VClass typeProviderClass = vClass.getClassLoader().loadClass(TypeProvider.class.getName());
         VBlock body = new VBlock();
-        body.operations.add(new Return(new StaticRef(vClass)));
+        body.add(new Return(new StaticRef(vClass)));
         Lambda lambda = new Lambda(typeProviderClass.methods.get(0), null);
         lambda.setBlock(body);
         return lambda;
@@ -59,7 +59,7 @@ public class Generator implements MainGenerator {
 
         VClass classClassStorage = projectClassLoader.loadClass(ClassStorage.class.getName());
 
-        storage = new SVar("S", classClassStorage);
+        storage = new SVar("S", classClassStorage, null);
 
         VClass classLoader = projectClassLoader.loadClass(ClassLoader.class.getName());
         VClass classClass = projectClassLoader.loadClass(Class.class.getName());

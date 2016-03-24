@@ -37,7 +37,7 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
         nc.arguments.add(new VBinar(new Const("[",stringClass), new GetField(new This(classClass), classClass.getField("name")), stringClass, VBinar.BitType.PLUS));
         */
 
-        SVar clazzRecord = new SVar("clazz", classClassRecord);
+        SVar clazzRecord = new SVar("clazz", classClassRecord, execute);
         DeclareVar drecord = new DeclareVar(clazzRecord);
         VField jsNameField = classClass.getField("jsName");
         VField nameField = classClass.getField("name");

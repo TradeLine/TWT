@@ -2,15 +2,32 @@ package org.tlsys;
 
 import org.tlsys.twt.Console;
 import org.tlsys.twt.Script;
+import org.tlsys.twt.annotations.ForceInject;
 import org.tlsys.twt.annotations.JSClass;
-import org.tlsys.twt.dom.DOM;
-import org.tlsys.twt.dom.Document;
-import org.tlsys.twt.events.Events;
 
 @JSClass
 public class Main {
 
-    private static int aaa;
+    private int aaa;
+
+    public Main(int aaab) {
+        aaa = aaab;
+    }
+
+    public void doit() {
+
+        int a = 9;
+
+        Script.TimeoutCallback t = new Script.TimeoutCallback(){
+            @Override
+            @ForceInject
+            public void onTimeout() {
+                Console.info("IS CALL BACK! " + aaa);
+                Console.info(this.getClass().getName());
+            }
+        };
+        long id = Script.setTimeout(1000, t);
+    }
 
     public static void main() {
 
@@ -24,26 +41,21 @@ public class Main {
         }
 */
 
-        int a = 9;
-
-        /*
-        Script.TimeoutCallback t = new Script.TimeoutCallback(){
-
-            @Override
-            public void onTimeout() {
-                Console.info("IS CALL BACK! " + aaa);
-            }
-        };
 
 
-        long id = Script.setTimeout(5000, t);
+        new Main(1).doit();
+        new Main(2).doit();
+        new Main(3).doit();
 
-        */
+
+
 
 
 
         //Console.info("Timer setted! " + id);
 
+
+        /*
         API api = new API((s)->{
             Console.info("CONNECTED!");
         });
@@ -71,6 +83,7 @@ public class Main {
                 Console.dir(b2);
             });
         }, false);
+        */
 
     }
 }

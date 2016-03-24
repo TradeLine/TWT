@@ -1,7 +1,9 @@
 package org.tlsys.lex.declare;
 
-import com.sun.tools.javac.code.Symbol;
-import org.tlsys.lex.*;
+import org.tlsys.lex.Collect;
+import org.tlsys.lex.Context;
+import org.tlsys.lex.Operation;
+import org.tlsys.lex.VVar;
 
 import java.io.*;
 import java.util.Optional;
@@ -12,18 +14,18 @@ public class VField extends VVar implements Member, CodeDynLoad {
     private static final long serialVersionUID = -652517458481464235L;
     public transient Operation init;
     private final int modificators;
-    private final VClass parent;
+    //private final VClass parent;
 
     public VField(String realName, VClass clazz, int modificators, VClass parent) {
-        super(realName, clazz);
+        super(realName, clazz, parent);
         this.modificators = modificators;
-        this.parent = parent;
+        //this.parent = parent;
     }
 
     public VField(String realName, String alias, VClass clazz, int modificators, VClass parent) {
-        super(realName, alias, clazz);
+        super(realName, alias, clazz, parent);
         this.modificators = modificators;
-        this.parent = parent;
+        //this.parent = parent;
     }
 
     @Override
@@ -38,12 +40,12 @@ public class VField extends VVar implements Member, CodeDynLoad {
 
     @Override
     public VClass getParent() {
-        return parent;
+        return (VClass) getParentContext();
     }
 
     @Override
     public void getUsing(Collect c) {
-        c.add(init, parent, getType());
+        c.add(init, getParent(), getType());
     }
 
     @Override

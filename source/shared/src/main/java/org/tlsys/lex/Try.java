@@ -1,5 +1,7 @@
 package org.tlsys.lex;
 
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.DeclareVar;
 import org.tlsys.lex.declare.VBlock;
 import org.tlsys.lex.declare.VClass;
@@ -42,7 +44,19 @@ public class Try extends Operation {
             c.add(cc);
     }
 
-    public static class Catch implements Context, Using, Serializable {
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+
+        ReplaceHelper.replace(block, replaceControl).ifPresent(e -> block = e);
+        for (int i = 0; i < catchs.size(); i++) {
+            Optional<Catch> c = ReplaceHelper.replace(catchs.get(i), replaceControl);
+            if (c.isPresent())
+                catchs.set(i, c.get());
+        }
+    }
+
+    public static class Catch extends Operation implements Context, Using, Serializable {
         public ArrayList<VClass> classes = new ArrayList<>();
         public VBlock block;
         private Context parentContext;
@@ -51,7 +65,7 @@ public class Try extends Operation {
         public DeclareVar getDeclareVar() {
             return declareVar;
         }
-        
+
         public Catch(Context parentContext, DeclareVar declareVar) {
             this.parentContext = parentContext;
             this.declareVar = declareVar;

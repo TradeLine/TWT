@@ -72,7 +72,7 @@ public class CompilerTools {
             if (arg instanceof ArrayClass) {
                 //VClass arg2 = vClassLoader.loadClass(v.type);
             }
-            VArgument a = new VArgument(v.name.toString(),arg, (v.mods.flags & Flags.VARARGS) != 0, v.type instanceof Type.TypeVar, null);
+            VArgument a = new VArgument(v.name.toString(),arg, (v.mods.flags & Flags.VARARGS) != 0, v.type instanceof Type.TypeVar, m, null);
             m.addArg(a);
         }
 
@@ -81,10 +81,10 @@ public class CompilerTools {
         if (m instanceof VConstructor) {
             VClass enumClass = m.getParent().getClassLoader().loadClass(Enum.class.getName());
             if (m.getParent() != enumClass && m.getParent().isParent(enumClass)) {
-                VArgument name = new VArgument("name", m.getParent().getClassLoader().loadClass(String.class.getName()), false, false, null);
+                VArgument name = new VArgument("name", m.getParent().getClassLoader().loadClass(String.class.getName()), false, false, m, null);
                 m.addArg(name);
 
-                VArgument ordinal = new VArgument("ordinal", m.getParent().getClassLoader().loadClass("int"), false, false, null);
+                VArgument ordinal = new VArgument("ordinal", m.getParent().getClassLoader().loadClass("int"), false, false, m, null);
                 m.addArg(ordinal);
             }
 

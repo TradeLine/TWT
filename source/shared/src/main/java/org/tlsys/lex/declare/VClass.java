@@ -69,7 +69,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             return c.getRealName() + "$" + getSimpleRealName();
         }
 
-        return parentContext.hashCode() + "$" + getSimpleRealName();
+        return parentContext.toString() + "$" + getSimpleRealName();
     }
 
     public void visit(ReplaceVisiter replaceControl) {
@@ -152,7 +152,9 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     @Override
     public boolean isThis(String name) {
         Objects.requireNonNull(name, "Name is NULL");
-        boolean b = this.fullName.equals(name) || name.equals(this.alias) || name.equals(getRealName());
+        boolean b = this.fullName.equals(name)
+                || name.equals(this.alias)
+                || name.equals(getRealName());
         return b;
     }
 
@@ -261,6 +263,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         throw new MethodNotFoundException(this, "<init>", args);
     }
 
+
     public VConstructor getConstructor(Symbol.MethodSymbol symbol) throws MethodNotFoundException {
         try {
             return getConstructor(getMethodArgs(symbol));
@@ -268,6 +271,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             throw new MethodNotFoundException(symbol);
         }
     }
+
 
     public VMethod getMethod(String name, VClass... args) throws MethodNotFoundException {
         return getMethod(name, Arrays.asList(args));
@@ -345,6 +349,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         throw new MethodNotFoundException(this, name, args);
     }
 
+
     public VMethod getMethod(Symbol.MethodSymbol symbol) throws MethodNotFoundException {
         Objects.requireNonNull(symbol, "Argument symbol is NULL");
         try {
@@ -353,6 +358,8 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             throw new MethodNotFoundException(symbol);
         }
     }
+
+
 
     private List<VClass> getMethodArgs(Symbol.MethodSymbol symbol) throws VClassNotFoundException {
         List<VClass> args = new ArrayList<>();
@@ -382,6 +389,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         }
         return args;
     }
+
 
     @Override
     public Optional<Context> find(String name, Predicate<Context> searchIn) {

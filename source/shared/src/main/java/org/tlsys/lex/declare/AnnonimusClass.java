@@ -7,8 +7,27 @@ import org.tlsys.lex.Value;
 import java.util.ArrayList;
 
 public class AnnonimusClass extends VClass {
+
+    public static String extractParentClassName(Symbol.TypeSymbol c) {
+        if (!isAnnonimusClass(c))
+            throw new IllegalArgumentException("Type " + c.toString() + " must be annonimus class");
+        String s = c.flatName().toString();
+        return s.substring(0, s.indexOf("$"));
+    }
+
+    public static String extractSimpleName(Symbol.TypeSymbol c) {
+        if (!isAnnonimusClass(c))
+            throw new IllegalArgumentException("Type " + c.toString() + " must be annonimus class");
+        String s = c.flatName().toString();
+        return s.substring(s.indexOf("$")+1);
+    }
+
+    public static boolean isAnnonimusClass(Symbol.TypeSymbol c) {
+        return c instanceof Symbol.ClassSymbol && c.owner != null && c.owner instanceof Symbol.MethodSymbol;
+    }
+
     public AnnonimusClass(Context context, VClass parent, Symbol.ClassSymbol classSymbol) {
-        super("an"+Integer.toString(new Object().hashCode()).replace('-','_'), context, parent, classSymbol);
+        super(extractSimpleName(classSymbol), context, parent, classSymbol);
     }
 
     private ArrayList<Value> inputs = new ArrayList<>();

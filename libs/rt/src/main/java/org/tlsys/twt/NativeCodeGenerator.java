@@ -108,7 +108,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         }
         generateMethodStart(ctx, meth, ps);
         ps.append("{\n");
-        for (Operation o : meth.block.operations) {
+        for (Operation o : meth.block.getOperations()) {
             if (operation(ctx, o, ps)) ;
                 ps.append(";\n");
         }
