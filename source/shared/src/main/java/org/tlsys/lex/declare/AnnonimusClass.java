@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class AnnonimusClass extends VClass {
     public AnnonimusClass(Context context, VClass parent, Symbol.ClassSymbol classSymbol) {
-        super(null, context, parent, classSymbol);
+        super("an"+Integer.toString(new Object().hashCode()).replace('-','_'), context, parent, classSymbol);
     }
 
     private ArrayList<Value> inputs = new ArrayList<>();
@@ -21,4 +21,9 @@ public class AnnonimusClass extends VClass {
     public boolean isUseParent() {
         return useParent;
     }
+
+    public void setParentContext(Context context) {
+        this.parentContext = context;
+    }
+
 }
