@@ -2,6 +2,7 @@ package org.tlsys.lex.declare;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
+import org.tlsys.NullClass;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
@@ -246,6 +247,8 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             }
             if (i >= args.size())
                 return false;
+            if (args.get(i) instanceof NullClass)
+                continue;
             if (!args.get(i).isParent(a.getType()))
                 return false;
         }

@@ -227,21 +227,31 @@ class OperationCompiler {
                     if (in.name.toString().equals("super")) {
                         cc = c.getCurrentClass().extendsClass;
                     }
+
+                    if (cc == null)
+                        throw new RuntimeException("!!!");
+
+                    if (cc.getRealName().contains("TReflectiveOperationException")) {
+                        System.out.println("123");
+                    }
+
                     List<VClass> args = buildConstructorInvokeTypes(cc);
                     for (JCTree.JCExpression ee : e.args) {
                         args.add(TypeUtil.loadClass(c.getClassLoader(), ee.type));
                     }
-                    try {
+
                         method = cc.getConstructor(args);
-                    } catch (CompileException ex) {
-                        throw ex;
-                    }
+
                 } else {
                     List<VClass> args = new ArrayList<VClass>();
                     for (JCTree.JCExpression ee : e.args) {
                         args.add(TypeUtil.loadClass(c.getClassLoader(), ee.type));
                     }
+                    try {
                     method = self.getType().getMethod(in.name.toString(), args);
+                    } catch (CompileException ex) {
+                        throw ex;
+                    }
                 }
                 /*
                 if (in.name.toString().equals("super") || in.name.toString().equals("this")) {

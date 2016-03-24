@@ -67,7 +67,7 @@ public final class TypeUtil {
         }
 
         if (type instanceof NullType)
-            return loader.loadClass(Object.class.getName());
+            return new NullClass();//loader.loadClass(Object.class.getName());
 
         try {
             if (type.tsym.owner != null && type.tsym.owner instanceof Symbol.ClassSymbol) {
