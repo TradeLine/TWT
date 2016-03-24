@@ -71,15 +71,19 @@ public class TClass {
     }
 
     public Object getLambda(String name, String methodName, Object method, Object scope) {
+        /*
         JDictionary<Object> lambdaList = Script.code(scope,".LAMBDA");
         if (Script.isUndefined(lambdaList)) {
             lambdaList = new JDictionary<>();
             Script.code(scope,".LAMBDA=",lambdaList);
         }
+        */
 
+        /*
         Object t = lambdaList.get(name);
         if (t != null)
             return t;
+            */
 
         TClass self = this;
         ClassRecord c = new ClassRecord(this.jsName + name, this.name + "$lambda" + name);
@@ -95,9 +99,11 @@ public class TClass {
         TClass cc = new TClass("");
         cc.initFor(c);
         Script.code(cc.cons, ".prototype[", methodName, "]=function(){return ", method, ".apply(", scope, ",arguments);}");
-        t = Script.code("new ", cc.cons, "()");
+        return Script.code("new ", cc.cons, "()");
+        /*
         lambdaList.set(name, t);
         return t;
+        */
     }
 
     private void initMethods() {
