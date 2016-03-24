@@ -229,7 +229,8 @@ class OperationCompiler {
                     }
 
                     if (cc == null)
-                        throw new RuntimeException("!!!");
+                        return null;
+                        //throw new RuntimeException("!!!");
 
                     if (cc.getRealName().contains("TReflectiveOperationException")) {
                         System.out.println("123");

@@ -46,10 +46,10 @@ public class DomStyle {
         }
 
         public DomStyle setPx(int value){
-            return set(name, value+"px");
+            return DomStyle.this.set(name, value+"px");
         }
         public DomStyle setP(int value) {
-            return set(name, value+"%");
+            return DomStyle.this.set(name, value+"%");
         }
     }
 }

@@ -183,12 +183,12 @@ public class TArrayList<E> implements List<E> {
 
         @Override
         public boolean hasNext() {
-            return nextIndex() < size();
+            return nextIndex() < TArrayList.this.size();
         }
 
         @Override
         public E next() {
-            E e = get(++index);
+            E e = TArrayList.this.get(++index);
             return e;
         }
 
@@ -199,7 +199,7 @@ public class TArrayList<E> implements List<E> {
 
         @Override
         public E previous() {
-            return get(--index);
+            return TArrayList.this.get(--index);
         }
 
         @Override
