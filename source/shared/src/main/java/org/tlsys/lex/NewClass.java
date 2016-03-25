@@ -1,6 +1,7 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VConstructor;
 
@@ -40,5 +41,15 @@ public class NewClass extends Value {
     @Override
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
         return Optional.empty();
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        for (int i = 0; i < arguments.size(); i++) {
+            Optional<Value> v = ReplaceHelper.replace(arguments.get(i), replaceControl);
+            if (v.isPresent())
+                arguments.set(i, v.get());
+        }
     }
 }

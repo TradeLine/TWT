@@ -14,6 +14,13 @@ public class Main {
         aaa = aaab;
     }
 
+    public class SubClass {
+        void tt() {
+            Console.info("Hello from SUBCLASS!");
+            Console.info("aaa=" + Main.this.aaa);
+        }
+    }
+
     public void doit() {
 
         int a = 9;
@@ -22,8 +29,11 @@ public class Main {
             @Override
             @ForceInject
             public void onTimeout() {
+                /*
                 Console.info("IS CALL BACK! " + aaa);
                 Console.info(this.getClass().getName());
+                */
+                new SubClass().tt();
             }
         };
         long id = Script.setTimeout(1000, t);

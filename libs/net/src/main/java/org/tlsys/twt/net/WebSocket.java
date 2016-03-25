@@ -1,9 +1,10 @@
-package org.tlsys.twt.events;
+package org.tlsys.twt.net;
 
 import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Console;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.events.Events;
 import org.tlsys.twt.rt.java.lang.TThrowable;
 
 @JSClass
@@ -12,7 +13,7 @@ public abstract class WebSocket {
     public WebSocket(String url) {
         js = Script.code("new WebSocket(",url,")");
 
-        Events.addEventListener(js, "open", (s,e)->onOpenEvent(),false);
+        Events.addEventListener(js, "open", (s, e)->onOpenEvent(),false);
         Events.addEventListener(js, "close", (s,e)->onCloseEvent(e),false);
         Events.addEventListener(js, "message", (s,e)->onMessageEvent(e),false);
         Events.addEventListener(js, "error", (s,e)->onErrorEvent(e),false);
@@ -31,7 +32,7 @@ public abstract class WebSocket {
     }
 
     private boolean onCloseEvent(Object event) {
-        CloseEvent e = new CloseEvent(Script.code(event,".reason"),Script.code(event,".code"),Script.code(event,".wasClean"));
+        CloseEvent e = new CloseEvent(Script.code(event,".reason"),CastUtil.toInt(Script.code(event,".code")),CastUtil.toBoolean(Script.code(event,".wasClean")));
         onClose(e);
         return true;
     }

@@ -76,19 +76,47 @@ public class ClassCompiler {
         findReplaceMethod(cc);
     }
 
-    private static Function<VClass, Void> parentThisReplacer = as->{
-        as.visit((r)->{
-            if (r.get() instanceof This) {
-                This t = (This)r.get();
-                if (t.getType() != as) {
-                    OtherClassLink ocl = OtherClassLink.getOrCreate(as, t.getType());
+    private static class BoolRef {
+        private boolean value;
 
-                    r.set(new GetField(new This(as), ocl.getField()));
+        public BoolRef() {
+            this(false);
+        }
+
+        public BoolRef(boolean value) {
+            this.value = value;
+        }
+
+        public boolean isValue() {
+            return value;
+        }
+
+        public void setValue(boolean value) {
+            this.value = value;
+        }
+    }
+
+    private static Function<VExecute, Void> parentThisReplacer = as->{
+        BoolRef b = new BoolRef(true);
+        while (b.isValue()) {
+            b.setValue(false);
+
+            as.visit((r) -> {
+                VClass currentClass = as.getParent();
+                if (r.get() instanceof This) {
+                    This t = (This) r.get();
+                    if (t.getType() != as.getParent()) {
+                        OtherClassLink ocl = OtherClassLink.getOrCreate(as.getParent(), t.getType());
+
+                        r.set(new GetField(new This(as.getParent()), ocl.getField()));
+                        b.setValue(true);
+                    }
+                    return false;
                 }
-                return false;
-            }
-            return true;
-        });
+                System.out.println("->>" + currentClass);
+                return true;
+            });
+        }
         return null;
     };
 
@@ -114,7 +142,11 @@ public class ClassCompiler {
         //as.setModificators(as.getModificators());
 
         //заменяет все this родителя на проброшеную переменную
-        parentThisReplacer.apply(as);
+        for (VConstructor ee : as.constructors)
+            parentThisReplacer.apply(ee);
+
+        for (VMethod ee : as.methods)
+            parentThisReplacer.apply(ee);
 
         as.visit(r->{
             if (r.get() instanceof SVar) {
@@ -380,6 +412,8 @@ public class ClassCompiler {
                     */
                 }
             }
+
+            parentThisReplacer.apply(method);
         } catch (Throwable e) {
             throw new CompileException("Can't compile " + method.getParent().getRealName() + "::" + method.getRunTimeName(), e);
         }

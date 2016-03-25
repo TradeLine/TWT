@@ -3,6 +3,7 @@ package org.tlsys;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,7 +18,7 @@ public class OtherClassLink implements ClassModificator {
 
     public OtherClassLink(VClass forClass, VClass toClass) {
         this.toClass = toClass;
-        field = new VField("c"+Integer.toString(toClass.hashCode()).replace('-','_'), null, toClass, 0, forClass);
+        field = new VField("c"+Integer.toString(toClass.hashCode()).replace('-','_'), null, toClass, Modifier.PUBLIC, forClass);
 
         for (VConstructor con : forClass.constructors) {
             con.getMods().add(new ArgumentLink(toClass, con));

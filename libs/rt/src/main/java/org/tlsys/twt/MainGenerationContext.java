@@ -2,7 +2,6 @@ package org.tlsys.twt;
 
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VExecute;
-import org.tlsys.lex.declare.VMethod;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -39,7 +38,7 @@ public class MainGenerationContext implements GenerationContext {
         }
 
         if (generator == null)
-            throw new RuntimeException("Can't find generator for " + clazz.fullName);
+            throw new RuntimeException("Can't find generator for " + clazz.getRealName());
         try {
             Objects.requireNonNull(clazz.getClassLoader(), "Classloader not set for " + clazz.alias);
             Objects.requireNonNull(clazz.getClassLoader().getJavaClassLoader(), "JavaClassloader not set for " + clazz.alias);

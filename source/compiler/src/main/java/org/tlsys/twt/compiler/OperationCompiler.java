@@ -63,7 +63,12 @@ class OperationCompiler {
             for (JCTree.JCExpression ee : e.args)
                 argsParamClasses.add(c.loadClass(ee.type));
 
-            VConstructor con = classIns.getConstructor(argsParamClasses);
+            VConstructor con;
+            try {
+                con = classIns.getConstructor(argsParamClasses);
+            } catch (CompileException ex) {
+                throw ex;
+            }
 
             NewClass nc = new NewClass(con);
             Optional<VClass> parentClass = con.getParent().getDependencyParent();

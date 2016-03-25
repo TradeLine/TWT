@@ -1,5 +1,6 @@
 package org.tlsys.twt;
 
+import org.tlsys.NullClass;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.classes.*;
@@ -99,6 +100,8 @@ public class Generator implements MainGenerator {
         HashSet<VClassLoader> classLoaders = new HashSet<>();
         for (CompileModuls.ClassRecord cr : compileModuls.getRecords()) {
             if (cr.getClazz() instanceof ArrayClass)
+                continue;
+            if (cr.getClazz() instanceof NullClass)
                 continue;
             if (MainGenerationContext.getGeneratorFor(cr.getClazz()) instanceof NativeCodeGenerator)
                 nativs.add(cr);

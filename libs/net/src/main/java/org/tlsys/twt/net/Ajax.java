@@ -1,5 +1,6 @@
-package org.tlsys.twt.events;
+package org.tlsys.twt.net;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
 
@@ -77,7 +78,7 @@ public class Ajax {
             Script.code(request,".send()");
         else
             Script.code(request,".send(",data,")");
-        return new Result(Script.code(request,".status"), Script.code(request,".statusText"),Script.code(request,".responseText"), request);
+        return new Result(CastUtil.toInt(Script.code(request,".status")), Script.code(request,".statusText"),Script.code(request,".responseText"), request);
     }
 
     public static class Auth {

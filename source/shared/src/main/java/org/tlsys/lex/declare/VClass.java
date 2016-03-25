@@ -70,6 +70,9 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             return c.getRealName() + "$" + getSimpleRealName();
         }
 
+
+        if (parentContext == null)
+            System.out.println("123");
         return parentContext.toString() + "$" + getSimpleRealName();
     }
 

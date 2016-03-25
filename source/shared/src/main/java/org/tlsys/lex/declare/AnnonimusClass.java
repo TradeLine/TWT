@@ -5,6 +5,7 @@ import org.tlsys.lex.Context;
 import org.tlsys.lex.Value;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class AnnonimusClass extends VClass {
 
@@ -42,7 +43,7 @@ public class AnnonimusClass extends VClass {
     }
 
     public void setParentContext(Context context) {
-        this.parentContext = context;
+        this.parentContext = Objects.requireNonNull(context);
     }
 
 }

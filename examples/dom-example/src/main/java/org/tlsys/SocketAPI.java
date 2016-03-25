@@ -2,8 +2,8 @@ package org.tlsys;
 
 import org.tlsys.twt.Console;
 import org.tlsys.twt.annotations.JSClass;
-import org.tlsys.twt.events.WebSocket;
 import org.tlsys.twt.json.Json;
+import org.tlsys.twt.net.WebSocket;
 
 @JSClass
 public class SocketAPI extends WebSocket {

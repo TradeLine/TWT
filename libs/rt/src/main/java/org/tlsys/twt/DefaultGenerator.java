@@ -230,6 +230,11 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(SetField.class, (c, o, p, g) -> {
+            VClass pp = o.getField().getParent();
+            if (pp.getRealName().contains("Main"))
+                System.out.println("123");
+
+            System.out.println("----=>>"+pp.getRealName() + "  " + o.getField().getRealName() + " = " + o.getValue());
             g.operation(c, o.getScope(), p);
             p.append(".").append(o.getField().getRuntimeName()).append("=");
             g.operation(c, o.getValue(), p);

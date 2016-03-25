@@ -16,6 +16,9 @@ public class TEnum {
         this.name = name;
     }
 
+    public TEnum() {
+    }
+
     public int ordinal() {
         return ordinal;
     }
