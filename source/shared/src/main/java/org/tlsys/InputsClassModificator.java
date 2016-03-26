@@ -34,7 +34,11 @@ public class InputsClassModificator implements ClassModificator {
 
     private final ArrayList<VField> fields = new ArrayList<>();
 
-    public void addInput(SVar var) {
+    public ArrayList<VField> getFields() {
+        return fields;
+    }
+
+    public VField addInput(SVar var) {
         VField field = new VField(var.getRuntimeName(), var.getRuntimeName(), var.getType(), Modifier.PRIVATE | Modifier.FINAL, forClass);
         for (VConstructor c : forClass.constructors) {
             c.getMods().add(new InputArgs(c, var, field));
@@ -42,6 +46,7 @@ public class InputsClassModificator implements ClassModificator {
 
         }
         fields.add(field);
+        return field;
     }
 
     @Override

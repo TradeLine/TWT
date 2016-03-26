@@ -102,7 +102,7 @@ public class OtherClassLink implements ClassModificator {
 
 
             VArgument[] args = constructor.getArguments().stream().filter(e->{
-                if (e.getCreator().getClass() == ArgumentLink.class) {
+                if (e.getCreator() != null && e.getCreator().getClass() == ArgumentLink.class) {
                     ArgumentLink al = (ArgumentLink)e.getCreator();
                     if (al.getToClass() == otherClassLink.getToClass())
                         return true;

@@ -234,10 +234,13 @@ public class DefaultGenerator implements ICodeGenerator {
             if (pp.getRealName().contains("Main"))
                 System.out.println("123");
 
+
+
             System.out.println("----=>>"+pp.getRealName() + "  " + o.getField().getRealName() + " = " + o.getValue());
             g.operation(c, o.getScope(), p);
             p.append(".").append(o.getField().getRuntimeName()).append("=");
             g.operation(c, o.getValue(), p);
+            p.append("/*SET FIELD " + o.getValue() + "*/");
             return true;
         });
 
@@ -331,6 +334,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 if (op == null)
                     continue;
                 g.operation(c, op, p);
+                p.append("/*->" + op + "*/");
                 if (op instanceof VBlock)
                     continue;
                 if (op instanceof VIf)

@@ -137,8 +137,8 @@ public final class TypeUtil {
             return Optional.ofNullable(((VBlock)context).getParentContext());
         }
 
-        if (context instanceof VMethod) {
-            return Optional.ofNullable(((VMethod)context).getParent());
+        if (context instanceof VExecute) {
+            return Optional.ofNullable(((VExecute)context).getParent());
         }
 
         if (context instanceof VClass) {
@@ -151,6 +151,10 @@ public final class TypeUtil {
 
         if (context instanceof Try.Catch) {
             return Optional.ofNullable(((Try.Catch)context).getParentContext());
+        }
+
+        if (context instanceof VPackage) {
+            return Optional.ofNullable(((VPackage)context).getParent());
         }
 
         if (context instanceof Lambda) {

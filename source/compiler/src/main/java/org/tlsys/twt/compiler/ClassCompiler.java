@@ -4,6 +4,7 @@ import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
+import org.tlsys.InputsClassModificator;
 import org.tlsys.OtherClassLink;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
@@ -56,6 +57,12 @@ public class ClassCompiler {
         setExtends(cc);
         searchMembers(cc);
 
+
+
+
+
+        compileCode(cc, VExecute.class);
+
         for (Pair p : cc.pairs) {
 //            parentThisReplacer.apply(p.vclass);
 
@@ -68,9 +75,6 @@ public class ClassCompiler {
             }
         }
 
-
-
-        compileCode(cc, VExecute.class);
         compileCode(cc, VVar.class);
         compileCode(cc, StaticBlock.class);
         findReplaceMethod(cc);
@@ -117,6 +121,28 @@ public class ClassCompiler {
                 return true;
             });
         }
+
+        as.visit(r->{
+            if (r.get() instanceof SVar) {
+
+                SVar s = (SVar)r.get();
+                Optional<Context> ctx = TypeUtil.findParentContext(s, c->{
+                    if (c == as.getParent())
+                        return true;
+                    return false;
+                });
+
+                if (!ctx.isPresent()) {
+                    VField f = InputsClassModificator.getOrCreateInputModificator(as.getParent()).addInput(s);
+                    r.set(new GetField(new This(as.getParent()), f));
+                    System.out.println("->");
+                }
+
+                return false;
+            }
+
+            return true;
+        });
         return null;
     };
 
@@ -380,6 +406,14 @@ public class ClassCompiler {
 
             throw new RuntimeException("Code analize for " + tree.getClass().getName() + " not ready yet");
         }
+
+        if (forClass == VExecute.class) {
+            for (Map.Entry<JCTree, Member> e : p.members.entrySet()) {
+                if (e.getValue() instanceof VExecute) {
+                    parentThisReplacer.apply((VExecute) e.getValue());
+                }
+            }
+        }
     }
 
     public static void compileCode(CompileContext ctx, Class forClass) throws CompileException {
@@ -412,8 +446,6 @@ public class ClassCompiler {
                     */
                 }
             }
-
-            parentThisReplacer.apply(method);
         } catch (Throwable e) {
             throw new CompileException("Can't compile " + method.getParent().getRealName() + "::" + method.getRunTimeName(), e);
         }

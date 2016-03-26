@@ -29,10 +29,10 @@ public class Main {
             @Override
             @ForceInject
             public void onTimeout() {
-                /*
-                Console.info("IS CALL BACK! " + aaa);
+
+                Console.info("IS CALL BACK! " + aaa + "   " + a);
                 Console.info(this.getClass().getName());
-                */
+
                 new SubClass().tt();
             }
         };

@@ -15,6 +15,10 @@ public class VPackage implements Context, Serializable {
 
     private final VPackage parent;
 
+    public VPackage getParent() {
+        return parent;
+    }
+
     private final List<Context> childs = new ArrayList<>();
 
     public VPackage(String simpleName, VPackage parent) {

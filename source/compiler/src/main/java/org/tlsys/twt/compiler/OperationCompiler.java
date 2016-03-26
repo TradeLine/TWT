@@ -2,6 +2,7 @@ package org.tlsys.twt.compiler;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree;
+import org.tlsys.InputsClassModificator;
 import org.tlsys.OtherClassLink;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
@@ -21,6 +22,13 @@ class OperationCompiler {
         vClass.getModificator(ee -> ee.getClass() == OtherClassLink.class).ifPresent(e3 -> {
             OtherClassLink o2 = (OtherClassLink) e3;
             argsParamClasses.add(o2.getToClass());
+        });
+
+        vClass.getModificator(ee -> ee.getClass() == InputsClassModificator.class).ifPresent(e3 -> {
+            InputsClassModificator o2 = (InputsClassModificator) e3;
+            for (VField f : o2.getFields()) {
+                argsParamClasses.add(f.getType());
+            }
         });
 
         return argsParamClasses;
@@ -78,7 +86,16 @@ class OperationCompiler {
                     if (arg.getCreator() instanceof OtherClassLink.ArgumentLink) {
                         VClass aa = arg.getType();
                         nc.addArg(new This(arg.getType()));
+                        continue;
                     }
+
+                    if (arg.getCreator() instanceof InputsClassModificator.InputArgs) {
+                        InputsClassModificator.InputArgs a = (InputsClassModificator.InputArgs)arg.getCreator();
+                        nc.addArg(a.getInput());
+                        continue;
+                    }
+
+                    throw new RuntimeException("Unknown creator " + arg.getCreator());
                 }
             }
 
@@ -296,6 +313,14 @@ class OperationCompiler {
 
                         OtherClassLink ocl = (OtherClassLink) method.getParent().getModificator(ee -> ee.getClass() == OtherClassLink.class && ((OtherClassLink) ee).getToClass() == al.getToClass()).get();
                         i.addArg(new GetField(new This(ocl.getField().getParent()),ocl.getField()));
+                        argInc++;
+                        continue;
+                    }
+
+                    if (arg.getCreator().getClass() == InputsClassModificator.InputArgs.class) {
+                        InputsClassModificator.InputArgs al = (InputsClassModificator.InputArgs) arg.getCreator();
+                        //OtherClassLink ocl = (OtherClassLink) method.getParent().getModificator(ee -> ee.getClass() == OtherClassLink.class && ((OtherClassLink) ee).getToClass() == al.getToClass()).get();
+                        i.addArg(al.getInput());
                         argInc++;
                         break;
                     }
