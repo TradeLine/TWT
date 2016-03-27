@@ -2,6 +2,7 @@ package org.tlsys.twt.rt.java.util;
 
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.annotations.ReplaceClass;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -11,6 +12,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 @ClassName("java.util.Optional")
+@ReplaceClass(java.util.Optional.class)
 @JSClass
 public final class TOptional<T> {
     /**
