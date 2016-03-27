@@ -59,10 +59,6 @@ public class ClassCompiler {
 
 
 
-
-
-        compileCode(cc, VExecute.class);
-
         for (Pair p : cc.pairs) {
 //            parentThisReplacer.apply(p.vclass);
 
@@ -74,6 +70,10 @@ public class ClassCompiler {
                 //p.vclass.addMod(new ParentClassModificator(p.vclass));
             }
         }
+
+        compileCode(cc, VExecute.class);
+
+
 
         compileCode(cc, VVar.class);
         compileCode(cc, StaticBlock.class);
@@ -427,15 +427,15 @@ public class ClassCompiler {
             return;
 
         try {
-            method.block = (VBlock) com.st(dec.body, method);
+            method.setBlock((VBlock) com.st(dec.body, method));
             if (method instanceof VConstructor) {
                 VConstructor cons = (VConstructor) method;
-                if (!method.block.getNativeOperations().isEmpty()) {
-                    if (method.block.getNativeOperations().get(0) instanceof Invoke) {
-                        Invoke inv = (Invoke) method.block.getNativeOperations().get(0);
+                if (!method.getBlock().getNativeOperations().isEmpty()) {
+                    if (method.getBlock().getNativeOperations().get(0) instanceof Invoke) {
+                        Invoke inv = (Invoke) method.getBlock().getNativeOperations().get(0);
                         if (inv.getMethod() instanceof VConstructor) {
                             cons.parentConstructorInvoke = inv;
-                            cons.block.getNativeOperations().remove(0);
+                            cons.getBlock().getNativeOperations().remove(0);
                         }
                     }
                     /*

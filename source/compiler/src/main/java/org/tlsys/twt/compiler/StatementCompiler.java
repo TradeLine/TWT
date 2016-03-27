@@ -286,7 +286,7 @@ class StatementCompiler {
         from.getArguments().forEach(e->{
             rep.addArg(e);
         });
-        rep.block = new VBlock(rep);
+        rep.setBlock(new VBlock(rep));
         rep.alias = from.alias;
 
         Invoke inv = new Invoke(to, new This(to.getParent()));
@@ -299,9 +299,9 @@ class StatementCompiler {
         Objects.requireNonNull(from.returnType, "return type of " + from + " is nullJARR");
 
         if (!(from.returnType instanceof ArrayClass) && from.returnType.isThis("void")) {
-            rep.block.add(inv);
+            rep.getBlock().add(inv);
         } else {
-            rep.block.add(new Return(inv));
+            rep.getBlock().add(new Return(inv));
         }
         return rep;
     }

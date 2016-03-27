@@ -99,20 +99,24 @@ class OperationCompiler {
                 }
             }
 
-
+/*
             if (!(classIns instanceof AnnonimusClass) && parentClass.isPresent()) {
                 Optional<VClass> currentParentClass = c.getCurrentClass().getDependencyParent();
-                /*
+                / *
                 if (currentParentClass.isPresent() && currentParentClass.get()==parentClass.get()) {
                     nc.arguments.add(new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass())));
                 } else
-                */
+                * /
                 nc.arguments.add(new This(parentClass.get()));
             }
+            */
 
 
             for (JCTree.JCExpression ee : e.args)
                 nc.arguments.add(c.op(ee, o));
+
+            if (nc.arguments.size() != nc.constructor.getArguments().size())
+                throw new RuntimeException("Difirent argument count");
             return nc;
         });
 
@@ -180,7 +184,7 @@ class OperationCompiler {
             VClass imp = c.loadClass(e.type);
             VMethod method = null;
             for (VMethod m : imp.methods)
-                if (m.block == null) {
+                if (m.getBlock() == null) {
                     method = m;
                     break;
                 }
@@ -212,7 +216,7 @@ class OperationCompiler {
                 VClass imp = c.loadClass(e.type);
                 VMethod replaceMethod = null;
                 for (VMethod m : imp.methods)
-                    if (m.block == null) {
+                    if (m.getBlock() == null) {
                         replaceMethod = m;
                         break;
                     }
