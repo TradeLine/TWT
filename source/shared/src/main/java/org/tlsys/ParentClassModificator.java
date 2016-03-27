@@ -15,6 +15,7 @@ import java.util.Optional;
  */
 public class ParentClassModificator implements ClassModificator {
 
+    private static final long serialVersionUID = 8962615490528702360L;
     private final VField field;
 
     public ParentClassModificator(VClass forClass) {

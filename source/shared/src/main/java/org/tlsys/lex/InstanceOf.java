@@ -1,6 +1,8 @@
 package org.tlsys.lex;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VClassNotFoundException;
 
@@ -51,5 +53,11 @@ public class InstanceOf extends Value {
 
     public VClass getResult() {
         return result;
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        ReplaceHelper.replace(value, replaceControl).ifPresent(e->value = e);
     }
 }

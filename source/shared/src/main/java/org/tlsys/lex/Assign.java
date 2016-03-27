@@ -1,6 +1,8 @@
 package org.tlsys.lex;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VField;
 
@@ -56,6 +58,13 @@ public class Assign extends Value {
         if (!searchIn.test(value))
             return Optional.empty();
         return value.find(name,searchIn);
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        ReplaceHelper.replace(var, replaceControl).ifPresent(e->var = e);
+        ReplaceHelper.replace(value, replaceControl).ifPresent(e->value = e);
     }
 
     public enum AsType {

@@ -1,6 +1,8 @@
 package org.tlsys.lex;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
 
 import java.util.ArrayList;
@@ -57,6 +59,17 @@ public class Switch extends Operation {
             c.add(cc);
     }
 
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        ReplaceHelper.replace(value, replaceControl).ifPresent(e->value = e);
+        for (int i = 0; i < cases.size(); i++) {
+            Optional<Case> op = ReplaceHelper.replace(cases.get(i), replaceControl);
+            if (op.isPresent())
+                cases.set(i, op.get());
+        }
+    }
+
     public static class Case extends Operation {
         private static final long serialVersionUID = 6250212035497367710L;
         public Value value;
@@ -79,6 +92,13 @@ public class Switch extends Operation {
         @Override
         public void getUsing(Collect c) {
             c.add(value, block);
+        }
+
+        @Override
+        public void visit(ReplaceVisiter replaceControl) {
+            super.visit(replaceControl);
+            ReplaceHelper.replace(value, replaceControl).ifPresent(e->value = e);
+            ReplaceHelper.replace(block, replaceControl).ifPresent(e->block = e);
         }
     }
 }

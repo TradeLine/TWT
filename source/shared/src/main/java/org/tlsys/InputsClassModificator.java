@@ -13,6 +13,7 @@ import java.util.Optional;
  */
 public class InputsClassModificator implements ClassModificator {
 
+    private static final long serialVersionUID = -7395221822114651467L;
     private final VClass forClass;
     private final ArrayList<InputMody> blocks = new ArrayList<>();
 
@@ -24,9 +25,9 @@ public class InputsClassModificator implements ClassModificator {
         this.forClass = forClass;
 
         for (VConstructor c : forClass.constructors) {
-            if (c.block != null) {
+            if (c.getBlock() != null) {
                 InputMody im = new InputMody(c);
-                c.block.addMod(im);
+                c.getBlock().addMod(im);
                 blocks.add(im);
             }
         }
@@ -71,6 +72,7 @@ public class InputsClassModificator implements ClassModificator {
 
     public static class InputMody implements BlockModificator {
 
+        private static final long serialVersionUID = 2072268763544151078L;
         private final VConstructor constructor;
 
         public InputMody(VConstructor constructor) {
@@ -91,6 +93,7 @@ public class InputsClassModificator implements ClassModificator {
 
 
     public static class InputArgs implements ArgumentModificator {
+        private static final long serialVersionUID = -8738220121695726222L;
         private final VArgument arg;
         private final SVar input;
         private final VField local;
@@ -117,6 +120,11 @@ public class InputsClassModificator implements ClassModificator {
         public List<VArgument> getArguments(List<VArgument> arguments) {
             arguments.add(arg);
             return arguments;
+        }
+
+        @Override
+        public void setBody(VBlock oldBody, VBlock newBody) {
+
         }
     }
 }

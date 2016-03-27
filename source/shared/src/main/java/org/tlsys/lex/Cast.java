@@ -1,6 +1,8 @@
 package org.tlsys.lex;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 
 import java.util.Optional;
@@ -39,5 +41,11 @@ public class Cast extends Value {
         if (!searchIn.test(value))
             return Optional.empty();
         return value.find(name, searchIn);
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        ReplaceHelper.replace(value, replaceControl).ifPresent(e->value = e);
     }
 }

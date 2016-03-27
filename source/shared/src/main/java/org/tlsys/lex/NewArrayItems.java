@@ -1,6 +1,8 @@
 package org.tlsys.lex;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.ArrayClass;
 import org.tlsys.lex.declare.VClass;
 
@@ -45,5 +47,15 @@ public class NewArrayItems extends Value {
     public NewArrayItems addEl(Value value) {
         elements.add(value);
         return this;
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        for (int i = 0; i < elements.size(); i++) {
+            Optional<Value> op = ReplaceHelper.replace(elements.get(i), replaceControl);
+            if (op.isPresent())
+                elements.set(i, op.get());
+        }
     }
 }

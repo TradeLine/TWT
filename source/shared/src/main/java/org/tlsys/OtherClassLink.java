@@ -21,9 +21,7 @@ public class OtherClassLink implements ClassModificator {
         field = new VField("c"+Integer.toString(toClass.hashCode()).replace('-','_'), null, toClass, Modifier.PUBLIC, forClass);
 
         for (VConstructor con : forClass.constructors) {
-            con.getMods().add(new ArgumentLink(toClass, con));
-            if (con.block != null)
-                con.block.addMod(new ConstructorBlockArgs(con, this));
+            con.getMods().add(new ArgumentLink(toClass, con, this));
         }
     }
 
@@ -62,16 +60,26 @@ public class OtherClassLink implements ClassModificator {
 
     public static class ArgumentLink implements ArgumentModificator {
 
+        private static final long serialVersionUID = -3340377371594356849L;
         private final VClass toClass;
         private final VArgument arg;
         //private final VConstructor constructor;
+        private final OtherClassLink otherClassLink;
 
-        public ArgumentLink(VClass toClass, VConstructor constructor) {
+        private final ConstructorBlockArgs cba;
+
+        public ArgumentLink(VClass toClass, VConstructor con, OtherClassLink otherClassLink) {
             this.toClass = toClass;
+            this.otherClassLink = otherClassLink;
             //this.constructor = constructor;
 
             String str = "to" + Integer.toString(toClass.hashCode()).replace('-','_');
-            arg = new VArgument(str, str, toClass, false, false, constructor, this);
+            arg = new VArgument(str, str, toClass, false, false, con, this);
+
+            cba = new ConstructorBlockArgs(con, this);
+
+            if (con.getBlock() != null)
+                con.getBlock().addMod(cba);
         }
 
         public VArgument getArg() {
@@ -87,20 +95,29 @@ public class OtherClassLink implements ClassModificator {
             arguments.add(getArg());
             return arguments;
         }
+
+        @Override
+        public void setBody(VBlock oldBody, VBlock newBody) {
+            if (oldBody != null)
+                oldBody.removeMod(cba);
+            if (newBody != null)
+                newBody.addMod(cba);
+        }
     }
 
     public static class ConstructorBlockArgs implements BlockModificator {
 
+        private static final long serialVersionUID = 3790360979353215588L;
         private final VConstructor constructor;
-        private final OtherClassLink otherClassLink;
+        private final ArgumentLink otherClassLink;
 
         private SetField sf;
 
-        public ConstructorBlockArgs(VConstructor constructor, OtherClassLink otherClassLink) {
+        public ConstructorBlockArgs(VConstructor constructor, ArgumentLink otherClassLink) {
             this.constructor = constructor;
             this.otherClassLink = otherClassLink;
 
-
+/*
             VArgument[] args = constructor.getArguments().stream().filter(e->{
                 if (e.getCreator() != null && e.getCreator().getClass() == ArgumentLink.class) {
                     ArgumentLink al = (ArgumentLink)e.getCreator();
@@ -111,7 +128,8 @@ public class OtherClassLink implements ClassModificator {
             }).toArray(VArgument[]::new);
             if (args.length != 1)
                 throw new RuntimeException("Bad argument count");
-            sf = new SetField(new This(constructor.getParent()), otherClassLink.getField(), args[0], Assign.AsType.ASSIGN);
+                */
+            sf = new SetField(new This(constructor.getParent()), otherClassLink.otherClassLink.getField(), otherClassLink.getArg(), Assign.AsType.ASSIGN);
         }
 
         @Override

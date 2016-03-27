@@ -1,6 +1,8 @@
 package org.tlsys.lex;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 
 import java.util.Objects;
@@ -41,5 +43,11 @@ public class Parens extends Value {
     @Override
     public void getUsing(Collect c) {
         value.getUsing(c);
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        ReplaceHelper.replace(value,replaceControl).ifPresent(e->value = e);
     }
 }

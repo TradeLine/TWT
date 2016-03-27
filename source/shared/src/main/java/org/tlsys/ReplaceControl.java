@@ -3,7 +3,7 @@ package org.tlsys;
 import org.tlsys.lex.Operation;
 
 /**
- * Created by subochev on 23.03.16.
+ * Класс, управляющий заменой узлов AST дерева.
  */
 public class ReplaceControl {
     private final Operation operation;

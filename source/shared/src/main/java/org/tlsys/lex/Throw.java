@@ -1,6 +1,8 @@
 package org.tlsys.lex;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -33,5 +35,10 @@ public class Throw extends Operation {
     @Override
     public void getUsing(Collect c) {
         value.getUsing(c);
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        ReplaceHelper.replace(value, replaceControl).ifPresent(e->value = e);
     }
 }

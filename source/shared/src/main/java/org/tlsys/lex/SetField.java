@@ -58,6 +58,7 @@ public class SetField extends Value {
     public void visit(ReplaceVisiter replaceControl) {
         super.visit(replaceControl);
         ReplaceHelper.replace(scope,replaceControl).ifPresent(e->scope = e);
+        ReplaceHelper.replace(value,replaceControl).ifPresent(e->value = e);
     }
 
     @Override
