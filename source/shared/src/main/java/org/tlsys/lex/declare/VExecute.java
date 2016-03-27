@@ -47,11 +47,26 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
     }
 
     private VClass parent;
-    public transient VBlock block = null;
+    private transient VBlock block = null;
     public String generator = null;
     public String invokeGenerator = null;
 
     public VExecute() {
+    }
+
+    public VBlock getBlock() {
+        return block;
+    }
+
+    public void setBlock(VBlock block) {
+        if (this.block == block)
+            return;
+
+        for (ArgumentModificator ar : mods) {
+            ar.setBody(this.block, block);
+        }
+
+        this.block = block;
     }
 
     public VExecute(VClass parent) {

@@ -671,7 +671,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 }
             }
 
-            for (Operation op : execute.block.getOperations()) {
+            for (Operation op : execute.getBlock().getOperations()) {
                 operation(context, op, ps);
                 ps.append(";");
             }

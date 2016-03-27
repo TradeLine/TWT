@@ -102,13 +102,13 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
 
     @Override
     public void generateExecute(GenerationContext ctx, VExecute meth, PrintStream ps, CompileModuls moduls) throws CompileException {
-        if (meth.block == null) {
+        if (meth.getBlock() == null) {
             generateMethodNull(ctx, meth, ps);
             return;
         }
         generateMethodStart(ctx, meth, ps);
         ps.append("{\n");
-        for (Operation o : meth.block.getOperations()) {
+        for (Operation o : meth.getBlock().getOperations()) {
             if (operation(ctx, o, ps)) ;
                 ps.append(";\n");
         }

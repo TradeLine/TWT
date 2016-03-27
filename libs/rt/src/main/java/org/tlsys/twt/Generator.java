@@ -245,7 +245,7 @@ public class Generator implements MainGenerator {
 
 
 
-            if (e.block == null)
+            if (e.getBlock() == null)
                 newMethod.arguments.add(new Const(null, objectClass));
             else {
                 ICodeGenerator cg = gc2.getGenerator(e);

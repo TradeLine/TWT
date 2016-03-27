@@ -11,6 +11,7 @@ import java.util.function.Predicate;
 
 public class VPackage implements Context, Serializable {
 
+    private static final long serialVersionUID = -6198241950043991718L;
     private final String simpleName;
 
     private final VPackage parent;

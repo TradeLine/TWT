@@ -1,6 +1,8 @@
 package org.tlsys.lex.declare;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.*;
 
 import java.util.Collection;
@@ -40,5 +42,11 @@ public class DeclareVar extends Operation implements Using {
         if (searchIn.test(var) && (name.equals(var.getRealName()) || name.equals(var.getAliasName())))
             return Optional.of(var);
         return Optional.empty();
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        ReplaceHelper.replace(init, replaceControl).ifPresent(e->init = e);
     }
 }

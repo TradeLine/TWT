@@ -4,10 +4,11 @@ import com.sun.tools.javac.code.Symbol;
 import org.tlsys.lex.Context;
 import org.tlsys.lex.Value;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class AnnonimusClass extends VClass {
+public class AnnonimusClass extends VClass implements Serializable {
 
     public static String extractParentClassName(Symbol.TypeSymbol c) {
         if (!isAnnonimusClass(c))
