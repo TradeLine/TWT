@@ -30,6 +30,16 @@ public final class DOM {
         return Script.code(element,".hasAttribute(",name,")");
     }
 
+    public static int getOffsetWidth(Object element) {
+        Elements.requireElement(element);
+        return CastUtil.toInt(Script.code(element,".offsetWidth"));
+    }
+
+    public static int getOffsetHeight(Object element) {
+        Elements.requireElement(element);
+        return CastUtil.toInt(Script.code(element,".offsetHeight"));
+    }
+
     public static String getAttribute(Object element, String name) {
         String s = Script.code(element,".getAttribute(",name,")");
         if (s == null || Script.isUndefined(s))
