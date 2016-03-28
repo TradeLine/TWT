@@ -231,16 +231,12 @@ public class DefaultGenerator implements ICodeGenerator {
 
         addGen(SetField.class, (c, o, p, g) -> {
             VClass pp = o.getField().getParent();
-            if (pp.getRealName().contains("Main"))
-                System.out.println("123");
 
 
 
-            System.out.println("----=>>"+pp.getRealName() + "  " + o.getField().getRealName() + " = " + o.getValue());
             g.operation(c, o.getScope(), p);
             p.append(".").append(o.getField().getRuntimeName()).append("=");
             g.operation(c, o.getValue(), p);
-            p.append("/*SET FIELD " + o.getValue() + "*/");
             return true;
         });
 
@@ -343,6 +339,8 @@ public class DefaultGenerator implements ICodeGenerator {
                     continue;
                 if (op instanceof WhileLoop)
                     continue;
+                if (op instanceof DoWhileLoop)
+                    continue;
                 p.append(";");
             }
             p.append("}");
@@ -363,6 +361,20 @@ public class DefaultGenerator implements ICodeGenerator {
                 p.append("{}");
             else
                 g.operation(c, o.block, p);
+            return true;
+        });
+
+        addGen(DoWhileLoop.class, (c, o, p, g) -> {
+            p.append("do");
+
+            if (o.block == null)
+                p.append("{}");
+            else
+                g.operation(c, o.block, p);
+
+            p.append("while(");
+            g.operation(c, o.value, p);
+            p.append(")");
             return true;
         });
 

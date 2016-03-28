@@ -72,7 +72,6 @@ public final class TypeUtil {
         try {
             if (type.tsym.owner != null && type.tsym.owner instanceof Symbol.ClassSymbol) {
                 String n = loadClass(loader, type.tsym.owner.type).getRealName() + "$" + type.tsym.name.toString();
-                System.out.println("Search subclass " + n);
                 return loader.loadClass(n);
             }
 
@@ -131,6 +130,10 @@ public final class TypeUtil {
 
         if (context instanceof WhileLoop) {
             return Optional.ofNullable(((WhileLoop)context).getParentContext());
+        }
+
+        if (context instanceof DoWhileLoop) {
+            return Optional.ofNullable(((DoWhileLoop)context).getParentContext());
         }
 
         if (context instanceof VBlock) {
