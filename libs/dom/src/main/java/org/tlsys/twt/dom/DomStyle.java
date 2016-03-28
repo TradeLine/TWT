@@ -22,6 +22,11 @@ public class DomStyle {
         return this;
     }
 
+    public DomStyle remove(String name) {
+        Script.code(style, "[", name, "]=", null);
+        return this;
+    }
+
     public DomStyle setPx(String name, int value) {
         return set(name, value+"px");
     }
