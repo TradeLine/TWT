@@ -175,6 +175,21 @@ class StatementCompiler {
             return fe;
         });
 
+        addProcSt(JCTree.JCDoWhileLoop.class, (c,e,o)->{
+            Value v = c.op(e.cond, o);
+            DoWhileLoop fe = new DoWhileLoop(o);
+            fe.value = c.op(e.cond, o);
+            Operation op = c.st(e.body, fe);
+            if (!(op instanceof VBlock)) {
+                VBlock b = new VBlock(fe);
+                if (op != null)
+                    b.add(op);
+                op = b;
+            }
+            fe.block = (VBlock) op;
+            return fe;
+        });
+
         addProcSt(JCTree.JCForLoop.class, (c, e, o) -> {
             ForLoop f = new ForLoop(o);
             if (e.init != null) {

@@ -206,8 +206,6 @@ public class CompilerTools {
 
         if (value instanceof Const && ((Const)value).getValue()==null)
             return value;
-
-        System.out.println("=======================CAST " + value.getType().getRealName() + "@" + value.getType().hashCode() + "["+value.getType().getClassLoader().getName() + "] =>>>> " + type.getRealName() + "@" + type.hashCode() + "["+type.getClassLoader().getName()+"]");
         return new Cast(type, value);
         /*
 

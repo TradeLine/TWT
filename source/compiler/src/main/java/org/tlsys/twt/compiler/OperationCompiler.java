@@ -258,10 +258,6 @@ class OperationCompiler {
                         return null;
                         //throw new RuntimeException("!!!");
 
-                    if (cc.getRealName().contains("TReflectiveOperationException")) {
-                        System.out.println("123");
-                    }
-
                     List<VClass> args = buildConstructorInvokeTypes(cc);
                     for (JCTree.JCExpression ee : e.args) {
                         args.add(TypeUtil.loadClass(c.getClassLoader(), ee.type));
@@ -295,7 +291,6 @@ class OperationCompiler {
                 throw new RuntimeException("Self or method is NULL");
 
             if (method instanceof VConstructor && method.getParent().isParent(method.getParent().getClassLoader().loadClass(Enum.class.getName()))) {
-                System.out.println("->");
                 VBlock block = (VBlock) o;
                 VConstructor cons = (VConstructor) block.getParentContext();
                 return new Invoke(method, new This(cons.getParent())).addArg(cons.getArguments().get(0)).addArg(cons.getArguments().get(1));

@@ -27,7 +27,6 @@ public class ClassCompiler {
     public static void compile(List<CompilationUnitTree> classes, VClassLoader classLoader, ClassItemListener listener) throws CompileException {
         CompileContext cc = new CompileContext(classLoader);
 
-        System.out.println("search enum....");
         ENUM_SEARCH:
         for (CompilationUnitTree cu : classes) {
             for (Tree tt : cu.getTypeDecls()) {
@@ -65,7 +64,6 @@ public class ClassCompiler {
             if (p.vclass.getDependencyParent().isPresent()) {
 
                 OtherClassLink.getOrCreate(p.vclass, p.vclass.getDependencyParent().get());
-                System.out.println("->");
 
                 //p.vclass.addMod(new ParentClassModificator(p.vclass));
             }
@@ -117,7 +115,6 @@ public class ClassCompiler {
                     }
                     return false;
                 }
-                System.out.println("->>" + currentClass);
                 return true;
             });
         }
@@ -135,7 +132,6 @@ public class ClassCompiler {
                 if (!ctx.isPresent()) {
                     VField f = InputsClassModificator.getOrCreateInputModificator(as.getParent()).addInput(s);
                     r.set(new GetField(new This(as.getParent()), f));
-                    System.out.println("->");
                 }
 
                 return false;
@@ -174,19 +170,15 @@ public class ClassCompiler {
         for (VMethod ee : as.methods)
             parentThisReplacer.apply(ee);
 
+        /*
         as.visit(r->{
             if (r.get() instanceof SVar) {
                 SVar v = (SVar)r.get();
                 Optional<Context> ctx = TypeUtil.findParentContext(v, e->e != as);
-
-                if (ctx.isPresent()) {
-                    System.out.println("OWN " + v);
-                } else {
-                    System.out.println("EXTENDS " + v);
-                }
             }
             return true;
         });
+        */
 
 
         /*
@@ -246,28 +238,20 @@ public class ClassCompiler {
 
         String[] list = c.sym.toString().split("\\.");
 
-        System.out.println("Creating " + c.sym + "...");
 
         Context parentContext = null;
         if (parent != null) {
-            System.out.println("Parent class is not null");
             parentContext = parent;
         } else {
-            System.out.println("parent null... search next...");
             if (list.length == 1) {
-                System.out.println("simple name class..");
                 parentContext = vClassLoader.getRootPackage();
             } else {
-                System.out.println("dificlt name class...");
                 VPackage p = vClassLoader.getRootPackage();
                 for (int i = 0; i < list.length - 1; i++) {
-                    System.out.println("Search " + list[i] + " in " + p.getName());
                     Optional<VPackage> v = p.getPackage(list[i]);
                     if (v.isPresent()) {
-                        System.out.println("getted");
                         p = v.get();
                     } else {
-                        System.out.println("Created");
                         p = new VPackage(list[i], p);
                     }
                 }
@@ -481,42 +465,24 @@ public class ClassCompiler {
 
     private static void findReplaceMethodInClass(VMethod member) {
 
-        boolean log = true;
-        if (member.getParent().getRealName().equals("org.tlsys.admin.TextTableRender")) {
-            log = true;
-        }
-
-        if (log) {
-            System.out.println("CHECK " + member + "...");
-            //System.out.println("CHECK First level...");
-        }
-
         List<VMethod> methods = getAllMethodsNyName(member.getParent(), member.getRunTimeName());
         METHOD:
         for (VMethod m : methods) {
             if (m == member)
                 continue;
 
-            if (log)
-                System.out.println("--1--CHECK " + member.getDescription() + " and " + m);
-
             if (m.getArguments().size() != member.getArguments().size()) {
-                if (log)
-                    System.out.println("bad argument count");
                 continue;
             }
 
             for (int i = 0; i < m.getArguments().size(); i++) {
                 //for (VArgument b : member.arguments) {
                 if (m.getArguments().get(i).getType() != member.getArguments().get(i).getType()) {
-                    System.out.println("bad argument type: need=" + m.getArguments().get(i).getType() + " but have " + member.getArguments().get(i).getType());
                     continue METHOD;
                 }
                 //}
             }
 
-            if (log)
-                System.out.println("Setted replaced to " + m);
             member.setReplace(m);
             break;
         }
@@ -527,17 +493,11 @@ public class ClassCompiler {
                 continue;
             if (m.getParent() == member.getParent())
                 continue;
-            if (log)
-                System.out.println("--2--CHECK " + member.getDescription() + " and " + m);
 
             if (m.getArguments().isEmpty()) {
-                if (log)
-                    System.out.println("Arguments empty...");
                 continue;
             }
             if (m.getArguments().size() != member.getArguments().size()) {
-                if (log)
-                    System.out.println("Difrent argument count");
                 continue;
             }
 
@@ -545,12 +505,9 @@ public class ClassCompiler {
                 for (VArgument b : member.getArguments()) {
                     if (a.generic) {
                         if (!b.getType().isParent(a.getType())) {
-                            if (log)
-                                System.out.println("Bad argument generic type");
                             continue METHOD;
                         }
                     } else {
-                        System.out.println("Bad argument type");
                         continue METHOD;
                     }
                 }

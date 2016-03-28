@@ -70,9 +70,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             return c.getRealName() + "$" + getSimpleRealName();
         }
 
-
-        if (parentContext == null)
-            System.out.println("123");
         return parentContext.toString() + "$" + getSimpleRealName();
     }
 
@@ -171,8 +168,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     public Optional<VClass> getDependencyParent(VClass enumClass) {
-        if (getRealName().contains("Script"))
-            System.out.println("123");
         if (getParentContext() instanceof VClass
                 && !java.lang.reflect.Modifier.isInterface(getModificators())
                 && !java.lang.reflect.Modifier.isStatic(getModificators())
