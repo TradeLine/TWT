@@ -1,2 +1,4 @@
 rootProject.name = 'TWT'
-include "compiler", "twt-gradle", "shared"
+include "compiler"
+include "twt-gradle"
+include "shared"
