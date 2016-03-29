@@ -2,6 +2,9 @@ package org.tlsys.twt;
 
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
 import org.gradle.api.file.FileCollection;
@@ -17,11 +20,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ProjectDependency;
-import org.tlsys.twt.compiler.LibLoader;
-import org.tlsys.twt.compiler.ModuleInfo;
 
 /**
  * Created by Субочев Антон on 26.02.2016.
@@ -135,9 +133,11 @@ public class AppCompiller {
         public void close() {
             for (TWTModule cl : loader.getLoaders()) {
                 try {
+                    System.out.println("Closing " + cl.getName());
+                    cl.getJavaClassLoader().clearAssertionStatus();
                     cl.getJavaClassLoader().close();
                 } catch (IOException io) {
-                    //ignore
+                    io.printStackTrace();
                 }
             }
         }

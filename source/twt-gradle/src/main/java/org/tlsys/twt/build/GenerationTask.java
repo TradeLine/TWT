@@ -15,7 +15,53 @@ import java.util.*;
 
 public class GenerationTask extends DefaultTask {
 
+    private static long classNameIterator = 0;
+    private static long methodNameIterator = 0;
+    private static int fieldIterator = 0;
     private ArrayList<GenerationTarget> targets = new ArrayList<>();
+
+    public static void renaming(VClassLoader loader) {
+        String name = loader.getName();
+        loader.setName(name.replace('-', '_').replace('.', '$'));
+
+        for (VClass v : loader.classes) {
+            if (v.alias == null) {
+                v.alias = v.fullName;
+            }
+            v.fullName = v.fullName.replace('.', '_') + "_" + Long.toString(++classNameIterator, Character.MAX_RADIX);
+
+            for (VField f : v.getLocalFields()) {
+                f.setRuntimeName(f.getRealName() + Integer.toString(++fieldIterator, Character.MAX_RADIX));
+            }
+
+            for (VMethod m : v.methods) {
+                if (m.alias == null) {
+                    m.alias = m.getRunTimeName();
+                }
+                int argIterator = 0;
+                for (VArgument a : m.getArguments()) {
+                    a.setRuntimeName(a.getRealName() + "_" + Integer.toString(++argIterator, Character.MAX_RADIX));
+                }
+                if (m.getReplace() == null) {
+                    m.setRuntimeName(m.getRunTimeName() + "_" + Long.toString(++methodNameIterator, Character.MAX_RADIX));
+                }
+            }
+
+            int constructIterator = 0;
+
+            for (VConstructor m : v.constructors) {
+                m.setRuntimeName("c" + Integer.toString(++constructIterator, Character.MAX_RADIX));
+                int argIterator = 0;
+                for (VArgument a : m.getArguments()) {
+                    a.setRuntimeName(a.getRealName() + "_" + Integer.toString(++argIterator, Character.MAX_RADIX));
+                }
+            }
+        }
+
+        for (VClassLoader cl : loader.parents) {
+            renaming(cl);
+        }
+    }
 
     public void target(GenerationTarget target) {
         targets.add(target);
@@ -70,22 +116,15 @@ public class GenerationTask extends DefaultTask {
                         cm.addForced(app.getMainLoader().getTWTClassLoader());
                         cm.detectReplace();
 
-                        System.out.println("Compile classes:");
+                        /*
                         for (CompileModuls.ClassRecord cr : cm.getRecords()) {
-                            System.out.println("--+"+cr.getClazz().getRealName());
                             for (VExecute e : cr.getExe()) {
-                                System.out.print("--|--" + e.getDescription());
                                 if (e instanceof VMethod) {
                                     VMethod m = (VMethod)e;
-                                    if (m.getReplace() != null)
-                                        System.out.println(" replaced by " + m.getReplace());
-                                    else
-                                        System.out.println(" no replace");
                                 }
-                                System.out.println();
                             }
-                            System.out.println();
                         }
+                        */
 
                         Class cl = app.getMainLoader().getJavaClassLoader().loadClass(gt.generator());
                         MainGenerator mg = (MainGenerator) cl.newInstance();
@@ -115,52 +154,5 @@ public class GenerationTask extends DefaultTask {
     @InputFiles
     public Collection<File> getIn() {
         return AppCompiller.getSourceOfProject(getProject());
-    }
-
-    private static long classNameIterator = 0;
-    private static long methodNameIterator = 0;
-    private static int fieldIterator = 0;
-
-    public static void renaming(VClassLoader loader) {
-        String name = loader.getName();
-        loader.setName(name.replace('-', '_').replace('.', '$'));
-
-        for (VClass v : loader.classes) {
-            if (v.alias == null) {
-                v.alias = v.fullName;
-            }
-            v.fullName = v.fullName.replace('.', '_') + "_" + Long.toString(++classNameIterator, Character.MAX_RADIX);
-
-            for (VField f : v.getLocalFields()) {
-                f.setRuntimeName(f.getRealName() + Integer.toString(++fieldIterator, Character.MAX_RADIX));
-            }
-
-            for (VMethod m : v.methods) {
-                if (m.alias == null) {
-                    m.alias = m.getRunTimeName();
-                }
-                int argIterator = 0;
-                for (VArgument a : m.getArguments()) {
-                    a.setRuntimeName(a.getRealName() + "_" + Integer.toString(++argIterator, Character.MAX_RADIX));
-                }
-                if (m.getReplace() == null) {
-                    m.setRuntimeName(m.getRunTimeName() + "_" + Long.toString(++methodNameIterator, Character.MAX_RADIX));
-                }
-            }
-
-            int constructIterator = 0;
-
-            for (VConstructor m : v.constructors) {
-                m.setRuntimeName("c" + Integer.toString(++constructIterator, Character.MAX_RADIX));
-                int argIterator = 0;
-                for (VArgument a : m.getArguments()) {
-                    a.setRuntimeName(a.getRealName() + "_" + Integer.toString(++argIterator, Character.MAX_RADIX));
-                }
-            }
-        }
-
-        for (VClassLoader cl : loader.parents) {
-            renaming(cl);
-        }
     }
 }
