@@ -14,32 +14,25 @@ public class Main {
         aaa = aaab;
     }
 
-    public class SubClass {
-        void tt() {
-            Console.info("Hello from SUBCLASS!");
-            Console.info("aaa=" + Main.this.aaa);
-        }
-    }
-
-    public void doit() {
-
-        int a = 9;
-
-        Script.TimeoutCallback t = new Script.TimeoutCallback(){
-            @Override
-            @ForceInject
-            public void onTimeout() {
-
-                Console.info("IS CALL BACK! " + aaa + "   " + a);
-                Console.info(this.getClass().getName());
-
-                new SubClass().tt();
-            }
-        };
-        long id = Script.setTimeout(1000, t);
-    }
-
     public static void main() {
+
+        /*
+        Tabs tabs = new Tabs();
+        tabs.createTab("Карты");
+        tabs.createTab("Контакты");
+        tabs.createTab("Рефералы");
+
+        tabs.setActiveTab(1);
+
+        tabs.addListener((o,n)->{
+            Console.info("Changed to " + n.getTitle());
+        });
+
+        Object o = DOM.getElementsByTagName(Document.get(), "body")[0];
+
+        DOM.appendChild(o, tabs);
+
+        */
 
         /*
         doit1(8);
@@ -52,14 +45,9 @@ public class Main {
 */
 
 
-
         new Main(1).doit();
         new Main(2).doit();
         new Main(3).doit();
-
-
-
-
 
 
         //Console.info("Timer setted! " + id);
@@ -95,5 +83,30 @@ public class Main {
         }, false);
         */
 
+    }
+
+    public void doit() {
+
+        int a = 9;
+
+        Script.TimeoutCallback t = new Script.TimeoutCallback(){
+            @Override
+            @ForceInject
+            public void onTimeout() {
+
+                Console.info("IS CALL BACK! " + aaa + "   " + a);
+                Console.info(this.getClass().getName());
+
+                new SubClass().tt();
+            }
+        };
+        long id = Script.setTimeout(1000, t);
+    }
+
+    public class SubClass {
+        void tt() {
+            Console.info("Hello from SUBCLASS!");
+            Console.info("aaa=" + Main.this.aaa);
+        }
     }
 }

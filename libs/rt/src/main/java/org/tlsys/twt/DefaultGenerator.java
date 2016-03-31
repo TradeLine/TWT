@@ -210,7 +210,7 @@ public class DefaultGenerator implements ICodeGenerator {
             Invoke inv = new Invoke(addClassMethod, o.getClassLoaderVar());
             VClass clazz = o.getType();
 
-            NewClass classInit = new NewClass(classClass.constructors.get(0));
+            NewClass classInit = new NewClass(classClass.constructors.get(0), sourcePoint);
             classInit.arguments.add(new Const(clazz.alias, stringClass));
 
             VClass fieldClass = clazz.getClassLoader().loadClass(Field.class.getName());

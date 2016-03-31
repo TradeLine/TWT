@@ -15,27 +15,9 @@ class OperationCompiler {
 
     private static final Map<Class, ProcEx> exProc = new HashMap<>();
 
-    private static List<VClass> buildConstructorInvokeTypes(VClass vClass) {
-        Objects.requireNonNull(vClass);
-        List<VClass> argsParamClasses = new ArrayList<VClass>();
-
-        vClass.getModificator(ee -> ee.getClass() == OtherClassLink.class).ifPresent(e3 -> {
-            OtherClassLink o2 = (OtherClassLink) e3;
-            argsParamClasses.add(o2.getToClass());
-        });
-
-        vClass.getModificator(ee -> ee.getClass() == InputsClassModificator.class).ifPresent(e3 -> {
-            InputsClassModificator o2 = (InputsClassModificator) e3;
-            for (VField f : o2.getFields()) {
-                argsParamClasses.add(f.getType());
-            }
-        });
-
-        return argsParamClasses;
-    }
-
     static {
         addProc(JCTree.JCNewClass.class, (c, e, o) -> {
+
             ArrayList<VClass> aclass = new ArrayList<VClass>(e.args.size());
             Symbol.MethodSymbol ms = (Symbol.MethodSymbol) e.constructor;
 
@@ -54,7 +36,7 @@ class OperationCompiler {
 
             if (classIns.isParent(enumClass)) {
                 VConstructor con = classIns.getConstructor(classIns.getClassLoader().loadClass(String.class.getName()), classIns.getClassLoader().loadClass("int"));
-                NewClass nc = new NewClass(con);
+                NewClass nc = new NewClass(con, c.getFile().getPoint(e.pos));
                 return nc;
             }
 
@@ -78,7 +60,7 @@ class OperationCompiler {
                 throw ex;
             }
 
-            NewClass nc = new NewClass(con);
+            NewClass nc = new NewClass(con, c.getFile().getPoint(e.pos));
             Optional<VClass> parentClass = con.getParent().getDependencyParent();
 
             for (VArgument arg : con.getArguments()) {
@@ -90,7 +72,7 @@ class OperationCompiler {
                     }
 
                     if (arg.getCreator() instanceof InputsClassModificator.InputArgs) {
-                        InputsClassModificator.InputArgs a = (InputsClassModificator.InputArgs)arg.getCreator();
+                        InputsClassModificator.InputArgs a = (InputsClassModificator.InputArgs) arg.getCreator();
                         nc.addArg(a.getInput());
                         continue;
                     }
@@ -256,14 +238,14 @@ class OperationCompiler {
 
                     if (cc == null)
                         return null;
-                        //throw new RuntimeException("!!!");
+                    //throw new RuntimeException("!!!");
 
                     List<VClass> args = buildConstructorInvokeTypes(cc);
                     for (JCTree.JCExpression ee : e.args) {
                         args.add(TypeUtil.loadClass(c.getClassLoader(), ee.type));
                     }
 
-                        method = cc.getConstructor(args);
+                    method = cc.getConstructor(args);
 
                 } else {
                     List<VClass> args = new ArrayList<VClass>();
@@ -271,7 +253,7 @@ class OperationCompiler {
                         args.add(TypeUtil.loadClass(c.getClassLoader(), ee.type));
                     }
                     try {
-                    method = self.getType().getMethod(in.name.toString(), args);
+                        method = self.getType().getMethod(in.name.toString(), args);
                     } catch (CompileException ex) {
                         throw ex;
                     }
@@ -311,7 +293,7 @@ class OperationCompiler {
                         OtherClassLink.ArgumentLink al = (OtherClassLink.ArgumentLink) arg.getCreator();
 
                         OtherClassLink ocl = (OtherClassLink) method.getParent().getModificator(ee -> ee.getClass() == OtherClassLink.class && ((OtherClassLink) ee).getToClass() == al.getToClass()).get();
-                        i.addArg(new GetField(new This(ocl.getField().getParent()),ocl.getField()));
+                        i.addArg(new GetField(new This(ocl.getField().getParent()), ocl.getField()));
                         argInc++;
                         continue;
                     }
@@ -561,6 +543,25 @@ class OperationCompiler {
         });
     }
 
+    private static List<VClass> buildConstructorInvokeTypes(VClass vClass) {
+        Objects.requireNonNull(vClass);
+        List<VClass> argsParamClasses = new ArrayList<VClass>();
+
+        vClass.getModificator(ee -> ee.getClass() == OtherClassLink.class).ifPresent(e3 -> {
+            OtherClassLink o2 = (OtherClassLink) e3;
+            argsParamClasses.add(o2.getToClass());
+        });
+
+        vClass.getModificator(ee -> ee.getClass() == InputsClassModificator.class).ifPresent(e3 -> {
+            InputsClassModificator o2 = (InputsClassModificator) e3;
+            for (VField f : o2.getFields()) {
+                argsParamClasses.add(f.getType());
+            }
+        });
+
+        return argsParamClasses;
+    }
+
     public static Value getInitValueForType(VClass clazz) throws VClassNotFoundException {
         Objects.requireNonNull(clazz, "Argument clazz is NULL");
         if (clazz.isThis("byte") || clazz.isThis("short") || clazz.isThis("int") || clazz.isThis("long"))
@@ -580,8 +581,11 @@ class OperationCompiler {
         exProc.put(cl, proc);
     }
 
-    private static interface ProcEx<V extends JCTree.JCExpression> {
-        Operation proc(TreeCompiler compiller, V e, Context context) throws CompileException;
+    public static <T extends Operation> T op(TreeCompiler compiler, JCTree.JCExpression tree, Context context) throws CompileException {
+        ProcEx p = exProc.get(tree.getClass());
+        if (p != null)
+            return (T) p.proc(compiler, tree, context);
+        throw new RuntimeException("Not supported " + tree.getClass().getName() + " \"" + tree + "\"");
     }
 
 
@@ -594,10 +598,7 @@ class OperationCompiler {
     }
     */
 
-    public static <T extends Operation> T op(TreeCompiler compiler, JCTree.JCExpression tree, Context context) throws CompileException {
-        ProcEx p = exProc.get(tree.getClass());
-        if (p != null)
-            return (T) p.proc(compiler, tree, context);
-        throw new RuntimeException("Not supported " + tree.getClass().getName() + " \"" + tree + "\"");
+    private static interface ProcEx<V extends JCTree.JCExpression> {
+        Operation proc(TreeCompiler compiller, V e, Context context) throws CompileException;
     }
 }

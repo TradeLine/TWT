@@ -8,13 +8,20 @@ import org.tlsys.lex.Operation;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VClassLoader;
 import org.tlsys.lex.declare.VClassNotFoundException;
+import org.tlsys.sourcemap.SourceFile;
 import org.tlsys.twt.CompileException;
 
 public class TreeCompiler {
     private final VClass currentClass;
+    private final SourceFile file;
 
-    public TreeCompiler(VClass currentClass) {
+    public TreeCompiler(VClass currentClass, SourceFile file) {
         this.currentClass = currentClass;
+        this.file = file;
+    }
+
+    public SourceFile getFile() {
+        return file;
     }
 
     public <T extends Operation> T op(JCTree.JCExpression tree, Context context) throws CompileException {

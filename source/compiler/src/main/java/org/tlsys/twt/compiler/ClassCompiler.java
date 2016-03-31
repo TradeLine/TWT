@@ -17,6 +17,50 @@ import java.util.function.Function;
 
 public class ClassCompiler {
 
+    private static Function<VExecute, Void> parentThisReplacer = as -> {
+        BoolRef b = new BoolRef(true);
+        while (b.isValue()) {
+            b.setValue(false);
+
+            as.visit((r) -> {
+                VClass currentClass = as.getParent();
+                if (r.get() instanceof This) {
+                    This t = (This) r.get();
+                    if (t.getType() != as.getParent()) {
+                        OtherClassLink ocl = OtherClassLink.getOrCreate(as.getParent(), t.getType());
+
+                        r.set(new GetField(new This(as.getParent()), ocl.getField()));
+                        b.setValue(true);
+                    }
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        as.visit(r -> {
+            if (r.get() instanceof SVar) {
+
+                SVar s = (SVar) r.get();
+                Optional<Context> ctx = TypeUtil.findParentContext(s, c -> {
+                    if (c == as.getParent())
+                        return true;
+                    return false;
+                });
+
+                if (!ctx.isPresent()) {
+                    VField f = InputsClassModificator.getOrCreateInputModificator(as.getParent()).addInput(s);
+                    r.set(new GetField(new This(as.getParent()), f));
+                }
+
+                return false;
+            }
+
+            return true;
+        });
+        return null;
+    };
+
     /**
      * Компилирует массив файлов, указывая в качестве родительского загрузчика классов {@param classLoader}
      *
@@ -57,7 +101,6 @@ public class ClassCompiler {
         searchMembers(cc);
 
 
-
         for (Pair p : cc.pairs) {
 //            parentThisReplacer.apply(p.vclass);
 
@@ -72,75 +115,10 @@ public class ClassCompiler {
         compileCode(cc, VExecute.class);
 
 
-
         compileCode(cc, VVar.class);
         compileCode(cc, StaticBlock.class);
         findReplaceMethod(cc);
     }
-
-    private static class BoolRef {
-        private boolean value;
-
-        public BoolRef() {
-            this(false);
-        }
-
-        public BoolRef(boolean value) {
-            this.value = value;
-        }
-
-        public boolean isValue() {
-            return value;
-        }
-
-        public void setValue(boolean value) {
-            this.value = value;
-        }
-    }
-
-    private static Function<VExecute, Void> parentThisReplacer = as->{
-        BoolRef b = new BoolRef(true);
-        while (b.isValue()) {
-            b.setValue(false);
-
-            as.visit((r) -> {
-                VClass currentClass = as.getParent();
-                if (r.get() instanceof This) {
-                    This t = (This) r.get();
-                    if (t.getType() != as.getParent()) {
-                        OtherClassLink ocl = OtherClassLink.getOrCreate(as.getParent(), t.getType());
-
-                        r.set(new GetField(new This(as.getParent()), ocl.getField()));
-                        b.setValue(true);
-                    }
-                    return false;
-                }
-                return true;
-            });
-        }
-
-        as.visit(r->{
-            if (r.get() instanceof SVar) {
-
-                SVar s = (SVar)r.get();
-                Optional<Context> ctx = TypeUtil.findParentContext(s, c->{
-                    if (c == as.getParent())
-                        return true;
-                    return false;
-                });
-
-                if (!ctx.isPresent()) {
-                    VField f = InputsClassModificator.getOrCreateInputModificator(as.getParent()).addInput(s);
-                    r.set(new GetField(new This(as.getParent()), f));
-                }
-
-                return false;
-            }
-
-            return true;
-        });
-        return null;
-    };
 
     public static AnnonimusClass createAnnonimusClass(Context context, JCTree.JCClassDecl c, VClassLoader vClassLoader) throws CompileException {
         AnnonimusClass as = new AnnonimusClass(context, null, c.sym);
@@ -298,7 +276,6 @@ public class ClassCompiler {
         return v;
     }
 
-
     private static void searchMembers(Pair pair) throws CompileException {
         try {
             for (JCTree t : pair.desl.defs) {
@@ -346,7 +323,7 @@ public class ClassCompiler {
     }
 
     public static void compileCode(Pair p, Class forClass) throws CompileException {
-        TreeCompiler com = new TreeCompiler(p.vclass);
+        TreeCompiler com = new TreeCompiler(p.vclass, file);
         for (Map.Entry<JCTree, Member> e : p.members.entrySet()) {
             Member member = e.getValue();
             if (!forClass.isInstance(member))
@@ -517,9 +494,28 @@ public class ClassCompiler {
         }
     }
 
-
     public interface ClassItemListener {
         public void doneClass(VClass vClass);
+    }
+
+    private static class BoolRef {
+        private boolean value;
+
+        public BoolRef() {
+            this(false);
+        }
+
+        public BoolRef(boolean value) {
+            this.value = value;
+        }
+
+        public boolean isValue() {
+            return value;
+        }
+
+        public void setValue(boolean value) {
+            this.value = value;
+        }
     }
 
     private static class CompileContext {

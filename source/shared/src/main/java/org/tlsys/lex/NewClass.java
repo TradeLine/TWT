@@ -4,6 +4,7 @@ import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VConstructor;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -13,17 +14,19 @@ public class NewClass extends Value {
     private static final long serialVersionUID = -2655271103608417622L;
     public VConstructor constructor;
     public ArrayList<Value> arguments = new ArrayList<>();
+    private SourcePoint sourcePoint;
 
     public NewClass() {
+    }
+
+    public NewClass(VConstructor constructor, SourcePoint sourcePoint) {
+        this.constructor = constructor;
+        this.sourcePoint = sourcePoint;
     }
 
     public NewClass addArg(Value value) {
         arguments.add(value);
         return this;
-    }
-
-    public NewClass(VConstructor constructor) {
-        this.constructor = constructor;
     }
 
     @Override

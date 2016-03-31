@@ -88,7 +88,7 @@ public final class DOM {
     }
 
     public static int childLength(Object element) {
-        return Script.code(element,".childNodes.length");
+        return CastUtil.toInt(Script.code(element, ".childNodes.length"));
     }
 
     public static Object getChild(Object element, int index) {

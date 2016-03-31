@@ -1,4 +1,4 @@
-package org.tlsys.twt.sourcemap;
+package org.tlsys.sourcemap;
 
 /**
  * Класс точки в исходном файле

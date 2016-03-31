@@ -1,4 +1,4 @@
-package org.tlsys.twt.sourcemap;
+package org.tlsys.sourcemap;
 
 import java.util.ArrayList;
 
@@ -28,6 +28,10 @@ public class SourceFile {
         }
     }
 
+    public String getName() {
+        return name;
+    }
+
     int getLineOfIndex(int index) {
         if (index < 0)
             throw new IllegalArgumentException("Bad index: " + index);
@@ -54,5 +58,9 @@ public class SourceFile {
         if (line == 0)
             return new SourcePoint(line, index, this);
         return new SourcePoint(line, index - brs[line - 1], this);
+    }
+
+    public SourcePoint getPoint(int row, int column) {
+        return new SourcePoint(row, column, this);
     }
 }

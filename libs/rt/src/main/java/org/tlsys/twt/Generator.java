@@ -43,121 +43,6 @@ public class Generator implements MainGenerator {
         return lambda;
     }
 
-    private void addFullClass(VClass cl, CompileModuls compileModuls) {
-        compileModuls.add(cl);
-        for (VConstructor c : cl.constructors)
-            compileModuls.add(c);
-
-        for (VMethod c : cl.methods)
-            compileModuls.add(c);
-
-        for (VField c : cl.getLocalFields())
-            compileModuls.add(c.getType());
-    }
-
-    @Override
-    public void generate(VClassLoader projectClassLoader, CompileModuls compileModuls, PrintStream ps) throws CompileException {
-
-        VClass classClassStorage = projectClassLoader.loadClass(ClassStorage.class.getName());
-
-        storage = new SVar("S", classClassStorage, null);
-
-        VClass classLoader = projectClassLoader.loadClass(ClassLoader.class.getName());
-        VClass classClass = projectClassLoader.loadClass(Class.class.getName());
-        VClass objectClass = projectClassLoader.loadClass(Object.class.getName());
-        VClass classField = projectClassLoader.loadClass(Field.class.getName());
-        VClass obejctsClass = projectClassLoader.loadClass(Objects.class.getName());
-
-
-        VClass classClassRecord = projectClassLoader.loadClass(ClassRecord.class.getName());
-        VClass classFieldRecord = projectClassLoader.loadClass(FieldRecord.class.getName());
-        VClass classMethodRecord = projectClassLoader.loadClass(MethodRecord.class.getName());
-        VClass classArgumentRecord = projectClassLoader.loadClass(ArgumentRecord.class.getName());
-        VClass classTypeProvider = projectClassLoader.loadClass(TypeProvider.class.getName());
-        VClass classString = projectClassLoader.loadClass(String.class.getName());
-
-
-
-
-
-        addFullClass(projectClassLoader.loadClass(Throwable.class.getName()), compileModuls);
-        addFullClass(classLoader, compileModuls);
-        addFullClass(classClass, compileModuls);
-        addFullClass(classField, compileModuls);
-        addFullClass(classClassStorage, compileModuls);
-        addFullClass(classClassRecord, compileModuls);
-        addFullClass(classFieldRecord, compileModuls);
-        addFullClass(classMethodRecord, compileModuls);
-        addFullClass(classArgumentRecord, compileModuls);
-        addFullClass(classTypeProvider, compileModuls);
-        addFullClass(objectClass, compileModuls);
-        addFullClass(obejctsClass, compileModuls);
-        addFullClass(projectClassLoader.loadClass(ArrayBuilder.class.getName()), compileModuls);
-
-
-        HashSet<CompileModuls.ClassRecord> nativs = new HashSet<>();
-        HashSet<CompileModuls.ClassRecord> others = new HashSet<>();
-        HashSet<VClassLoader> classLoaders = new HashSet<>();
-        for (CompileModuls.ClassRecord cr : compileModuls.getRecords()) {
-            if (cr.getClazz() instanceof ArrayClass)
-                continue;
-            if (cr.getClazz() instanceof NullClass)
-                continue;
-            if (MainGenerationContext.getGeneratorFor(cr.getClazz()) instanceof NativeCodeGenerator)
-                nativs.add(cr);
-            else
-                others.add(cr);
-            classLoaders.add(cr.getClazz().getClassLoader());
-        }
-
-        for (CompileModuls.ClassRecord cr : nativs) {
-            MainGenerationContext gc = new MainGenerationContext(cr.getClazz(), compileModuls);
-            ICodeGenerator icg = gc.getGenerator(cr.getClazz());
-            icg.generateClass(gc, cr, ps);
-        }
-
-        MainGenerationContext gc = new MainGenerationContext(classClassStorage, compileModuls);
-        ICodeGenerator icg = gc.getGenerator(classClassStorage);
-
-
-        DeclareVar dv = new DeclareVar(storage);
-        dv.init = new NewClass(classClassStorage.constructors.get(0));
-
-        icg.operation(gc, dv, ps);
-        ps.append(";\n");
-
-        gc = new MainGenerationContext(classClassRecord, compileModuls);
-        icg = gc.getGenerator(classClassRecord);
-        VMethod storageAddMethod = classClassStorage.getMethod("add", classClassRecord);//получаем метод add класса ClassRecord
-
-
-
-
-        for (CompileModuls.ClassRecord cr : others) {
-            Value lastScope = genClassRecord(gc, cr.getClazz(),
-                    ee -> cr.getExe().contains(ee),
-                    ()-> new NewClass(classClassRecord.constructors.get(0))
-                                .addArg(new Const(cr.getClazz().fullName, classString))
-                                .addArg(new Const(cr.getClazz().alias, classString))
-                    ,compileModuls);
-
-            //gc = new MainGenerationContext(classClassStorage, compileModuls);
-            Invoke inv = new Invoke(storageAddMethod, storage)
-                    .addArg(lastScope);
-            icg.operation(gc, inv, ps);
-            ps.append(";\n");
-        }
-    }
-
-    @Override
-    public void generateInvoke(VMethod method, PrintStream out, Value... arguments) throws CompileException {
-        Invoke inv = new Invoke(method, new StaticRef(method.getParent()));
-        for (Value v : arguments)
-            inv.addArg(v);
-        MainGenerationContext gc = new MainGenerationContext(method.getParent(), null);
-        MainGenerationContext.getGeneratorFor(method).operation(gc, inv, out);
-    }
-
     public static Value genClassRecord(GenerationContext gc, VClass vClass, Predicate<VExecute> exeNeed, Supplier<Value> newClass, CompileModuls moduls) throws CompileException {
         VClassLoader cl = vClass.getClassLoader();
         VClass classString = cl.loadClass(String.class.getName());
@@ -235,7 +120,7 @@ public class Generator implements MainGenerator {
         for (VExecute e : methods) {
             if (!exeNeed.test(e))
                 continue;
-            NewClass newMethod = new NewClass(methodConstructor)
+            NewClass newMethod = new NewClass(methodConstructor, sourcePoint)
                     .addArg(new Const(e.getRunTimeName(), classString));
             Value lastMethodScope = newMethod;
             if (e instanceof VConstructor)
@@ -280,7 +165,7 @@ public class Generator implements MainGenerator {
             newMethod.arguments.add(new Const(e.isStatic(), classBoolean));
 
             for (VArgument a : e.getArguments()) {
-                NewClass newArg = new NewClass(argumentConstructor)
+                NewClass newArg = new NewClass(argumentConstructor, sourcePoint)
                         .addArg(new Const(a.getRuntimeName(), classString))
                         .addArg(new Const(a.var, classBoolean))
                         .addArg(getClassViaTypeProvider(a.getType()));
@@ -305,5 +190,115 @@ public class Generator implements MainGenerator {
         }
 
         return lastScope;
+    }
+
+    private void addFullClass(VClass cl, CompileModuls compileModuls) {
+        compileModuls.add(cl);
+        for (VConstructor c : cl.constructors)
+            compileModuls.add(c);
+
+        for (VMethod c : cl.methods)
+            compileModuls.add(c);
+
+        for (VField c : cl.getLocalFields())
+            compileModuls.add(c.getType());
+    }
+
+    @Override
+    public void generate(VClassLoader projectClassLoader, CompileModuls compileModuls, PrintStream ps) throws CompileException {
+
+        VClass classClassStorage = projectClassLoader.loadClass(ClassStorage.class.getName());
+
+        storage = new SVar("S", classClassStorage, null);
+
+        VClass classLoader = projectClassLoader.loadClass(ClassLoader.class.getName());
+        VClass classClass = projectClassLoader.loadClass(Class.class.getName());
+        VClass objectClass = projectClassLoader.loadClass(Object.class.getName());
+        VClass classField = projectClassLoader.loadClass(Field.class.getName());
+        VClass obejctsClass = projectClassLoader.loadClass(Objects.class.getName());
+
+
+        VClass classClassRecord = projectClassLoader.loadClass(ClassRecord.class.getName());
+        VClass classFieldRecord = projectClassLoader.loadClass(FieldRecord.class.getName());
+        VClass classMethodRecord = projectClassLoader.loadClass(MethodRecord.class.getName());
+        VClass classArgumentRecord = projectClassLoader.loadClass(ArgumentRecord.class.getName());
+        VClass classTypeProvider = projectClassLoader.loadClass(TypeProvider.class.getName());
+        VClass classString = projectClassLoader.loadClass(String.class.getName());
+
+
+        addFullClass(projectClassLoader.loadClass(Throwable.class.getName()), compileModuls);
+        addFullClass(classLoader, compileModuls);
+        addFullClass(classClass, compileModuls);
+        addFullClass(classField, compileModuls);
+        addFullClass(classClassStorage, compileModuls);
+        addFullClass(classClassRecord, compileModuls);
+        addFullClass(classFieldRecord, compileModuls);
+        addFullClass(classMethodRecord, compileModuls);
+        addFullClass(classArgumentRecord, compileModuls);
+        addFullClass(classTypeProvider, compileModuls);
+        addFullClass(objectClass, compileModuls);
+        addFullClass(obejctsClass, compileModuls);
+        addFullClass(projectClassLoader.loadClass(ArrayBuilder.class.getName()), compileModuls);
+
+
+        HashSet<CompileModuls.ClassRecord> nativs = new HashSet<>();
+        HashSet<CompileModuls.ClassRecord> others = new HashSet<>();
+        HashSet<VClassLoader> classLoaders = new HashSet<>();
+        for (CompileModuls.ClassRecord cr : compileModuls.getRecords()) {
+            if (cr.getClazz() instanceof ArrayClass)
+                continue;
+            if (cr.getClazz() instanceof NullClass)
+                continue;
+            if (MainGenerationContext.getGeneratorFor(cr.getClazz()) instanceof NativeCodeGenerator)
+                nativs.add(cr);
+            else
+                others.add(cr);
+            classLoaders.add(cr.getClazz().getClassLoader());
+        }
+
+        for (CompileModuls.ClassRecord cr : nativs) {
+            MainGenerationContext gc = new MainGenerationContext(cr.getClazz(), compileModuls);
+            ICodeGenerator icg = gc.getGenerator(cr.getClazz());
+            icg.generateClass(gc, cr, ps);
+        }
+
+        MainGenerationContext gc = new MainGenerationContext(classClassStorage, compileModuls);
+        ICodeGenerator icg = gc.getGenerator(classClassStorage);
+
+
+        DeclareVar dv = new DeclareVar(storage);
+        dv.init = new NewClass(classClassStorage.constructors.get(0), sourcePoint);
+
+        icg.operation(gc, dv, ps);
+        ps.append(";\n");
+
+        gc = new MainGenerationContext(classClassRecord, compileModuls);
+        icg = gc.getGenerator(classClassRecord);
+        VMethod storageAddMethod = classClassStorage.getMethod("add", classClassRecord);//получаем метод add класса ClassRecord
+
+
+        for (CompileModuls.ClassRecord cr : others) {
+            Value lastScope = genClassRecord(gc, cr.getClazz(),
+                    ee -> cr.getExe().contains(ee),
+                    () -> new NewClass(classClassRecord.constructors.get(0), sourcePoint)
+                            .addArg(new Const(cr.getClazz().fullName, classString))
+                            .addArg(new Const(cr.getClazz().alias, classString))
+                    , compileModuls);
+
+            //gc = new MainGenerationContext(classClassStorage, compileModuls);
+            Invoke inv = new Invoke(storageAddMethod, storage)
+                    .addArg(lastScope);
+            icg.operation(gc, inv, ps);
+            ps.append(";\n");
+        }
+    }
+
+    @Override
+    public void generateInvoke(VMethod method, PrintStream out, Value... arguments) throws CompileException {
+        Invoke inv = new Invoke(method, new StaticRef(method.getParent()));
+        for (Value v : arguments)
+            inv.addArg(v);
+        MainGenerationContext gc = new MainGenerationContext(method.getParent(), null);
+        MainGenerationContext.getGeneratorFor(method).operation(gc, inv, out);
     }
 }

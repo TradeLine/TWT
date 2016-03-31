@@ -6,8 +6,6 @@ import org.tlsys.lex.StaticRef;
 import org.tlsys.lex.Value;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.twt.CompileException;
-import org.tlsys.twt.GenerationContext;
-import org.tlsys.twt.MainGenerationContext;
 import org.tlsys.twt.ICastAdapter;
 
 public class BoxingCast implements ICastAdapter {
@@ -70,19 +68,19 @@ public class BoxingCast implements ICastAdapter {
 
         if (char.class.getName().equals(value.getType().alias)) {
             if (Character.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+                return new NewClass(vClass.getConstructor(value.getType()), sourcePoint).addArg(value);
             }
         }
 
         if (byte.class.getName().equals(value.getType().alias)) {
             if (Byte.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+                return new NewClass(vClass.getConstructor(value.getType()), sourcePoint).addArg(value);
             }
         }
 
         if (short.class.getName().equals(value.getType().alias)) {
             if (Short.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+                return new NewClass(vClass.getConstructor(value.getType()), sourcePoint).addArg(value);
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
@@ -100,7 +98,7 @@ public class BoxingCast implements ICastAdapter {
 
         if (int.class.getName().equals(value.getType().alias)) {
             if (Integer.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+                return new NewClass(vClass.getConstructor(value.getType()), sourcePoint).addArg(value);
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
@@ -122,7 +120,7 @@ public class BoxingCast implements ICastAdapter {
 
         if (long.class.getName().equals(value.getType().alias)) {
             if (Long.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+                return new NewClass(vClass.getConstructor(value.getType()), sourcePoint).addArg(value);
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
@@ -133,13 +131,13 @@ public class BoxingCast implements ICastAdapter {
 
         if (float.class.getName().equals(value.getType().alias)) {
             if (Float.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+                return new NewClass(vClass.getConstructor(value.getType()), sourcePoint).addArg(value);
             }
         }
 
         if (double.class.getName().equals(value.getType().alias)) {
             if (Double.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType())).addArg(value);
+                return new NewClass(vClass.getConstructor(value.getType()), sourcePoint).addArg(value);
             }
         }
 
