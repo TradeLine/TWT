@@ -1,5 +1,6 @@
 package org.tlsys.twt.events;
 
+import org.tlsys.Outbuffer;
 import org.tlsys.lex.Const;
 import org.tlsys.lex.Invoke;
 import org.tlsys.lex.StaticRef;
@@ -16,7 +17,7 @@ import java.util.Objects;
 
 public class EventCodeGenerator extends DefaultGenerator {
     @Override
-    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
+    public void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
         VClass eventListenerClass = context.getCurrentClass().getClassLoader().loadClass(Events.EventListener.class.getName());
         VClass objectClass = context.getCurrentClass().getClassLoader().loadClass(Object.class.getName());
         VClass objectsClass = context.getCurrentClass().getClassLoader().loadClass(Objects.class.getName());

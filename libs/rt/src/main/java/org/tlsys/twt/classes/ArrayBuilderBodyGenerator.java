@@ -1,5 +1,6 @@
 package org.tlsys.twt.classes;
 
+import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.*;
@@ -10,7 +11,7 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
 
 
     @Override
-    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
+    public void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
         super.generateMethodStart(context, execute, ps);
         VClass arrayBuilderClass = execute.getParent();
         VClass classClass = arrayBuilderClass.getClassLoader().loadClass(Class.class.getName());
@@ -59,7 +60,7 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
     }
 
     @Override
-    public boolean generate(GenerationContext ctx, Invoke invoke, PrintStream ps) throws CompileException {
+    public boolean generate(GenerationContext ctx, Invoke invoke, Outbuffer ps) throws CompileException {
         if (invoke.getMethod().alias.equals("create")) {
             ICodeGenerator g = ctx.getGenerator(invoke.getMethod());
             g.operation(ctx, new StaticRef(invoke.getMethod().getParent()), ps);

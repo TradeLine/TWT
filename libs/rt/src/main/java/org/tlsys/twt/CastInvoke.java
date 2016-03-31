@@ -1,5 +1,6 @@
 package org.tlsys.twt;
 
+import org.tlsys.Outbuffer;
 import org.tlsys.lex.Invoke;
 import org.tlsys.lex.Value;
 
@@ -16,7 +17,7 @@ public class CastInvoke implements InvokeGenerator {
     */
 
     @Override
-    public boolean generate(GenerationContext ctx, Invoke invoke, PrintStream ps) throws CompileException {
+    public boolean generate(GenerationContext ctx, Invoke invoke, Outbuffer ps) throws CompileException {
         return ctx.getGenerator(ctx.getCurrentClass()).operation(ctx, invoke.arguments.get(0), ps);
     }
 }

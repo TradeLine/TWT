@@ -1,5 +1,6 @@
 package org.tlsys.twt;
 
+import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 
@@ -10,9 +11,9 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
 
 
     @Override
-    public void generateClass(GenerationContext ctx, CompileModuls.ClassRecord record, PrintStream ps) throws CompileException {
+    public void generateClass(GenerationContext ctx, CompileModuls.ClassRecord record, Outbuffer ps) throws CompileException {
         VClass clazz = record.getClazz();
-        ps.append("var ").append(clazz.fullName).append("=function(){\n");
+        ps.append("var ").append(clazz.fullName).append("=function(){");
 
         for (VField f : clazz.getLocalFields()) {
             if (f.isStatic())
@@ -25,7 +26,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append(";");
         }
 
-        ps.append("};\n");
+        ps.append("};");
         
         
         for (VField f : clazz.getLocalFields()) {
@@ -46,7 +47,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         if (constructor.block != null)
             for (Operation o : constructor.block.operations) {
                 if (operation(ctx, o, ps))
-                    ps.append(";\n");
+                    ps.append(";");
             }
 
         */
@@ -56,11 +57,10 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             if (m instanceof VConstructor)
                 ps.append(m.getParent().fullName).append(".n").append(m.getRunTimeName()).append("=function(){var o=new ").append(m.getParent().fullName).append("();o.").append(m.getRunTimeName()).append(".apply(o,arguments);return o;};");
         }
-        ps.append("\n");
     }
 
     @Override
-    protected void generateMethodStart(GenerationContext ctx, VExecute meth, PrintStream ps) {
+    protected void generateMethodStart(GenerationContext ctx, VExecute meth, Outbuffer ps) {
         ps.append(meth.getParent().fullName).append(".");
         if (!meth.isStatic())
             ps.append("prototype.");
@@ -78,16 +78,16 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append(ar.getRuntimeName());
             first = false;
         }
-        ps.append(")\n");
+        ps.append(")");
     }
 
     @Override
-    protected void generateMethodEnd(GenerationContext ctx, VExecute execute, PrintStream ps) {
-        ps.append(";\n");
+    protected void generateMethodEnd(GenerationContext ctx, VExecute execute, Outbuffer ps) {
+        ps.append(";");
     }
 
     @Override
-    protected void generateMethodNull(GenerationContext ctx, VExecute meth, PrintStream ps) {
+    protected void generateMethodNull(GenerationContext ctx, VExecute meth, Outbuffer ps) {
         ps.append(meth.getParent().fullName).append(".");
         if (!meth.isStatic())
             ps.append("prototype.");
@@ -97,27 +97,27 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         else
         */
             ps.append(meth.getRunTimeName());
-        ps.append("=null;\n");
+        ps.append("=null;");
     }
 
     @Override
-    public void generateExecute(GenerationContext ctx, VExecute meth, PrintStream ps, CompileModuls moduls) throws CompileException {
+    public void generateExecute(GenerationContext ctx, VExecute meth, Outbuffer ps, CompileModuls moduls) throws CompileException {
         if (meth.getBlock() == null) {
             generateMethodNull(ctx, meth, ps);
             return;
         }
         generateMethodStart(ctx, meth, ps);
-        ps.append("{\n");
+        ps.append("{");
         for (Operation o : meth.getBlock().getOperations()) {
             if (operation(ctx, o, ps)) ;
-                ps.append(";\n");
+                ps.append(";");
         }
         ps.append("}");
         generateMethodEnd(ctx, meth, ps);
     }
 
     @Override
-    public boolean operation(GenerationContext ctx, Operation op, PrintStream ps) throws CompileException {
+    public boolean operation(GenerationContext ctx, Operation op, Outbuffer ps) throws CompileException {
         if (op instanceof Invoke) {
             Invoke inv = (Invoke) op;
             InvokeGenerator icg = ctx.getInvokeGenerator(((Invoke) op).getMethod());

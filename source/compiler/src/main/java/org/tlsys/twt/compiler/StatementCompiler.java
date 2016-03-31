@@ -142,7 +142,7 @@ class StatementCompiler {
                 it.init = new Const(0, intClass);
                 forLoop.init = it;
                 forLoop.update = new Increment(itVar, Increment.IncType.PRE_INC, intClass);
-                forLoop.value = new VBinar(itVar, new GetField(arVar, arVar.getType().getField("length")),c.getCurrentClass().getClassLoader().loadClass("boolean"), VBinar.BitType.LT);
+                forLoop.value = new VBinar(itVar, new GetField(arVar, arVar.getType().getField("length"), null),c.getCurrentClass().getClassLoader().loadClass("boolean"), VBinar.BitType.LT);
 
                 SVar el = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type), forLoop.block);
                 DeclareVar dv = new DeclareVar(el);

@@ -1,11 +1,12 @@
 package org.tlsys.sourcemap;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Класс исходного файла
  */
-public class SourceFile {
+public class SourceFile implements Serializable {
     private final String data;
     private final String name;
     private final int[] brs;

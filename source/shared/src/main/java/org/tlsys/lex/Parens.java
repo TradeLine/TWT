@@ -4,6 +4,7 @@ import com.sun.tools.javac.code.Symbol;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -16,6 +17,7 @@ public class Parens extends Value {
 
     private static final long serialVersionUID = -2233739865356402799L;
     private Value value;
+    private SourcePoint point;
 
     public Value getValue() {
         return value;
@@ -24,8 +26,9 @@ public class Parens extends Value {
     public Parens() {
     }
 
-    public Parens(Value value) {
+    public Parens(Value value, SourcePoint point) {
         this.value = Objects.requireNonNull(value);
+        this.point = point;
     }
 
     @Override

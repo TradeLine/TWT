@@ -1,5 +1,6 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.Outbuffer;
 import org.tlsys.lex.Invoke;
 import org.tlsys.twt.CompileException;
 import org.tlsys.twt.GenerationContext;
@@ -25,7 +26,7 @@ public class ClassInvoke implements InvokeGenerator {
     */
 
     @Override
-    public boolean generate(GenerationContext ctx, Invoke invoke, PrintStream ps) throws CompileException {
+    public boolean generate(GenerationContext ctx, Invoke invoke, Outbuffer ps) throws CompileException {
         throw new RuntimeException("Not supported yet");
     }
 }

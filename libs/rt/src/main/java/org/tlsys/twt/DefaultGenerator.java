@@ -1,11 +1,13 @@
 package org.tlsys.twt;
 
+import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.classes.ArrayBuilder;
 import org.tlsys.twt.classes.ClassStorage;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -203,6 +205,7 @@ public class DefaultGenerator implements ICodeGenerator {
             //throw new RuntimeException("new operator not suppported");
         });
 
+        /*
         addGen(DeclareClass.class, (c, o, p, g) -> {
             VClass stringClass = c.getCurrentClass().getClassLoader().loadClass(String.class.getName());
             VClass classClass = c.getCurrentClass().getClassLoader().loadClass(Class.class.getName());
@@ -218,11 +221,12 @@ public class DefaultGenerator implements ICodeGenerator {
             inv.arguments.add(new Const(clazz.fullName, stringClass));
             inv.arguments.add(classInit);
             if (g.operation(c, inv, p)) {
-                p.append(";\n");
+                p.append(";");
                 return true;
             }
             return false;
         });
+        */
 
         addGen(SVar.class, (c, o, p, g) -> {
             p.append(o.getRuntimeName());
@@ -650,20 +654,20 @@ public class DefaultGenerator implements ICodeGenerator {
         generators.put(clazz, gen);
     }
 
-    protected void generateMethodStart(GenerationContext ctx, VExecute execute, PrintStream ps) {
+    protected void generateMethodStart(GenerationContext ctx, VExecute execute, Outbuffer ps) {
         throw new RuntimeException("Not supported");
     }
 
-    protected void generateMethodEnd(GenerationContext ctx, VExecute execute, PrintStream ps) {
+    protected void generateMethodEnd(GenerationContext ctx, VExecute execute, Outbuffer ps) {
         throw new RuntimeException("Not supported");
     }
 
-    protected void generateMethodNull(GenerationContext ctx, VExecute execute, PrintStream ps) {
+    protected void generateMethodNull(GenerationContext ctx, VExecute execute, Outbuffer ps) {
         throw new RuntimeException("Not supported");
     }
 
     @Override
-    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
+    public void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
         try {
             if (execute instanceof VConstructor) {
                 VConstructor c = (VConstructor) execute;
@@ -708,12 +712,12 @@ public class DefaultGenerator implements ICodeGenerator {
     */
 
     @Override
-    public void generateClass(GenerationContext context, CompileModuls.ClassRecord record, PrintStream ps) throws CompileException {
+    public void generateClass(GenerationContext context, CompileModuls.ClassRecord record, Outbuffer ps) throws CompileException {
         throw new RuntimeException("Not supported yet");
     }
 
     @Override
-    public boolean operation(GenerationContext context, Operation op, PrintStream out) throws CompileException {
+    public boolean operation(GenerationContext context, Operation op, Outbuffer out) throws CompileException {
         if (op == null)
             return false;
         Gen g = generators.get(op.getClass());
@@ -724,6 +728,6 @@ public class DefaultGenerator implements ICodeGenerator {
     }
 
     private interface Gen<T> {
-        public boolean gen(GenerationContext ctx, T op, PrintStream ps, ICodeGenerator gen) throws CompileException;
+        public boolean gen(GenerationContext ctx, T op, Outbuffer ps, ICodeGenerator gen) throws CompileException;
     }
 }

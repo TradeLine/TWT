@@ -1,6 +1,7 @@
 package org.tlsys.twt;
 
 import org.tlsys.NullClass;
+import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.classes.*;
@@ -105,7 +106,7 @@ public class Generator implements MainGenerator {
                     .addArg(getClassViaTypeProvider(f.getType()));
 
             StringOutputStream initBody = new StringOutputStream();
-            hc2.operation(gc2, f.init, initBody.getStream());
+            hc2.operation(gc2, f.init, new Outbuffer(initBody.getStream()));
 
             //inv.arguments.add(getValueViaProvider((Value)f.init));
             inv.arguments.add(new Const(initBody.toString().replace("\"", "\\\""), classString));
@@ -120,7 +121,7 @@ public class Generator implements MainGenerator {
         for (VExecute e : methods) {
             if (!exeNeed.test(e))
                 continue;
-            NewClass newMethod = new NewClass(methodConstructor, sourcePoint)
+            NewClass newMethod = new NewClass(methodConstructor, null)
                     .addArg(new Const(e.getRunTimeName(), classString));
             Value lastMethodScope = newMethod;
             if (e instanceof VConstructor)
@@ -150,9 +151,9 @@ public class Generator implements MainGenerator {
                 sos.getStream().append("){");
 
                 if (cg != null) {
-                    cg.generateExecute(gc2, e, sos.getStream(), moduls);
+                    cg.generateExecute(gc2, e, new Outbuffer(sos.getStream()), moduls);
                 } else {
-                    hc2.generateExecute(gc2, e, sos.getStream(), moduls);
+                    hc2.generateExecute(gc2, e, new Outbuffer(sos.getStream()), moduls);
                 }
                 sos.getStream().append("}");
 
@@ -165,7 +166,7 @@ public class Generator implements MainGenerator {
             newMethod.arguments.add(new Const(e.isStatic(), classBoolean));
 
             for (VArgument a : e.getArguments()) {
-                NewClass newArg = new NewClass(argumentConstructor, sourcePoint)
+                NewClass newArg = new NewClass(argumentConstructor, null)
                         .addArg(new Const(a.getRuntimeName(), classString))
                         .addArg(new Const(a.var, classBoolean))
                         .addArg(getClassViaTypeProvider(a.getType()));
@@ -183,7 +184,7 @@ public class Generator implements MainGenerator {
 
             StringOutputStream sos = new StringOutputStream();
             sos.getStream().append("function()");
-            hc2.operation(gc, b.getBlock(), sos.getStream());
+            hc2.operation(gc, b.getBlock(), new Outbuffer(sos.getStream()));
             //sos.getStream().append("}");
             lastScope = new Invoke(addStaticMethod, lastScope)
                             .addArg(new Invoke(codeMethod, new StaticRef(scriptClass)).addArg(new NewArrayItems(objectClass.getArrayClass()).addEl(new Const(sos.toString(), classString))));
@@ -205,7 +206,7 @@ public class Generator implements MainGenerator {
     }
 
     @Override
-    public void generate(VClassLoader projectClassLoader, CompileModuls compileModuls, PrintStream ps) throws CompileException {
+    public void generate(VClassLoader projectClassLoader, CompileModuls compileModuls, Outbuffer ps) throws CompileException {
 
         VClass classClassStorage = projectClassLoader.loadClass(ClassStorage.class.getName());
 
@@ -267,10 +268,10 @@ public class Generator implements MainGenerator {
 
 
         DeclareVar dv = new DeclareVar(storage);
-        dv.init = new NewClass(classClassStorage.constructors.get(0), sourcePoint);
+        dv.init = new NewClass(classClassStorage.constructors.get(0), null);
 
         icg.operation(gc, dv, ps);
-        ps.append(";\n");
+        ps.append(";");
 
         gc = new MainGenerationContext(classClassRecord, compileModuls);
         icg = gc.getGenerator(classClassRecord);
@@ -280,7 +281,7 @@ public class Generator implements MainGenerator {
         for (CompileModuls.ClassRecord cr : others) {
             Value lastScope = genClassRecord(gc, cr.getClazz(),
                     ee -> cr.getExe().contains(ee),
-                    () -> new NewClass(classClassRecord.constructors.get(0), sourcePoint)
+                    () -> new NewClass(classClassRecord.constructors.get(0), null)
                             .addArg(new Const(cr.getClazz().fullName, classString))
                             .addArg(new Const(cr.getClazz().alias, classString))
                     , compileModuls);
@@ -289,12 +290,12 @@ public class Generator implements MainGenerator {
             Invoke inv = new Invoke(storageAddMethod, storage)
                     .addArg(lastScope);
             icg.operation(gc, inv, ps);
-            ps.append(";\n");
+            ps.append(";");
         }
     }
 
     @Override
-    public void generateInvoke(VMethod method, PrintStream out, Value... arguments) throws CompileException {
+    public void generateInvoke(VMethod method, Outbuffer out, Value... arguments) throws CompileException {
         Invoke inv = new Invoke(method, new StaticRef(method.getParent()));
         for (Value v : arguments)
             inv.addArg(v);

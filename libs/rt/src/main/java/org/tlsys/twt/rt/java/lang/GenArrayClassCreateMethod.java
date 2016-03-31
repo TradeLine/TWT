@@ -1,5 +1,6 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.*;
@@ -17,7 +18,7 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
     //TODO дописать генератор тела функции для создания класса-массива
 
     @Override
-    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
+    public void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
         VClass classClass = execute.getParent();
         VClass classClassStorage = classClass.getClassLoader().loadClass(ClassStorage.class.getName());
         VClass classClassRecord = classClass.getClassLoader().loadClass(ClassRecord.class.getName());
@@ -42,9 +43,9 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
         VField jsNameField = classClass.getField("jsName");
         VField nameField = classClass.getField("name");
         VConstructor constructorClassRecord = classClassRecord.getConstructor(stringClass,stringClass);
-        drecord.init = Generator.genClassRecord(context, classClass.getArrayClass(), execute1 -> true, () -> new NewClass(constructorClassRecord, sourcePoint)
-                .addArg(new VBinar(new Const("$", stringClass), new GetField(new This(classClass), jsNameField), stringClass, VBinar.BitType.PLUS))
-                .addArg(new VBinar(new Const("[", stringClass), new GetField(new This(classClass), nameField), stringClass, VBinar.BitType.PLUS)
+        drecord.init = Generator.genClassRecord(context, classClass.getArrayClass(), execute1 -> true, () -> new NewClass(constructorClassRecord, null)
+                .addArg(new VBinar(new Const("$", stringClass), new GetField(new This(classClass), jsNameField, null), stringClass, VBinar.BitType.PLUS))
+                .addArg(new VBinar(new Const("[", stringClass), new GetField(new This(classClass), nameField, null), stringClass, VBinar.BitType.PLUS)
                 ),moduls);
 
         Value lastScope = clazzRecord;

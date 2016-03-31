@@ -1,5 +1,6 @@
 package org.tlsys.twt;
 
+import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VClassLoader;
@@ -13,7 +14,7 @@ import java.util.List;
 @NotCompile
 public class ScriptInvokeGenerator implements InvokeGenerator {
     @Override
-    public boolean generate(GenerationContext ctx, Invoke invoke, PrintStream ps) throws CompileException {
+    public boolean generate(GenerationContext ctx, Invoke invoke, Outbuffer ps) throws CompileException {
         if (invoke.getMethod().alias.equals("code")) {
             if (invoke.arguments.size() != 1)
                 throw new IllegalArgumentException("Arguments of Script.code must be array of object");

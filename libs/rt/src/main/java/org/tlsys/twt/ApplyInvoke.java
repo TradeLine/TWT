@@ -1,5 +1,6 @@
 package org.tlsys.twt;
 
+import org.tlsys.Outbuffer;
 import org.tlsys.lex.Invoke;
 import org.tlsys.lex.StaticRef;
 import org.tlsys.lex.Value;
@@ -9,7 +10,7 @@ import java.io.PrintStream;
 
 public class ApplyInvoke implements InvokeGenerator {
     @Override
-    public boolean generate(GenerationContext ctx, Invoke invoke, PrintStream ps) throws CompileException {
+    public boolean generate(GenerationContext ctx, Invoke invoke, Outbuffer ps) throws CompileException {
         VClass clazz = invoke.getSelf().getType();
         ICodeGenerator icg = ctx.getGenerator(clazz);
         if (invoke.getMethod().isStatic()) {

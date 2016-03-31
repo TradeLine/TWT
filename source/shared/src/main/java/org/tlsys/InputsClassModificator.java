@@ -84,7 +84,7 @@ public class InputsClassModificator implements ClassModificator {
             for (VArgument ar : constructor.getArguments()) {
                 if (ar.getCreator() != null && ar.getCreator().getClass()==InputArgs.class) {
                     InputArgs ia = (InputArgs)ar.getCreator();
-                    operations.add(0, new SetField(new This(constructor.getParent()), ia.getLocal(), ia.getArg(), Assign.AsType.ASSIGN));
+                    operations.add(0, new SetField(new This(constructor.getParent()), ia.getLocal(), ia.getArg(), Assign.AsType.ASSIGN, null));
                 }
             }
             return operations;

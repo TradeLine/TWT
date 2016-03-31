@@ -25,7 +25,7 @@ class OperationCompiler {
                 aclass.add(c.loadClass(ee.type));
             VClass classIns = null;
             if (e.def != null) {
-                classIns = ClassCompiler.createAnnonimusClass(o, e.def, c.getClassLoader());
+                classIns = ClassCompiler.createAnnonimusClass(c.getCompileContext(), o, e.def, c.getClassLoader());
                 //throw new RuntimeException("Annonimus class not supported yet!");
             } else {
                 classIns = c.loadClass(e.type);
@@ -114,9 +114,9 @@ class OperationCompiler {
                     if (var.get() instanceof VField) {
                         VField field = (VField) var.get();
                         if (field.isStatic())
-                            return new GetField(new StaticRef(field.getParent()), field);
+                            return new GetField(new StaticRef(field.getParent()), field, c.getFile().getPoint(e.pos));
                         else
-                            return new GetField(new This(field.getParent()), field);
+                            return new GetField(new This(field.getParent()), field, c.getFile().getPoint(e.pos));
                     }
                     return (SVar) var.get();
                 }
@@ -293,7 +293,7 @@ class OperationCompiler {
                         OtherClassLink.ArgumentLink al = (OtherClassLink.ArgumentLink) arg.getCreator();
 
                         OtherClassLink ocl = (OtherClassLink) method.getParent().getModificator(ee -> ee.getClass() == OtherClassLink.class && ((OtherClassLink) ee).getToClass() == al.getToClass()).get();
-                        i.addArg(new GetField(new This(ocl.getField().getParent()), ocl.getField()));
+                        i.addArg(new GetField(new This(ocl.getField().getParent()), ocl.getField(), null));
                         argInc++;
                         continue;
                     }
@@ -417,7 +417,7 @@ class OperationCompiler {
         });
 
         addProc(JCTree.JCParens.class, (c, e, o) -> {
-            return new Parens((Value) c.op(e.expr, o));
+            return new Parens((Value) c.op(e.expr, o), c.getFile().getPoint(e.pos));
         });
 
         addProc(JCTree.JCAssign.class, (c, e, o) -> {
@@ -425,7 +425,7 @@ class OperationCompiler {
             Value v2 = c.op(e.rhs, o);
             if (v instanceof GetField) {
                 GetField gf = (GetField) v;
-                SetField sf = new SetField(gf.getScope(), gf.getField(), v2, Assign.AsType.ASSIGN);
+                SetField sf = new SetField(gf.getScope(), gf.getField(), v2, Assign.AsType.ASSIGN, gf.getPoint());
                 return sf;
             }
             if (v instanceof ArrayGet) {
@@ -453,7 +453,7 @@ class OperationCompiler {
             }
             if (v instanceof GetField) {
                 GetField gf = (GetField) v;
-                SetField sf = new SetField(gf.getScope(), gf.getField(), v2, type);
+                SetField sf = new SetField(gf.getScope(), gf.getField(), v2, type, gf.getPoint());
                 return sf;
             }
             if (v instanceof ArrayGet) {
@@ -502,7 +502,7 @@ class OperationCompiler {
                 }
                 */
 
-                GetField gf = new GetField(scope, field);
+                GetField gf = new GetField(scope, field, c.getFile().getPoint(e.pos));
                 return gf;
             }
 

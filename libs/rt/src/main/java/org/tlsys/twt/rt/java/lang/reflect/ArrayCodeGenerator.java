@@ -1,5 +1,6 @@
 package org.tlsys.twt.rt.java.lang.reflect;
 
+import org.tlsys.Outbuffer;
 import org.tlsys.lex.Invoke;
 import org.tlsys.lex.declare.ArrayClass;
 import org.tlsys.lex.declare.VClass;
@@ -11,7 +12,7 @@ import java.io.PrintStream;
 
 public class ArrayCodeGenerator extends DefaultGenerator {
     @Override
-    public void generateExecute(GenerationContext context, VExecute execute, PrintStream ps, CompileModuls moduls) throws CompileException {
+    public void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
         /*
         if (execute.alias.equals("get")) {
             ICodeGenerator gen = context.getGenerator(execute.getParent());

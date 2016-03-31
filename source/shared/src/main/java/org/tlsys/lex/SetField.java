@@ -4,6 +4,7 @@ import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VField;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -17,6 +18,7 @@ public class SetField extends Value {
     private VField field;
     private Value value;
     private Assign.AsType type;
+    private SourcePoint point;
 
     public SetField() {
     }
@@ -33,11 +35,16 @@ public class SetField extends Value {
         return value;
     }
 
-    public SetField(Value scope, VField field, Value value, Assign.AsType type) {
+    public SetField(Value scope, VField field, Value value, Assign.AsType type, SourcePoint point) {
         this.scope = scope;
         this.field = field;
         this.value = value;
         this.type = type;
+        this.point = point;
+    }
+
+    public SourcePoint getPoint() {
+        return point;
     }
 
     public Assign.AsType getOpType() {

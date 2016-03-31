@@ -14,10 +14,16 @@ import org.tlsys.twt.CompileException;
 public class TreeCompiler {
     private final VClass currentClass;
     private final SourceFile file;
+    private final ClassCompiler.CompileContext compileContext;
 
-    public TreeCompiler(VClass currentClass, SourceFile file) {
+    public ClassCompiler.CompileContext getCompileContext() {
+        return compileContext;
+    }
+
+    public TreeCompiler(VClass currentClass, SourceFile file, ClassCompiler.CompileContext compileContext) {
         this.currentClass = currentClass;
         this.file = file;
+        this.compileContext = compileContext;
     }
 
     public SourceFile getFile() {

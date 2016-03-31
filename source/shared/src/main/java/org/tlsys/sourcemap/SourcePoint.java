@@ -1,9 +1,11 @@
 package org.tlsys.sourcemap;
 
+import java.io.Serializable;
+
 /**
  * Класс точки в исходном файле
  */
-public class SourcePoint {
+public class SourcePoint implements Serializable {
     private final int row;
     private final int column;
     private final SourceFile sourceFile;

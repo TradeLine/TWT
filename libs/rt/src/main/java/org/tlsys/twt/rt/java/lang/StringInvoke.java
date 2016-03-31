@@ -1,5 +1,6 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.Outbuffer;
 import org.tlsys.lex.Invoke;
 import org.tlsys.lex.StaticRef;
 import org.tlsys.lex.declare.VMethod;
@@ -26,7 +27,7 @@ public class StringInvoke implements InvokeGenerator {
     */
 
     @Override
-    public boolean generate(GenerationContext ctx, Invoke invoke, PrintStream ps) throws CompileException {
+    public boolean generate(GenerationContext ctx, Invoke invoke, Outbuffer ps) throws CompileException {
 
         ICodeGenerator stringCG = ctx.getGenerator(invoke.getMethod().getParent());
 

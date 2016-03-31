@@ -9,9 +9,13 @@ import org.tlsys.OtherClassLink;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
+import org.tlsys.sourcemap.SourceFile;
 import org.tlsys.twt.CompileException;
 import org.tlsys.twt.annotations.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.function.Function;
 
@@ -29,7 +33,7 @@ public class ClassCompiler {
                     if (t.getType() != as.getParent()) {
                         OtherClassLink ocl = OtherClassLink.getOrCreate(as.getParent(), t.getType());
 
-                        r.set(new GetField(new This(as.getParent()), ocl.getField()));
+                        r.set(new GetField(new This(as.getParent()), ocl.getField(), null));
                         b.setValue(true);
                     }
                     return false;
@@ -50,7 +54,7 @@ public class ClassCompiler {
 
                 if (!ctx.isPresent()) {
                     VField f = InputsClassModificator.getOrCreateInputModificator(as.getParent()).addInput(s);
-                    r.set(new GetField(new This(as.getParent()), f));
+                    r.set(new GetField(new This(as.getParent()), f, null));
                 }
 
                 return false;
@@ -71,6 +75,10 @@ public class ClassCompiler {
     public static void compile(List<CompilationUnitTree> classes, VClassLoader classLoader, ClassItemListener listener) throws CompileException {
         CompileContext cc = new CompileContext(classLoader);
 
+        for (CompilationUnitTree cu : classes) {
+            cc.addSourceFile(cu);
+        }
+
         ENUM_SEARCH:
         for (CompilationUnitTree cu : classes) {
             for (Tree tt : cu.getTypeDecls()) {
@@ -79,7 +87,7 @@ public class ClassCompiler {
                     Optional<String> st = CompilerTools.getAnnatationValueClass(cl.getModifiers(), ReplaceClass.class);
                     if (st.isPresent() && st.get().equals(Enum.class.getName())) {
                         for (Tree tt2 : cu.getTypeDecls()) {
-                            compileClassDefine(null, (JCTree.JCClassDecl) tt2, cc, listener);
+                            compileClassDefine(null, (JCTree.JCClassDecl) tt2, cc, listener, cu);
                         }
                         classes.remove(cu);
                         break ENUM_SEARCH;
@@ -92,7 +100,7 @@ public class ClassCompiler {
         for (CompilationUnitTree cu : classes) {
             for (Tree tt : cu.getTypeDecls()) {
                 if (tt instanceof JCTree.JCClassDecl) {
-                    compileClassDefine(null, (JCTree.JCClassDecl) tt, cc, listener);
+                    compileClassDefine(null, (JCTree.JCClassDecl) tt, cc, listener, cu);
                 }
             }
         }
@@ -120,7 +128,7 @@ public class ClassCompiler {
         findReplaceMethod(cc);
     }
 
-    public static AnnonimusClass createAnnonimusClass(Context context, JCTree.JCClassDecl c, VClassLoader vClassLoader) throws CompileException {
+    public static AnnonimusClass createAnnonimusClass(CompileContext ctx, Context context, JCTree.JCClassDecl c, VClassLoader vClassLoader) throws CompileException {
         AnnonimusClass as = new AnnonimusClass(context, null, c.sym);
 
         VClass parentClazz = vClassLoader.loadClass(AnnonimusClass.extractParentClassName(c.sym));
@@ -132,11 +140,14 @@ public class ClassCompiler {
         vClassLoader.classes.add(as);
 
         as.setClassLoader(vClassLoader);
-        Pair p = new Pair(as, c);
+
+
+
+        Pair p = new Pair(as, c, ctx.getPairByClass((VClass) TypeUtil.findParentContext(context, e->e instanceof VClass).get()).file);
         setExtends(p, vClassLoader);
         searchMembers(p);
-        compileCode(p, VExecute.class);
-        compileCode(p, VVar.class);
+        compileCode(ctx, p, VExecute.class);
+        compileCode(ctx, p, VVar.class);
         findReplaceMethod(p);
 
         //as.setModificators(as.getModificators());
@@ -199,15 +210,15 @@ public class ClassCompiler {
         return as;
     }
 
-    private static void compileClassDefine(VClass parent, JCTree.JCClassDecl des, CompileContext context, ClassItemListener listener) throws VClassNotFoundException {
+    private static void compileClassDefine(VClass parent, JCTree.JCClassDecl des, CompileContext context, ClassItemListener listener, CompilationUnitTree file) throws VClassNotFoundException {
         VClass v = createClassFromDes(parent, des, context.getLoader());
-        context.addPair(des, v);
+        context.addPair(des, v, file);
         if (listener != null)
             listener.doneClass(v);
 
         for (JCTree t : des.defs) {
             if (t instanceof JCTree.JCClassDecl) {
-                compileClassDefine(v, (JCTree.JCClassDecl) t, context, listener);
+                compileClassDefine(v, (JCTree.JCClassDecl) t, context, listener, file);
             }
         }
     }
@@ -322,8 +333,9 @@ public class ClassCompiler {
         }
     }
 
-    public static void compileCode(Pair p, Class forClass) throws CompileException {
-        TreeCompiler com = new TreeCompiler(p.vclass, file);
+    public static void compileCode(CompileContext ctx, Pair p, Class forClass) throws CompileException {
+
+        TreeCompiler com = new TreeCompiler(p.vclass, ctx.getFileSource(p.file), ctx);
         for (Map.Entry<JCTree, Member> e : p.members.entrySet()) {
             Member member = e.getValue();
             if (!forClass.isInstance(member))
@@ -379,7 +391,7 @@ public class ClassCompiler {
 
     public static void compileCode(CompileContext ctx, Class forClass) throws CompileException {
         for (Pair p : ctx.pairs) {
-            compileCode(p, forClass);
+            compileCode(ctx, p, forClass);
         }
     }
 
@@ -518,16 +530,47 @@ public class ClassCompiler {
         }
     }
 
-    private static class CompileContext {
+    public static class CompileContext {
         private final VClassLoader loader;
         private final Set<Pair> pairs = new HashSet<>();
+        private final Map<CompilationUnitTree, SourceFile> files = new HashMap<>();
 
         private CompileContext(VClassLoader loader) {
             this.loader = loader;
         }
 
-        public void addPair(JCTree.JCClassDecl dess, VClass clazz) {
-            pairs.add(new Pair(clazz, dess));
+        public void addPair(JCTree.JCClassDecl dess, VClass clazz, CompilationUnitTree file) {
+            pairs.add(new Pair(clazz, dess, file));
+        }
+
+        public Pair getPairByClass(VClass clazz) {
+            for (Pair p : pairs) {
+                if (p.vclass== clazz)
+                    return p;
+            }
+
+            throw new RuntimeException("Can't find pair for class " + clazz.getRealName());
+        }
+
+        public void addSourceFile(CompilationUnitTree file) {
+            try (InputStream is = file.getSourceFile().openInputStream()) {
+                byte[] buffer = new byte[512];
+                int len;
+                ByteArrayOutputStream data = new ByteArrayOutputStream();
+                while ((len=is.read(buffer))!=-1) {
+                    data.write(buffer, 0, len);
+                }
+                files.put(file, new SourceFile(new String(data.toByteArray()), file.getSourceFile().getName()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public SourceFile getFileSource(CompilationUnitTree file) {
+            SourceFile sf = files.get(file);
+            if (sf == null)
+                throw new RuntimeException("Can't find source for " + file.getSourceFile().toUri());
+            return sf;
         }
 
         public VClassLoader getLoader() {
@@ -539,10 +582,12 @@ public class ClassCompiler {
         public final Map<JCTree, Member> members = new HashMap<>();
         public VClass vclass;
         public JCTree.JCClassDecl desl;
+        public CompilationUnitTree file;
 
-        public Pair(VClass vclass, JCTree.JCClassDecl desl) {
+        public Pair(VClass vclass, JCTree.JCClassDecl desl, CompilationUnitTree file) {
             this.vclass = vclass;
             this.desl = desl;
+            this.file = file;
         }
     }
 }

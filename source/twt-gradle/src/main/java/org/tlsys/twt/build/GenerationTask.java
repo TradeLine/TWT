@@ -5,6 +5,7 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
+import org.tlsys.Outbuffer;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.*;
 
@@ -98,7 +99,8 @@ public class GenerationTask extends DefaultTask {
                 renaming(app.getMainLoader().getTWTClassLoader());
                 for (GenerationTarget gt : getTargets()) {
                     File outFile = new File(getProject().getBuildDir(), gt.out());
-                    try (PrintStream ps = new PrintStream(new FileOutputStream(outFile), false, "UTF-8")) {
+                    try (PrintStream ps1 = new PrintStream(new FileOutputStream(outFile), false, "UTF-8")) {
+                        Outbuffer ps = new Outbuffer(ps1);
                         CompileModuls cm = new CompileModuls();
                         Optional<VMethod> mainMethod = null;
                         if (gt.main() != null) {
