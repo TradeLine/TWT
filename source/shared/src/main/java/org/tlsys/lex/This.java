@@ -1,7 +1,7 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
 import org.tlsys.lex.declare.VClass;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -13,12 +13,22 @@ public class This extends Value {
 
     private static final long serialVersionUID = 5355624178287843307L;
     private VClass self;
+    private SourcePoint point;
 
     public This() {
     }
 
     public This(VClass self) {
+        this(self, null);
+    }
+
+    public This(VClass self, SourcePoint point) {
         this.self = self;
+        this.point = point;
+    }
+
+    public SourcePoint getPoint() {
+        return point;
     }
 
     @Override

@@ -7,10 +7,6 @@ import org.tlsys.lex.declare.VClassLoader;
 import org.tlsys.lex.declare.VMethod;
 import org.tlsys.twt.annotations.NotCompile;
 
-import java.io.PrintStream;
-import java.lang.reflect.Executable;
-import java.util.List;
-
 @NotCompile
 public class ScriptInvokeGenerator implements InvokeGenerator {
     @Override
@@ -39,9 +35,9 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
         if (invoke.getMethod().alias.equals("isPrototypeOf")) {
             VClassLoader cl = invoke.getMethod().getParent().getClassLoader();
             VBinar bin = new VBinar(
-                    new VBinar(invoke.arguments.get(0), new Const(null, cl.loadClass(Object.class.getName())), cl.loadClass("boolean"), VBinar.BitType.EQ),//первый агрумент == null
-                    new VBinar(invoke.arguments.get(1), new Const(null, cl.loadClass(Object.class.getName())), cl.loadClass("boolean"), VBinar.BitType.EQ),//первый агрумент == null
-                    cl.loadClass("boolean"), VBinar.BitType.OR);//если один или оба аргумента == null
+                    new VBinar(invoke.arguments.get(0), new Const(null, cl.loadClass(Object.class.getName())), cl.loadClass("boolean"), VBinar.BitType.EQ, null),//первый агрумент == null
+                    new VBinar(invoke.arguments.get(1), new Const(null, cl.loadClass(Object.class.getName())), cl.loadClass("boolean"), VBinar.BitType.EQ, null),//первый агрумент == null
+                    cl.loadClass("boolean"), VBinar.BitType.OR, null);//если один или оба аргумента == null
             VMethod codeMethod = invoke.getMethod().getParent().getMethod("code");
             Invoke codeInvoke = new Invoke(codeMethod, new StaticRef(codeMethod.getParent()));
 

@@ -9,6 +9,11 @@ import java.util.Objects;
 
 public class ArrayClass extends VClass {
 
+    public static final String CONSTRUCTOR = "_$";
+    public static final String SET = "_s";
+    public static final String GET = "_g";
+    public static final String ARRAY = "_f";
+    public static final String LENGTH = "_";
     private static final long serialVersionUID = 8031564067794850457L;
     public VField lengthField;
     public VField jsArray;
@@ -16,12 +21,6 @@ public class ArrayClass extends VClass {
     public VMethod set;
     public VConstructor constructor;
     private VClass component;
-
-    public static final String CONSTRUCTOR = "_$";
-    public static final String SET = "_s";
-    public static final String GET = "_g";
-    public static final String ARRAY = "_f";
-    public static final String LENGTH = "_";
 
     public ArrayClass(VClass component, VClass intType) {
         this(component);
@@ -32,12 +31,6 @@ public class ArrayClass extends VClass {
         }
     }
 
-    @Override
-    public void getUsing(Collect c) {
-        super.getUsing(c);
-        c.add(getComponent());
-    }
-
     public ArrayClass(VClass component) {
         super(component.getSimpleRealName()+"[]");
         this.component = Objects.requireNonNull(component, "Component is NULL");
@@ -46,6 +39,12 @@ public class ArrayClass extends VClass {
         name = "["+component.name;
         alias = "["+component.alias;
         fullName = "[" + component.fullName;
+    }
+
+    @Override
+    public void getUsing(Collect c) {
+        super.getUsing(c);
+        c.add(getComponent());
     }
 
     @Override
@@ -74,7 +73,7 @@ public class ArrayClass extends VClass {
         get.setRuntimeName(GET);
         get.alias="get";
         get.addArg(new VArgument("i", intType, false, false, get, null));
-        get.setBlock(new VBlock(get));
+        get.setBlock(new VBlock(get, null, null));
         get.returnType = component;
         get.setModificators(Modifier.PUBLIC);
 
@@ -84,7 +83,7 @@ public class ArrayClass extends VClass {
         set.addArg(new VArgument("i", intType, false, false, set, null));
         set.addArg(new VArgument("v", component, false, false, set, null));
         set.returnType = intType.getClassLoader().loadClass("void");
-        set.setBlock(new VBlock(set));
+        set.setBlock(new VBlock(set, null, null));
         set.setModificators(Modifier.PUBLIC);
 
         set.generator = ArrayCodeGenerator.class.getName();
@@ -98,7 +97,7 @@ public class ArrayClass extends VClass {
         constructor.setRuntimeName(CONSTRUCTOR);
         constructor.addArg(new VArgument("l", intType, false, false, constructor, null));
         constructor.generator = ArrayCodeGenerator.class.getName();
-        constructor.setBlock(new VBlock(constructor));
+        constructor.setBlock(new VBlock(constructor, null, null));
         constructor.returnType = intType.getClassLoader().loadClass("void");
         constructors.add(constructor);
     }

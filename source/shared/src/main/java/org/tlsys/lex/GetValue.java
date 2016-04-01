@@ -2,26 +2,20 @@ package org.tlsys.lex;
 
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
+import org.tlsys.lex.declare.VClass;
 import org.tlsys.sourcemap.SourcePoint;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-/**
- * Created by Антон on 16.01.2016.
- */
-public class Throw extends Operation {
+public class GetValue extends Value {
 
-    private static final long serialVersionUID = -2062082634111339304L;
+    private static final long serialVersionUID = -8067881255608648070L;
+    private final SourcePoint point;
     private Value value;
-    private SourcePoint point;
 
-    public Throw() {
-    }
-
-    public Throw(Value value, SourcePoint point) {
-        this.value = Objects.requireNonNull(value);
+    public GetValue(Value value, SourcePoint point) {
+        this.value = value;
         this.point = point;
     }
 
@@ -34,8 +28,13 @@ public class Throw extends Operation {
     }
 
     @Override
+    public VClass getType() {
+        return value.getType();
+    }
+
+    @Override
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
-        return Optional.empty();
+        return value.find(name, searchIn);
     }
 
     @Override
@@ -45,6 +44,7 @@ public class Throw extends Operation {
 
     @Override
     public void visit(ReplaceVisiter replaceControl) {
-        ReplaceHelper.replace(value, replaceControl).ifPresent(e->value = e);
+        super.visit(replaceControl);
+        ReplaceHelper.replace(value, replaceControl).ifPresent(e -> value = e);
     }
 }

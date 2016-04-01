@@ -6,24 +6,36 @@ import java.util.Collection;
 
 public class SourceMap {
 
-    public static String generate(Collection<Record> records) throws IOException {
+    private ArrayList<SourceFile> files = new ArrayList<>();
+    private ArrayList<String> names = new ArrayList<>();
 
-        State state = new State();
+    private Collection<Record> records;
 
+    public SourceMap(Collection<Record> records) {
+        this.records = records;
         for (Record r : records) {
-            if (!state.files.contains(r.getFile()))
-                state.files.add(r.getFile());
+            if (!files.contains(r.getFile()))
+                files.add(r.getFile());
 
             if (r.getName() != null) {
-                if (!state.names.contains(r.getName()))
-                    state.names.add(r.getName());
+                if (!names.contains(r.getName()))
+                    names.add(r.getName());
             }
         }
+    }
 
+    public String generate() throws IOException {
         StringBuilder sb = new StringBuilder();
+        generate(sb);
+        return sb.toString();
+    }
+
+    public void generate(Appendable sb) throws IOException {
         sb.append("{\n\"version\":3,\n\"file\":\"out.js\",\n\"lineCount\":1,\n");
         sb.append("\"mappings\":\"");
         boolean first = true;
+        State state = new State();
+        state.map = this;
         for (Record r : records) {
             if (!first)
                 sb.append(",");
@@ -34,7 +46,7 @@ public class SourceMap {
         sb.append("\",\n");
         sb.append("\"sources\":[");
         first = true;
-        for (SourceFile sf : state.files) {
+        for (SourceFile sf : files) {
             if (!first)
                 sb.append(",");
             sb.append("\"").append(sf.getName()).append("\"");
@@ -44,7 +56,7 @@ public class SourceMap {
         sb.append("],\n");
         sb.append("\"names\":[");
         first = true;
-        for (String s : state.names) {
+        for (String s : names) {
             if (!first)
                 sb.append(",");
             sb.append("\"").append(s).append("\"");
@@ -52,8 +64,10 @@ public class SourceMap {
         }
         //Вставляем имена
         sb.append("]\n}");
+    }
 
-        return sb.toString();
+    public ArrayList<SourceFile> getFiles() {
+        return files;
     }
 
     private static class State {
@@ -62,9 +76,9 @@ public class SourceMap {
         int sourceColumn = 0;
         int column = 0;
         int name = 0;
-        ArrayList<SourceFile> files = new ArrayList<>();
-        ArrayList<String> names = new ArrayList<>();
+        SourceMap map;
     }
+
 
     public static class Record {
         private final SourceFile file;
@@ -99,7 +113,7 @@ public class SourceMap {
             Base64VLQ.encode(out, column - state.column);
             state.column = column;
 
-            int fileIndex = state.files.indexOf(file);
+            int fileIndex = state.map.files.indexOf(file);
             Base64VLQ.encode(out, fileIndex - state.file);
             state.file = fileIndex;
 
@@ -110,7 +124,7 @@ public class SourceMap {
             state.sourceColumn = point.getColumn();
 
             if (name != null) {
-                int nameIndex = state.names.indexOf(name);
+                int nameIndex = state.map.names.indexOf(name);
                 Base64VLQ.encode(out, nameIndex - state.name);
                 state.name = nameIndex;
             }

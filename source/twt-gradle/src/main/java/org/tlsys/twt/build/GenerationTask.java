@@ -10,10 +10,7 @@ import org.tlsys.lex.declare.*;
 import org.tlsys.sourcemap.SourceMap;
 import org.tlsys.twt.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
 
 public class GenerationTask extends DefaultTask {
@@ -100,8 +97,11 @@ public class GenerationTask extends DefaultTask {
                 app = AppCompiller.compileApp(this);
                 renaming(app.getMainLoader().getTWTClassLoader());
                 for (GenerationTarget gt : getTargets()) {
+                    File sourceMap = new File(getProject().getBuildDir(), "sourcemap");
+                    File mapFile = new File(sourceMap, gt.out() + ".map");
                     File outFile = new File(getProject().getBuildDir(), gt.out());
-                    File mapFile = new File(outFile.getParent(), outFile.getName()+".map");
+                    if (!sourceMap.exists())
+                        sourceMap.mkdirs();
                     try (PrintStream ps1 = new PrintStream(new FileOutputStream(outFile), false, "UTF-8")) {
                         Outbuffer ps = new Outbuffer(ps1);
                         CompileModuls cm = new CompileModuls();
@@ -142,11 +142,29 @@ public class GenerationTask extends DefaultTask {
                         ps.append("\n//@ sourceMappingURL=" + new File(outFile.getParent()).toURI().relativize(mapFile.toURI()));
                         //ps.getRecords();
 
+                        SourceMap sm = new SourceMap(ps.getRecords());
                         try (OutputStream o = new FileOutputStream(mapFile)) {
-                            o.write(SourceMap.generate(ps.getRecords()).getBytes());
+                            sm.generate(new PrintStream(o));
                             o.flush();
                             o.close();
                         }
+
+                        sm.getFiles().parallelStream().forEach(e -> {
+                            File sourceDir = new File(sourceMap, e.getName()).getParentFile();
+                            if (!sourceDir.exists())
+                                sourceDir.mkdirs();
+                            try (OutputStream o = new FileOutputStream(new File(sourceMap, e.getName()))) {
+                                o.write(e.getData().getBytes());
+                                o.flush();
+                                o.close();
+                            } catch (FileNotFoundException e1) {
+                                throw new RuntimeException(e1);
+                            } catch (IOException e1) {
+                                throw new RuntimeException(e1);
+                            }
+                        });
+
+
 
                     }
                 }

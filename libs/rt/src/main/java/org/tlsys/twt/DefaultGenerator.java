@@ -3,13 +3,11 @@ package org.tlsys.twt;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
+import org.tlsys.sourcemap.SourcePoint;
 import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.classes.ArrayBuilder;
 import org.tlsys.twt.classes.ClassStorage;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,19 +23,19 @@ public class DefaultGenerator implements ICodeGenerator {
     static {
         addGen(Const.class, (c, o, p, g) -> {
             if (o.getValue() == null) {
-                p.append("null");
+                p.add("null", o.getPoint());
                 return true;
             }
             if (o.getValue() instanceof String) {
-                p.append("'").append(o.getValue().toString().replace("'","\\'")).append("'");
+                p.add("'", o.getPoint()).append(o.getValue().toString().replace("'", "\\'")).append("'");
                 return true;
             }
-            p.append(o.getValue().toString());
+            p.add(o.getValue().toString(), o.getPoint());
             return true;
         });
 
         addGen(Return.class, (c, o, p, g) -> {
-            p.append("return");
+            p.add("return", o.getPoint());
             if (o.getValue() != null) {
                 p.append(" ");
                 g.operation(c, o.getValue(), p);
@@ -56,7 +54,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 */
                 throw new RuntimeException("Not support other this type. Current " + c.getCurrentClass() + ", this=" + o.getType());
             }
-            p.append("this");
+            p.add("this", o.getPoint());
             return true;
         });
 
@@ -99,11 +97,11 @@ public class DefaultGenerator implements ICodeGenerator {
                 This self = (This) o.getSelf();
 
                 if (o.getMethod().getParent() != o.getSelf().getType() || o.getMethod() instanceof VConstructor) {//чужого
-                    c.getGenerator(self.getType()).operation(c, new StaticRef(o.getMethod().getParent()), p);
+                    c.getGenerator(self.getType()).operation(c, new StaticRef(o.getMethod().getParent(), null), p);
                     p.append(".");
 
                     if (!o.getMethod().isStatic())
-                        p.append(o.getSelf().getType().getClassLoader().loadClass(Class.class.getName()).getMethod("getJsClass").getRunTimeName()).append("().prototype.");
+                        p.append(o.getSelf().getType().getClassLoader().loadClass(Class.class.getName()).getMethod("getJsClass").getRunTimeName()).append("()").append(".prototype.");
                     p.append(o.getMethod().getRunTimeName());
                     p.append(".call(this");
                     printArg.test(false);
@@ -125,7 +123,7 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         });
         addGen(DeclareVar.class, (c, o, p, g) -> {
-            p.append("var ").append(o.getVar().getRuntimeName());
+            p.add("var ", o.getPoint(), o.getVar().getRealName()).append(o.getVar().getRuntimeName());
             if (o.init != null) {
                 p.append("=");
                 g.operation(c, o.init, p);
@@ -138,7 +136,7 @@ public class DefaultGenerator implements ICodeGenerator {
             }
             g.operation(c, o.getScope(), p);
             p.append(".");
-            p.add(o.getField().getRuntimeName(), o.getPoint());
+            p.add(o.getField().getRuntimeName(), o.getPoint(), o.getField().getRealName());
             //p.append();
             return true;
         });
@@ -163,7 +161,19 @@ public class DefaultGenerator implements ICodeGenerator {
                     ++level;
                     cur = ((ArrayClass) cur).getComponent();
                 } while (cur instanceof ArrayClass);
-                Value lastScope = new StaticRef(cur);
+                SourcePoint sp = null;
+
+                if (o instanceof StaticRef) {
+                    StaticRef sr = (StaticRef) o;
+                    sp = sr.getPoint();
+                }
+
+                if (o instanceof ClassRef) {
+                    ClassRef sr = (ClassRef) o;
+                    sp = sr.getPoint();
+                }
+
+                Value lastScope = new StaticRef(cur, sp);
                 while (level > 0) {
                     Invoke inv = new Invoke(classClass.getMethod("getArrayClass"), lastScope);
                     lastScope = inv;
@@ -172,6 +182,17 @@ public class DefaultGenerator implements ICodeGenerator {
                 return g.operation(c, lastScope, p);
             }
             VMethod getMethod = o.getType().getClassLoader().loadClass(ClassStorage.class.getName()).getMethod("get", o.getType().getClassLoader().loadClass(Object.class.getName()));
+
+            if (o instanceof StaticRef) {
+                StaticRef sr = (StaticRef) o;
+                p.add("", sr.getPoint(), sr.getType().getRealName());
+            }
+
+            if (o instanceof ClassRef) {
+                ClassRef sr = (ClassRef) o;
+                p.add("", sr.getPoint(), sr.getType().getRealName());
+            }
+
             p.append(Generator.storage.getRuntimeName()).append(".").append(getMethod.getRunTimeName()).append("(").append(Generator.storage.getRuntimeName()).append(".").append(cl.fullName).append(")");
             //throw new RuntimeException("Class ref not supported yet");
             return true;
@@ -192,8 +213,9 @@ public class DefaultGenerator implements ICodeGenerator {
                 return icg.operation(c, o, p);
             //p.append(".");
             //p.append(o.getField().name);
-            g.operation(c, new StaticRef(o.constructor.getParent()), p);
-            p.append(".").add("n", o.getPoint()).append(o.constructor.getRunTimeName()).append("(");
+            p.add("", o.getPoint());
+            g.operation(c, new StaticRef(o.constructor.getParent(), null), p);
+            p.append(".").append("n").append(o.constructor.getRunTimeName()).append("(");
             boolean first = true;
             for (Value v : o.arguments) {
                 if (!first)
@@ -234,13 +256,58 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         });
 
+        addGen(Line.class, (c, o, p, g) -> {
+            System.out.println("LINE!!!");
+            p.add("", o.getStartPoint());
+            boolean res = g.operation(c, o.getOperation(), p);
+            p.add("", o.getEndPoint());
+            return res;
+        });
+
+        addGen(GetValue.class, (c, o, p, g) -> {
+            if (o.getValue() instanceof SVar) {
+                p.add("", o.getPoint(), ((SVar) o.getValue()).getRealName());
+            } else p.add("", o.getPoint());
+
+            g.operation(c, o.getValue(), p);
+            return true;
+        });
+
+        addGen(SetValue.class, (c, o, p, g) -> {
+
+            if (o.getValue() instanceof SVar) {
+                p.add("", o.getPoint(), ((SVar) o.getValue()).getRealName());
+            } else p.add("", o.getPoint());
+
+            //p.add("", o.getPoint());
+            g.operation(c, o.getValue(), p);
+
+            switch (o.getAsType()) {
+                case ASSIGN:
+                    p.append("=");
+                    break;
+                case PLUS:
+                    p.append("+=");
+                    break;
+                case MINUS:
+                    p.append("-=");
+                    break;
+                default:
+                    throw new RuntimeException("Unknown type " + o.getAsType());
+            }
+
+            g.operation(c, o.getNewValue(), p);
+
+            return true;
+        });
+
         addGen(SetField.class, (c, o, p, g) -> {
             VClass pp = o.getField().getParent();
 
 
 
             g.operation(c, o.getScope(), p);
-            p.append(".").add(o.getField().getRuntimeName(), o.getPoint()).append("=");
+            p.append(".").add(o.getField().getRuntimeName(), o.getPoint(), o.getField().getRealName()).append("=");
             g.operation(c, o.getValue(), p);
             return true;
         });
@@ -271,55 +338,55 @@ public class DefaultGenerator implements ICodeGenerator {
 
             switch (o.getBitType()) {
                 case PLUS:
-                    p.append("+");
+                    p.add("+", o.getPoint());
                     break;
                 case MINUS:
-                    p.append("-");
+                    p.add("-", o.getPoint());
                     break;
                 case MUL:
-                    p.append("*");
+                    p.add("*", o.getPoint());
                     break;
                 case EQ:
-                    p.append("==");
+                    p.add("==", o.getPoint());
                     break;
                 case NE:
-                    p.append("!=");
+                    p.add("!=", o.getPoint());
                     break;
                 case LT://<
-                    p.append("<");
+                    p.add("<", o.getPoint());
                     break;
                 case GE://>
-                    p.append(">");
+                    p.add(">", o.getPoint());
                     break;
                 case GT://>
-                    p.append(">");
+                    p.add(">", o.getPoint());
                     break;
                 case LE://<=
-                    p.append("<=");
+                    p.add("<=", o.getPoint());
                     break;
                 case OR://>
-                    p.append("||");
+                    p.add("||", o.getPoint());
                     break;
                 case AND://>
-                    p.append("&&");
+                    p.add("&&", o.getPoint());
                     break;
                 case BITOR:
-                    p.append("|");
+                    p.add("|", o.getPoint());
                     break;
                 case BITAND:
-                    p.append("&");
+                    p.add("&", o.getPoint());
                     break;
                 case BITXOR:
-                    p.append("^");
+                    p.add("^", o.getPoint());
                     break;
                 case MOD:
-                    p.append("%");
+                    p.add("%", o.getPoint());
                     break;
                 case USR:
-                    p.append(">>>");
+                    p.add(">>>", o.getPoint());
                     break;
                 case DIV:
-                    p.append("/");
+                    p.add("/", o.getPoint());
                     break;
                 default:
                     throw new RuntimeException("Not support type " + o.getBitType());
@@ -330,7 +397,7 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(VBlock.class, (c, o, p, g) -> {
-            p.append("{");
+            p.add("{", o.getStartPoint());
             for (Operation op : o.getOperations()) {
                 if (op == null)
                     continue;
@@ -348,18 +415,18 @@ public class DefaultGenerator implements ICodeGenerator {
                     continue;
                 p.append(";");
             }
-            p.append("}");
+            p.add("}", o.getEndPoint());
             return true;
         });
 
         addGen(Throw.class, (c, o, p, g) -> {
-            p.append("throw ");
+            p.add("throw ", o.getPoint());
             g.operation(c, o.getValue(), p);
             return true;
         });
 
         addGen(WhileLoop.class, (c, o, p, g) -> {
-            p.append("while (");
+            p.add("while (", o.getPoint());
             g.operation(c, o.value, p);
             p.append(")");
             if (o.block == null)
@@ -370,7 +437,7 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(DoWhileLoop.class, (c, o, p, g) -> {
-            p.append("do");
+            p.add("do", o.getPoint());
 
             if (o.block == null)
                 p.append("{}");
@@ -404,7 +471,7 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(ForLoop.class, (c, o, p, g) -> {
-            p.append("for(");
+            p.add("for(", o.getPoint());
             g.operation(c, o.init, p);
             p.append(";");
             g.operation(c, o.value, p);
@@ -490,7 +557,7 @@ public class DefaultGenerator implements ICodeGenerator {
             VClass stringClass = cl.loadClass(String.class.getName());
             VClass objectClass = cl.loadClass(Object.class.getName());
             VMethod getLambdaMethod = classClass.getMethod("getLambda", stringClass, stringClass, objectClass, objectClass);
-            g.operation(c, new StaticRef(o.getMethod().getParent()), p);
+            g.operation(c, new StaticRef(o.getMethod().getParent(), null), p);
             p.append(".").append(getLambdaMethod.getRunTimeName()).append("(");
             g.operation(c, new Const(Integer.toString(o.hashCode()), stringClass), p);
             p.append(",");
@@ -537,7 +604,7 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(Continue.class, (c, o, p, g) -> {
-            p.append("continue");
+            p.add("continue", o.getPoint());
             if (o.getLabel() != null) {
                 p.append(" ").append(o.getLabel().getName());
             }
@@ -545,7 +612,7 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(Break.class, (c, o, p, g) -> {
-            p.append("break");
+            p.add("break", o.getPoint());
             if (o.getLabel() != null) {
                 p.append(" ").append(o.getLabel().getName());
             }
@@ -556,7 +623,7 @@ public class DefaultGenerator implements ICodeGenerator {
             if (o.sizes.size() > 1) {
                 throw new RuntimeException("Not supported multiarray! yet!");
             }
-            g.operation(c, new StaticRef(o.getType()), p);
+            g.operation(c, new StaticRef(o.getType(), null), p);
             p.append(".n").append(ArrayClass.CONSTRUCTOR).append("(");
             g.operation(c, o.sizes.get(0), p);
             p.append(")");
@@ -566,8 +633,8 @@ public class DefaultGenerator implements ICodeGenerator {
         addGen(NewArrayItems.class, (c,o,p,g)->{
             VClass classArrayBuilder = o.getType().getClassLoader().loadClass(ArrayBuilder.class.getName());
             VMethod methodGet = classArrayBuilder.getMethodByName("create").get(0);
-            g.operation(c, new Invoke(methodGet, new StaticRef(classArrayBuilder))
-            .addArg(new StaticRef(o.getType()))
+            g.operation(c, new Invoke(methodGet, new StaticRef(classArrayBuilder, null))
+                    .addArg(new StaticRef(o.getType(), null))
             .addArg(o), p);
             return true;
         });
@@ -585,7 +652,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 String lab = c.genLocalName();
                 p.append("catch(").append(evar.getRuntimeName()).append("){");
                 p.append("console.error(").append(evar.getRuntimeName()).append(".stack);");
-                g.operation(c, new Assign(evar, new Invoke(convertMethod, new StaticRef(errorClass)).addArg(evar), evar.getType(), Assign.AsType.ASSIGN), p);
+                g.operation(c, new Assign(evar, new Invoke(convertMethod, new StaticRef(errorClass, null)).addArg(evar), evar.getType(), Assign.AsType.ASSIGN), p);
                 p.append(";");
                 p.append(lab).append(":{");
                 for (Try.Catch ca : o.catchs) {
@@ -616,18 +683,18 @@ public class DefaultGenerator implements ICodeGenerator {
                 return cg.operation(c, o, p);
             VClass classClass = o.getClazz().getClassLoader().loadClass(Class.class.getName());
             VMethod method = classClass.getMethod("isInstance", o.getClazz().getClassLoader().loadClass(Object.class.getName()));
-            return g.operation(c, new Invoke(method, new StaticRef(o.getClazz())).addArg(o.getValue()), p);
+            return g.operation(c, new Invoke(method, new StaticRef(o.getClazz(), null)).addArg(o.getValue()), p);
         });
 
         addGen(Switch.class, (c,o,p,g)->{
-            p.append("switch(");
+            p.add("switch(", o.getPoint());
             g.operation(c, o.getValue(),p);
             p.append("){");
             for (Switch.Case ca : o.getCases()) {
                 if (ca.value == null)
-                    p.append("default:");
+                    p.add("default:", ca.getPoint());
                 else {
-                    p.append("case ");
+                    p.add("case ", ca.getPoint());
                     g.operation(c, ca.value, p);
                     p.append(":");
                 }

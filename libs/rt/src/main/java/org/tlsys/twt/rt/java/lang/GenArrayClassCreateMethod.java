@@ -9,8 +9,6 @@ import org.tlsys.twt.classes.ClassStorage;
 import org.tlsys.twt.classes.FieldRecord;
 import org.tlsys.twt.classes.MethodRecord;
 
-import java.io.PrintStream;
-
 /**
  * Генератор тела функции для TClass.initArrayClass
  */
@@ -39,13 +37,13 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
         */
 
         SVar clazzRecord = new SVar("clazz", classClassRecord, execute);
-        DeclareVar drecord = new DeclareVar(clazzRecord);
+        DeclareVar drecord = new DeclareVar(clazzRecord, null);
         VField jsNameField = classClass.getField("jsName");
         VField nameField = classClass.getField("name");
         VConstructor constructorClassRecord = classClassRecord.getConstructor(stringClass,stringClass);
         drecord.init = Generator.genClassRecord(context, classClass.getArrayClass(), execute1 -> true, () -> new NewClass(constructorClassRecord, null)
-                .addArg(new VBinar(new Const("$", stringClass), new GetField(new This(classClass), jsNameField, null), stringClass, VBinar.BitType.PLUS))
-                .addArg(new VBinar(new Const("[", stringClass), new GetField(new This(classClass), nameField, null), stringClass, VBinar.BitType.PLUS)
+                .addArg(new VBinar(new Const("$", stringClass), new GetField(new This(classClass), jsNameField, null), stringClass, VBinar.BitType.PLUS, null))
+                .addArg(new VBinar(new Const("[", stringClass), new GetField(new This(classClass), nameField, null), stringClass, VBinar.BitType.PLUS, null)
                 ),moduls);
 
         Value lastScope = clazzRecord;
@@ -68,7 +66,7 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
                 new Return(
                         new Invoke(classClassStorage.getMethod("get", classClassRecord), Generator.storage)
                                 .addArg(clazzRecord)
-                ),
+                        , null),
                 ps);
 
         ps.append("}");

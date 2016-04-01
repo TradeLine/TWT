@@ -3,6 +3,7 @@ package org.tlsys.lex;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -15,12 +16,18 @@ public class DoWhileLoop extends Operation {
 
     public VBlock block;
     private Context parentContext;
+    private SourcePoint point;
 
-    public DoWhileLoop(Context parentContext) {
+    public DoWhileLoop(Context parentContext, SourcePoint point) {
         this.parentContext = parentContext;
+        this.point = point;
     }
 
     public DoWhileLoop() {
+    }
+
+    public SourcePoint getPoint() {
+        return point;
     }
 
     public Context getParentContext() {

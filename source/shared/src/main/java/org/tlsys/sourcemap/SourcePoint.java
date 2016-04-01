@@ -6,6 +6,7 @@ import java.io.Serializable;
  * Класс точки в исходном файле
  */
 public class SourcePoint implements Serializable {
+    private static final long serialVersionUID = 3610709938007437817L;
     private final int row;
     private final int column;
     private final SourceFile sourceFile;

@@ -1,8 +1,8 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -11,16 +11,22 @@ public class Return extends Operation {
 
     private static final long serialVersionUID = -3739822796450046950L;
     private Value value;
+    private SourcePoint point;
 
     public Return() {
     }
 
-    public Value getValue() {
-        return value;
+    public Return(Value value, SourcePoint point) {
+        this.value = value;
+        this.point = point;
     }
 
-    public Return(Value value) {
-        this.value = value;
+    public SourcePoint getPoint() {
+        return point;
+    }
+
+    public Value getValue() {
+        return value;
     }
 
     @Override

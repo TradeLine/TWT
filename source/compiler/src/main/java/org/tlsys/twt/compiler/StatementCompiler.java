@@ -4,6 +4,7 @@ import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
+import org.tlsys.sourcemap.SourcePoint;
 import org.tlsys.twt.CompileException;
 
 import java.util.*;
@@ -14,10 +15,11 @@ class StatementCompiler {
 
     static {
         addProcSt(JCTree.JCBlock.class, (c, e, o) -> {
-            VBlock b = new VBlock(o);
+            VBlock b = new VBlock(o, e.pos < 0 ? null : c.getFile().getPoint(e.pos), e.endpos < 0 ? null : c.getFile().getPoint(e.endpos));
             for (JCTree.JCStatement t : e.getStatements()) {
                 Operation oo = c.st(t, b);
                 if (o != null)
+                    //b.add(new Line(oo, e.pos<0?null:c.getFile().getPoint(e.pos), e.endpos<0?null:c.getFile().getPoint(e.endpos), b));
                     b.add(oo);
             }
             return b;
@@ -29,7 +31,7 @@ class StatementCompiler {
 
         addProcSt(JCTree.JCReturn.class, (c, e, o) -> {
             if (e.expr == null)
-                return new Return(null);
+                return new Return(null, c.getFile().getPoint(e.pos));
 
             Optional<Context> ctx = TypeUtil.findParentContext(o, ee->ee instanceof VExecute || ee instanceof Lambda);
 
@@ -48,8 +50,12 @@ class StatementCompiler {
 
             Value v = (Value) c.op(e.expr, o);
             v = CompilerTools.cast(v, needClass);
-
-            return new Return(v);
+            int pos = e.pos;
+            String data = c.getFile().getData();
+            String ss = data.substring(pos);
+            System.out.println("ss" + ss);
+            SourcePoint sp = c.getFile().getPoint(e.pos);
+            return new Return(v, sp);
         });
 
         addProcSt(JCTree.JCIf.class, (c, e, o) -> {
@@ -61,7 +67,7 @@ class StatementCompiler {
                 if (oo instanceof VBlock) {
                     i.thenBlock = (VBlock) oo;
                 } else {
-                    VBlock b = new VBlock(i);
+                    VBlock b = new VBlock(i, null, null);
                     b.add(oo);
                     i.thenBlock = b;
                 }
@@ -73,7 +79,7 @@ class StatementCompiler {
                 if (oo instanceof VBlock) {
                     i.elseBlock = (VBlock) oo;
                 } else {
-                    VBlock b = new VBlock(i);
+                    VBlock b = new VBlock(i, null, null);
                     if (oo != null)
                         b.add(oo);
                     i.elseBlock = b;
@@ -83,12 +89,12 @@ class StatementCompiler {
         });
 
         addProcSt(JCTree.JCThrow.class, (c, e, o) -> {
-            return new Throw((Value) c.op(e.expr, o));
+            return new Throw((Value) c.op(e.expr, o), c.getFile().getPoint(e.pos));
         });
 
         addProcSt(JCTree.JCVariableDecl.class, (c, e, o) -> {
             SVar var = new SVar(e.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.type), o);
-            DeclareVar dv = new DeclareVar(var);
+            DeclareVar dv = new DeclareVar(var, c.getFile().getPoint(e.pos));
             if (e.init == null)
                 dv.init = OperationCompiler.getInitValueForType(var.getType());
             else
@@ -102,7 +108,7 @@ class StatementCompiler {
 
             if (v.getType().isParent(classIterable)) {
 
-                VBlock block = new VBlock(o);
+                VBlock block = new VBlock(o, null, null);
 
 
                 VClass classIterator = c.getCurrentClass().getClassLoader().loadClass(Iterator.class.getName());
@@ -110,42 +116,42 @@ class StatementCompiler {
 
 
                 SVar iterator = new SVar("it" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), classIterator, block);
-                DeclareVar it = new DeclareVar(iterator);
+                DeclareVar it = new DeclareVar(iterator, c.getFile().getPoint(e.expr.pos));
                 it.init = new Invoke(v.getType().getMethod("iterator"), v);
                 block.add(it);
-                WhileLoop wl = new WhileLoop(block);
+                WhileLoop wl = new WhileLoop(block, null);
                 wl.value = new Invoke(classIterator.getMethod("hasNext"), it.getVar());
-                wl.block = new VBlock(wl);
+                wl.block = new VBlock(wl, null, null);
                 block.add(wl);
 
                 SVar var = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type), block);
-                DeclareVar dv = new DeclareVar(var);
+                DeclareVar dv = new DeclareVar(var, c.getFile().getPoint(e.var.pos));
                 dv.init = new Invoke(classIterator.getMethod("next"), it.getVar());
                 wl.block.add(dv);
                 wl.block.add(c.st(e.body, wl.block));
                 return block;
             } else {
-                VBlock block = new VBlock(o);
+                VBlock block = new VBlock(o, null, null);
 
                 VClass intClass = c.getCurrentClass().getClassLoader().loadClass("int");
                 SVar arVar = new SVar("l" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), v.getType(), block);
-                DeclareVar ar = new DeclareVar(arVar);
+                DeclareVar ar = new DeclareVar(arVar, c.getFile().getPoint(e.expr.pos));
                 ar.init = v;
                 block.add(ar);
 
                 ArrayClass ac = (ArrayClass)v.getType();
-                ForLoop forLoop = new ForLoop(o);
-                forLoop.block = new VBlock(forLoop);
+                ForLoop forLoop = new ForLoop(o, c.getFile().getPoint(e.pos));
+                forLoop.block = new VBlock(forLoop, null, null);
 
                 SVar itVar = new SVar("i" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), intClass, forLoop);
-                DeclareVar it = new DeclareVar(itVar);
+                DeclareVar it = new DeclareVar(itVar, c.getFile().getPoint(e.expr.pos));
                 it.init = new Const(0, intClass);
                 forLoop.init = it;
                 forLoop.update = new Increment(itVar, Increment.IncType.PRE_INC, intClass);
-                forLoop.value = new VBinar(itVar, new GetField(arVar, arVar.getType().getField("length"), null),c.getCurrentClass().getClassLoader().loadClass("boolean"), VBinar.BitType.LT);
+                forLoop.value = new VBinar(itVar, new GetField(arVar, arVar.getType().getField("length"), null), c.getCurrentClass().getClassLoader().loadClass("boolean"), VBinar.BitType.LT, null);
 
                 SVar el = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type), forLoop.block);
-                DeclareVar dv = new DeclareVar(el);
+                DeclareVar dv = new DeclareVar(el, c.getFile().getPoint(e.var.pos));
                 dv.init = new ArrayGet(arVar, itVar);
                 forLoop.block.add(dv);
 
@@ -162,11 +168,11 @@ class StatementCompiler {
 
         addProcSt(JCTree.JCWhileLoop.class, (c, e, o) -> {
             Value v = c.op(e.cond, o);
-            WhileLoop fe = new WhileLoop(o);
+            WhileLoop fe = new WhileLoop(o, c.getFile().getPoint(e.pos));
             fe.value = c.op(e.cond, o);
             Operation op = c.st(e.body, fe);
             if (!(op instanceof VBlock)) {
-                VBlock b = new VBlock(fe);
+                VBlock b = new VBlock(fe, null, null);
                 if (op != null)
                     b.add(op);
                 op = b;
@@ -177,11 +183,11 @@ class StatementCompiler {
 
         addProcSt(JCTree.JCDoWhileLoop.class, (c,e,o)->{
             Value v = c.op(e.cond, o);
-            DoWhileLoop fe = new DoWhileLoop(o);
+            DoWhileLoop fe = new DoWhileLoop(o, c.getFile().getPoint(e.pos));
             fe.value = c.op(e.cond, o);
             Operation op = c.st(e.body, fe);
             if (!(op instanceof VBlock)) {
-                VBlock b = new VBlock(fe);
+                VBlock b = new VBlock(fe, null, null);
                 if (op != null)
                     b.add(op);
                 op = b;
@@ -191,7 +197,7 @@ class StatementCompiler {
         });
 
         addProcSt(JCTree.JCForLoop.class, (c, e, o) -> {
-            ForLoop f = new ForLoop(o);
+            ForLoop f = new ForLoop(o, c.getFile().getPoint(e.pos));
             if (e.init != null) {
                 if (e.init.size() > 1)
                     throw new RuntimeException("Not support same init value");
@@ -211,7 +217,7 @@ class StatementCompiler {
             }
             Operation oo = c.st(e.body, f);
             if (!(oo instanceof VBlock)) {
-                VBlock b = new VBlock(f);
+                VBlock b = new VBlock(f, null, null);
                 if (oo != null)
                     b.add(oo);
                 oo = b;
@@ -225,7 +231,7 @@ class StatementCompiler {
             if (e.label != null) {
                 l = o.findLabel(e.label.toString()).get();
             }
-            return new Continue(l);
+            return new Continue(l, c.getFile().getPoint(e.pos));
         });
 
         addProcSt(JCTree.JCBreak.class, (c, e, o) -> {
@@ -233,7 +239,7 @@ class StatementCompiler {
             if (e.label != null) {
                 l = o.findLabel(e.label.toString()).get();
             }
-            return new Break(l);
+            return new Break(l, c.getFile().getPoint(e.pos));
         });
 
 
@@ -244,7 +250,7 @@ class StatementCompiler {
             tr.block = (VBlock) c.st(e.body, o);
             for (JCTree.JCCatch ca : e.catchers) {
                 SVar var = new SVar(ca.param.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ca.param.type), null);
-                DeclareVar dv = new DeclareVar(var);
+                DeclareVar dv = new DeclareVar(var, c.getFile().getPoint(ca.getParameter().pos));
                 Try.Catch cc = new Try.Catch(tr, dv);
                 var.setParentContext(cc);
                 if (ca.param.vartype instanceof JCTree.JCTypeUnion) {
@@ -260,11 +266,11 @@ class StatementCompiler {
         });
 
         addProcSt(JCTree.JCSwitch.class, (c,e,o)->{
-            Switch s = new Switch(o, c.op(e.selector, o));
+            Switch s = new Switch(o, c.op(e.selector, o), c.getFile().getPoint(e.pos));
             for (JCTree.JCCase cc : e.getCases()) {
-                Switch.Case ca = new Switch.Case(s);
+                Switch.Case ca = new Switch.Case(s, c.getFile().getPoint(cc.pos));
                 ca.value = cc.getExpression()==null?null:c.op(cc.getExpression(), s);
-                ca.block = new VBlock(ca);
+                ca.block = new VBlock(ca, null, null);
                 for (JCTree.JCStatement ss : cc.getStatements()) {
                     Operation oo = c.st(ss, ca.block);
                     if (oo != null)
@@ -287,10 +293,6 @@ class StatementCompiler {
         throw new RuntimeException("Not supported " + sta.getClass().getName() + " \"" + sta + "\"");
     }
 
-    private static interface ProcSt<V extends JCTree.JCStatement> {
-        Operation proc(TreeCompiler compiller, V e, Context context) throws CompileException;
-    }
-
     public static VMethod createBrig(VMethod from, VMethod to) {
         if (from.getParent() == to.getParent())
             throw new IllegalArgumentException("Can't create brige for self type");
@@ -298,27 +300,31 @@ class StatementCompiler {
         Objects.requireNonNull(from, "Argument \"to\" is NULL");
         VMethod rep = new VMethod(to.getParent(), null);
         rep.setReplace(from);
-        from.getArguments().forEach(e->{
+        from.getArguments().forEach(e -> {
             rep.addArg(e);
         });
-        rep.setBlock(new VBlock(rep));
+        rep.setBlock(new VBlock(rep, null, null));
         rep.alias = from.alias;
 
         Invoke inv = new Invoke(to, new This(to.getParent()));
-        rep.getArguments().forEach(e->{
+        rep.getArguments().forEach(e -> {
             inv.arguments.add(e);
         });
         inv.returnType = to.returnType;
 
 
-        Objects.requireNonNull(from.returnType, "return type of " + from + " is nullJARR");
+        Objects.requireNonNull(from.returnType, "return type of " + from + " is null");
 
         if (!(from.returnType instanceof ArrayClass) && from.returnType.isThis("void")) {
             rep.getBlock().add(inv);
         } else {
-            rep.getBlock().add(new Return(inv));
+            rep.getBlock().add(new Return(inv, null));
         }
         return rep;
+    }
+
+    private static interface ProcSt<V extends JCTree.JCStatement> {
+        Operation proc(TreeCompiler compiller, V e, Context context) throws CompileException;
     }
 
 }

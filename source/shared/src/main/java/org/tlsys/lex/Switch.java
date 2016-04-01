@@ -1,9 +1,9 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -15,6 +15,17 @@ public class Switch extends Operation {
     public final ArrayList<Case> cases = new ArrayList<>();
     private Context parentContext;
     private Value value;
+    private SourcePoint point;
+
+    public Switch(Context parentContext, Value value, SourcePoint point) {
+        this.parentContext = parentContext;
+        this.value = value;
+        this.point = point;
+    }
+
+    public SourcePoint getPoint() {
+        return point;
+    }
 
     public Context getParentContext() {
         return parentContext;
@@ -26,11 +37,6 @@ public class Switch extends Operation {
 
     public ArrayList<Case> getCases() {
         return cases;
-    }
-
-    public Switch(Context parentContext, Value value) {
-        this.parentContext = parentContext;
-        this.value = value;
     }
 
     @Override
@@ -75,9 +81,15 @@ public class Switch extends Operation {
         public Value value;
         public VBlock block;
         private Switch parent;
+        private SourcePoint point;
 
-        public Case(Switch parent) {
+        public Case(Switch parent, SourcePoint point) {
             this.parent = parent;
+            this.point = point;
+        }
+
+        public SourcePoint getPoint() {
+            return point;
         }
 
         @Override

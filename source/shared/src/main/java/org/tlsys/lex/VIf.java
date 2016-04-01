@@ -3,6 +3,7 @@ package org.tlsys.lex;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -15,10 +16,6 @@ public class VIf extends Operation {
     public VBlock elseBlock;
     private Context parentContext;
 
-    public Context getParentContext() {
-        return parentContext;
-    }
-
     public VIf() {
     }
 
@@ -27,13 +24,17 @@ public class VIf extends Operation {
         this.parentContext = Objects.requireNonNull(parentContext);
     }
 
-    public VBlock createThen() {
-        thenBlock = new VBlock(this);
+    public Context getParentContext() {
+        return parentContext;
+    }
+
+    public VBlock createThen(SourcePoint startPoint, SourcePoint endPoint) {
+        thenBlock = new VBlock(this, startPoint, endPoint);
         return thenBlock;
     }
 
-    public VBlock createElse() {
-        elseBlock = new VBlock(this);
+    public VBlock createElse(SourcePoint startPoint, SourcePoint endPoint) {
+        elseBlock = new VBlock(this, startPoint, endPoint);
         return elseBlock;
     }
 

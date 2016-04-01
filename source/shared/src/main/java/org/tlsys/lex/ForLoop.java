@@ -3,6 +3,7 @@ package org.tlsys.lex;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -16,16 +17,22 @@ public class ForLoop extends Operation {
     public Operation update;
     public VBlock block;
     private Context parentContext;
+    private SourcePoint point;
+
+    public ForLoop() {
+    }
+
+    public ForLoop(Context parentContext, SourcePoint point) {
+        this.parentContext = Objects.requireNonNull(parentContext);
+        this.point = point;
+    }
 
     public Context getParentContext() {
         return parentContext;
     }
 
-    public ForLoop() {
-    }
-
-    public ForLoop(Context parentContext) {
-        this.parentContext = Objects.requireNonNull(parentContext);
+    public SourcePoint getPoint() {
+        return point;
     }
 
     @Override

@@ -4,6 +4,7 @@ import org.tlsys.BlockModificator;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.*;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +15,20 @@ public class VBlock extends Operation implements Using, CanUse, Context {
     private static final long serialVersionUID = 7031713493204208024L;
     private final ArrayList<Operation> operations = new ArrayList<>();
 
+    private SourcePoint startPoint;
+    private SourcePoint endPoint;
+
     private transient Context parentContext;
     private ArrayList<BlockModificator> mods = new ArrayList<>();
+
+    public VBlock(Context parentContext, SourcePoint startPoint, SourcePoint endPoint) {
+        this.parentContext = parentContext;
+        this.startPoint = startPoint;
+        this.endPoint = endPoint;
+    }
+
+    public VBlock() {
+    }
 
     public void addMod(BlockModificator blockModificator) {
         if (mods.add(blockModificator))
@@ -27,11 +40,12 @@ public class VBlock extends Operation implements Using, CanUse, Context {
             blockModificator.onRemove(this);
     }
 
-    public VBlock(Context parentContext) {
-        this.parentContext = parentContext;
+    public SourcePoint getStartPoint() {
+        return startPoint;
     }
 
-    public VBlock() {
+    public SourcePoint getEndPoint() {
+        return endPoint;
     }
 
     public List<Operation> getOperations() {

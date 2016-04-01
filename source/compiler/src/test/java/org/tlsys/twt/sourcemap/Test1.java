@@ -1,11 +1,8 @@
 package org.tlsys.twt.sourcemap;
 
 import org.junit.Test;
-import org.tlsys.sourcemap.SourceFile;
-import org.tlsys.sourcemap.SourceMap;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Test1 {
 
@@ -22,6 +19,7 @@ public class Test1 {
         System.out.println(out.toString());
         */
 
+        /*
         SourceFile sf = new SourceFile("   ", "simple.js");
         ArrayList<SourceMap.Record> rec = new ArrayList<>();
         rec.add(new SourceMap.Record(sf, sf.getPoint(0, 0), 0, null));
@@ -30,6 +28,7 @@ public class Test1 {
         rec.add(new SourceMap.Record(sf, sf.getPoint(0, 17), 16, "arg2"));
         rec.add(new SourceMap.Record(sf, sf.getPoint(4, 0), 41, "test"));
 
-        System.out.println("=>>\n" + SourceMap.generate(rec));
+        System.out.println("=>>\n" + new SourceMap(rec).generate());
+        */
     }
 }

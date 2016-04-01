@@ -3,6 +3,7 @@ package org.tlsys.lex;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -10,10 +11,19 @@ import java.util.function.Predicate;
 
 public class VBinar extends Value {
     private static final long serialVersionUID = -3696864346645818468L;
+    private final SourcePoint point;
     private Value left;
     private Value right;
     private VClass result;
     private BitType type;
+
+    public VBinar(Value left, Value right, VClass result, BitType type, SourcePoint point) {
+        this.type = type;
+        this.left = Objects.requireNonNull(left);
+        this.right = Objects.requireNonNull(right);
+        this.result = Objects.requireNonNull(result);
+        this.point = point;
+    }
 
     public BitType getBitType() {
         return type;
@@ -31,14 +41,8 @@ public class VBinar extends Value {
         return result;
     }
 
-    public VBinar() {
-    }
-
-    public VBinar(Value left, Value right, VClass result, BitType type) {
-        this.type = type;
-        this.left = Objects.requireNonNull(left);
-        this.right = Objects.requireNonNull(right);
-        this.result = Objects.requireNonNull(result);
+    public SourcePoint getPoint() {
+        return point;
     }
 
     @Override

@@ -22,12 +22,12 @@ public class Try extends Operation {
     public Try() {
     }
 
-    public Context getParentContext() {
-        return parentContext;
-    }
-
     public Try(Context parentContext) {
         this.parentContext = Objects.requireNonNull(parentContext);
+    }
+
+    public Context getParentContext() {
+        return parentContext;
     }
 
     @Override
@@ -57,18 +57,19 @@ public class Try extends Operation {
     }
 
     public static class Catch extends Operation implements Context, Using, Serializable {
+        private static final long serialVersionUID = 3242922465596941371L;
         public ArrayList<VClass> classes = new ArrayList<>();
         public VBlock block;
         private Context parentContext;
         private DeclareVar declareVar;
 
-        public DeclareVar getDeclareVar() {
-            return declareVar;
-        }
-
         public Catch(Context parentContext, DeclareVar declareVar) {
             this.parentContext = parentContext;
             this.declareVar = declareVar;
+        }
+
+        public DeclareVar getDeclareVar() {
+            return declareVar;
         }
 
         public Context getParentContext() {

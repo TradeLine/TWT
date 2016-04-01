@@ -6,7 +6,6 @@ import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.classes.*;
 
-import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Objects;
@@ -29,7 +28,7 @@ public class Generator implements MainGenerator {
     private static Value getValueViaProvider(Value value) throws VClassNotFoundException {
         VClass typeValueProvider = value.getType().getClassLoader().loadClass(ValueProvider.class.getName());
         VBlock body = new VBlock();
-        body.add(new Return(value));
+        body.add(new Return(value, null));
         Lambda lambda = new Lambda(typeValueProvider.methods.get(0), null);
         lambda.setBlock(body);
         return lambda;
@@ -38,7 +37,7 @@ public class Generator implements MainGenerator {
     private static Value getClassViaTypeProvider(VClass vClass) throws VClassNotFoundException {
         VClass typeProviderClass = vClass.getClassLoader().loadClass(TypeProvider.class.getName());
         VBlock body = new VBlock();
-        body.add(new Return(new StaticRef(vClass)));
+        body.add(new Return(new StaticRef(vClass), null));
         Lambda lambda = new Lambda(typeProviderClass.methods.get(0), null);
         lambda.setBlock(body);
         return lambda;
@@ -267,7 +266,7 @@ public class Generator implements MainGenerator {
         ICodeGenerator icg = gc.getGenerator(classClassStorage);
 
 
-        DeclareVar dv = new DeclareVar(storage);
+        DeclareVar dv = new DeclareVar(storage, null);
         dv.init = new NewClass(classClassStorage.constructors.get(0), null);
 
         icg.operation(gc, dv, ps);

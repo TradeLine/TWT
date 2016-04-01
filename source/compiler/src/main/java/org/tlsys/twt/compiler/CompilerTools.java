@@ -21,7 +21,7 @@ import java.util.Set;
 
 public class CompilerTools {
 
-    public static Member createMember(VClass clazz, JCTree decl) throws VClassNotFoundException {
+    public static Member createMember(TreeCompiler ctx, VClass clazz, JCTree decl) throws VClassNotFoundException {
         if (decl instanceof JCTree.JCMethodDecl) {
             JCTree.JCMethodDecl m = (JCTree.JCMethodDecl) decl;
             if (m.name.toString().equals("<init>")) {
@@ -44,7 +44,8 @@ public class CompilerTools {
         }
 
         if (decl instanceof JCTree.JCBlock) {
-            StaticBlock sb = new StaticBlock(clazz);
+            JCTree.JCBlock b = (JCTree.JCBlock) decl;
+            StaticBlock sb = new StaticBlock(clazz, ctx.getFile().getPoint(b.pos), ctx.getFile().getPoint(b.endpos));
             clazz.statics.add(sb);
             return sb;
         }

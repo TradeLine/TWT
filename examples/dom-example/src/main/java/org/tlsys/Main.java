@@ -43,6 +43,7 @@ public class Main {
             Console.info("->" + a + " ===> " + ((byte)a));
         }
 */
+        Console.info("->");
 
 
         new Main(1).doit();
@@ -100,6 +101,16 @@ public class Main {
                 new SubClass().tt();
             }
         };
+
+
+        Script.setTimeout(5000, new Script.TimeoutCallback() {
+            @Override
+            public void onTimeout() {
+                throw new RuntimeException("ERROR!");
+            }
+        });
+
+
         long id = Script.setTimeout(1000, t);
     }
 

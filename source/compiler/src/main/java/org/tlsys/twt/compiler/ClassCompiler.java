@@ -146,7 +146,7 @@ public class ClassCompiler {
 
         Pair p = new Pair(as, c, ctx.getPairByClass((VClass) TypeUtil.findParentContext(context, e->e instanceof VClass).get()).file);
         setExtends(p, vClassLoader);
-        searchMembers(p);
+        searchMembers(ctx, p);
         compileCode(ctx, p, VExecute.class);
         compileCode(ctx, p, VVar.class);
         findReplaceMethod(p);
@@ -288,10 +288,12 @@ public class ClassCompiler {
         return v;
     }
 
-    private static void searchMembers(Pair pair) throws CompileException {
+    private static void searchMembers(CompileContext ctx, Pair pair) throws CompileException {
+        TreeCompiler c = new TreeCompiler(pair.vclass, ctx.getFileSource(pair.file), ctx);
+
         try {
             for (JCTree t : pair.desl.defs) {
-                Member m = CompilerTools.createMember(pair.vclass, t);
+                Member m = CompilerTools.createMember(c, pair.vclass, t);
                 if (m != null)
                     pair.members.put(t, m);
             }
@@ -302,7 +304,7 @@ public class ClassCompiler {
 
     private static void searchMembers(CompileContext ctx) throws CompileException {
         for (Pair p : ctx.pairs) {
-            searchMembers(p);
+            searchMembers(ctx, p);
         }
     }
 
@@ -561,7 +563,8 @@ public class ClassCompiler {
                 while ((len=is.read(buffer))!=-1) {
                     data.write(buffer, 0, len);
                 }
-                SourceFile sf = new SourceFile(new String(data.toByteArray()), file.getPackageName().toString().replace('.','/')+".java");
+                String name = new File(file.getSourceFile().getName()).getName();
+                SourceFile sf = new SourceFile(new String(data.toByteArray()), file.getPackageName().toString().replace('.', '/') + "/" + name, new SourcePointProvider(file));
                 files.put(file, sf);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -577,6 +580,25 @@ public class ClassCompiler {
 
         public VClassLoader getLoader() {
             return loader;
+        }
+    }
+
+    private static class SourcePointProvider implements SourceFile.PositionProvider {
+
+        private final CompilationUnitTree file;
+
+        private SourcePointProvider(CompilationUnitTree file) {
+            this.file = file;
+        }
+
+        @Override
+        public int getLine(int pos) {
+            return (int) file.getLineMap().getLineNumber(pos) - 1;
+        }
+
+        @Override
+        public int getColumn(int pos) {
+            return (int) file.getLineMap().getColumnNumber(pos) - 1;
         }
     }
 

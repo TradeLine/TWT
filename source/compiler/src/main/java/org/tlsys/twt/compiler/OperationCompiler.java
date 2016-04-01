@@ -104,9 +104,9 @@ class OperationCompiler {
 
         addProc(JCTree.JCIdent.class, (c, e, o) -> {
             if (e.sym instanceof Symbol.ClassSymbol)
-                return new StaticRef(c.loadClass(e.type));
+                return new StaticRef(c.loadClass(e.type), c.getFile().getPoint(e.pos));
             if (e.sym instanceof Symbol.VarSymbol && (e.toString().equals("this") || e.toString().equals("super")))
-                return new This(c.loadClass(e.type));
+                return new This(c.loadClass(e.type), c.getFile().getPoint(e.pos));
             if (e.sym instanceof Symbol.VarSymbol) {
                 Symbol.VarSymbol vv = (Symbol.VarSymbol) e.sym;
                 Optional<Context> var = o.find(vv.name.toString(), v -> true);
@@ -114,18 +114,18 @@ class OperationCompiler {
                     if (var.get() instanceof VField) {
                         VField field = (VField) var.get();
                         if (field.isStatic())
-                            return new GetField(new StaticRef(field.getParent()), field, c.getFile().getPoint(e.pos));
+                            return new GetField(new StaticRef(field.getParent(), null), field, c.getFile().getPoint(e.pos));
                         else
                             return new GetField(new This(field.getParent()), field, c.getFile().getPoint(e.pos));
                     }
-                    return (SVar) var.get();
+                    return new GetValue((SVar) var.get(), c.getFile().getPoint(e.pos));
                 }
             }
             throw new RuntimeException("Unknown indent " + e + ", class=" + (e.sym != null ? e.sym.getClass().getName() : "NULL"));
         });
 
         addProc(JCTree.JCLiteral.class, (c, e, o) -> {
-            return new Const(e.getValue(), c.loadClass(e.type));
+            return new Const(e.getValue(), c.loadClass(e.type), c.getFile().getPoint(e.pos));
         });
 
         addProc(JCTree.JCUnary.class, (c, e, o) -> {
@@ -180,10 +180,10 @@ class OperationCompiler {
                 l.setBlock((VBlock) c.st((JCTree.JCStatement) e.body, l));
             } else {
                 if (e.body instanceof JCTree.JCExpression) {
-                    VBlock block = new VBlock(l);
+                    VBlock block = new VBlock(l, null, null);
                     Operation op = c.op((JCTree.JCExpression) e.body, block);
                     if (l.getMethod().returnType != c.loadClass("void")) {
-                        block.add(new Return((Value) op));
+                        block.add(new Return((Value) op, c.getFile().getPoint(e.body.pos)));
                     } else
                         block.add(op);
                     l.setBlock(block);
@@ -278,7 +278,7 @@ class OperationCompiler {
                 return new Invoke(method, new This(cons.getParent())).addArg(cons.getArguments().get(0)).addArg(cons.getArguments().get(1));
             }
             if (method.isStatic())
-                self = new StaticRef(method.getParent());
+                self = new StaticRef(method.getParent(), null);
 
             Invoke i = new Invoke(method, self);
 
@@ -347,8 +347,6 @@ class OperationCompiler {
 
 
         addProc(JCTree.JCConditional.class, (c, e, o) -> {
-
-
             Conditional con = new Conditional(c.op(e.cond, o),
                     c.op(e.getTrueExpression(), o),
                     c.op(e.getFalseExpression(), o),
@@ -413,7 +411,7 @@ class OperationCompiler {
                 default:
                     throw new RuntimeException("Not supported binar operation " + e.getTag());
             }
-            return new VBinar((Value) c.op(e.lhs, o), (Value) c.op(e.rhs, o), c.loadClass(e.type), type);
+            return new VBinar((Value) c.op(e.lhs, o), (Value) c.op(e.rhs, o), c.loadClass(e.type), type, c.getFile().getPoint(e.pos));
         });
 
         addProc(JCTree.JCParens.class, (c, e, o) -> {
@@ -427,6 +425,11 @@ class OperationCompiler {
                 GetField gf = (GetField) v;
                 SetField sf = new SetField(gf.getScope(), gf.getField(), v2, Assign.AsType.ASSIGN, gf.getPoint());
                 return sf;
+            }
+
+            if (v instanceof GetValue) {
+                GetValue g = (GetValue) v;
+                return new SetValue(g.getValue(), v2, c.loadClass(e.type), Assign.AsType.ASSIGN, g.getPoint(), c.getFile().getPoint(e.pos));
             }
             if (v instanceof ArrayGet) {
                 ArrayGet gf = (ArrayGet) v;
@@ -456,6 +459,11 @@ class OperationCompiler {
                 SetField sf = new SetField(gf.getScope(), gf.getField(), v2, type, gf.getPoint());
                 return sf;
             }
+            if (v instanceof GetValue) {
+                GetValue gf = (GetValue) v;
+                SetValue sf = new SetValue(gf.getValue(), v2, c.loadClass(e.type), type, gf.getPoint(), c.getFile().getPoint(e.pos));
+                return sf;
+            }
             if (v instanceof ArrayGet) {
                 ArrayGet gf = (ArrayGet) v;
                 ArrayAssign aa = new ArrayAssign(gf.getValue(), gf.getIndex(), v2, type);
@@ -476,7 +484,7 @@ class OperationCompiler {
                 String name = e.name.toString();
 
                 if (name.equals("this")) {
-                    return new This(c.getCurrentClass().getParent());
+                    return new This(c.getCurrentClass().getParent(), c.getFile().getPoint(e.pos));
                     //return new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass()));
                     //throw new RuntimeException("Not supported parent this parent class");
                     //return c.getCurrentClass().getParentVar();
@@ -484,7 +492,7 @@ class OperationCompiler {
 
 
                 if (name.equals("class")) {
-                    return new ClassRef(scope.getType());
+                    return new ClassRef(scope.getType(), c.getFile().getPoint(e.pos));
                 }
             }
 
@@ -508,7 +516,7 @@ class OperationCompiler {
 
             if (e.sym instanceof Symbol.ClassSymbol) {
                 String text = "scope = " + scope;
-                return new StaticRef((VClass) scope.find(e.name.toString(), v -> v instanceof VClass).orElseThrow(() -> new VClassNotFoundException(e.sym.name.toString() + ", " + text)));
+                return new StaticRef((VClass) scope.find(e.name.toString(), v -> v instanceof VClass).orElseThrow(() -> new VClassNotFoundException(e.sym.name.toString() + ", " + text)), c.getFile().getPoint(e.pos));
             }
 
             throw new RuntimeException("Unknown indent! " + e + ", " + e.sym.getClass());
@@ -539,7 +547,7 @@ class OperationCompiler {
 
 
         addProc(JCTree.JCPrimitiveTypeTree.class, (c, e, o) -> {
-            return new StaticRef(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.type));
+            return new StaticRef(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.type), c.getFile().getPoint(e.pos));
         });
     }
 
