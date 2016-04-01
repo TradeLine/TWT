@@ -7,10 +7,12 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.declare.*;
+import org.tlsys.sourcemap.SourceMap;
 import org.tlsys.twt.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 
@@ -99,6 +101,7 @@ public class GenerationTask extends DefaultTask {
                 renaming(app.getMainLoader().getTWTClassLoader());
                 for (GenerationTarget gt : getTargets()) {
                     File outFile = new File(getProject().getBuildDir(), gt.out());
+                    File mapFile = new File(outFile.getParent(), outFile.getName()+".map");
                     try (PrintStream ps1 = new PrintStream(new FileOutputStream(outFile), false, "UTF-8")) {
                         Outbuffer ps = new Outbuffer(ps1);
                         CompileModuls cm = new CompileModuls();
@@ -135,6 +138,16 @@ public class GenerationTask extends DefaultTask {
                         if (mainMethod != null) {
                             mg.generateInvoke(mainMethod.get(), ps);
                         }
+
+                        ps.append("\n//@ sourceMappingURL=" + new File(outFile.getParent()).toURI().relativize(mapFile.toURI()));
+                        //ps.getRecords();
+
+                        try (OutputStream o = new FileOutputStream(mapFile)) {
+                            o.write(SourceMap.generate(ps.getRecords()).getBytes());
+                            o.flush();
+                            o.close();
+                        }
+
                     }
                 }
             } finally {

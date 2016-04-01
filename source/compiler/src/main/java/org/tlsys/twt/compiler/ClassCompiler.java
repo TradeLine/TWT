@@ -14,6 +14,7 @@ import org.tlsys.twt.CompileException;
 import org.tlsys.twt.annotations.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -560,7 +561,8 @@ public class ClassCompiler {
                 while ((len=is.read(buffer))!=-1) {
                     data.write(buffer, 0, len);
                 }
-                files.put(file, new SourceFile(new String(data.toByteArray()), file.getSourceFile().getName()));
+                SourceFile sf = new SourceFile(new String(data.toByteArray()), file.getPackageName().toString().replace('.','/')+".java");
+                files.put(file, sf);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

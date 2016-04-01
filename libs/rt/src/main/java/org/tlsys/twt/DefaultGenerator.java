@@ -138,7 +138,8 @@ public class DefaultGenerator implements ICodeGenerator {
             }
             g.operation(c, o.getScope(), p);
             p.append(".");
-            p.append(o.getField().getRuntimeName());
+            p.add(o.getField().getRuntimeName(), o.getPoint());
+            //p.append();
             return true;
         });
 
@@ -192,7 +193,7 @@ public class DefaultGenerator implements ICodeGenerator {
             //p.append(".");
             //p.append(o.getField().name);
             g.operation(c, new StaticRef(o.constructor.getParent()), p);
-            p.append(".n").append(o.constructor.getRunTimeName()).append("(");
+            p.append(".").add("n", o.getPoint()).append(o.constructor.getRunTimeName()).append("(");
             boolean first = true;
             for (Value v : o.arguments) {
                 if (!first)
@@ -239,7 +240,7 @@ public class DefaultGenerator implements ICodeGenerator {
 
 
             g.operation(c, o.getScope(), p);
-            p.append(".").append(o.getField().getRuntimeName()).append("=");
+            p.append(".").add(o.getField().getRuntimeName(), o.getPoint()).append("=");
             g.operation(c, o.getValue(), p);
             return true;
         });

@@ -14,14 +14,18 @@ public class NewClass extends Value {
     private static final long serialVersionUID = -2655271103608417622L;
     public VConstructor constructor;
     public ArrayList<Value> arguments = new ArrayList<>();
-    private SourcePoint sourcePoint;
+    private SourcePoint point;
 
     public NewClass() {
     }
 
     public NewClass(VConstructor constructor, SourcePoint sourcePoint) {
         this.constructor = constructor;
-        this.sourcePoint = sourcePoint;
+        this.point = sourcePoint;
+    }
+
+    public SourcePoint getPoint() {
+        return point;
     }
 
     public NewClass addArg(Value value) {

@@ -5,6 +5,7 @@ import org.tlsys.sourcemap.SourcePoint;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Outbuffer implements Appendable {
     private int current;
@@ -60,12 +61,17 @@ public class Outbuffer implements Appendable {
     private ArrayList<SourceMap.Record> records = new ArrayList<>();
 
     public Outbuffer add(CharSequence csq, SourcePoint point, String name) {
-        records.add(new SourceMap.Record(point.getSourceFile(), point, current, name));
+        if (point != null)
+            records.add(new SourceMap.Record(point.getSourceFile(), point, current, name));
         append(csq);
         return this;
     }
 
     public Outbuffer add(CharSequence csq, SourcePoint point) {
         return add(csq, point, null);
+    }
+
+    public List<SourceMap.Record> getRecords() {
+        return records;
     }
 }
