@@ -298,7 +298,7 @@ class StatementCompiler {
             throw new IllegalArgumentException("Can't create brige for self type");
         Objects.requireNonNull(from, "Argument \"from\" is NULL");
         Objects.requireNonNull(from, "Argument \"to\" is NULL");
-        VMethod rep = new VMethod(to.getParent(), null);
+        VMethod rep = new VMethod(null, from.getRealName(), to.getParent(), null);
         rep.setReplace(from);
         from.getArguments().forEach(e -> {
             rep.addArg(e);

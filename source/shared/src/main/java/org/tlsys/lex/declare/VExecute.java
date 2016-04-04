@@ -4,6 +4,7 @@ import org.tlsys.ArgumentModificator;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.Collect;
 import org.tlsys.lex.Context;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -19,6 +20,7 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
     private String name;
     public String alias;
     public boolean force;
+    private SourcePoint point;
 
     private final ArrayList<ArgumentModificator> mods = new ArrayList<>();
 
@@ -69,8 +71,12 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
         this.block = block;
     }
 
-    public VExecute(VClass parent) {
+    public VExecute(SourcePoint point, VClass parent) {
         this.parent = parent;
+    }
+
+    public SourcePoint getPoint() {
+        return point;
     }
 
     public VClass getParent() {

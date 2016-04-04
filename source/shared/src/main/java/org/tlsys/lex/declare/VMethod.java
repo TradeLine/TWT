@@ -1,6 +1,7 @@
 package org.tlsys.lex.declare;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -28,8 +29,11 @@ public class VMethod extends VExecute {
         return replace;
     }
 
-    public VMethod(VClass parent, VMethod brigTo) {
-        super(parent);
+    private final String realName;
+
+    public VMethod(SourcePoint point, String realName, VClass parent, VMethod brigTo) {
+        super(point, parent);
+        this.realName = realName;
         this.brigTo = brigTo;
     }
 
@@ -41,6 +45,10 @@ public class VMethod extends VExecute {
     @Override
     public boolean isThis(String name) {
         return this.getRunTimeName().equals(name) || name.equals(alias);
+    }
+
+    public String getRealName() {
+        return realName;
     }
 
     @Override

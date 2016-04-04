@@ -173,7 +173,7 @@ class OperationCompiler {
             Objects.requireNonNull(method, "Method for replace not found");
             Lambda l = new Lambda(method, o);
             for (JCTree.JCVariableDecl v : e.params) {
-                VArgument a = new VArgument(v.name.toString(), c.loadClass(v.type), false, false, l, null);
+                VArgument a = new VArgument(v.name.toString(), c.loadClass(v.type), false, false, l, null, c.getFile().getPoint(e.pos));
                 l.arguments.add(a);
             }
             if (e.body instanceof JCTree.JCBlock) {
@@ -280,7 +280,7 @@ class OperationCompiler {
             if (method.isStatic())
                 self = new StaticRef(method.getParent(), null);
 
-            Invoke i = new Invoke(method, self);
+            Invoke i = new Invoke(method, self, c.getFile().getPoint(e.pos));
 
 
             int argInc = 0;

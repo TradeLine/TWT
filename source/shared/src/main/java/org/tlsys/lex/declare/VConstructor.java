@@ -4,6 +4,7 @@ import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.Collect;
 import org.tlsys.lex.Invoke;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -14,8 +15,8 @@ public class VConstructor extends VExecute {
 
     public Invoke parentConstructorInvoke;
 
-    public VConstructor(VClass parent) {
-        super(parent);
+    public VConstructor(SourcePoint point, VClass parent) {
+        super(point, parent);
         try {
             returnType = parent.getClassLoader().loadClass("void");
         } catch (VClassNotFoundException e) {

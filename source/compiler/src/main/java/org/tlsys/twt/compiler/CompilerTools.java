@@ -8,6 +8,7 @@ import org.tlsys.lex.Cast;
 import org.tlsys.lex.Const;
 import org.tlsys.lex.Value;
 import org.tlsys.lex.declare.*;
+import org.tlsys.sourcemap.SourceFile;
 import org.tlsys.twt.CompileException;
 import org.tlsys.twt.ICastAdapter;
 import org.tlsys.twt.annotations.CodeGenerator;
@@ -25,12 +26,12 @@ public class CompilerTools {
         if (decl instanceof JCTree.JCMethodDecl) {
             JCTree.JCMethodDecl m = (JCTree.JCMethodDecl) decl;
             if (m.name.toString().equals("<init>")) {
-                VConstructor v = createConstructorMember(clazz, m);
+                VConstructor v = createConstructorMember(ctx.getFile(), clazz, m);
                 clazz.constructors.add(v);
                 v.force = isAnnatationExist(m.getModifiers(), ForceInject.class);
                 return v;
             }
-            VMethod v = createMethodMember(clazz, m);
+            VMethod v = createMethodMember(ctx.getFile(), clazz, m);
             v.force = isAnnatationExist(m.getModifiers(), ForceInject.class);
             clazz.methods.add(v);
             return v;
@@ -53,15 +54,15 @@ public class CompilerTools {
         throw new RuntimeException("Not supported " + decl.getClass().getName() + " " + decl);
     }
 
-    private static VConstructor createConstructorMember(VClass clazz, JCTree.JCMethodDecl mem) throws VClassNotFoundException {
-        VConstructor con = new VConstructor(clazz);
+    private static VConstructor createConstructorMember(SourceFile sourceFile, VClass clazz, JCTree.JCMethodDecl mem) throws VClassNotFoundException {
+        VConstructor con = new VConstructor(sourceFile.getPoint(mem.pos), clazz);
         con.setModificators(toFlags(mem.getModifiers()));
-        readExecutable(mem, con);
+        readExecutable(sourceFile, mem, con);
         //VClass enumClass = clazz.getClassLoader().loadClass(Enum.class.getName());
         return con;
     }
 
-    private static void readExecutable(JCTree.JCMethodDecl mem, VExecute m) throws VClassNotFoundException {
+    private static void readExecutable(SourceFile file, JCTree.JCMethodDecl mem, VExecute m) throws VClassNotFoundException {
         getAnnatationValueClass(mem.getModifiers(), CodeGenerator.class).ifPresent(
                 e -> m.generator = e
         );
@@ -73,19 +74,18 @@ public class CompilerTools {
             if (arg instanceof ArrayClass) {
                 //VClass arg2 = vClassLoader.loadClass(v.type);
             }
-            VArgument a = new VArgument(v.name.toString(),arg, (v.mods.flags & Flags.VARARGS) != 0, v.type instanceof Type.TypeVar, m, null);
+            VArgument a = new VArgument(v.name.toString(), arg, (v.mods.flags & Flags.VARARGS) != 0, v.type instanceof Type.TypeVar, m, null, file.getPoint(v.pos));
             m.addArg(a);
         }
-
 
 
         if (m instanceof VConstructor) {
             VClass enumClass = m.getParent().getClassLoader().loadClass(Enum.class.getName());
             if (m.getParent() != enumClass && m.getParent().isParent(enumClass)) {
-                VArgument name = new VArgument("name", m.getParent().getClassLoader().loadClass(String.class.getName()), false, false, m, null);
+                VArgument name = new VArgument("name", m.getParent().getClassLoader().loadClass(String.class.getName()), false, false, m, null, null);
                 m.addArg(name);
 
-                VArgument ordinal = new VArgument("ordinal", m.getParent().getClassLoader().loadClass("int"), false, false, m, null);
+                VArgument ordinal = new VArgument("ordinal", m.getParent().getClassLoader().loadClass("int"), false, false, m, null, null);
                 m.addArg(ordinal);
             }
 
@@ -106,18 +106,18 @@ public class CompilerTools {
 
     }
 
-    private static VMethod createMethodMember(VClass clazz, JCTree.JCMethodDecl mem) throws VClassNotFoundException {
-        VMethod m = new VMethod(clazz, null);
+    private static VMethod createMethodMember(SourceFile sourceFile, VClass clazz, JCTree.JCMethodDecl mem) throws VClassNotFoundException {
+        VMethod m = new VMethod(sourceFile.getPoint(mem.pos), mem.name.toString(), clazz, null);
         m.setRuntimeName(mem.getName().toString());
         m.alias = m.getRunTimeName();
         getAnnatationValueString(mem.getModifiers(), MethodName.class).ifPresent(e -> m.alias = e);
         m.returnType = TypeUtil.loadClass(clazz.getClassLoader(), mem.restype.type);
-        readExecutable(mem, m);
+        readExecutable(sourceFile, mem, m);
         return m;
     }
 
     private static VField createFieldMember(VClass clazz, JCTree.JCVariableDecl fie) throws VClassNotFoundException {
-        VField v = new VField(fie.getName().toString(),TypeUtil.loadClass(clazz.getClassLoader(), fie.type), toFlags(fie.getModifiers()), clazz);
+        VField v = new VField(fie.getName().toString(), TypeUtil.loadClass(clazz.getClassLoader(), fie.type), toFlags(fie.getModifiers()), clazz);
         clazz.addLocalField(v);
         return v;
     }
@@ -205,7 +205,7 @@ public class CompilerTools {
         if (value.getType() == type || value.getType().isParent(type))
             return value;
 
-        if (value instanceof Const && ((Const)value).getValue()==null)
+        if (value instanceof Const && ((Const) value).getValue() == null)
             return value;
         return new Cast(type, value);
         /*
@@ -221,7 +221,7 @@ public class CompilerTools {
             if (cl.castGenerator != null && !cl.castGenerator.isEmpty()) {
                 try {
 
-                    return (ICastAdapter)cl.getJavaClass().getClassLoader().loadClass(cl.castGenerator).newInstance();
+                    return (ICastAdapter) cl.getJavaClass().getClassLoader().loadClass(cl.castGenerator).newInstance();
 
                 } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
                     throw new RuntimeException(e);

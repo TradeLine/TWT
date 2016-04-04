@@ -111,7 +111,11 @@ public class DefaultGenerator implements ICodeGenerator {
             }
             g.operation(c, o.getSelf(), p);
             p.append(".");
-            p.append(o.getMethod().getRunTimeName());
+            if (o.getMethod() instanceof VMethod) {
+                VMethod m = (VMethod) o.getMethod();
+                p.add(o.getMethod().getRunTimeName(), o.getPoint(), m.getRunTimeName());
+            } else
+                p.add(o.getMethod().getRunTimeName(), o.getPoint());
             p.append("(");
             printArg.test(true);
             p.append(")");
@@ -233,12 +237,15 @@ public class DefaultGenerator implements ICodeGenerator {
                 p.append("null");
                 return false;
             }
-            p.append("function(");
+            if (o.getExecute() instanceof VMethod)
+                p.add("function(", o.getExecute().getPoint(), ((VMethod)o.getExecute()).getRealName());
+            else
+                p.add("function(", o.getExecute().getPoint());
             boolean first = true;
             for (VArgument a : o.getExecute().getArguments()) {
                 if (!first)
                     p.append(",");
-                p.append(a.getRuntimeName());
+                p.add(a.getRuntimeName(), a.getPoint(), a.getRealName());
                 first = false;
             }
             p.append(")");

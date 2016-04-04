@@ -4,6 +4,7 @@ import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VExecute;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -16,13 +17,23 @@ public class Invoke extends Value {
     public ArrayList<Value> arguments = new ArrayList<>();
     private Value self;
     public VClass returnType;
+    private SourcePoint point;
 
     public Invoke() {
     }
 
     public Invoke(VExecute method, Value self) {
+        this(method, self, null);
+    }
+
+    public Invoke(VExecute method, Value self, SourcePoint point) {
         this.self = self;
         this.method = Objects.requireNonNull(method);
+        this.point = point;
+    }
+
+    public SourcePoint getPoint() {
+        return point;
     }
 
     public Invoke addArg(Value value) {
