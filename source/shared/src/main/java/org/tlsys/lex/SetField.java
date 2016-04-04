@@ -10,7 +10,10 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
- * Created by Антон on 16.01.2016.
+ * Set new value to class field
+ * 16.01.2016
+ *
+ * @author caffeine@gmail.com
  */
 public class SetField extends Value {
     private static final long serialVersionUID = -6132256584895420566L;
@@ -41,12 +44,11 @@ public class SetField extends Value {
     }
 
     /**
-     *
-     * @param scope this класса, поле которого меняется
-     * @param field поле класса
-     * @param value новое значение
-     * @param type тип присвоения
-     * @param point место в исходниках на переменную, значение которой меняется
+     * @param scope   this класса, поле которого меняется
+     * @param field   поле класса
+     * @param value   новое значение
+     * @param type    тип присвоения
+     * @param point   место в исходниках на переменную, значение которой меняется
      * @param opPoint место в исходниках на знак присвоения
      */
     public SetField(Value scope, VField field, Value value, Assign.AsType type, SourcePoint point, SourcePoint opPoint) {
@@ -79,12 +81,12 @@ public class SetField extends Value {
     @Override
     public void visit(ReplaceVisiter replaceControl) {
         super.visit(replaceControl);
-        ReplaceHelper.replace(scope,replaceControl).ifPresent(e->scope = e);
-        ReplaceHelper.replace(value,replaceControl).ifPresent(e->value = e);
+        ReplaceHelper.replace(scope, replaceControl).ifPresent(e -> scope = e);
+        ReplaceHelper.replace(value, replaceControl).ifPresent(e -> value = e);
     }
 
     @Override
     public void getUsing(Collect c) {
-        c.add(scope, field,value);
+        c.add(scope, field, value);
     }
 }
