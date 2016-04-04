@@ -53,7 +53,6 @@ class StatementCompiler {
             int pos = e.pos;
             String data = c.getFile().getData();
             String ss = data.substring(pos);
-            System.out.println("ss" + ss);
             SourcePoint sp = c.getFile().getPoint(e.pos);
             return new Return(v, sp);
         });

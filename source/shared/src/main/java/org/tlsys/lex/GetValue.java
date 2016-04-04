@@ -39,7 +39,7 @@ public class GetValue extends Value {
 
     @Override
     public void getUsing(Collect c) {
-        value.getUsing(c);
+        c.add(value);
     }
 
     @Override

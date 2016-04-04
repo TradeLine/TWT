@@ -1,6 +1,7 @@
 package org.tlsys.twt.build;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Task;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
@@ -88,8 +89,32 @@ public class GenerationTask extends DefaultTask {
         return outs;
     }
 
+    /*
+    private War war;
+    private AbstractCopyTask warIncluds;
+
+    private void includeFile(String f) {
+        if (war == null)
+            war = (War) getProject().getTasks().stream().filter(e->e instanceof War).findAny().get();
+        if (warIncluds == null)
+            warIncluds = war.from(getProject().getBuildDir());
+        warIncluds.include(f);
+        System.out.println("Include " + f);
+    }
+
+    private void includeSource(File sourceDir) {
+        //war.from(sourceDir).include("*");
+        war.from(sourceDir).include("*");
+    }
+*/
     @TaskAction
     public void samplePluginTasks() throws TaskExecutionException {
+
+        for (Task t : getProject().getTasks()) {
+            System.out.println("==>>" + t + ":" + t.getClass().getName() + " " + t.getClass().getSuperclass().getName());
+
+        }
+
         DLoader loader = new DLoader();
         try {
             AppCompiller.App app = null;
@@ -100,6 +125,10 @@ public class GenerationTask extends DefaultTask {
                     File sourceMap = new File(getProject().getBuildDir(), "sourcemap");
                     File mapFile = new File(sourceMap, gt.out() + ".map");
                     File outFile = new File(getProject().getBuildDir(), gt.out());
+                    //AbstractCopyTask warFiles = war.from(outFile.getParent());
+                    //includeFile(gt.out().toString());
+                    //includeFile(gt.out().toString() + ".map");
+
                     if (!sourceMap.exists())
                         sourceMap.mkdirs();
                     try (PrintStream ps1 = new PrintStream(new FileOutputStream(outFile), false, "UTF-8")) {
@@ -153,7 +182,8 @@ public class GenerationTask extends DefaultTask {
                             File sourceDir = new File(sourceMap, e.getName()).getParentFile();
                             if (!sourceDir.exists())
                                 sourceDir.mkdirs();
-                            try (OutputStream o = new FileOutputStream(new File(sourceMap, e.getName()))) {
+                            File f = new File(sourceMap, e.getName());
+                            try (OutputStream o = new FileOutputStream(f)) {
                                 o.write(e.getData().getBytes());
                                 o.flush();
                                 o.close();
@@ -163,6 +193,8 @@ public class GenerationTask extends DefaultTask {
                                 throw new RuntimeException(e1);
                             }
                         });
+
+                        //includeSource(sourceMap);
 
 
 

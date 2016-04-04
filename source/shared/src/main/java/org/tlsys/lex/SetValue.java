@@ -58,7 +58,8 @@ public class SetValue extends Value {
 
     @Override
     public void getUsing(Collect c) {
-        value.getUsing(c);
+        c.add(value).add(newValue);
+        //value.getUsing(c);
     }
 
     @Override

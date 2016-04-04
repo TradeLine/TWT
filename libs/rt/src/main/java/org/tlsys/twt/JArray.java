@@ -10,6 +10,15 @@ import java.lang.reflect.Array;
 public class JArray<E> {
     private Object o = Script.code("[]");
 
+    public static <T> T[] fromJSArray(Object array, Class<T> clazz) {
+        int len = CastUtil.toInt(Script.code(array, ".length"));
+        T[] m = CastUtil.cast(Array.newInstance(clazz, len));
+        for (int i = 0; i < len; i++) {
+            m[i] = Script.code(array, "[", i, "]");
+        }
+
+        return m;
+    }
 
     public Object getJSArray() {
         return o;
@@ -62,13 +71,10 @@ public class JArray<E> {
         return indexOf(value)>=0;
     }
 
-    public static <T> T[] fromJSArray(Object array, Class<T> clazz) {
-        int len = CastUtil.toInt(Script.code(array,".length"));
-        T[] m = CastUtil.cast(Array.newInstance(clazz, len));
-        for (int i = 0; i < len; i++) {
-            m[i] = Script.code(array,"[",i,"]");
-        }
-
+    public <T> T[] getAsArray(Class<T> clazz) {
+        T[] m = CastUtil.cast(Array.newInstance(clazz, length()));
+        for (int i = 0; i < length(); i++)
+            m[i] = CastUtil.cast(get(i));
         return m;
     }
 }

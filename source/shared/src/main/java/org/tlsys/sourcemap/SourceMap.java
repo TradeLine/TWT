@@ -12,45 +12,6 @@ public class SourceMap {
 
     //private Collection<Record> records;
 
-    private static class FileRecord {
-        private final int id;
-        private final SourceFile file;
-        private final ArrayList<Record> records = new ArrayList<>();
-
-        public FileRecord(int id, SourceFile file) {
-            this.file = file;
-            this.id = id;
-        }
-
-        public ArrayList<Record> getRecords() {
-            return records;
-        }
-
-        public SourceFile getFile() {
-            return file;
-        }
-
-        public void sort() {
-            records.sort((a,b)->{
-                int len = a.point.getRow() - b.point.getRow();
-                if (len != 0)
-                    return len;
-
-                int col = a.point.getColumn() - b.point.getColumn();
-                return col;
-            });
-        }
-    }
-
-    private FileRecord getOrCreateFileRecord(SourceFile sf) {
-        FileRecord fr = files.get(sf);
-        if (fr != null)
-            return fr;
-        fr = new FileRecord(files.keySet().size(), sf);
-        files.put(sf, fr);
-        return fr;
-    }
-
     public SourceMap(Collection<Record> records) {
         //this.records = records;
         for (Record r : records) {
@@ -69,6 +30,15 @@ public class SourceMap {
         for (FileRecord fr : files.values()) {
             fr.sort();
         }
+    }
+
+    private FileRecord getOrCreateFileRecord(SourceFile sf) {
+        FileRecord fr = files.get(sf);
+        if (fr != null)
+            return fr;
+        fr = new FileRecord(files.keySet().size(), sf);
+        files.put(sf, fr);
+        return fr;
     }
 
     public String generate() throws IOException {
@@ -103,7 +73,7 @@ public class SourceMap {
         first = true;
 
         ArrayList<FileRecord> fls = new ArrayList<FileRecord>(files.values());
-        fls.sort((a,b)->a.id-b.id);
+        fls.sort((a, b) -> a.id - b.id);
         for (FileRecord sf : fls) {
             if (!first)
                 sb.append(",");
@@ -128,6 +98,40 @@ public class SourceMap {
         return files.keySet();
     }
 
+    private int getFileId(SourceFile sf) {
+        return getOrCreateFileRecord(sf).id;
+    }
+
+    private static class FileRecord {
+        private final int id;
+        private final SourceFile file;
+        private final ArrayList<Record> records = new ArrayList<>();
+
+        public FileRecord(int id, SourceFile file) {
+            this.file = file;
+            this.id = id;
+        }
+
+        public ArrayList<Record> getRecords() {
+            return records;
+        }
+
+        public SourceFile getFile() {
+            return file;
+        }
+
+        public void sort() {
+            records.sort((a, b) -> {
+                int len = a.point.getRow() - b.point.getRow();
+                if (len != 0)
+                    return len;
+
+                int col = a.point.getColumn() - b.point.getColumn();
+                return col;
+            });
+        }
+    }
+
     private static class State {
         int file = 0;
         int sourceLine = 0;
@@ -136,11 +140,6 @@ public class SourceMap {
         int name = 0;
         SourceMap map;
     }
-
-    private int getFileId(SourceFile sf) {
-        return getOrCreateFileRecord(sf).id;
-    }
-
 
     public static class Record {
         private final SourceFile file;
@@ -175,7 +174,7 @@ public class SourceMap {
 
         public void write(Appendable out, State state) throws IOException {
 
-            System.out.println("--->" + getFile().getName() + " " + point.getRow()+":" + point.getColumn() + "==>" + column);
+            //System.out.println("--->" + getFile().getName() + " " + point.getRow()+":" + point.getColumn() + "==>" + column);
 
             Base64VLQ.encode(out, column - state.column);
             state.column = column;
