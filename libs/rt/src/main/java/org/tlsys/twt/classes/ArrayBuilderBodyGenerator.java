@@ -30,7 +30,7 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
             ps.append("t.").append(ArrayClass.SET).append("(i,").append(execute.getArguments().get(1).getRuntimeName()).append("[i]);");
             ps.append("}");
             ps.append("return t;");
-            ps.append("};\n");
+            ps.append("};");
             return;
         }
         /*

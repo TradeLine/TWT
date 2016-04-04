@@ -228,6 +228,33 @@ public class DefaultGenerator implements ICodeGenerator {
             //throw new RuntimeException("new operator not suppported");
         });
 
+        addGen(CodeExe.class, (c,o,p,g)->{
+            if (o.getExecute().getBlock() == null) {
+                p.append("null");
+                return false;
+            }
+            p.append("function(");
+            boolean first = true;
+            for (VArgument a : o.getExecute().getArguments()) {
+                if (!first)
+                    p.append(",");
+                p.append(a.getRuntimeName());
+                first = false;
+            }
+            p.append(")");
+
+            GenerationContext gc = new MainGenerationContext(o.getExecute().getParent(), c.getCompileModuls());
+
+            ICodeGenerator cg = gc.getGenerator(o.getExecute().getParent());
+            if (cg != g) {
+                return cg.operation(gc, o.getExecute().getBlock(), p);
+            }
+
+            g.operation(gc, o.getExecute().getBlock(), p);
+
+            return true;
+        });
+
         /*
         addGen(DeclareClass.class, (c, o, p, g) -> {
             VClass stringClass = c.getCurrentClass().getClassLoader().loadClass(String.class.getName());
@@ -307,7 +334,8 @@ public class DefaultGenerator implements ICodeGenerator {
 
 
             g.operation(c, o.getScope(), p);
-            p.append(".").add(o.getField().getRuntimeName(), o.getPoint(), o.getField().getRealName()).append("=");
+            p.append(".").add(o.getField().getRuntimeName(), o.getPoint(), o.getField().getRealName())
+                    .add("=", o.getOpPoint());
             g.operation(c, o.getValue(), p);
             return true;
         });

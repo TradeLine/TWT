@@ -29,7 +29,7 @@ public class ArrayCodeGenerator implements ICodeGenerator {
             ps.append(";");
 
             ps.append("this.").append(ac.jsArray.getRuntimeName()).append("=new Array(").append(execute.getArguments().get(0).getRuntimeName()).append(");");
-            defaultCG.operation(ctx, new SetField(new This(ac), ac.lengthField, execute.getArguments().get(0), Assign.AsType.ASSIGN, null), ps);
+            defaultCG.operation(ctx, new SetField(new This(ac), ac.lengthField, execute.getArguments().get(0), Assign.AsType.ASSIGN, null, null), ps);
             ps.append(";");
             return;
         }

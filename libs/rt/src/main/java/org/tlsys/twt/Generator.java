@@ -130,6 +130,7 @@ public class Generator implements MainGenerator {
 
 
 
+            /*
             if (e.getBlock() == null)
                 newMethod.arguments.add(new Const(null, objectClass));
             else {
@@ -162,6 +163,8 @@ public class Generator implements MainGenerator {
 
                 newMethod.arguments.add(inv);
             }
+            */
+            newMethod.addArg(new CodeExe(e));
             newMethod.arguments.add(new Const(e.isStatic(), classBoolean));
 
             for (VArgument a : e.getArguments()) {

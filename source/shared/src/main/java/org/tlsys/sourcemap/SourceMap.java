@@ -3,24 +3,71 @@ package org.tlsys.sourcemap;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 public class SourceMap {
 
-    private ArrayList<SourceFile> files = new ArrayList<>();
+    private HashMap<SourceFile, FileRecord> files = new HashMap<>();
     private ArrayList<String> names = new ArrayList<>();
 
-    private Collection<Record> records;
+    //private Collection<Record> records;
+
+    private static class FileRecord {
+        private final int id;
+        private final SourceFile file;
+        private final ArrayList<Record> records = new ArrayList<>();
+
+        public FileRecord(int id, SourceFile file) {
+            this.file = file;
+            this.id = id;
+        }
+
+        public ArrayList<Record> getRecords() {
+            return records;
+        }
+
+        public SourceFile getFile() {
+            return file;
+        }
+
+        public void sort() {
+            records.sort((a,b)->{
+                int len = a.point.getRow() - b.point.getRow();
+                if (len != 0)
+                    return len;
+
+                int col = a.point.getColumn() - b.point.getColumn();
+                return col;
+            });
+        }
+    }
+
+    private FileRecord getOrCreateFileRecord(SourceFile sf) {
+        FileRecord fr = files.get(sf);
+        if (fr != null)
+            return fr;
+        fr = new FileRecord(files.keySet().size(), sf);
+        files.put(sf, fr);
+        return fr;
+    }
 
     public SourceMap(Collection<Record> records) {
-        this.records = records;
+        //this.records = records;
         for (Record r : records) {
+            getOrCreateFileRecord(r.getFile()).getRecords().add(r);
+            /*
             if (!files.contains(r.getFile()))
                 files.add(r.getFile());
+                */
 
             if (r.getName() != null) {
                 if (!names.contains(r.getName()))
                     names.add(r.getName());
             }
+        }
+
+        for (FileRecord fr : files.values()) {
+            fr.sort();
         }
     }
 
@@ -36,20 +83,31 @@ public class SourceMap {
         boolean first = true;
         State state = new State();
         state.map = this;
-        for (Record r : records) {
-            if (!first)
-                sb.append(",");
-            r.write(sb, state);
-            first = false;
+        for (FileRecord fr : files.values()) {
+            /*
+            state.column = 0;
+            state.name = 0;
+            state.name = 0;
+            state.file = 0;
+            */
+            for (Record r : fr.records) {
+                if (!first)
+                    sb.append(",");
+                r.write(sb, state);
+                first = false;
+            }
         }
         //Вставляем разметку
         sb.append("\",\n");
         sb.append("\"sources\":[");
         first = true;
-        for (SourceFile sf : files) {
+
+        ArrayList<FileRecord> fls = new ArrayList<FileRecord>(files.values());
+        fls.sort((a,b)->a.id-b.id);
+        for (FileRecord sf : fls) {
             if (!first)
                 sb.append(",");
-            sb.append("\"").append(sf.getName()).append("\"");
+            sb.append("\"").append(sf.file.getName()).append("\"");
             first = false;
         }
         //Вставляем имена файлов
@@ -66,8 +124,8 @@ public class SourceMap {
         sb.append("]\n}");
     }
 
-    public ArrayList<SourceFile> getFiles() {
-        return files;
+    public Collection<SourceFile> getFiles() {
+        return files.keySet();
     }
 
     private static class State {
@@ -77,6 +135,10 @@ public class SourceMap {
         int column = 0;
         int name = 0;
         SourceMap map;
+    }
+
+    private int getFileId(SourceFile sf) {
+        return getOrCreateFileRecord(sf).id;
     }
 
 
@@ -101,19 +163,24 @@ public class SourceMap {
             return point;
         }
 
+        /*
         public int getColumn() {
             return column;
         }
+        */
 
         public String getName() {
             return name;
         }
 
         public void write(Appendable out, State state) throws IOException {
+
+            System.out.println("--->" + getFile().getName() + " " + point.getRow()+":" + point.getColumn() + "==>" + column);
+
             Base64VLQ.encode(out, column - state.column);
             state.column = column;
 
-            int fileIndex = state.map.files.indexOf(file);
+            int fileIndex = state.map.getFileId(file);
             Base64VLQ.encode(out, fileIndex - state.file);
             state.file = fileIndex;
 

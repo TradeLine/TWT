@@ -423,7 +423,7 @@ class OperationCompiler {
             Value v2 = c.op(e.rhs, o);
             if (v instanceof GetField) {
                 GetField gf = (GetField) v;
-                SetField sf = new SetField(gf.getScope(), gf.getField(), v2, Assign.AsType.ASSIGN, gf.getPoint());
+                SetField sf = new SetField(gf.getScope(), gf.getField(), v2, Assign.AsType.ASSIGN, gf.getPoint(), c.getFile().getPoint(e.pos));
                 return sf;
             }
 
@@ -456,7 +456,7 @@ class OperationCompiler {
             }
             if (v instanceof GetField) {
                 GetField gf = (GetField) v;
-                SetField sf = new SetField(gf.getScope(), gf.getField(), v2, type, gf.getPoint());
+                SetField sf = new SetField(gf.getScope(), gf.getField(), v2, type, gf.getPoint(), c.getFile().getPoint(e.pos));
                 return sf;
             }
             if (v instanceof GetValue) {

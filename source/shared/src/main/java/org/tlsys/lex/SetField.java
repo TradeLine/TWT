@@ -19,6 +19,7 @@ public class SetField extends Value {
     private Value value;
     private Assign.AsType type;
     private SourcePoint point;
+    private SourcePoint opPoint;
 
     public SetField() {
     }
@@ -35,12 +36,26 @@ public class SetField extends Value {
         return value;
     }
 
-    public SetField(Value scope, VField field, Value value, Assign.AsType type, SourcePoint point) {
+    public SourcePoint getOpPoint() {
+        return opPoint;
+    }
+
+    /**
+     *
+     * @param scope this класса, поле которого меняется
+     * @param field поле класса
+     * @param value новое значение
+     * @param type тип присвоения
+     * @param point место в исходниках на переменную, значение которой меняется
+     * @param opPoint место в исходниках на знак присвоения
+     */
+    public SetField(Value scope, VField field, Value value, Assign.AsType type, SourcePoint point, SourcePoint opPoint) {
         this.scope = scope;
         this.field = field;
         this.value = value;
         this.type = type;
         this.point = point;
+        this.opPoint = opPoint;
     }
 
     public SourcePoint getPoint() {

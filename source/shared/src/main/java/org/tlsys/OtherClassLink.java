@@ -129,7 +129,7 @@ public class OtherClassLink implements ClassModificator {
             if (args.length != 1)
                 throw new RuntimeException("Bad argument count");
                 */
-            sf = new SetField(new This(constructor.getParent()), otherClassLink.otherClassLink.getField(), otherClassLink.getArg(), Assign.AsType.ASSIGN, null);
+            sf = new SetField(new This(constructor.getParent()), otherClassLink.otherClassLink.getField(), otherClassLink.getArg(), Assign.AsType.ASSIGN, null, null);
         }
 
         @Override

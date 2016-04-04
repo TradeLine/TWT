@@ -11,6 +11,7 @@ public class Main {
     private int aaa;
 
     public Main(int aaab) {
+        Console.info("???");
         aaa = aaab;
     }
 
@@ -104,6 +105,7 @@ public class Main {
 
 
         Script.setTimeout(5000, new Script.TimeoutCallback() {
+            @ForceInject
             @Override
             public void onTimeout() {
                 throw new RuntimeException("ERROR!");
