@@ -1,29 +1,35 @@
 package org.tlsys.lex;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VClassNotFoundException;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class InstanceOf extends Value {
+public class InstanceOf extends Value implements HavinSourceStart {
 
     private static final long serialVersionUID = -7698411563310867474L;
     private Value value;
     private VClass clazz;
     private VClass result;
+    private final SourcePoint point;
 
-    public InstanceOf() {
-    }
-
-    public InstanceOf(Value value, VClass clazz) throws VClassNotFoundException {
+    public InstanceOf(Value value, VClass clazz, SourcePoint point) throws VClassNotFoundException {
         this.value = Objects.requireNonNull(value);
         this.clazz = Objects.requireNonNull(clazz);
         result = clazz.getClassLoader().loadClass(boolean.class.getName());
+        this.point = point;
+    }
+
+    @Override
+    public SourcePoint getPoint() {
+        return point;
     }
 
     @Override

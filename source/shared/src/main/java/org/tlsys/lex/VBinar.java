@@ -1,5 +1,6 @@
 package org.tlsys.lex;
 
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
@@ -9,7 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class VBinar extends Value {
+public class VBinar extends Value implements HavinSourceStart {
     private static final long serialVersionUID = -3696864346645818468L;
     private final SourcePoint point;
     private Value left;
@@ -41,6 +42,7 @@ public class VBinar extends Value {
         return result;
     }
 
+    @Override
     public SourcePoint getPoint() {
         return point;
     }

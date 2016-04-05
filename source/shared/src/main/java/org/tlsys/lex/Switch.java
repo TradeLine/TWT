@@ -1,5 +1,6 @@
 package org.tlsys.lex;
 
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class Switch extends Operation {
+public class Switch extends Operation implements HavinSourceStart {
 
     private static final long serialVersionUID = -25265118011887293L;
     public final ArrayList<Case> cases = new ArrayList<>();
@@ -23,6 +24,7 @@ public class Switch extends Operation {
         this.point = point;
     }
 
+    @Override
     public SourcePoint getPoint() {
         return point;
     }
@@ -76,7 +78,7 @@ public class Switch extends Operation {
         }
     }
 
-    public static class Case extends Operation {
+    public static class Case extends Operation implements HavinSourceStart {
         private static final long serialVersionUID = 6250212035497367710L;
         public Value value;
         public VBlock block;
@@ -88,6 +90,7 @@ public class Switch extends Operation {
             this.point = point;
         }
 
+        @Override
         public SourcePoint getPoint() {
             return point;
         }

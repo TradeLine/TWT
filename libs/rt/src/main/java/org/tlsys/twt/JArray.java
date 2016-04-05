@@ -71,10 +71,12 @@ public class JArray<E> {
         return indexOf(value)>=0;
     }
 
+    /*
     public <T> T[] getAsArray(Class<T> clazz) {
         T[] m = CastUtil.cast(Array.newInstance(clazz, length()));
         for (int i = 0; i < length(); i++)
             m[i] = CastUtil.cast(get(i));
         return m;
     }
+    */
 }

@@ -211,6 +211,8 @@ public class TClass {
                     a.add(mr.getArguments().get(j).getName());
                 }
 
+
+                Console.info(cr.getName() + ", DOM=" + cr.getDomNode());
                 if (domNode == null) {
 
                     a.add(Script.code("'var o = new ", cons, "();" + "o.'+", mr.getJsName(), "+'.apply(o,arguments); return o;'"));

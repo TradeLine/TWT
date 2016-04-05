@@ -474,7 +474,7 @@ class OperationCompiler {
         });
 
         addProc(JCTree.JCInstanceOf.class, (c, e, o) -> {
-            InstanceOf i = new InstanceOf(c.op(e.expr, o), c.loadClass(e.clazz.type));
+            InstanceOf i = new InstanceOf(c.op(e.expr, o), c.loadClass(e.clazz.type), c.getFile().getPoint(e.pos));
             return i;
         });
 

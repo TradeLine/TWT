@@ -55,6 +55,9 @@ war {
     from('./build/main.js') {
         include 'main.js'
     }
+    from('./build') {
+        include "sourcemap/"
+    }
 }
 
 build{

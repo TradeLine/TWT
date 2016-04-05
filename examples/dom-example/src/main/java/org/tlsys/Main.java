@@ -15,7 +15,13 @@ public class Main {
         aaa = aaab;
     }
 
+    public static void giveException() {
+        throw new RuntimeException("ERROR!");
+    }
+
     public static void main() {
+
+
 
         /*
         Tabs tabs = new Tabs();
@@ -108,7 +114,7 @@ public class Main {
             @ForceInject
             @Override
             public void onTimeout() {
-                throw new RuntimeException("ERROR!");
+                Main.this.giveException();
             }
         });
 

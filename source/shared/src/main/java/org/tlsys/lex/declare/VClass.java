@@ -100,7 +100,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     public List<VField> getLocalFields() {
         List<VField> f = new ArrayList<>(fields);
         for (ClassModificator cm : mods)
-        f = cm.getFields(f);
+            f = cm.getFields(f);
         return f;
     }
 
@@ -359,7 +359,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             throw new MethodNotFoundException(symbol);
         }
     }
-
 
 
     private List<VClass> getMethodArgs(Symbol.MethodSymbol symbol) throws VClassNotFoundException {

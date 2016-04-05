@@ -61,6 +61,10 @@ public class Outbuffer implements Appendable {
     private ArrayList<SourceMap.Record> records = new ArrayList<>();
 
     public Outbuffer add(CharSequence csq, SourcePoint point, String name) {
+        return add(csq, point, getCurrent(), name);
+    }
+
+    public Outbuffer add(CharSequence csq, SourcePoint point, int pos, String name) {
         if (point != null)
             records.add(new SourceMap.Record(point.getSourceFile(), point, current, name));
         append(csq);
@@ -68,7 +72,11 @@ public class Outbuffer implements Appendable {
     }
 
     public Outbuffer add(CharSequence csq, SourcePoint point) {
-        return add(csq, point, null);
+        return add(csq, point, getCurrent(), null);
+    }
+
+    public Outbuffer add(CharSequence csq, SourcePoint point, int pos) {
+        return add(csq, point, pos, null);
     }
 
     public List<SourceMap.Record> getRecords() {

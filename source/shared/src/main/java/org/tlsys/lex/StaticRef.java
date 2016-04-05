@@ -1,12 +1,13 @@
 package org.tlsys.lex;
 
+import org.tlsys.HavinSourceStart;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class StaticRef extends Value {
+public class StaticRef extends Value implements HavinSourceStart {
     private static final long serialVersionUID = 437232639032642594L;
     private final SourcePoint point;
     private VClass ref;
@@ -28,6 +29,7 @@ public class StaticRef extends Value {
         this.ref = ref;
     }
 
+    @Override
     public SourcePoint getPoint() {
         return point;
     }

@@ -1,6 +1,7 @@
 package org.tlsys.lex;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
@@ -13,7 +14,7 @@ import java.util.function.Predicate;
 /**
  * Created by Антон on 16.01.2016.
  */
-public class Parens extends Value {
+public class Parens extends Value implements HavinSourceStart {
 
     private static final long serialVersionUID = -2233739865356402799L;
     private Value value;
@@ -24,6 +25,11 @@ public class Parens extends Value {
     }
 
     public Parens() {
+    }
+
+    @Override
+    public SourcePoint getPoint() {
+        return point;
     }
 
     public Parens(Value value, SourcePoint point) {

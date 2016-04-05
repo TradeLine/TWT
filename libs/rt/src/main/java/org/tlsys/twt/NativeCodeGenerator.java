@@ -107,12 +107,12 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             return;
         }
         generateMethodStart(ctx, meth, ps);
-        ps.append("{");
+        ps.add("{", meth.getBlock().getStartPoint());
         for (Operation o : meth.getBlock().getOperations()) {
             if (operation(ctx, o, ps)) ;
                 ps.append(";");
         }
-        ps.append("}");
+        ps.add("}", meth.getBlock().getEndPoint());
         generateMethodEnd(ctx, meth, ps);
     }
 
@@ -127,8 +127,8 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
                 return false;
 
             /*
-            if(inv.getSelf() instanceof Lambda) {
-                operation(ctx, inv.getSelf(), ps);
+            if(inv.getScope() instanceof Lambda) {
+                operation(ctx, inv.getScope(), ps);
                 ps.append(".call(this");
                 for (Value v : inv.arguments) {
                     ps.append(",");
@@ -145,13 +145,18 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ICodeGenerator icg = ctx.getGenerator(sr.getType());
             if (icg != this)
                 return icg.operation(ctx, op, ps);
-            ps.append(sr.getType().fullName);
+            ps.add(sr.getType().fullName, sr.getPoint(), sr.getType().getRealName());
+            ps.append("/*FROM NATIVE 222*/");
             return true;
         }
 
         if (op instanceof ClassRef) {
             ClassRef sr = (ClassRef) op;
-            ps.append(sr.refTo.fullName);
+            ICodeGenerator icg = ctx.getGenerator(sr.refTo);
+            if (icg != this)
+                return icg.operation(ctx, op, ps);
+            ps.add(sr.refTo.fullName, sr.getPoint(), sr.refTo.getRealName());
+            ps.append("/*FROM NATIVE 111*/");
             return true;
         }
 /*
@@ -180,7 +185,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             for(VArgument a : l.getMethod().getArguments()) {
                 if(!first)
                     ps.append(",");
-                ps.append(a.getRuntimeName());
+                ps.add(a.getRuntimeName(), a.getPoint(), a.getRealName());
                 first = false;
             }
             ps.append(")");

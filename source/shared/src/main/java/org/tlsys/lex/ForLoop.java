@@ -1,5 +1,6 @@
 package org.tlsys.lex;
 
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
@@ -9,7 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class ForLoop extends Operation {
+public class ForLoop extends Operation implements HavinSourceStart {
 
     private static final long serialVersionUID = -4797382272772179337L;
     public Operation init;
@@ -31,6 +32,7 @@ public class ForLoop extends Operation {
         return parentContext;
     }
 
+    @Override
     public SourcePoint getPoint() {
         return point;
     }

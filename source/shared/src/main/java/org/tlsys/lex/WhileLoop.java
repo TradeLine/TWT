@@ -1,5 +1,6 @@
 package org.tlsys.lex;
 
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
@@ -8,7 +9,7 @@ import org.tlsys.sourcemap.SourcePoint;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class WhileLoop extends Operation {
+public class WhileLoop extends Operation implements HavinSourceStart {
     private static final long serialVersionUID = 2948321800645905286L;
     public Value value;
 
@@ -24,6 +25,7 @@ public class WhileLoop extends Operation {
     public WhileLoop() {
     }
 
+    @Override
     public SourcePoint getPoint() {
         return point;
     }

@@ -6,12 +6,10 @@ import org.tlsys.lex.StaticRef;
 import org.tlsys.lex.Value;
 import org.tlsys.lex.declare.VClass;
 
-import java.io.PrintStream;
-
 public class ApplyInvoke implements InvokeGenerator {
     @Override
     public boolean generate(GenerationContext ctx, Invoke invoke, Outbuffer ps) throws CompileException {
-        VClass clazz = invoke.getSelf().getType();
+        VClass clazz = invoke.getScope().getType();
         ICodeGenerator icg = ctx.getGenerator(clazz);
         if (invoke.getMethod().isStatic()) {
             icg.operation(ctx, new StaticRef(clazz), ps);
@@ -21,7 +19,7 @@ public class ApplyInvoke implements InvokeGenerator {
             ps.append(".").append(classClass.getField("cons").getRuntimeName()).append(".prototype");
         }
         ps.append(".").append(invoke.getMethod().getRunTimeName()).append(".call(");
-        icg.operation(ctx, invoke.getSelf(), ps);
+        icg.operation(ctx, invoke.getScope(), ps);
         for (Value v : invoke.arguments) {
             ps.append(",");
             icg.operation(ctx, v, ps);

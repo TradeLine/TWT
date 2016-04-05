@@ -1,12 +1,13 @@
 package org.tlsys.lex;
 
+import org.tlsys.HavinSourceStart;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class Const extends Value {
+public class Const extends Value implements HavinSourceStart {
 
     private static final long serialVersionUID = -6904428609017177692L;
     private Object value;
@@ -26,6 +27,7 @@ public class Const extends Value {
         this.point = point;
     }
 
+    @Override
     public SourcePoint getPoint() {
         return point;
     }

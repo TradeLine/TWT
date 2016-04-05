@@ -1,10 +1,12 @@
 package org.tlsys.lex;
 
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.DeclareVar;
 import org.tlsys.lex.declare.VBlock;
 import org.tlsys.lex.declare.VClass;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,18 +14,22 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class Try extends Operation {
+public class Try extends Operation implements HavinSourceStart {
 
     private static final long serialVersionUID = 8100497016534329612L;
     public ArrayList<Catch> catchs = new ArrayList<>();
     public VBlock block;
     private Context parentContext;
+    private final SourcePoint point;
 
-    public Try() {
+    public Try(Context parentContext, SourcePoint point) {
+        this.parentContext = Objects.requireNonNull(parentContext);
+        this.point = point;
     }
 
-    public Try(Context parentContext) {
-        this.parentContext = Objects.requireNonNull(parentContext);
+    @Override
+    public SourcePoint getPoint() {
+        return point;
     }
 
     public Context getParentContext() {
@@ -56,16 +62,23 @@ public class Try extends Operation {
         }
     }
 
-    public static class Catch extends Operation implements Context, Using, Serializable {
+    public static class Catch extends Operation implements Context, Using, Serializable, HavinSourceStart {
         private static final long serialVersionUID = 3242922465596941371L;
         public ArrayList<VClass> classes = new ArrayList<>();
         public VBlock block;
         private Context parentContext;
         private DeclareVar declareVar;
+        private final SourcePoint point;
 
-        public Catch(Context parentContext, DeclareVar declareVar) {
+        public Catch(Context parentContext, DeclareVar declareVar, SourcePoint point) {
             this.parentContext = parentContext;
             this.declareVar = declareVar;
+            this.point = point;
+        }
+
+        @Override
+        public SourcePoint getPoint() {
+            return point;
         }
 
         public DeclareVar getDeclareVar() {

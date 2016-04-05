@@ -1,5 +1,6 @@
 package org.tlsys.lex;
 
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
@@ -11,7 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class Invoke extends Value {
+public class Invoke extends Value implements HavinSourceStart, HavingScope {
     private static final long serialVersionUID = -2146704597568339297L;
     private VExecute method;
     public ArrayList<Value> arguments = new ArrayList<>();
@@ -32,6 +33,7 @@ public class Invoke extends Value {
         this.point = point;
     }
 
+    @Override
     public SourcePoint getPoint() {
         return point;
     }
@@ -41,7 +43,8 @@ public class Invoke extends Value {
         return this;
     }
 
-    public Value getSelf() {
+    @Override
+    public Value getScope() {
         return self;
     }
 

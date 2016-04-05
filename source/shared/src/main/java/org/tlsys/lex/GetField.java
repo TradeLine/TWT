@@ -1,5 +1,6 @@
 package org.tlsys.lex;
 
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
@@ -9,7 +10,7 @@ import org.tlsys.sourcemap.SourcePoint;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class GetField extends Value {
+public class GetField extends Value implements HavinSourceStart, HavingScope {
     private static final long serialVersionUID = -7101816406223385083L;
     private Value scope;
     private VField field;
@@ -24,10 +25,12 @@ public class GetField extends Value {
         this.point = point;
     }
 
+    @Override
     public SourcePoint getPoint() {
         return point;
     }
 
+    @Override
     public Value getScope() {
         return scope;
     }

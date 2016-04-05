@@ -1,11 +1,12 @@
 package org.tlsys.lex;
 
+import org.tlsys.HavinSourceStart;
 import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class Break extends Operation {
+public class Break extends Operation implements HavinSourceStart {
 
     private static final long serialVersionUID = 4299151552383535159L;
     private Label label;
@@ -23,6 +24,7 @@ public class Break extends Operation {
         return label;
     }
 
+    @Override
     public SourcePoint getPoint() {
         return point;
     }

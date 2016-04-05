@@ -245,12 +245,12 @@ class StatementCompiler {
         addProcSt(JCTree.JCTry.class, (c, e, o) -> {
             if (e.resources != null && !e.resources.isEmpty())
                 throw new RuntimeException("Try with resurce not supported yet");
-            Try tr = new Try(o);
+            Try tr = new Try(o, c.getFile().getPoint(e.pos));
             tr.block = (VBlock) c.st(e.body, o);
             for (JCTree.JCCatch ca : e.catchers) {
                 SVar var = new SVar(ca.param.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ca.param.type), null);
                 DeclareVar dv = new DeclareVar(var, c.getFile().getPoint(ca.getParameter().pos));
-                Try.Catch cc = new Try.Catch(tr, dv);
+                Try.Catch cc = new Try.Catch(tr, dv, c.getFile().getPoint(ca.pos));
                 var.setParentContext(cc);
                 if (ca.param.vartype instanceof JCTree.JCTypeUnion) {
                     JCTree.JCTypeUnion ut = (JCTree.JCTypeUnion)ca.param.vartype;

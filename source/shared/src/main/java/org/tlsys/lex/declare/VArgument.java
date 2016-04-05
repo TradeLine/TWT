@@ -1,11 +1,12 @@
 package org.tlsys.lex.declare;
 
 import org.tlsys.ArgumentModificator;
+import org.tlsys.HavinSourceStart;
 import org.tlsys.lex.Context;
 import org.tlsys.lex.SVar;
 import org.tlsys.sourcemap.SourcePoint;
 
-public class VArgument extends SVar {
+public class VArgument extends SVar implements HavinSourceStart {
     private static final long serialVersionUID = 8365717984255691676L;
     public final boolean var;
     public final  boolean generic;
@@ -32,6 +33,7 @@ public class VArgument extends SVar {
         this.creator = creator;
     }
 
+    @Override
     public SourcePoint getPoint() {
         return point;
     }

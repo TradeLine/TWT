@@ -1,5 +1,6 @@
 package org.tlsys.lex;
 
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
@@ -8,7 +9,7 @@ import org.tlsys.sourcemap.SourcePoint;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class SetValue extends Value {
+public class SetValue extends Value implements HavinSourceStart {
     private static final long serialVersionUID = 5692500074947385879L;
     private final SourcePoint point;
     private final SourcePoint operationPoint;
@@ -42,6 +43,7 @@ public class SetValue extends Value {
         return value;
     }
 
+    @Override
     public SourcePoint getPoint() {
         return point;
     }

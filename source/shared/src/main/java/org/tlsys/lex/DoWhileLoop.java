@@ -1,5 +1,6 @@
 package org.tlsys.lex;
 
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
@@ -9,7 +10,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 
-public class DoWhileLoop extends Operation {
+public class DoWhileLoop extends Operation implements HavinSourceStart {
     private static final long serialVersionUID = 208497674134567764L;
 
     public Value value;
@@ -26,6 +27,7 @@ public class DoWhileLoop extends Operation {
     public DoWhileLoop() {
     }
 
+    @Override
     public SourcePoint getPoint() {
         return point;
     }

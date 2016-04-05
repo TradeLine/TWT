@@ -1,5 +1,6 @@
 package org.tlsys.lex;
 
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class NewClass extends Value {
+public class NewClass extends Value implements HavinSourceStart {
     private static final long serialVersionUID = -2655271103608417622L;
     public VConstructor constructor;
     public ArrayList<Value> arguments = new ArrayList<>();
@@ -24,6 +25,7 @@ public class NewClass extends Value {
         this.point = sourcePoint;
     }
 
+    @Override
     public SourcePoint getPoint() {
         return point;
     }
