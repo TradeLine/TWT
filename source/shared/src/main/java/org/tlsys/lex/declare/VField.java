@@ -2,8 +2,8 @@ package org.tlsys.lex.declare;
 
 import org.tlsys.lex.Collect;
 import org.tlsys.lex.Context;
-import org.tlsys.lex.Operation;
 import org.tlsys.lex.VVar;
+import org.tlsys.lex.Value;
 
 import java.io.*;
 import java.util.Optional;
@@ -12,8 +12,8 @@ import java.util.function.Predicate;
 public class VField extends VVar implements Member, CodeDynLoad {
 
     private static final long serialVersionUID = -652517458481464235L;
-    public transient Operation init;
     private final int modificators;
+    public transient Value init;
     //private final VClass parent;
 
     public VField(String realName, VClass clazz, int modificators, VClass parent) {
@@ -69,7 +69,7 @@ public class VField extends VVar implements Member, CodeDynLoad {
     public void loadCode(ObjectInputStream input) throws IOException, ClassNotFoundException {
         if (input.readBoolean()) {
             Object o = input.readObject();
-            init = (Operation) o;
+            init = (Value) o;
         } else
             init = null;
     }
@@ -82,6 +82,7 @@ public class VField extends VVar implements Member, CodeDynLoad {
     }
 
     private static class FieldRef implements Serializable {
+        private static final long serialVersionUID = -1967975223687035241L;
         private String name;
         private VClass parent;
 

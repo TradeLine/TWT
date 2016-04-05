@@ -18,6 +18,10 @@ public class VBinar extends Value implements HavinSourceStart {
     private VClass result;
     private BitType type;
 
+    public VBinar(Value left, Value right, VClass result, BitType type) {
+        this(left, right, result, type, null);
+    }
+
     public VBinar(Value left, Value right, VClass result, BitType type, SourcePoint point) {
         this.type = type;
         this.left = Objects.requireNonNull(left);

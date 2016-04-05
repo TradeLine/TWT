@@ -260,6 +260,7 @@ public class Generator implements MainGenerator {
         }
 
         for (CompileModuls.ClassRecord cr : nativs) {
+            //cr.getClazz().addMod(new InitClassMod());
             MainGenerationContext gc = new MainGenerationContext(cr.getClazz(), compileModuls);
             ICodeGenerator icg = gc.getGenerator(cr.getClazz());
             icg.generateClass(gc, cr, ps);
@@ -281,6 +282,7 @@ public class Generator implements MainGenerator {
 
 
         for (CompileModuls.ClassRecord cr : others) {
+            cr.getClazz().addMod(new InitClassMod());
             Value lastScope = genClassRecord(gc, cr.getClazz(),
                     ee -> cr.getExe().contains(ee),
                     () -> new NewClass(classClassRecord.constructors.get(0), null)

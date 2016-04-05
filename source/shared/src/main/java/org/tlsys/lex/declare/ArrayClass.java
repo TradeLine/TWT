@@ -86,8 +86,8 @@ public class ArrayClass extends VClass {
         set.setBlock(new VBlock(set, null, null));
         set.setModificators(Modifier.PUBLIC);
 
-        set.generator = ArrayCodeGenerator.class.getName();
-        get.generator = ArrayCodeGenerator.class.getName();
+        //set.generator = ArrayCodeGenerator.class.getName();
+        //get.generator = ArrayCodeGenerator.class.getName();
 
         methods.add(get);
         methods.add(set);
@@ -96,7 +96,7 @@ public class ArrayClass extends VClass {
         constructor.setModificators(Modifier.PUBLIC);
         constructor.setRuntimeName(CONSTRUCTOR);
         constructor.addArg(new VArgument("l", intType, false, false, constructor, null, null));
-        constructor.generator = ArrayCodeGenerator.class.getName();
+        //constructor.generator = ArrayCodeGenerator.class.getName();
         constructor.setBlock(new VBlock(constructor, null, null));
         constructor.returnType = intType.getClassLoader().loadClass("void");
         constructors.add(constructor);

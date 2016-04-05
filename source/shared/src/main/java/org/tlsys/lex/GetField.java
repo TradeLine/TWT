@@ -19,6 +19,10 @@ public class GetField extends Value implements HavinSourceStart, HavingScope {
     public GetField() {
     }
 
+    public GetField(Value scope, VField field) {
+        this(scope, field, null);
+    }
+
     public GetField(Value scope, VField field, SourcePoint point) {
         this.scope = scope;
         this.field = field;

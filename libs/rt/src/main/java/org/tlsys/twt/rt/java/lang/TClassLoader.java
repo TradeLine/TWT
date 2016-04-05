@@ -1,9 +1,9 @@
 package org.tlsys.twt.rt.java.lang;
 
-import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
-import org.tlsys.twt.annotations.*;
-import org.tlsys.twt.NativeCodeGenerator;
+import org.tlsys.twt.annotations.ClassName;
+import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.annotations.ReplaceClass;
 
 //@CodeGenerator(NativeCodeGenerator.class)
 @JSClass
@@ -20,10 +20,12 @@ public class TClassLoader/* implements JSClassLoader*/ {
         return null;
     }
 
+    /*
     public Class<?> getClass(Object object) {
         TClass clazz = CastUtil.cast(object);
         if (!clazz.isInited())
             clazz.init();
         return CastUtil.cast(clazz);
     }
+    */
 }

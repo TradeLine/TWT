@@ -120,7 +120,7 @@ public class Json {
             if (className == null || Script.isUndefined(className)) {
                 objClass = needClass;
             }else {
-                objClass = ClassStorage.get().getByName(className);
+                objClass = ClassStorage.get().getByName(className).getAsClass();
             }
 
             if (objClass == boolean.class)

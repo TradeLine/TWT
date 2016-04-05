@@ -23,6 +23,20 @@ public class TObject {
     public TObject() {
     }
 
+    public static Class getClassOfObject(Object object) {
+        if (Script.typeOf(object) == "number") {
+            if (Script.code(object, "%1===0"))
+                return Integer.class;
+            else
+                return Float.class;
+        }
+
+        if (Script.typeOf(object) == "string")
+            return String.class;
+        //return Script.code(object,"[",TClass.CLASS_IMP,"]");
+        throw new RuntimeException("ERROR!!!");
+    }
+
     @Override
     public int hashCode() {
         return hashCode;
@@ -41,18 +55,5 @@ public class TObject {
 
     public boolean equals(Object obj) {
         return Script.code(this.hashCode(),"==",obj.hashCode());
-    }
-
-    public static Class getClassOfObject(Object object) {
-        if (Script.typeOf(object) == "number") {
-            if (Script.code(object,"%1===0"))
-                return Integer.class;
-            else
-                return Float.class;
-        }
-
-        if (Script.typeOf(object) == "string")
-            return String.class;
-        return Script.code(object,"[",TClass.CLASS_IMP,"]");
     }
 }

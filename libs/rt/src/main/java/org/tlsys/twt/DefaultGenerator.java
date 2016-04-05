@@ -1,11 +1,13 @@
 package org.tlsys.twt;
 
+import org.tlsys.CodeBuilder;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.sourcemap.SourcePoint;
 import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.classes.ArrayBuilder;
+import org.tlsys.twt.classes.ClassRecord;
 import org.tlsys.twt.classes.ClassStorage;
 
 import java.lang.reflect.Modifier;
@@ -64,9 +66,12 @@ public class DefaultGenerator implements ICodeGenerator {
                 return icg.generate(c, o, p);
             }
 
+            if (o.getScope() instanceof This && o.getMethod() instanceof VConstructor)
+                System.out.println("!!!");
+
             ICodeGenerator icg2 = c.getGenerator(o.getMethod());
-            if (icg != null && icg != g)
-                return icg.generate(c, o, p);
+            if (icg2 != null && icg2 != g)
+                return icg2.operation(c, o, p);
 
             Predicate<Boolean> printArg = f -> {
                 try {
@@ -94,9 +99,20 @@ public class DefaultGenerator implements ICodeGenerator {
             */
 
             if (o.getScope() instanceof This) {//вызов конструктора
+                p.append("/*");
+                p.append("Scope is THIS");
+
+                if (o.getMethod() instanceof VConstructor)
+                    p.append(", METHOD is CONSTRUCTOR");
+                p.append("*/");
+            }
+
+            if (o.getScope() instanceof This) {//вызов конструктора
+
                 This self = (This) o.getScope();
 
                 if (o.getMethod().getParent() != o.getScope().getType() || o.getMethod() instanceof VConstructor) {//чужого
+                    p.append("/*CALL OTHER CONSTRUCTOR*/");
                     int pos = p.getCurrent();
                     c.getGenerator(self.getType()).operation(c, new StaticRef(o.getMethod().getParent(), o.getPoint()), p);
                     p.append(".");
@@ -209,8 +225,56 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         };
 
-        addGen(StaticRef.class, classRef);
-        addGen(ClassRef.class, classRef);
+        addGen(StaticRef.class, (c, o, p, g) -> {
+            ICodeGenerator icg = c.getGenerator(o.getType());
+            if (icg != null && icg != g)
+                return icg.operation(c, o, p);
+
+            if (o.getType() instanceof ArrayClass) {
+                ArrayClass ac = (ArrayClass) o.getType();
+                return g.operation(c,
+                        CodeBuilder.scope(
+                                CodeBuilder.scope(
+                                        CodeBuilder
+                                                .scope(new ClassRef(ac.getComponent(), o.getPoint()))
+                                                .method("getRecord")
+                                                .invoke().build()
+                                ).method("getArrayClassRecord").invoke().build()
+                        ).method("getPrototype").invoke().build()
+                        , p);
+            }
+
+            g.operation(c,
+                    CodeBuilder.scope(
+                            CodeBuilder.scope(new ClassRef(o.getType(), o.getPoint()))
+                                    .method("getRecord")
+                                    .invoke().build()
+                    ).method("getPrototype").invoke().build(), p);
+
+
+            return true;
+        });
+        addGen(ClassRef.class, (c, o, p, g) -> {
+            if (o.refTo instanceof ArrayClass) {
+                ArrayClass ac = (ArrayClass) o.refTo;
+                return g.operation(c,
+                        CodeBuilder.scope(
+                                CodeBuilder.scope(
+                                        CodeBuilder
+                                                .scope(new ClassRef(ac.getComponent(), o.getPoint()))
+                                                .method("getRecord")
+                                                .invoke().build()
+                                ).method("getArrayClassRecord").invoke().build()
+                        ).method("getAsClass").invoke().build()
+                        , p);
+            }
+
+            p.add(Generator.storage.getRuntimeName(), o.getPoint());
+            p.add(o.refTo.fullName, o.getPoint());
+            p.add(CodeBuilder.scope(o.refTo.getClassLoader().loadClass(ClassRecord.class.getName())).method("getAsClass").find().getRunTimeName(), o.getPoint());
+            p.add("()", o.getPoint());
+            return true;
+        });
 
         addGen(NewClass.class, (c, o, p, g) -> {
             InvokeGenerator ig = c.getInvokeGenerator(o.constructor);

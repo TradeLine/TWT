@@ -4,8 +4,6 @@ import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 
-import java.io.PrintStream;
-
 public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenerator {
     //private static final String CLASS_NAME = "cl";
 
@@ -120,11 +118,22 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
     public boolean operation(GenerationContext ctx, Operation op, Outbuffer ps) throws CompileException {
         if (op instanceof Invoke) {
             Invoke inv = (Invoke) op;
+
+            if (inv.getScope() instanceof This && inv.getMethod() instanceof VConstructor)
+                System.out.println("!!!");
+
             InvokeGenerator icg = ctx.getInvokeGenerator(((Invoke) op).getMethod());
             if (icg != null && icg != this)
                 return icg.generate(ctx, inv, ps);
-            if (inv.getMethod() instanceof VConstructor)//если происходит вызов конструктра, то игнорируем!
+
+            ICodeGenerator icg2 = ctx.getGenerator(inv.getMethod());
+            if (icg2 != null && icg2 != this)
+                return icg2.operation(ctx, inv, ps);
+
+            if (inv.getMethod() instanceof VConstructor) {//если происходит вызов конструктра, то игнорируем!
+                ps.append("/*IGNORED!*/");
                 return false;
+            }
 
             /*
             if(inv.getScope() instanceof Lambda) {

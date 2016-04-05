@@ -1,21 +1,119 @@
 package org.tlsys.twt.rt.java.lang;
 
-import org.tlsys.twt.*;
-import org.tlsys.twt.annotations.*;
-import org.tlsys.twt.classes.*;
+import org.tlsys.twt.CastUtil;
+import org.tlsys.twt.JArray;
+import org.tlsys.twt.Script;
+import org.tlsys.twt.annotations.ClassName;
+import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.annotations.ReplaceClass;
+import org.tlsys.twt.classes.ClassRecord;
+import org.tlsys.twt.classes.FieldRecord;
 import org.tlsys.twt.rt.java.lang.reflect.TConstructor;
 import org.tlsys.twt.rt.java.lang.reflect.TField;
-import org.tlsys.twt.rt.java.lang.reflect.TMethod;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 
 @JSClass
 @ClassName("java.lang.Class")
 @ReplaceClass(Class.class)
-@CodeGenerator(NativeCodeGenerator.class)
 public class TClass {
 
+    private final ClassRecord record;
+    TConstructor[] constructors;
+    private Field[] fields;
+
+    public TClass(ClassRecord record) {
+        this.record = record;
+    }
+
+    public ClassRecord getRecord() {
+        return record;
+    }
+
+    public boolean isArray() {
+        return false;
+    }
+
+    public String getName() {
+        return getRecord().getName();
+    }
+
+    public Class getComponentType() {
+        return null;
+    }
+
+    public boolean isPrimitive() {
+        return getName().equals("char") || getName().equals("byte") || getName().equals("short") || getName().equals("int") || getName().equals("long") || getName().equals("float") || getName().equals("double") || getName().equals("boolean");
+    }
+
+    public boolean isInstance(Object obj) {
+        if (obj == null)
+            return false;
+        return isAssignableFrom(obj.getClass());
+    }
+
+    public boolean isAssignableFrom(Class cls) {
+        Class t = CastUtil.cast(this);
+        while (cls != null) {
+            if (cls == t)
+                return true;
+            cls = cls.getSuperclass();
+        }
+        return false;
+    }
+
+    public Field[] getFields() {
+        if (fields == null) {
+            fields = new Field[getRecord().getFields().length()];
+            for (int i = 0; i < fields.length; i++) {
+                FieldRecord fr = getRecord().getFields().get(i);
+                TField f = new TField(fr.getName(), fr.getJsName(), CastUtil.cast(this), fr.getType().getType().getAsClass(), fr.getModificators());
+                fields[i] = CastUtil.cast(f);
+            }
+        }
+        return fields;
+    }
+
+    public Class getSuperclass() {
+        if (getRecord().getSuper() == null)
+            return null;
+        return getRecord().getSuper().getType().getAsClass();
+    }
+
+    public TConstructor[] getConstructors() {
+
+        if (constructors != null)
+            return constructors;
+
+        JArray<TConstructor> list = new JArray<>();
+
+        for (int i = 0; i < getRecord().getMethods().length(); i++) {
+            if (getRecord().getMethods().get(i).getName() == null)
+                continue;
+            list.add(new TConstructor(this, getRecord().getMethods().get(i)));
+        }
+
+        constructors = new TConstructor[list.length()];
+
+        for (int i = 0; i < list.length(); i++) {
+            constructors[i] = list.get(i);
+        }
+        return constructors;
+    }
+
+
+    private Object newInstance() throws InstantiationException {
+        for (TConstructor c : getConstructors()) {
+            if (c.getParameterCount() == 0) {
+                return Script.code(this, "['n'+", c.getRecord().getJsName(), "]()");
+            }
+        }
+        throw new InstantiationException("Can't find constructor whout arguments");
+    }
+
+}
+
+    /*
     static final String CLASS_IMP = "$";
 
     private boolean inited = false;
@@ -71,19 +169,19 @@ public class TClass {
     }
 
     public Object getLambda(String name, String methodName, Object method, Object scope) {
-        /*
+        / *
         JDictionary<Object> lambdaList = Script.code(scope,".LAMBDA");
         if (Script.isUndefined(lambdaList)) {
             lambdaList = new JDictionary<>();
             Script.code(scope,".LAMBDA=",lambdaList);
         }
-        */
+        * /
 
-        /*
+        / *
         Object t = lambdaList.get(name);
         if (t != null)
             return t;
-            */
+            * /
 
         TClass self = this;
         ClassRecord c = new ClassRecord(this.jsName + name, this.name + "$lambda" + name);
@@ -100,10 +198,10 @@ public class TClass {
         cc.initFor(c);
         Script.code(cc.cons, ".prototype[", methodName, "]=function(){return ", method, ".apply(", scope, ",arguments);}");
         return Script.code("new ", cc.cons, "()");
-        /*
+        / *
         lambdaList.set(name, t);
         return t;
-        */
+        * /
     }
 
     private void initMethods() {
@@ -331,21 +429,7 @@ public class TClass {
         throw new ClassCastException("Can not cast from " + getName() + " to " + obj.getClass().getName());
     }
 
-    public boolean isInstance(Object obj) {
-        if (obj == null)
-            return false;
-        return isAssignableFrom(obj.getClass());
-    }
 
-    public boolean isAssignableFrom(Class cls) {
-        Class t = CastUtil.cast(this);
-        while (cls != null) {
-            if (cls == t)
-                return true;
-            cls = cls.getSuperclass();
-        }
-        return false;
-    }
 
     public Field getField(String name) {
         for (Field f : getFields()) {
@@ -375,4 +459,6 @@ public class TClass {
     public Class getComponentType() {
         return CastUtil.cast(component);
     }
+
 }
+*/

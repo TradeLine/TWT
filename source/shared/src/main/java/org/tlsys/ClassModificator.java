@@ -1,4 +1,4 @@
-package org.tlsys.lex;
+package org.tlsys;
 
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VField;

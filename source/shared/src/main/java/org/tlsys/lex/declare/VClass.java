@@ -2,6 +2,7 @@ package org.tlsys.lex.declare;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
+import org.tlsys.ClassModificator;
 import org.tlsys.NullClass;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.TypeUtil;
@@ -24,10 +25,53 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     public String alias;
     public String codeGenerator = null;
     public VClass extendsClass;
-    private List<VClass> childs = new ArrayList<VClass>();
     public String castGenerator;
-
+    public ArrayList<VClass> implementsList = new ArrayList<>();
+    //public String realName;
+    public String domNode;
+    public boolean force;
+    public ArrayList<VConstructor> constructors = new ArrayList<>();
+    public ArrayList<VMethod> methods = new ArrayList<>();
+    public ArrayList<StaticBlock> statics = new ArrayList<>();
+    protected String realSimpleName;
+    protected Context parentContext;
+    protected ArrayList<VField> fields = new ArrayList<>();
+    private List<VClass> childs = new ArrayList<VClass>();
     private List<ClassModificator> mods = new ArrayList<>();
+    private transient VClassLoader classLoader;
+    private int modificators;
+    private VClass parent;
+    //private VField parentVar;
+    private transient Class javaClass;
+
+    protected VClass(String realSimpleName) {
+        this.realSimpleName = realSimpleName;
+    }
+
+    public VClass(String realSimpleName, Context parentContext, VClass parent, Symbol.ClassSymbol classSymbol) {
+        this.realSimpleName = realSimpleName;
+        this.parentContext = Objects.requireNonNull(parentContext, "Parent content is NULL");
+        this.parent = parent;
+    }
+
+    public static VClassLoader getCurrentClassLoader() {
+        return currentClassLoader.get();
+    }
+
+    public static void setCurrentClassLoader(VClassLoader classLoader) {
+        currentClassLoader.set(classLoader);
+    }
+
+    private static boolean isEqualArguments(List<VArgument> arg1, List<VArgument> arg2) {
+        if (arg1.size() != arg2.size())
+            return false;
+
+        for (int i = 0; i < arg1.size(); i++) {
+            if (arg1.get(i).getType() != arg2.get(i).getType())
+                return false;
+        }
+        return true;
+    }
 
     public VClass addMod(ClassModificator modificator) {
         if (mods.add(modificator))
@@ -45,17 +89,16 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         childs.add(clazz);
     }
 
-    public ArrayList<VClass> implementsList = new ArrayList<>();
-    private transient VClassLoader classLoader;
-    private int modificators;
-    private VClass parent;
-
-    protected String realSimpleName;
-    protected Context parentContext;
-
     public String getSimpleRealName() {
         return realSimpleName;
     }
+
+    /*
+    public VClass() {
+        classSymbol = null;
+        classLoader.classes.add(this);
+    }
+    */
 
     public String getRealName() {
         if (parentContext instanceof VPackage) {
@@ -78,17 +121,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
             m.visit(replaceControl);
     }
 
-    //private VField parentVar;
-    private transient Class javaClass;
-    //public String realName;
-    public String domNode;
-    public boolean force;
-
-    protected ArrayList<VField> fields = new ArrayList<>();
-    public ArrayList<VConstructor> constructors = new ArrayList<>();
-    public ArrayList<VMethod> methods = new ArrayList<>();
-    public ArrayList<StaticBlock> statics = new ArrayList<>();
-
     public Optional<ClassModificator> getModificator(Predicate<ClassModificator> test) {
         for (ClassModificator cm : mods) {
             if (test.test(cm))
@@ -106,31 +138,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     public Context getParentContext() {
         return parentContext;
-    }
-
-    /*
-    public VClass() {
-        classSymbol = null;
-        classLoader.classes.add(this);
-    }
-    */
-
-    protected VClass(String realSimpleName) {
-        this.realSimpleName = realSimpleName;
-    }
-
-    public VClass(String realSimpleName, Context parentContext, VClass parent, Symbol.ClassSymbol classSymbol) {
-        this.realSimpleName = realSimpleName;
-        this.parentContext = Objects.requireNonNull(parentContext, "Parent content is NULL");
-        this.parent = parent;
-    }
-
-    public static VClassLoader getCurrentClassLoader() {
-        return currentClassLoader.get();
-    }
-
-    public static void setCurrentClassLoader(VClassLoader classLoader) {
-        currentClassLoader.set(classLoader);
     }
 
     public VClassLoader getClassLoader() {
@@ -264,7 +271,6 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         throw new MethodNotFoundException(this, "<init>", args);
     }
 
-
     public VConstructor getConstructor(Symbol.MethodSymbol symbol) throws MethodNotFoundException {
         try {
             return getConstructor(getMethodArgs(symbol));
@@ -273,20 +279,8 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         }
     }
 
-
     public VMethod getMethod(String name, VClass... args) throws MethodNotFoundException {
         return getMethod(name, Arrays.asList(args));
-    }
-
-    private static boolean isEqualArguments(List<VArgument> arg1, List<VArgument> arg2) {
-        if (arg1.size() != arg2.size())
-            return false;
-
-        for (int i = 0; i < arg1.size(); i++) {
-            if (arg1.get(i).getType() != arg2.get(i).getType())
-                return false;
-        }
-        return true;
     }
 
     private boolean concateMethodWithArgs(Collection<VMethod> methods, List<VArgument> arguments) {

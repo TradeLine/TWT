@@ -1,6 +1,5 @@
 package org.tlsys;
 
-import org.tlsys.lex.ClassModificator;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VConstructor;
 import org.tlsys.lex.declare.VField;

@@ -16,13 +16,26 @@ import java.util.function.Predicate;
 
 public abstract class VExecute implements Context, Member, CodeDynLoad {
     private static final long serialVersionUID = 3706412942276907442L;
+    private final ArrayList<ArgumentModificator> mods = new ArrayList<>();
     public VClass returnType;
-    private String name;
     public String alias;
     public boolean force;
+    public String bodyGenerator;
+    public String generator = null;
+    public String invokeGenerator = null;
+    protected ArrayList<VArgument> arguments = new ArrayList<>();
+    private String name;
     private SourcePoint point;
+    private VClass parent;
+    private transient VBlock block = null;
+    private int modificators;
 
-    private final ArrayList<ArgumentModificator> mods = new ArrayList<>();
+    public VExecute() {
+    }
+
+    public VExecute(SourcePoint point, VClass parent) {
+        this.parent = parent;
+    }
 
     public ArrayList<ArgumentModificator> getMods() {
         return mods;
@@ -36,8 +49,6 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
         this.name = name;
     }
 
-    protected ArrayList<VArgument> arguments = new ArrayList<>();
-
     public List<VArgument> getArguments() {
         if (mods.isEmpty())
             return arguments;
@@ -46,14 +57,6 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
             args = am.getArguments(args);
         args.addAll(arguments);
         return args;
-    }
-
-    private VClass parent;
-    private transient VBlock block = null;
-    public String generator = null;
-    public String invokeGenerator = null;
-
-    public VExecute() {
     }
 
     public VBlock getBlock() {
@@ -71,10 +74,6 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
         this.block = block;
     }
 
-    public VExecute(SourcePoint point, VClass parent) {
-        this.parent = parent;
-    }
-
     public SourcePoint getPoint() {
         return point;
     }
@@ -83,15 +82,13 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
         return parent;
     }
 
-    private int modificators;
-
-    public void setModificators(int modificators) {
-        this.modificators = modificators;
-    }
-
     @Override
     public int getModificators() {
         return modificators;
+    }
+
+    public void setModificators(int modificators) {
+        this.modificators = modificators;
     }
 
     @Override

@@ -14,10 +14,10 @@ import java.util.function.Predicate;
 
 public class Invoke extends Value implements HavinSourceStart, HavingScope {
     private static final long serialVersionUID = -2146704597568339297L;
-    private VExecute method;
     public ArrayList<Value> arguments = new ArrayList<>();
-    private Value self;
     public VClass returnType;
+    private VExecute method;
+    private Value self;
     private SourcePoint point;
 
     public Invoke() {
@@ -78,5 +78,10 @@ public class Invoke extends Value implements HavinSourceStart, HavingScope {
             if (op.isPresent())
                 arguments.set(i, (Value) op.get());
         }
+    }
+
+    @Override
+    public String toString() {
+        return getScope() + "->" + getMethod();
     }
 }

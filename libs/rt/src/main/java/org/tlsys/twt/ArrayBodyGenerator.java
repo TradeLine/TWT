@@ -1,21 +1,18 @@
-package org.tlsys.lex.declare;
+package org.tlsys.twt;
 
-public class ArrayCodeGenerator /* implements MethodBodyBuilder*/ {
-    /*
-    @Override
-    public void generateClass(GenerationContext context, CompileModuls.ClassRecord record, Outbuffer ps) throws CompileException {
-        throw new RuntimeException("Not supported");
-    }
+import org.tlsys.Outbuffer;
+import org.tlsys.lex.Assign;
+import org.tlsys.lex.Invoke;
+import org.tlsys.lex.SetField;
+import org.tlsys.lex.This;
+import org.tlsys.lex.declare.ArrayClass;
+import org.tlsys.lex.declare.VExecute;
 
-    @Override
-    public boolean operation(GenerationContext context, Operation operation, Outbuffer out) throws CompileException {
-        return context.getGenerator(context.getCurrentClass()).operation(context, operation, out);
-    }
-
+public class ArrayBodyGenerator extends DefaultGenerator {
     @Override
     public void generateExecute(GenerationContext ctx, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
         ICodeGenerator defaultCG = ctx.getGenerator(execute.getParent());
-        ArrayClass ac = (ArrayClass)execute.getParent();
+        ArrayClass ac = (ArrayClass) execute.getParent();
         if (execute == ac.constructor) {
             defaultCG.operation(ctx, new Invoke(execute.getParent().extendsClass.getConstructor(), new This(execute.getParent())), ps);
             ps.append(";");
@@ -38,26 +35,4 @@ public class ArrayCodeGenerator /* implements MethodBodyBuilder*/ {
 
         throw new RuntimeException("Not supported method " + execute);
     }
-
-    @Override
-    public VBlock buildMethodBody(VExecute execute) {
-        ArrayClass ac = (ArrayClass)execute.getParent();
-
-        VBlock b = new VBlock(execute, null, null);
-
-        if (execute == ac.constructor) {
-            org.tlsys.CodeBuilder.scope(ac.extendsClass).constructor().invoke().build()
-        }
-
-        if (execute == ac.get) {
-
-        }
-
-        if (execute == ac.set) {
-
-        }
-
-        throw new RuntimeException("Not supported method " + execute);
-    }
-    */
 }

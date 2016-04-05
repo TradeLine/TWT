@@ -1,5 +1,6 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.CodeBuilder;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
@@ -40,11 +41,17 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
         DeclareVar drecord = new DeclareVar(clazzRecord, null);
         VField jsNameField = classClass.getField("jsName");
         VField nameField = classClass.getField("name");
-        VConstructor constructorClassRecord = classClassRecord.getConstructor(stringClass,stringClass);
-        drecord.init = Generator.genClassRecord(context, classClass.getArrayClass(), execute1 -> true, () -> new NewClass(constructorClassRecord, null)
+        ArrayClass ac = classClass.getArrayClass();
+
+        ac.set.generator = ArrayBodyGenerator.class.getName();
+        ac.constructor.generator = ArrayBodyGenerator.class.getName();
+        ac.get.generator = ArrayBodyGenerator.class.getName();
+
+        VConstructor constructorClassRecord = classClassRecord.getConstructor(stringClass, stringClass);
+        drecord.init = Generator.genClassRecord(context, ac, execute1 -> true, () -> new NewClass(constructorClassRecord, null)
                 .addArg(new VBinar(new Const("$", stringClass), new GetField(new This(classClass), jsNameField, null), stringClass, VBinar.BitType.PLUS, null))
                 .addArg(new VBinar(new Const("[", stringClass), new GetField(new This(classClass), nameField, null), stringClass, VBinar.BitType.PLUS, null)
-                ),moduls);
+                ), moduls);
 
         Value lastScope = clazzRecord;
 
@@ -57,9 +64,20 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
         ps.append(";");
 
         cg.operation(context,
+                CodeBuilder
+                        .scope(Generator.storage)
+                        .method("add")
+                        .arg(classClassRecord)
+                        .invoke()
+                        .arg(lastScope)
+                        .build(),
+                ps);
+        /*
+        cg.operation(context,
                 new Invoke(classClassStorage.getMethod("add", classClassRecord), Generator.storage)
                         .addArg(lastScope),
                 ps);
+                */
         ps.append(";");
 
         cg.operation(context,

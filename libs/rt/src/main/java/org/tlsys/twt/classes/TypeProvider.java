@@ -8,5 +8,5 @@ import org.tlsys.twt.annotations.JSClass;
 @CodeGenerator(NativeCodeGenerator.class)
 @FunctionalInterface
 public interface TypeProvider {
-    public Class getType();
+    public ClassRecord getType();
 }

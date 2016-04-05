@@ -1,11 +1,15 @@
 package org.tlsys.twt.classes;
 
+import org.tlsys.CodeBuilder;
 import org.tlsys.Outbuffer;
-import org.tlsys.lex.*;
-import org.tlsys.lex.declare.*;
+import org.tlsys.lex.Invoke;
+import org.tlsys.lex.NewArrayItems;
+import org.tlsys.lex.StaticRef;
+import org.tlsys.lex.Value;
+import org.tlsys.lex.declare.ArrayClass;
+import org.tlsys.lex.declare.VClass;
+import org.tlsys.lex.declare.VExecute;
 import org.tlsys.twt.*;
-
-import java.io.PrintStream;
 
 public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements InvokeGenerator {
 
@@ -14,16 +18,27 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
     public void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
         super.generateMethodStart(context, execute, ps);
         VClass arrayBuilderClass = execute.getParent();
+        VClass classRecordClass = arrayBuilderClass.getClassLoader().loadClass(Class.class.getName());
         VClass classClass = arrayBuilderClass.getClassLoader().loadClass(Class.class.getName());
         VClass intClass = arrayBuilderClass.getClassLoader().loadClass("int");
         VClass booleanClass = arrayBuilderClass.getClassLoader().loadClass("boolean");
         ICodeGenerator cg = context.getGenerator(classClass);
-        VMethod getArrayClassMethod = classClass.getMethod("getArrayClass");
+        //VMethod getArrayClassMethod = classClass.getMethod("getArrayClass");
 
         if (execute.alias.equals("create")) {
             ps.append("{");
             ps.append("var t=");
-            cg.operation(context, new Invoke(getArrayClassMethod, execute.getArguments().get(0)), ps);
+
+            Value arrayClassRecord = CodeBuilder.scope(CodeBuilder.scope(execute.getArguments().get(0))
+                    .method("getRecord")
+                    .invoke().build())
+                    .method("getArrayClassRecord")
+                    .invoke().build();
+
+
+            Value prototypeOfArrayClass = CodeBuilder.scope(arrayClassRecord).method("getPrototype").invoke().build();
+
+            cg.operation(context, prototypeOfArrayClass, ps);
             ps.append(".n").append(ArrayClass.CONSTRUCTOR).append("(").append(execute.getArguments().get(1).getRuntimeName()).append(".length);");
 
             ps.append("for(var i=0;i<").append(execute.getArguments().get(1).getRuntimeName()).append(".length;i++){");

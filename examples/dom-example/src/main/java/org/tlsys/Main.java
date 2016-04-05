@@ -8,7 +8,10 @@ import org.tlsys.twt.annotations.JSClass;
 @JSClass
 public class Main {
 
+    private static InitClass stat = new InitClass("STATIC FIELD");
     private int aaa;
+    private InitClass non_stat = new InitClass("NONSTATIC FIELD");
+
 
     public Main(int aaab) {
         Console.info("???");
@@ -21,7 +24,13 @@ public class Main {
 
     public static void main() {
 
-
+        new Main(10);
+        new Main(10);
+        new Main(10);
+        int[] a = new int[10];
+        a[0] = 1;
+        Console.dir(a);
+        Console.info(Integer.toString(a[0]));
 
         /*
         Tabs tabs = new Tabs();
@@ -50,12 +59,14 @@ public class Main {
             Console.info("->" + a + " ===> " + ((byte)a));
         }
 */
+        /*
         Console.info("->");
 
 
         new Main(1).doit();
         new Main(2).doit();
         new Main(3).doit();
+        */
 
 
         //Console.info("Timer setted! " + id);
@@ -120,6 +131,19 @@ public class Main {
 
 
         long id = Script.setTimeout(1000, t);
+    }
+
+    private static class SubInitClass {
+        public SubInitClass(String text) {
+            Console.info("SUB-INIT! " + text);
+        }
+    }
+
+    private static class InitClass extends SubInitClass {
+        public InitClass(String text) {
+            super("!!!");
+            Console.info("INIT! " + text);
+        }
     }
 
     public class SubClass {
