@@ -80,12 +80,16 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
                 */
         ps.append(";");
 
+        cg.operation(context, new Return(clazzRecord, null), ps);
+        /*
+
         cg.operation(context,
                 new Return(
                         new Invoke(classClassStorage.getMethod("get", classClassRecord), Generator.storage)
                                 .addArg(clazzRecord)
                         , null),
                 ps);
+                */
 
         ps.append("}");
         generateMethodEnd(context, execute, ps);

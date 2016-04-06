@@ -6,10 +6,10 @@ import org.tlsys.twt.NativeCodeGenerator;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.rt.java.lang.GenArrayClassCreateMethod;
 import org.tlsys.twt.rt.java.lang.TClass;
 
 import java.lang.reflect.Modifier;
-import java.util.Objects;
 
 @JSClass
 @CodeGenerator(NativeCodeGenerator.class)
@@ -25,6 +25,7 @@ public class ClassRecord {
 
     private Object prototype;
     private ClassRecord arrayClassRecord;
+    private TClass clazz;
 
     public ClassRecord(String jsName, String name) {
         this.jsName = jsName;
@@ -166,8 +167,6 @@ public class ClassRecord {
         }
     }
 
-    private TClass clazz;
-
     public Class getAsClass() {
         if (clazz == null || Script.isUndefined(clazz)) {
             //Script.code("console.info('init class ' + ",name,")");
@@ -176,10 +175,17 @@ public class ClassRecord {
         return CastUtil.cast(clazz);
     }
 
+    @CodeGenerator(GenArrayClassCreateMethod.class)
+    private ClassRecord createArrayClassRecord() {
+        throw new RuntimeException("Not supported");
+    }
+
     public ClassRecord getArrayClassRecord() {
         if (arrayClassRecord != null)
             return arrayClassRecord;
-        RuntimeException t = Script.code("new Error('Not implemented yet')");
-        throw t;
+        arrayClassRecord = createArrayClassRecord();
+        if (arrayClassRecord == null || Script.isUndefined(arrayClassRecord))
+            Script.code("throw new Error('Array ClassRecord not created!')");
+        return arrayClassRecord;
     }
 }
