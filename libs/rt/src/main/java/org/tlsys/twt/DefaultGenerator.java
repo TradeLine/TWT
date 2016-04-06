@@ -346,7 +346,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 g.operation(c, v, p);
                 first = false;
             }
-            p.append(")");
+            p.add(")", o.getPoint());
             return true;
             //throw new RuntimeException("new operator not suppported");
         });
@@ -581,6 +581,7 @@ public class DefaultGenerator implements ICodeGenerator {
         addGen(Throw.class, (c, o, p, g) -> {
             p.add("throw ", o.getPoint());
             g.operation(c, o.getValue(), p);
+            p.add("", o.getPoint());
             return true;
         });
 

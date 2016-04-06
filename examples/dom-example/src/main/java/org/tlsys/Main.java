@@ -18,6 +18,10 @@ public class Main {
         aaa = aaab;
     }
 
+    static {
+        Console.info("HELLO FROM STATIC BLOCK");
+    }
+
     public static void giveException() {
         throw new RuntimeException("ERROR!");
     }

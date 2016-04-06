@@ -19,6 +19,7 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
             }
             NewArrayItems items = (NewArrayItems) invoke.arguments.get(0);
             ICodeGenerator gen = ctx.getGenerator(invoke.getMethod().getParent());
+            ps.add("", invoke.getPoint());
             for (Value v : items.elements) {
                 if (v instanceof Const) {
                     Const c = (Const) v;
@@ -29,6 +30,7 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
                 }
                 gen.operation(ctx, v, ps);
             }
+            ps.add("", invoke.getPoint());
             return true;
         }
 

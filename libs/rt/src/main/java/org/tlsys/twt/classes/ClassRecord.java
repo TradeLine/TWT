@@ -99,21 +99,38 @@ public class ClassRecord {
             return prototype;
         }
 
-        Script.code("console.info('init '+", name, ")");
+        Script.code("console.warn('init '+", name, ")");
 
         prototype = Script.code("function(){}");
 
         for (int i = 0; i < methods.length(); i++) {
             MethodRecord mr = methods.get(i);
             if (mr.getName() == null) {//This is Constructor?
-                String consName = "n" + mr.getJsName();
+                String nam = mr.getJsName();
+                String consName = "n" + nam;
                 Object tempProto = prototype;
-                Script.code(prototype, "[", consName, "]=function(){var o=new ", tempProto, "();o[", mr.getJsName(), "].apply(o, arguments);return o;}");
+                Script.code("console.warn('Create constructor for... '+", name, ")");
+                Script.code(prototype, "[", consName, "]=function(){var o=new ", tempProto, "();o[", nam, "].apply(o, arguments);return o;}");
             }
         }
 
-        Script.code("console.info('apply self body to '+", name, ")");
+        Script.code("console.warn('apply self body to '+", name, ")");
         applyClassBody(prototype);
+
+        Script.code("console.warn('Run static blocks for '+", name, "+', count='+",CastUtil.toObject(statics.length()),")");
+
+        for (int i = 0; i < fields.length(); i++) {
+            FieldRecord fr = fields.get(i);
+
+            if ((fr.getModificators() & Modifier.STATIC) != 0)
+                continue;
+            Object tempProto = prototype;
+            Script.code(tempProto, "[", fr.getJsName(), "]=eval(",fr.getInitValue(),")");
+        }
+
+        for (int i = 0; i < statics.length(); i++) {
+            Script.code(statics.get(i), "()");
+        }
 
         return prototype;
     }
@@ -126,7 +143,7 @@ public class ClassRecord {
 
             if ((fr.getModificators() & Modifier.STATIC) == 0)
                 continue;
-            Script.code(obj, "[", fr.getJsName(), "]=null");
+            Script.code(obj, ".prototype[", fr.getJsName(), "]=null");
         }
 
         for (int i = 0; i < methods.length(); i++) {
