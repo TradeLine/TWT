@@ -1,25 +1,30 @@
 package org.tlsys;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Console;
-import org.tlsys.twt.Script;
-import org.tlsys.twt.annotations.ForceInject;
+import org.tlsys.twt.annotations.DomNode;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.dom.DOM;
+import org.tlsys.twt.dom.Document;
+import org.tlsys.twt.events.Events;
 
 @JSClass
 public class Main {
 
+    /*
     private static InitClass stat = new InitClass("STATIC FIELD");
     private int aaa;
     private InitClass non_stat = new InitClass("NONSTATIC FIELD");
+    */
 
-
-    public Main(int aaab) {
-        Console.info("???");
-        aaa = aaab;
-    }
 
     static {
         Console.info("HELLO FROM STATIC BLOCK");
+    }
+
+    public Main(int aaab) {
+        Console.info("???");
+        //aaa = aaab;
     }
 
     public static void giveException() {
@@ -28,6 +33,16 @@ public class Main {
 
     public static void main() {
 
+        char a1 = 'd';
+        int b1 = (int) a1;
+        int c1 = 'a';
+
+        Console.dir(CastUtil.toObject(a1));
+        Console.dir(CastUtil.toObject(b1));
+        Console.dir(CastUtil.toObject(c1));
+        Console.dir(101);
+
+
         new Main(10);
         new Main(10);
         new Main(10);
@@ -35,6 +50,20 @@ public class Main {
         a[0] = 1;
         Console.dir(a);
         Console.info(Integer.toString(a[0]));
+
+        Object o = DOM.getElementsByTagName(Document.get(), "body")[0];
+
+        MyBtn b = new MyBtn();
+        DOM.appendChild(o, b);
+        DOM.setHTML(b, "123 hash=" + b + " class=" + b.getClass().getName());
+
+        Events.addEventListener(b, "click", new Events.EventListener() {
+            @Override
+            public void onEvent(Object o, Object o1) {
+                Console.info("CLIKED!" + this.toString());
+            }
+        });
+
 
         /*
         Tabs tabs = new Tabs();
@@ -48,7 +77,7 @@ public class Main {
             Console.info("Changed to " + n.getTitle());
         });
 
-        Object o = DOM.getElementsByTagName(Document.get(), "body")[0];
+
 
         DOM.appendChild(o, tabs);
 
@@ -108,6 +137,11 @@ public class Main {
 
     }
 
+    @DomNode("button")
+    private static class MyBtn {
+
+    }
+/*
     public void doit() {
 
         int a = 9;
@@ -156,4 +190,5 @@ public class Main {
             Console.info("aaa=" + Main.this.aaa);
         }
     }
+    */
 }

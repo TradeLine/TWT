@@ -1,10 +1,12 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
 
 @JSClass
 @ReplaceClass(Short.class)
+@CastAdapter(BoxingCast.class)
 public class TShort extends Number {
 
     public static final short   MIN_VALUE = -32768;

@@ -4,13 +4,12 @@ import org.tlsys.gl.CanvasRenderingContext2D;
 import org.tlsys.gl.WebGLRenderingContext;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.DomNode;
-import org.tlsys.twt.annotations.JSClass;
 
-@JSClass
 @DomNode("canvas")
 public class Canvas {
 
     private CanvasRenderingContext2D d2;
+    private WebGLRenderingContext d3;
 
     public CanvasRenderingContext2D get2D() {
         if (d2 != null)
@@ -18,8 +17,6 @@ public class Canvas {
         d2 = new CanvasRenderingContext2D(Script.code(this, "getContext('2d')"));
         return d2;
     }
-
-    private WebGLRenderingContext d3;
 
     public WebGLRenderingContext getWebGL() {
         if (d3!= null)

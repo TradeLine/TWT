@@ -1,14 +1,12 @@
 package org.tlsys;
 
 import org.tlsys.twt.Console;
-import org.tlsys.twt.annotations.JSClass;
 
-@JSClass
+
 public class SecondApi {
 
-    private int id;
-
     private final API api;
+    private int id;
 
     public SecondApi(API api, int id) {
         this.api = api;

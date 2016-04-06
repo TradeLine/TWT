@@ -136,16 +136,16 @@ public class GenerationTask extends DefaultTask {
                         CompileModuls cm = new CompileModuls();
                         Optional<VMethod> mainMethod = null;
                         if (gt.main() != null) {
-                            VClass mainClass = app.getMainLoader().getTWTClassLoader().loadClass(gt.main());
+                            VClass mainClass = app.getMainLoader().getTWTClassLoader().loadClass(gt.main(), null);
                             mainMethod = mainClass.getMethodByName("main").stream().filter(e -> e.getParent() == mainClass).findFirst();
                             if (!mainMethod.isPresent()) {
-                                throw new CompileException("Can't method main in " + gt.main());
+                                throw new CompileException("Can't method main in " + gt.main(), null);
                             }
                             cm.add(mainMethod.get());
                         }
 
                         for (String c : gt.getClasses()) {
-                            cm.add(app.getMainLoader().getTWTClassLoader().loadClass(c));
+                            cm.add(app.getMainLoader().getTWTClassLoader().loadClass(c, null));
                         }
                         cm.addForced(app.getMainLoader().getTWTClassLoader());
                         cm.detectReplace();

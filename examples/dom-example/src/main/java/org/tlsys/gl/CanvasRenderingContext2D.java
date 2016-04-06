@@ -1,8 +1,5 @@
 package org.tlsys.gl;
 
-import org.tlsys.twt.annotations.JSClass;
-
-@JSClass
 public class CanvasRenderingContext2D {
     private final Object ctx;
 

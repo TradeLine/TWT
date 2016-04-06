@@ -1,9 +1,9 @@
 package org.tlsys.twt.events;
 
+import org.tlsys.CodeBuilder;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.Const;
 import org.tlsys.lex.Invoke;
-import org.tlsys.lex.StaticRef;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VExecute;
 import org.tlsys.lex.declare.VMethod;
@@ -12,20 +12,20 @@ import org.tlsys.twt.CompileModuls;
 import org.tlsys.twt.DefaultGenerator;
 import org.tlsys.twt.GenerationContext;
 
-import java.io.PrintStream;
 import java.util.Objects;
 
 public class EventCodeGenerator extends DefaultGenerator {
     @Override
     public void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
-        VClass eventListenerClass = context.getCurrentClass().getClassLoader().loadClass(Events.EventListener.class.getName());
-        VClass objectClass = context.getCurrentClass().getClassLoader().loadClass(Object.class.getName());
-        VClass objectsClass = context.getCurrentClass().getClassLoader().loadClass(Objects.class.getName());
-        VClass stringClass = context.getCurrentClass().getClassLoader().loadClass(String.class.getName());
-        VMethod onEventMethod = eventListenerClass.getMethod("onEvent",objectClass,objectClass);
+        VClass eventListenerClass = context.getCurrentClass().getClassLoader().loadClass(Events.EventListener.class.getName(), execute.getPoint());
+        VClass objectClass = context.getCurrentClass().getClassLoader().loadClass(Object.class.getName(), execute.getPoint());
+        VClass objectsClass = context.getCurrentClass().getClassLoader().loadClass(Objects.class.getName(), execute.getPoint());
+        VClass stringClass = context.getCurrentClass().getClassLoader().loadClass(String.class.getName(), execute.getPoint());
+        VMethod onEventMethod = eventListenerClass.getMethod("onEvent", execute.getPoint(), objectClass, objectClass);
         if (execute.alias.equals("addEventListener")) {
             ps.append("{");
-            Invoke inv = new Invoke(objectsClass.getMethod("requireNonNull", objectClass,stringClass), new StaticRef(objectsClass)).addArg(execute.getArguments().get(0)).addArg(new Const("Argument listener is NULL",stringClass));
+            Invoke inv = CodeBuilder.scopeStatic(objectsClass).method("requireNonNull").arg(objectClass).arg(stringClass).invoke(execute.getPoint()).arg(execute.getArguments().get(0)).arg(new Const("Argument listener is NULL", stringClass)).build();
+            //Invoke inv = new Invoke(objectsClass.getMethod("requireNonNull", execute.getPoint(), objectClass,stringClass), new StaticRef(objectsClass)).addArg(execute.getArguments().get(0)).addArg(new Const("Argument listener is NULL",stringClass));
             moduls.add(inv.getMethod());
             context.getGenerator(objectsClass).operation(context,
             inv

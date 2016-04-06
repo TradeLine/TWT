@@ -7,6 +7,7 @@ import org.tlsys.NullClass;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.io.*;
 import java.util.*;
@@ -168,7 +169,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     public Optional<VClass> getDependencyParent() {
         try {
-            return getDependencyParent(getClassLoader().loadClass(Enum.class.getName()));
+            return getDependencyParent(getClassLoader().loadClass(Enum.class.getName(), null));
         } catch (VClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -260,27 +261,27 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         return exe.getArguments().size() == args.size();
     }
 
-    public VConstructor getConstructor(VClass... args) throws MethodNotFoundException {
-        return getConstructor(Arrays.asList(args));
+    public VConstructor getConstructor(SourcePoint point, VClass... args) throws MethodNotFoundException {
+        return getConstructor(Arrays.asList(args), point);
     }
 
-    public VConstructor getConstructor(List<VClass> args) throws MethodNotFoundException {
+    public VConstructor getConstructor(List<VClass> args, SourcePoint point) throws MethodNotFoundException {
         for (VConstructor v : constructors)
             if (equalArgs(v, args))
                 return v;
-        throw new MethodNotFoundException(this, "<init>", args);
+        throw new MethodNotFoundException(this, "<init>", args, point);
     }
 
-    public VConstructor getConstructor(Symbol.MethodSymbol symbol) throws MethodNotFoundException {
+    public VConstructor getConstructor(Symbol.MethodSymbol symbol, SourcePoint point) throws MethodNotFoundException {
         try {
-            return getConstructor(getMethodArgs(symbol));
+            return getConstructor(getMethodArgs(symbol, point), point);
         } catch (VClassNotFoundException e) {
-            throw new MethodNotFoundException(symbol);
+            throw new MethodNotFoundException(symbol, point);
         }
     }
 
-    public VMethod getMethod(String name, VClass... args) throws MethodNotFoundException {
-        return getMethod(name, Arrays.asList(args));
+    public VMethod getMethod(String name, SourcePoint point, VClass... args) throws MethodNotFoundException {
+        return getMethod(name, Arrays.asList(args), point);
     }
 
     private boolean concateMethodWithArgs(Collection<VMethod> methods, List<VArgument> arguments) {
@@ -319,7 +320,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         return methods;
     }
 
-    public VMethod getMethod(String name, List<VClass> args) throws MethodNotFoundException {
+    public VMethod getMethod(String name, List<VClass> args, SourcePoint point) throws MethodNotFoundException {
         for (VMethod v : methods) {
             if (!name.equals(v.getRunTimeName()) && !name.equals(v.alias))
                 continue;
@@ -329,33 +330,33 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
         if (extendsClass != null) {
             try {
-                return extendsClass.getMethod(name, args);
+                return extendsClass.getMethod(name, args, point);
             } catch (MethodNotFoundException e) {
             }
         }
 
         for (VClass c : implementsList) {
             try {
-                return c.getMethod(name, args);
+                return c.getMethod(name, args, point);
             } catch (MethodNotFoundException e) {
             }
         }
 
-        throw new MethodNotFoundException(this, name, args);
+        throw new MethodNotFoundException(this, name, args, point);
     }
 
 
-    public VMethod getMethod(Symbol.MethodSymbol symbol) throws MethodNotFoundException {
+    public VMethod getMethod(Symbol.MethodSymbol symbol, SourcePoint point) throws MethodNotFoundException {
         Objects.requireNonNull(symbol, "Argument symbol is NULL");
         try {
-            return getMethod(symbol.name.toString(), getMethodArgs(symbol));
+            return getMethod(symbol.name.toString(), getMethodArgs(symbol, point), point);
         } catch (VClassNotFoundException e) {
-            throw new MethodNotFoundException(symbol);
+            throw new MethodNotFoundException(symbol, point);
         }
     }
 
 
-    private List<VClass> getMethodArgs(Symbol.MethodSymbol symbol) throws VClassNotFoundException {
+    private List<VClass> getMethodArgs(Symbol.MethodSymbol symbol, SourcePoint point) throws VClassNotFoundException {
         List<VClass> args = new ArrayList<>();
 
         if (symbol.name.toString().equals("<init>"))
@@ -363,22 +364,22 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
         if (symbol.params != null) {
             for (Symbol.VarSymbol e : symbol.params) {
-                args.add(TypeUtil.loadClass(getClassLoader(), e.type));
+                args.add(TypeUtil.loadClass(getClassLoader(), e.type, point));
             }
         } else if (symbol.erasure_field != null) {
             Type.MethodType mt = (Type.MethodType) symbol.erasure_field;
             for (Type t : mt.argtypes) {
-                args.add(TypeUtil.loadClass(getClassLoader(), t));
+                args.add(TypeUtil.loadClass(getClassLoader(), t, point));
             }
         } else if (symbol.type != null && symbol.type instanceof Type.ForAll) {
             Type.ForAll fa = (Type.ForAll) symbol.type;
             for (Type t : fa.qtype.getParameterTypes()) {
-                args.add(TypeUtil.loadClass(getClassLoader(), t));
+                args.add(TypeUtil.loadClass(getClassLoader(), t, point));
             }
         } else if (symbol.type != null && symbol.type instanceof Type.MethodType) {
             Type.MethodType fa = (Type.MethodType) symbol.type;
             for (Type t : fa.argtypes) {
-                args.add(TypeUtil.loadClass(getClassLoader(), t));
+                args.add(TypeUtil.loadClass(getClassLoader(), t, point));
             }
         }
         return args;
@@ -479,12 +480,12 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         in.defaultReadObject();
     }
 
-    public VField getField(String name) throws VFieldNotFoundException {
+    public VField getField(String name, SourcePoint point) throws VFieldNotFoundException {
         for (VField f : getLocalFields()) {
             if (name.equals(f.getRealName()) || name.equals(f.getAliasName()))
                 return f;
         }
-        throw new VFieldNotFoundException(this, name);
+        throw new VFieldNotFoundException(this, name, point);
     }
 
     public void addLocalField(VField v) {
@@ -493,6 +494,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     private static class ClassRef implements Serializable {
         private static final long serialVersionUID = 7210195275588742049L;
+
         private String name;
 
         public ClassRef(String name) {
@@ -506,13 +508,13 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         Object readResolve() throws Exception {
             for (VClassLoader cl : getCurrentClassLoader().parents) {
                 try {
-                    return cl.loadClass(getName());
+                    return cl.loadClass(getName(), null);
                 } catch (VClassNotFoundException e) {
 
                 }
             }
             VClassLoader ll = getCurrentClassLoader();
-            throw new VClassNotFoundException(getName());
+            throw new VClassNotFoundException(getName(), null);
         }
     }
 

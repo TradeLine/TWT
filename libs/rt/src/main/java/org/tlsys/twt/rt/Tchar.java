@@ -1,20 +1,29 @@
 package org.tlsys.twt.rt;
 
-import org.tlsys.twt.annotations.ClassName;
-import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.ApplyInvoke;
+import org.tlsys.twt.CastUtil;
+import org.tlsys.twt.Script;
+import org.tlsys.twt.annotations.*;
+import org.tlsys.twt.rt.java.lang.BoxingCast;
 
 @JSClass
-@ClassName(value = "char", primitive = true, nativeName = "C")
+@ClassName(value = "char")
+@CastAdapter(BoxingCast.class)
 public class Tchar {
-    private String body;
 
-    public Tchar(String _body) {
-        body = _body;
-        this.body = _body;
+    @ForceInject
+    public static char toChar(int value) {
+        return CastUtil.toChar(Script.code("String.fromCharCode(", CastUtil.toObject(value), ")"));
+    }
+
+    @ForceInject
+    public static int toInt(char value) {
+        return CastUtil.toInt(Script.code(CastUtil.toObject(value), ".charCodeAt(0)"));
     }
 
     @Override
+    @InvokeGen(ApplyInvoke.class)
     public String toString() {
-        return body;
+        return CastUtil.cast(this);
     }
 }

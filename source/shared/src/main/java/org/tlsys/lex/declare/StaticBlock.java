@@ -54,7 +54,7 @@ public class StaticBlock implements Context,Member,CodeDynLoad {
 
     @Override
     public void getUsing(Collect c) {
-
+        c.add(getBlock()).add(parent);
     }
 
     @Override

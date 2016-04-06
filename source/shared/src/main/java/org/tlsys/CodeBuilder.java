@@ -2,6 +2,7 @@ package org.tlsys;
 
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -11,12 +12,38 @@ public final class CodeBuilder {
     private CodeBuilder() {
     }
 
-    public static ScopeBuilder scope(VClass clazz) {
+    public static ScopeBuilder scopeThis(VClass clazz) {
         return scope(new This(clazz));
+    }
+
+    public static ScopeBuilder scopeStatic(VClass clazz) {
+        return scopeStatic(clazz, null);
+    }
+
+    public static ScopeBuilder scopeStatic(VClass clazz, SourcePoint point) {
+        return scope(new StaticRef(clazz, point));
+    }
+
+    public static ScopeBuilder scopeClass(VClass clazz) {
+        return scopeClass(clazz, null);
+    }
+
+    public static ScopeBuilder scopeClass(VClass clazz, SourcePoint point) {
+        return scope(new ClassRef(clazz, point));
     }
 
     public static ScopeBuilder scope(Value context) {
         return new ScopeBuilder(context);
+    }
+
+    public static InvokeBuilder invokeStatic(VExecute execute) {
+        return invokeStatic(execute, null);
+    }
+
+    public static InvokeBuilder invokeStatic(VExecute execute, SourcePoint point) {
+        if (!execute.isStatic())
+            throw new IllegalArgumentException("Method " + execute + " not static");
+        return new InvokeBuilder(execute, new StaticRef(execute.getParent(), point), point);
     }
 
     public static FieldBuilder field(VField field) {
@@ -47,6 +74,10 @@ public final class CodeBuilder {
             return new MethodFinder(scope, name);
         }
 
+        public InvokeBuilder invoke(VMethod vMethod, SourcePoint point) {
+            return new InvokeBuilder(vMethod, scope, point);
+        }
+
         public ConstructorFinder constructor() {
             return new ConstructorFinder(scope);
         }
@@ -66,22 +97,26 @@ public final class CodeBuilder {
             return this;
         }
 
-        public ExeFinder arg(String argClass) {
+        public ExeFinder arg(String argClass, SourcePoint point) {
             try {
-                return arg(scope.getType().getClassLoader().loadClass(argClass));
+                return arg(scope.getType().getClassLoader().loadClass(argClass, point));
             } catch (VClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        public ExeFinder arg(Class argClass) {
-            return arg(argClass.getName());
+        public ExeFinder arg(Class argClass, SourcePoint point) {
+            return arg(argClass.getName(), point);
         }
 
-        public abstract VExecute find();
+        public abstract VExecute find(SourcePoint point);
 
-        public InvokeBuilder invoke() {
-            return new InvokeBuilder(find(), scope);
+        public VExecute find() {
+            return find(null);
+        }
+
+        public InvokeBuilder invoke(SourcePoint point) {
+            return new InvokeBuilder(find(), scope, point);
         }
     }
 
@@ -93,8 +128,13 @@ public final class CodeBuilder {
 
         @Override
         public VConstructor find() {
+            return (VConstructor) super.find();
+        }
+
+        @Override
+        public VConstructor find(SourcePoint point) {
             try {
-                return scope.getType().getConstructor(args);
+                return scope.getType().getConstructor(args, point);
             } catch (MethodNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -117,11 +157,13 @@ public final class CodeBuilder {
     public static class InvokeBuilder extends ArgumentBuilder {
         private final VExecute exe;
         private final Value scope;
+        private final SourcePoint point;
 
 
-        public InvokeBuilder(VExecute exe, Value scope) {
+        public InvokeBuilder(VExecute exe, Value scope, SourcePoint point) {
             this.exe = exe;
             this.scope = scope;
+            this.point = point;
         }
 
         @Override
@@ -130,7 +172,7 @@ public final class CodeBuilder {
         }
 
         public Invoke build() {
-            Invoke invoke = new Invoke(exe, scope);
+            Invoke invoke = new Invoke(exe, scope, point);
             invoke.returnType = exe.returnType;
             invoke.arguments.addAll(args);
             return invoke;
@@ -162,8 +204,13 @@ public final class CodeBuilder {
 
         @Override
         public VMethod find() {
+            return (VMethod) super.find();
+        }
+
+        @Override
+        public VMethod find(SourcePoint point) {
             try {
-                return scope.getType().getMethod(name, args);
+                return scope.getType().getMethod(name, args, point);
             } catch (MethodNotFoundException e) {
                 throw new RuntimeException(e);
             }

@@ -2,6 +2,7 @@ package org.tlsys.twt;
 
 import org.tlsys.BlockModificator;
 import org.tlsys.ClassModificator;
+import org.tlsys.CodeBuilder;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 
@@ -21,7 +22,7 @@ public class InitClassMod implements ClassModificator {
     @Override
     public void onAdd(VClass clazz) {
         try {
-            VClass booleanClass = clazz.getClassLoader().loadClass("boolean");
+            VClass booleanClass = clazz.getClassLoader().loadClass("boolean", null);
             fieldInit = new VField("f" + clazz.fullName, booleanClass, Modifier.PRIVATE, clazz);
 
             for (VConstructor v : clazz.constructors) {
@@ -72,8 +73,8 @@ public class InitClassMod implements ClassModificator {
                 ops.add(constructor.parentConstructorInvoke);
 
 
-            VClass scriptClass = clazz.getClassLoader().loadClass(Script.class.getName());
-            isUndefinedMethod = scriptClass.getMethod("isUndefined", clazz.getClassLoader().loadClass(Object.class.getName()));
+            VClass scriptClass = clazz.getClassLoader().loadClass(Script.class.getName(), null);
+            isUndefinedMethod = scriptClass.getMethod("isUndefined", null, clazz.getClassLoader().loadClass(Object.class.getName(), null));
         }
 
         @Override
@@ -81,7 +82,8 @@ public class InitClassMod implements ClassModificator {
 
             VBinar checkFalse = new VBinar(new GetField(new This(clazz), fieldInit), new Const(false, booleanClass), booleanClass, VBinar.BitType.EQ);
 
-            VBinar allCheck = new VBinar(checkFalse, new Invoke(isUndefinedMethod, new StaticRef(isUndefinedMethod.getParent())).addArg(new GetField(new This(clazz), fieldInit)), booleanClass, VBinar.BitType.OR);
+
+            VBinar allCheck = new VBinar(checkFalse, CodeBuilder.invokeStatic(isUndefinedMethod).arg(new GetField(new This(clazz), fieldInit)).build(), booleanClass, VBinar.BitType.OR);
 
 
             VBlock ifBlock = null;

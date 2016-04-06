@@ -1,6 +1,7 @@
 package org.tlsys.twt.compiler;
 
 import com.sun.tools.javac.tree.JCTree;
+import org.tlsys.CodeBuilder;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
@@ -49,7 +50,7 @@ class StatementCompiler {
             Objects.requireNonNull(needClass, "Need Class for return is NULL");
 
             Value v = (Value) c.op(e.expr, o);
-            v = CompilerTools.cast(v, needClass);
+            v = CompilerTools.cast(v, needClass, c.getFile().getPoint(e.pos));
             int pos = e.pos;
             String data = c.getFile().getData();
             String ss = data.substring(pos);
@@ -92,47 +93,48 @@ class StatementCompiler {
         });
 
         addProcSt(JCTree.JCVariableDecl.class, (c, e, o) -> {
-            SVar var = new SVar(e.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.type), o);
+            SVar var = new SVar(e.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.type, c.getFile().getPoint(e.pos)), o);
             DeclareVar dv = new DeclareVar(var, c.getFile().getPoint(e.pos));
             if (e.init == null)
-                dv.init = OperationCompiler.getInitValueForType(var.getType());
+                dv.init = OperationCompiler.getInitValueForType(var.getType(), c.getFile().getPoint(e.pos));
             else
-                dv.init = c.op(e.init, o);
+                dv.init = CompilerTools.cast(c.op(e.init, o), var.getType(), c.getFile().getPoint(e.init.pos));
             return dv;
         });
 
         addProcSt(JCTree.JCEnhancedForLoop.class, (c, e, o) -> {
             Value v = c.op(e.expr, o);
-            VClass classIterable = c.getCurrentClass().getClassLoader().loadClass(Iterable.class.getName());
+            VClass classIterable = c.getCurrentClass().getClassLoader().loadClass(Iterable.class.getName(), c.getFile().getPoint(e.pos));
 
             if (v.getType().isParent(classIterable)) {
 
                 VBlock block = new VBlock(o, null, null);
 
 
-                VClass classIterator = c.getCurrentClass().getClassLoader().loadClass(Iterator.class.getName());
+                VClass classIterator = c.getCurrentClass().getClassLoader().loadClass(Iterator.class.getName(), c.getFile().getPoint(e.pos));
 
 
 
                 SVar iterator = new SVar("it" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), classIterator, block);
                 DeclareVar it = new DeclareVar(iterator, c.getFile().getPoint(e.expr.pos));
-                it.init = new Invoke(v.getType().getMethod("iterator"), v);
+
+                it.init = CodeBuilder.scope(v).method("iterator").invoke(c.getFile().getPoint(e.expr.pos)).build();//new Invoke(v.getType().getMethod("iterator", c.getFile().getPoint(e.pos)), v);
                 block.add(it);
                 WhileLoop wl = new WhileLoop(block, null);
-                wl.value = new Invoke(classIterator.getMethod("hasNext"), it.getVar());
+                wl.value = CodeBuilder.scope(it.getVar()).method("hasNext").invoke(c.getFile().getPoint(e.pos)).build();//new Invoke(classIterator.getMethod("hasNext", c.getFile().getPoint(e.pos)), );
                 wl.block = new VBlock(wl, null, null);
                 block.add(wl);
 
-                SVar var = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type), block);
+                SVar var = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type, c.getFile().getPoint(e.pos)), block);
                 DeclareVar dv = new DeclareVar(var, c.getFile().getPoint(e.var.pos));
-                dv.init = new Invoke(classIterator.getMethod("next"), it.getVar());
+                dv.init = new Invoke(classIterator.getMethod("next", c.getFile().getPoint(e.pos)), it.getVar());
                 wl.block.add(dv);
                 wl.block.add(c.st(e.body, wl.block));
                 return block;
             } else {
                 VBlock block = new VBlock(o, null, null);
 
-                VClass intClass = c.getCurrentClass().getClassLoader().loadClass("int");
+                VClass intClass = c.getCurrentClass().getClassLoader().loadClass("int", c.getFile().getPoint(e.expr.pos));
                 SVar arVar = new SVar("l" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), v.getType(), block);
                 DeclareVar ar = new DeclareVar(arVar, c.getFile().getPoint(e.expr.pos));
                 ar.init = v;
@@ -147,9 +149,9 @@ class StatementCompiler {
                 it.init = new Const(0, intClass);
                 forLoop.init = it;
                 forLoop.update = new Increment(itVar, Increment.IncType.PRE_INC, intClass);
-                forLoop.value = new VBinar(itVar, new GetField(arVar, arVar.getType().getField("length"), null), c.getCurrentClass().getClassLoader().loadClass("boolean"), VBinar.BitType.LT, null);
+                forLoop.value = new VBinar(itVar, new GetField(arVar, arVar.getType().getField("length", c.getFile().getPoint(e.expr.pos)), null), c.getCurrentClass().getClassLoader().loadClass("boolean", c.getFile().getPoint(e.pos)), VBinar.BitType.LT, null);
 
-                SVar el = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type), forLoop.block);
+                SVar el = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type, c.getFile().getPoint(e.pos)), forLoop.block);
                 DeclareVar dv = new DeclareVar(el, c.getFile().getPoint(e.var.pos));
                 dv.init = new ArrayGet(arVar, itVar);
                 forLoop.block.add(dv);
@@ -248,16 +250,16 @@ class StatementCompiler {
             Try tr = new Try(o, c.getFile().getPoint(e.pos));
             tr.block = (VBlock) c.st(e.body, o);
             for (JCTree.JCCatch ca : e.catchers) {
-                SVar var = new SVar(ca.param.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ca.param.type), null);
+                SVar var = new SVar(ca.param.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ca.param.type, c.getFile().getPoint(ca.pos)), null);
                 DeclareVar dv = new DeclareVar(var, c.getFile().getPoint(ca.getParameter().pos));
                 Try.Catch cc = new Try.Catch(tr, dv, c.getFile().getPoint(ca.pos));
                 var.setParentContext(cc);
                 if (ca.param.vartype instanceof JCTree.JCTypeUnion) {
                     JCTree.JCTypeUnion ut = (JCTree.JCTypeUnion)ca.param.vartype;
                     for (JCTree.JCExpression ee : ut.alternatives)
-                        cc.classes.add(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ee.type));
+                        cc.classes.add(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ee.type, c.getFile().getPoint(ee.pos)));
                 } else
-                    cc.classes.add(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ca.param.vartype.type));
+                    cc.classes.add(TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), ca.param.vartype.type, c.getFile().getPoint(ca.pos)));
                 cc.block = (VBlock) c.st(ca.body, cc);
                 tr.catchs.add(cc);
             }

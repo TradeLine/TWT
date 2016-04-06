@@ -77,9 +77,14 @@ public class SourceFile implements Serializable {
         return new SourcePoint(row, column, this);
     }
 
+    public int getIndex(int row, int column) {
+        return positionProvider.getIndex(row, column);
+    }
+
     public interface PositionProvider {
         public int getLine(int pos);
-
         public int getColumn(int pos);
+
+        public int getIndex(int row, int column);
     }
 }

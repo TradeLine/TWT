@@ -10,6 +10,7 @@ import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.sourcemap.SourceFile;
+import org.tlsys.sourcemap.SourcePoint;
 import org.tlsys.twt.CompileException;
 import org.tlsys.twt.annotations.*;
 
@@ -24,16 +25,19 @@ public class ClassCompiler {
 
     private static Function<VExecute, Void> parentThisReplacer = as -> {
         BoolRef b = new BoolRef(true);
+
+        if (as.getParent().getRealName().contains("TReflectiveOperationException"))
+            System.out.println("123" + as);
+
         while (b.isValue()) {
             b.setValue(false);
-
             as.visit((r) -> {
                 VClass currentClass = as.getParent();
                 if (r.get() instanceof This) {
                     This t = (This) r.get();
                     if (t.getType() != as.getParent()) {
                         OtherClassLink ocl = OtherClassLink.getOrCreate(as.getParent(), t.getType());
-
+                        System.out.println("" + currentClass);
                         r.set(new GetField(new This(as.getParent()), ocl.getField(), null));
                         b.setValue(true);
                     }
@@ -129,10 +133,11 @@ public class ClassCompiler {
         findReplaceMethod(cc);
     }
 
-    public static AnnonimusClass createAnnonimusClass(CompileContext ctx, Context context, JCTree.JCClassDecl c, VClassLoader vClassLoader) throws CompileException {
+    public static AnnonimusClass createAnnonimusClass(CompileContext ctx, Context context, JCTree.JCClassDecl c, VClassLoader vClassLoader, SourcePoint point) throws CompileException {
         AnnonimusClass as = new AnnonimusClass(context, null, c.sym);
 
-        VClass parentClazz = vClassLoader.loadClass(AnnonimusClass.extractParentClassName(c.sym));
+
+        VClass parentClazz = vClassLoader.loadClass(AnnonimusClass.extractParentClassName(c.sym), point);
         as.setParentContext(parentClazz);
         as.fullName = as.getRealName();
         as.setParentContext(context);
@@ -298,7 +303,7 @@ public class ClassCompiler {
                     pair.members.put(t, m);
             }
         } catch (VClassNotFoundException e) {
-            throw new CompileException("Error compile " + pair.vclass.getRealName(), e);
+            throw new CompileException("Error compile " + pair.vclass.getRealName(), e, null);
         }
     }
 
@@ -311,11 +316,11 @@ public class ClassCompiler {
     private static void setExtends(Pair pair, VClassLoader loader) throws VClassNotFoundException {
         JCTree.JCExpression ex = pair.desl.getExtendsClause();
         if (ex != null) {
-            pair.vclass.extendsClass = TypeUtil.loadClass(loader, ex.type);
+            pair.vclass.extendsClass = TypeUtil.loadClass(loader, ex.type, null);
         } else {
             Type.ClassType ct = (Type.ClassType) pair.desl.type;
 
-            pair.vclass.extendsClass = TypeUtil.loadClass(loader, ct.supertype_field);
+            pair.vclass.extendsClass = TypeUtil.loadClass(loader, ct.supertype_field, null);
             //p.vclass.extendsClass = loader.loadClass(java.lang.Object.class.getName());
         }
         if (pair.vclass.alias != null && pair.vclass.alias.equals(java.lang.Object.class.getName()))
@@ -325,7 +330,7 @@ public class ClassCompiler {
             if (e.type.tsym.toString().contains("RenderPass") || e.type.tsym.toString().contains("RenderComponent"))
                 System.out.println("123");
                 */
-            VClass cl = TypeUtil.loadClass(loader, e.type);
+            VClass cl = TypeUtil.loadClass(loader, e.type, null);
             pair.vclass.implementsList.add(cl);
         }
     }
@@ -347,20 +352,22 @@ public class ClassCompiler {
 
             if (tree instanceof JCTree.JCVariableDecl) {
                 JCTree.JCVariableDecl v = (JCTree.JCVariableDecl) tree;
-                VField f = (VField) member;
+                VField f = Objects.requireNonNull((VField) member, "Field is NULL");
 
                 if (v.init == null) {
-                    if (!java.lang.reflect.Modifier.isFinal(f.getModificators()))
-                        f.init = OperationCompiler.getInitValueForType(f.getType());
-                    else
+                    if (!java.lang.reflect.Modifier.isFinal(f.getModificators())) {
+                        Objects.requireNonNull(f.getType(), "Type of field is NULL");
+                        Objects.requireNonNull(p.file, "File is NULL");
+                        f.init = OperationCompiler.getInitValueForType(f.getType(), ctx.getFileSource(p.file).getPoint(v.pos));
+                    } else
                         f.init = null;
                 } else {
                     f.init = com.op(v.init, f.getParent());
-                    VClass enumClass = f.getParent().getClassLoader().loadClass(Enum.class.getName());
+                    VClass enumClass = f.getParent().getClassLoader().loadClass(Enum.class.getName(), ctx.getFileSource(p.file).getPoint(v.init.pos));
                     if (f.getParent() != enumClass && f.getParent().isParent(enumClass)) {
                         NewClass nc = (NewClass) f.init;
-                        nc.addArg(new Const(f.getAliasName() != null ? f.getAliasName() : f.getRealName(), f.getParent().getClassLoader().loadClass(String.class.getName())));
-                        nc.addArg(new Const(f.getParent().getLocalFields().indexOf(f), f.getParent().getClassLoader().loadClass("int")));
+                        nc.addArg(new Const(f.getAliasName() != null ? f.getAliasName() : f.getRealName(), f.getParent().getClassLoader().loadClass(String.class.getName(), ctx.getFileSource(p.file).getPoint(v.init.pos))));
+                        nc.addArg(new Const(f.getParent().getLocalFields().indexOf(f), f.getParent().getClassLoader().loadClass("int", ctx.getFileSource(p.file).getPoint(v.init.pos))));
                     }
                 }
                 continue;
@@ -423,7 +430,7 @@ public class ClassCompiler {
                 }
             }
         } catch (Throwable e) {
-            throw new CompileException("Can't compile " + method.getParent().getRealName() + "::" + method.getRunTimeName(), e);
+            throw new CompileException("Can't compile " + method.getParent().getRealName() + "::" + method.getRunTimeName(), e, null);
         }
     }
 
@@ -599,6 +606,11 @@ public class ClassCompiler {
         @Override
         public int getColumn(int pos) {
             return (int) file.getLineMap().getColumnNumber(pos) - 1;
+        }
+
+        @Override
+        public int getIndex(int row, int column) {
+            return (int) file.getLineMap().getPosition(row, column);
         }
     }
 

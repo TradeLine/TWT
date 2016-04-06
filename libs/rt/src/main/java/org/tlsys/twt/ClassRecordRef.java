@@ -24,7 +24,7 @@ public class ClassRecordRef extends Value implements HavinSourceStart {
         this.point = point;
 
         try {
-            type = clazz.getClassLoader().loadClass(ClassRecord.class.getName());
+            type = clazz.getClassLoader().loadClass(ClassRecord.class.getName(), point);
         } catch (VClassNotFoundException e) {
             throw new RuntimeException(e);
         }

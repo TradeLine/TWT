@@ -18,7 +18,7 @@ public class CodeExe extends Value {
     public CodeExe(VExecute execute) {
         this.execute = execute;
         try {
-            type = execute.getParent().getClassLoader().loadClass(Object.class.getName());
+            type = execute.getParent().getClassLoader().loadClass(Object.class.getName(), null);
         } catch (VClassNotFoundException e) {
             throw new RuntimeException(e);
         }

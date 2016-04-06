@@ -2,11 +2,13 @@ package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
+import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
 
 @JSClass
 @ReplaceClass(Double.class)
+@CastAdapter(BoxingCast.class)
 public class TDouble extends Number {
     public static final double POSITIVE_INFINITY = CastUtil.toDouble(Script.code("Number.POSITIVE_INFINITY"));
     public static final double NEGATIVE_INFINITY = CastUtil.toDouble(Script.code("Number.NEGATIVE_INFINITY"));
@@ -16,10 +18,20 @@ public class TDouble extends Number {
     public static final double MIN_VALUE = CastUtil.toDouble(Script.code("Number.MIN_VALUE"));
     public static final int MAX_EXPONENT = 1023;
     public static final int MIN_EXPONENT = -1022;
+    private final double value;
+
+    public TDouble(double value) {
+        this.value = value;
+    }
+
+    public TDouble(String s) throws NumberFormatException {
+        value = parseDouble(s);
+    }
 
     public static Double valueOf(String s) throws NumberFormatException {
         return new Double(parseDouble(s));
     }
+
     public static Double valueOf(double d) {
         return new Double(d);
     }
@@ -43,14 +55,8 @@ public class TDouble extends Number {
         return CastUtil.toBoolean(Script.code("isFinite(",CastUtil.toObject(d),")"));
     }
 
-    private final double value;
-
-    public TDouble(double value) {
-        this.value = value;
-    }
-
-    public TDouble(String s) throws NumberFormatException {
-        value = parseDouble(s);
+    public static String toString(double d) {
+        return Script.code(CastUtil.toObject(d), ".toString()");
     }
 
     public boolean isNaN() {
@@ -87,9 +93,5 @@ public class TDouble extends Number {
 
     public double doubleValue() {
         return value;
-    }
-
-    public static String toString(double d) {
-        return Script.code(CastUtil.toObject(d),".toString()");
     }
 }

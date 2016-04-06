@@ -8,6 +8,7 @@ import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.rt.java.lang.GenArrayClassCreateMethod;
 import org.tlsys.twt.rt.java.lang.TClass;
+import org.tlsys.twt.rt.java.lang.TObject;
 
 import java.lang.reflect.Modifier;
 
@@ -41,6 +42,12 @@ public class ClassRecord {
     }
 
     public String getDomNode() {
+        if (domNode == null || Script.isUndefined(domNode)) {
+            if (getSuper() != null) {
+                return getSuper().getType().getDomNode();
+            }
+            return null;
+        }
         return domNode;
     }
 
@@ -72,6 +79,8 @@ public class ClassRecord {
     }
 
     public TypeProvider getSuper() {
+        if (Script.isUndefined(superClass))
+            return null;
         return superClass;
     }
 
@@ -100,9 +109,8 @@ public class ClassRecord {
             return prototype;
         }
 
-        Script.code("console.warn('init '+", name, ")");
-
         prototype = Script.code("function(){}");
+        Script.code(prototype, ".prototype[", TObject.CLASS_RECORD, "]=", this);
 
         for (int i = 0; i < methods.length(); i++) {
             MethodRecord mr = methods.get(i);
@@ -110,21 +118,25 @@ public class ClassRecord {
                 String nam = mr.getJsName();
                 String consName = "n" + nam;
                 Object tempProto = prototype;
-                Script.code("console.warn('Create constructor for... '+", name, ")");
-                Script.code(prototype, "[", consName, "]=function(){var o=new ", tempProto, "();o[", nam, "].apply(o, arguments);return o;}");
+                String dom = getDomNode();
+                if (dom == null)
+                    Script.code(prototype, "[", consName, "]=function(){var o=new ", tempProto, "();o[", nam, "].apply(o, arguments);return o;}");
+                else
+                    Script.code(prototype, "[", consName, "]=function(){var o=document.createElement(", dom, "); for(k in ", tempProto, ".prototype) o[k]=", tempProto, ".prototype[k];o[", nam, "].apply(o, arguments);return o;}");
             }
         }
 
-        Script.code("console.warn('apply self body to '+", name, ")");
         applyClassBody(prototype);
 
-        Script.code("console.warn('Run static blocks for '+", name, "+', count='+",CastUtil.toObject(statics.length()),")");
-
+        //init static fields
+        Script.code("console.info('Creating static fields for '+", getName(), "+'...')");
         for (int i = 0; i < fields.length(); i++) {
             FieldRecord fr = fields.get(i);
-
-            if ((fr.getModificators() & Modifier.STATIC) != 0)
+            if ((fr.getModificators() & Modifier.STATIC) == 0) {
+                Script.code("console.info('Field '+", getName(), "+'=>'+", fr.getName(), "+' is NON static')");
                 continue;
+            }
+            Script.code("console.info('Field '+", getName(), "+'=>'+", fr.getName(), "+' is static! init it!')");
             Object tempProto = prototype;
             Script.code(tempProto, "[", fr.getJsName(), "]=eval(",fr.getInitValue(),")");
         }

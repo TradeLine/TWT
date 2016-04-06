@@ -1,16 +1,14 @@
 package org.tlsys;
 
 import org.tlsys.twt.Console;
-import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.json.Json;
 import org.tlsys.twt.net.WebSocket;
 
-@JSClass
+
 public class SocketAPI extends WebSocket {
 
-    private API api;
-
     private final ConnectListener connectListener;
+    private API api;
 
     public SocketAPI(API api, ConnectListener connectListener) {
         super("ws://tlsys.org:8080/dom/api");

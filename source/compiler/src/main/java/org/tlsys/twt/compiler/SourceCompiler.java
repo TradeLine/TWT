@@ -41,7 +41,7 @@ public class SourceCompiler {
 
             ClassCompiler.compile(compiled, projectClassLoader.getTWTClassLoader(), e -> projectClassLoader.getTWTClassLoader().addClass(e));
         } catch (Error e) {
-            throw new CompileException("Compile error", e);
+            throw new CompileException("Compile error", e, null);
         }
     }
 }

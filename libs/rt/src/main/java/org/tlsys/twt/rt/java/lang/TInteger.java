@@ -2,10 +2,14 @@ package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
-import org.tlsys.twt.annotations.*;
+import org.tlsys.twt.annotations.CastAdapter;
+import org.tlsys.twt.annotations.ForceInject;
+import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.annotations.ReplaceClass;
 
 @JSClass
 @ReplaceClass(Integer.class)
+@CastAdapter(BoxingCast.class)
 public final class TInteger extends Number {
 
     public static final int   MIN_VALUE = 0x80000000;

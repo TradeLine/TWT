@@ -37,20 +37,20 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
         if (invoke.getMethod().alias.equals("isPrototypeOf")) {
             VClassLoader cl = invoke.getMethod().getParent().getClassLoader();
             VBinar bin = new VBinar(
-                    new VBinar(invoke.arguments.get(0), new Const(null, cl.loadClass(Object.class.getName())), cl.loadClass("boolean"), VBinar.BitType.EQ, null),//первый агрумент == null
-                    new VBinar(invoke.arguments.get(1), new Const(null, cl.loadClass(Object.class.getName())), cl.loadClass("boolean"), VBinar.BitType.EQ, null),//первый агрумент == null
-                    cl.loadClass("boolean"), VBinar.BitType.OR, null);//если один или оба аргумента == null
-            VMethod codeMethod = invoke.getMethod().getParent().getMethod("code");
+                    new VBinar(invoke.arguments.get(0), new Const(null, cl.loadClass(Object.class.getName(), invoke.getPoint())), cl.loadClass("boolean", invoke.getPoint()), VBinar.BitType.EQ, null),//первый агрумент == null
+                    new VBinar(invoke.arguments.get(1), new Const(null, cl.loadClass(Object.class.getName(), invoke.getPoint())), cl.loadClass("boolean", invoke.getPoint()), VBinar.BitType.EQ, null),//первый агрумент == null
+                    cl.loadClass("boolean", invoke.getPoint()), VBinar.BitType.OR, null);//если один или оба аргумента == null
+            VMethod codeMethod = invoke.getMethod().getParent().getMethod("code", invoke.getPoint());
             Invoke codeInvoke = new Invoke(codeMethod, new StaticRef(codeMethod.getParent()));
 
-            NewArrayItems array = new NewArrayItems(cl.loadClass(Object.class.getName()).getArrayClass());
+            NewArrayItems array = new NewArrayItems(cl.loadClass(Object.class.getName(), invoke.getPoint()).getArrayClass(), invoke.getPoint());
 
             array.elements.add(invoke.arguments.get(0));
-            array.elements.add(new Const(" instanceof ", cl.loadClass(String.class.getName())));
+            array.elements.add(new Const(" instanceof ", cl.loadClass(String.class.getName(), invoke.getPoint())));
             array.elements.add(invoke.arguments.get(1));
             codeInvoke.arguments.add(array);
 
-            Conditional con = new Conditional(bin, new Const(false, cl.loadClass("boolean")), codeInvoke, cl.loadClass("boolean"));
+            Conditional con = new Conditional(bin, new Const(false, cl.loadClass("boolean", invoke.getPoint())), codeInvoke, cl.loadClass("boolean", invoke.getPoint()));
             ctx.getGenerator(codeMethod.getParent()).operation(ctx, con, ps);
             return true;
         }
@@ -81,9 +81,9 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
 
         if (invoke.getMethod().alias.equals("setTimeout")) {
             ps.add("setTimeout(", invoke.getPoint(), "setTimeout");
-            VClass callerClass = invoke.getMethod().getParent().getClassLoader().loadClass(Script.TimeoutCallback.class.getName());
+            VClass callerClass = invoke.getMethod().getParent().getClassLoader().loadClass(Script.TimeoutCallback.class.getName(), invoke.getPoint());
             ps.append("function(){");
-            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, new Invoke(callerClass.getMethod("onTimeout"), invoke.arguments.get(1)), ps);
+            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, new Invoke(callerClass.getMethod("onTimeout", invoke.getPoint()), invoke.arguments.get(1)), ps);
             ps.append(";}.bind(this)");
             ps.append(",");
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);

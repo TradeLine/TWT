@@ -26,10 +26,16 @@ public final class CastUtil {
     public native static byte toByte(Object obj);
 
     @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static char toChar(Object obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
     public native static short toShort(Object obj);
 
     @InvokeGen(org.tlsys.twt.CastInvoke.class)
     public native static boolean toBoolean(Object obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static Object toObject(char obj);
 
     @InvokeGen(org.tlsys.twt.CastInvoke.class)
     public native static Object toObject(int obj);

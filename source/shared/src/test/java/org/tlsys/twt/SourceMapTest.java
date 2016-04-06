@@ -1,26 +1,13 @@
 package org.tlsys.twt;
 
-import javafx.collections.ArrayChangeListener;
 import org.junit.Test;
-import org.tlsys.sourcemap.*;
+import org.tlsys.sourcemap.SourceFile;
+import org.tlsys.sourcemap.SourceMap;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class SourceMapTest {
-
-    private static class OneLinePosProvider implements SourceFile.PositionProvider {
-
-        @Override
-        public int getLine(int pos) {
-            return 0;
-        }
-
-        @Override
-        public int getColumn(int pos) {
-            return pos;
-        }
-    }
 
     @Test
     public void test() throws IOException {
@@ -39,5 +26,23 @@ public class SourceMapTest {
 
         System.out.printf("=>\n" + new SourceMap(recs).generate()+"\n\n");
 
+    }
+
+    private static class OneLinePosProvider implements SourceFile.PositionProvider {
+
+        @Override
+        public int getLine(int pos) {
+            return 0;
+        }
+
+        @Override
+        public int getColumn(int pos) {
+            return pos;
+        }
+
+        @Override
+        public int getIndex(int row, int column) {
+            return 0;
+        }
     }
 }

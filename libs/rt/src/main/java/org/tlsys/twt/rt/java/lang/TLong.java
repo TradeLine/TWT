@@ -3,12 +3,12 @@ package org.tlsys.twt.rt.java.lang;
 import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.CastAdapter;
-import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
 
 @JSClass
 @ReplaceClass(Long.class)
+@CastAdapter(BoxingCast.class)
 public class TLong extends Number {
 
     public static final long MIN_VALUE = CastUtil.toLong(Script.code("Number.MIN_VALUE"));
@@ -25,6 +25,17 @@ public class TLong extends Number {
 
     public TLong(String s) {
         this(parseLong(s));
+    }
+
+    public static long parseLong(String s) {
+        return parseLong(s, 10);
+    }
+
+    public static long parseLong(String s, int radix) {
+        boolean b = CastUtil.toBoolean(Script.code("isNaN(", s, ")"));
+        if (b)
+            throw new NumberFormatException(s);
+        return CastUtil.toLong(Script.code("parseInt(", s, ",", CastUtil.toObject(radix), ")"));
     }
 
     @Override
@@ -45,16 +56,5 @@ public class TLong extends Number {
     @Override
     public double doubleValue() {
         return value;
-    }
-
-    public static long parseLong(String s) {
-        return parseLong(s, 10);
-    }
-
-    public static long parseLong(String s, int radix) {
-        boolean b = CastUtil.toBoolean(Script.code("isNaN(",s,")"));
-        if (b)
-            throw new NumberFormatException(s);
-        return CastUtil.toLong(Script.code("parseInt(", s, ",", CastUtil.toObject(radix), ")"));
     }
 }

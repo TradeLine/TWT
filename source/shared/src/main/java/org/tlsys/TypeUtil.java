@@ -4,6 +4,7 @@ import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
+import org.tlsys.sourcemap.SourcePoint;
 
 import javax.lang.model.type.NullType;
 import java.util.Objects;
@@ -51,19 +52,19 @@ public final class TypeUtil {
     }
     */
 
-    public static VClass loadClass(VClassLoader loader, Type type) throws VClassNotFoundException {
+    public static VClass loadClass(VClassLoader loader, Type type, SourcePoint point) throws VClassNotFoundException {
         Objects.requireNonNull(type, "Type is NULL");
         if (type instanceof Type.TypeVar)
-            return loadClass(loader, ((Type.TypeVar) type).bound);
+            return loadClass(loader, ((Type.TypeVar) type).bound, point);
 
 
         if (type instanceof Type.ArrayType) {
             Type.ArrayType tt = (Type.ArrayType) type;
-            return loadClass(loader, tt.elemtype).getArrayClass();
+            return loadClass(loader, tt.elemtype, point).getArrayClass();
         }
 
         if (type instanceof Type.CapturedType) {
-            return loadClass(loader, ((Type.CapturedType) type).bound);
+            return loadClass(loader, ((Type.CapturedType) type).bound, point);
         }
 
         if (type instanceof NullType)
@@ -71,12 +72,12 @@ public final class TypeUtil {
 
         try {
             if (type.tsym.owner != null && type.tsym.owner instanceof Symbol.ClassSymbol) {
-                String n = loadClass(loader, type.tsym.owner.type).getRealName() + "$" + type.tsym.name.toString();
-                return loader.loadClass(n);
+                String n = loadClass(loader, type.tsym.owner.type, point).getRealName() + "$" + type.tsym.name.toString();
+                return loader.loadClass(n, point);
             }
 
             if (AnnonimusClass.isAnnonimusClass(type.tsym)) {
-                VClass parentClazz = loader.loadClass(AnnonimusClass.extractParentClassName(type.tsym));
+                VClass parentClazz = loader.loadClass(AnnonimusClass.extractParentClassName(type.tsym), point);
                 String simpleName = AnnonimusClass.extractSimpleName(type.tsym);
                 return (VClass) parentClazz.find(simpleName, e->e instanceof AnnonimusClass).get();
                 //System.out.println("IS ANNONUMUS!");
@@ -86,7 +87,7 @@ public final class TypeUtil {
             if (type.tsym.toString().contains("<anonymous"))
                 System.out.println("123");
                 */
-            return loader.loadClass(type.tsym.toString());
+            return loader.loadClass(type.tsym.toString(), point);
         } catch (VClassNotFoundException e) {
             throw e;
         }

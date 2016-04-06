@@ -47,4 +47,9 @@ public class This extends Value implements HavinSourceStart {
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
         return Optional.empty();
     }
+
+    @Override
+    public String toString() {
+        return "[This " + self + "]";
+    }
 }

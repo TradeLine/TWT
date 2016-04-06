@@ -1,13 +1,12 @@
 package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.twt.CastUtil;
-import org.tlsys.twt.Console;
 import org.tlsys.twt.Script;
-import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.annotations.ReplaceClass;
 
 @JSClass
-@ClassName("java.lang.Throwable")
+@ReplaceClass(java.lang.Throwable.class)
 public class TThrowable {
 
     private String detailMessage;
@@ -38,6 +37,19 @@ public class TThrowable {
         this.cause = cause;
     }
 
+    public static Object jsErrorConvert(Object o) {
+        if (Script.code(o, " instanceof TypeError")) {
+            String message = Script.code(o, ".message");
+            if (message.endsWith(" not a function")) {
+                return new NoSuchMethodException(message);
+            }
+            if (message.endsWith(" of null"))
+                return new NullPointerException();
+        }
+        String message = Script.code(o, ".toString()");
+        return new RuntimeException(message);
+    }
+
     public String getMessage() {
         return detailMessage;
     }
@@ -54,18 +66,5 @@ public class TThrowable {
         if (getCause() != null)
             out = out + ": " + getCause();
         return out;
-    }
-
-    public static Object jsErrorConvert(Object o) {
-        if (Script.code(o," instanceof TypeError")) {
-            String message = Script.code(o,".message");
-            if (message.endsWith(" not a function")) {
-                return new NoSuchMethodException(message);
-            }
-            if (message.endsWith(" of null"))
-                return new NullPointerException();
-        }
-        String message = Script.code(o,".toString()");
-        return new RuntimeException(message);
     }
 }

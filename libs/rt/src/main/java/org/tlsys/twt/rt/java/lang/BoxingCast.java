@@ -1,14 +1,16 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.CodeBuilder;
 import org.tlsys.lex.Invoke;
 import org.tlsys.lex.NewClass;
 import org.tlsys.lex.StaticRef;
 import org.tlsys.lex.Value;
 import org.tlsys.lex.declare.VClass;
+import org.tlsys.sourcemap.SourcePoint;
 import org.tlsys.twt.CompileException;
-import org.tlsys.twt.ICastAdapter;
+import org.tlsys.twt.DefaultCast;
 
-public class BoxingCast implements ICastAdapter {
+public class BoxingCast extends DefaultCast {
     /*
     //@Override
     public String cast(MainGenerationContext context, Class from, Class to, JCTree.JCExpression value) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
@@ -64,27 +66,49 @@ public class BoxingCast implements ICastAdapter {
 
 
     @Override
-    public Value cast(Value value, VClass vClass) throws CompileException {
+    public Value cast(Value value, VClass vClass, SourcePoint point) throws CompileException {
+
+        if (String.class.getName().equals(vClass.alias)) {
+            return CodeBuilder.scopeStatic(vClass).method("valueOf").arg(value.getType()).invoke(point).arg(value).build();
+        }
+
+        if (char.class.getName().equals(value.getType().alias)) {
+
+            if (int.class.getName().equals(vClass.alias)) {
+                return CodeBuilder.scopeStatic(value.getType()).method("toInt").arg(value.getType()).invoke(point).arg(value).build();
+
+            }
+            throw new RuntimeException("Not supported yet!");
+        }
+
+        if (char.class.getName().equals(vClass.alias)) {
+
+            if (int.class.getName().equals(value.getType().alias)) {
+                return CodeBuilder.scopeStatic(vClass, point).method("toChar").arg(value.getType()).invoke(point).arg(value).build();
+            }
+
+            throw new RuntimeException("Not supported yet! from " + value.getType());
+        }
 
         if (char.class.getName().equals(value.getType().alias)) {
             if (Character.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType()), null).addArg(value);
+                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
             }
         }
 
         if (byte.class.getName().equals(value.getType().alias)) {
             if (Byte.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType()), null).addArg(value);
+                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
             }
         }
 
         if (short.class.getName().equals(value.getType().alias)) {
             if (Short.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType()), null).addArg(value);
+                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
-                return new Invoke(vClass.getMethod("fromShort", value.getType()), new StaticRef(vClass)).addArg(value);
+                return new Invoke(vClass.getMethod("fromShort", point, value.getType()), new StaticRef(vClass)).addArg(value);
             }
 
             if (int.class.getName().equals(vClass.alias)) {
@@ -96,13 +120,29 @@ public class BoxingCast implements ICastAdapter {
             }
         }
 
+        if (Boolean.class.getName().equals(value.getType().alias)) {
+            if (boolean.class.getName().equals(vClass.alias)) {
+                return CodeBuilder.scope(value).method("booleanValue").invoke(point).build();
+                //return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
+            }
+            throw new RuntimeException("Can't convert Boolean to " + vClass);
+        }
+
+        if (boolean.class.getName().equals(value.getType().alias)) {
+            if (Boolean.class.getName().equals(vClass.alias)) {
+                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
+            }
+
+            throw new RuntimeException("Can't convert boolean to " + vClass);
+        }
+
         if (int.class.getName().equals(value.getType().alias)) {
             if (Integer.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType()), null).addArg(value);
+                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
-                return new Invoke(vClass.getMethod("fromInt", value.getType()), new StaticRef(vClass)).addArg(value);
+                return CodeBuilder.scopeStatic(vClass, point).method("fromInt").arg(value.getType()).invoke(point).arg(value).build();
             }
 
             if (long.class.getName().equals(vClass.alias)) {
@@ -120,55 +160,55 @@ public class BoxingCast implements ICastAdapter {
 
         if (long.class.getName().equals(value.getType().alias)) {
             if (Long.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType()), null).addArg(value);
+                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
-                return new Invoke(vClass.getMethod("fromLong", value.getType()), new StaticRef(vClass)).addArg(value);
+                return new Invoke(vClass.getMethod("fromLong", point, value.getType()), new StaticRef(vClass)).addArg(value);
             }
 
         }
 
         if (float.class.getName().equals(value.getType().alias)) {
             if (Float.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType()), null).addArg(value);
+                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
             }
         }
 
         if (double.class.getName().equals(value.getType().alias)) {
             if (Double.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(value.getType()), null).addArg(value);
+                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
             }
         }
 
 
-        VClass numberClass = vClass.getClassLoader().loadClass(Number.class.getName());
+        VClass numberClass = vClass.getClassLoader().loadClass(Number.class.getName(), point);
 
         if (value.getType().isParent(numberClass)) {
             if (int.class.getName().equals(vClass.alias)) {
-                return new Invoke(value.getType().getMethod("intValue"), value);
+                return new Invoke(value.getType().getMethod("intValue", point), value);
             }
 
             if (long.class.getName().equals(vClass.alias)) {
-                return new Invoke(value.getType().getMethod("longValue"), value);
+                return new Invoke(value.getType().getMethod("longValue", point), value);
             }
 
             if (float.class.getName().equals(vClass.alias)) {
-                return new Invoke(value.getType().getMethod("floatValue"), value);
+                return new Invoke(value.getType().getMethod("floatValue", point), value);
             }
 
             if (double.class.getName().equals(vClass.alias)) {
-                return new Invoke(value.getType().getMethod("doubleValue"), value);
+                return new Invoke(value.getType().getMethod("doubleValue", point), value);
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
-                return new Invoke(value.getType().getMethod("byteValue"), value);
+                return new Invoke(value.getType().getMethod("byteValue", point), value);
             }
 
             if (short.class.getName().equals(vClass.alias)) {
-                return new Invoke(value.getType().getMethod("shortValue"), value);
+                return new Invoke(value.getType().getMethod("shortValue", point), value);
             }
         }
-        throw new RuntimeException("Can't cast " + value.getType().getRealName() + " to " + vClass.getRealName());
+        return super.cast(value, vClass, point);
     }
 }

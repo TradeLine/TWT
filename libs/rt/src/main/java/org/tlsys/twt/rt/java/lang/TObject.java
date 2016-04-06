@@ -1,9 +1,11 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.DefaultCast;
 import org.tlsys.twt.DefaultGenerator;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.*;
+import org.tlsys.twt.classes.ClassRecord;
 import org.tlsys.twt.rt.EmptyMethodBody;
 
 @JSClass
@@ -14,9 +16,13 @@ import org.tlsys.twt.rt.EmptyMethodBody;
 @CastAdapter(DefaultCast.class)
 public class TObject {
 
+    public static final String CLASS_RECORD = "1:CLASS";
     private static int hashCodeCounter = 0;
-
     private int hashCode = ++hashCodeCounter;
+
+    {
+        Script.code("console.info('Object prototype is created! hashCode='+", CastUtil.toObject(hashCodeCounter), ")");
+    }
 
     @CodeGenerator(EmptyMethodBody.class)
     //@MethodBodyGen("org.tlsys.twt.rt.EmptyMethodBody")
@@ -26,15 +32,15 @@ public class TObject {
     public static Class getClassOfObject(Object object) {
         if (Script.typeOf(object) == "number") {
             if (Script.code(object, "%1===0"))
-                return Integer.class;
+                return int.class;
             else
-                return Float.class;
+                return float.class;
         }
 
         if (Script.typeOf(object) == "string")
             return String.class;
-        //return Script.code(object,"[",TClass.CLASS_IMP,"]");
-        throw new RuntimeException("ERROR!!!");
+        ClassRecord cr = Script.code(object, "[", CLASS_RECORD, "]");
+        return cr.getAsClass();
     }
 
     @Override

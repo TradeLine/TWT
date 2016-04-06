@@ -1,10 +1,11 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.ArrayClass;
 import org.tlsys.lex.declare.VClass;
+import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -13,17 +14,16 @@ import java.util.function.Predicate;
 /**
  * Created by Антон on 17.01.2016.
  */
-public class NewArrayItems extends Value {
+public class NewArrayItems extends Value implements HavinSourceStart {
 
     private static final long serialVersionUID = -6037079587556943990L;
-    private ArrayClass clazz;
+    private final SourcePoint point;
     public ArrayList<Value> elements = new ArrayList<>();
+    private ArrayClass clazz;
 
-    public NewArrayItems() {
-    }
-
-    public NewArrayItems(ArrayClass clazz) {
+    public NewArrayItems(ArrayClass clazz, SourcePoint point) {
         this.clazz = clazz;
+        this.point = point;
     }
 
     @Override
@@ -57,5 +57,10 @@ public class NewArrayItems extends Value {
             if (op.isPresent())
                 elements.set(i, op.get());
         }
+    }
+
+    @Override
+    public SourcePoint getPoint() {
+        return point;
     }
 }

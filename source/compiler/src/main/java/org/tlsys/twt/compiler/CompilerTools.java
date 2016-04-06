@@ -4,11 +4,11 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.TypeUtil;
-import org.tlsys.lex.Cast;
 import org.tlsys.lex.Const;
 import org.tlsys.lex.Value;
 import org.tlsys.lex.declare.*;
 import org.tlsys.sourcemap.SourceFile;
+import org.tlsys.sourcemap.SourcePoint;
 import org.tlsys.twt.CompileException;
 import org.tlsys.twt.ICastAdapter;
 import org.tlsys.twt.annotations.CodeGenerator;
@@ -17,6 +17,7 @@ import org.tlsys.twt.annotations.InvokeGen;
 import org.tlsys.twt.annotations.MethodName;
 
 import javax.lang.model.element.Modifier;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -38,7 +39,7 @@ public class CompilerTools {
         }
 
         if (decl instanceof JCTree.JCVariableDecl) {
-            return createFieldMember(clazz, (JCTree.JCVariableDecl) decl);
+            return createFieldMember(ctx.getFile(), clazz, (JCTree.JCVariableDecl) decl);
         }
         if (decl instanceof JCTree.JCClassDecl) {
             return null;
@@ -70,7 +71,7 @@ public class CompilerTools {
         m.setModificators(toFlags(mem.getModifiers()));
         for (JCTree.JCVariableDecl v : mem.getParameters()) {
             //Set<Modifier> mm = v.getModifiers().getFlags();
-            VClass arg = TypeUtil.loadClass(m.getParent().getClassLoader(), v.type);
+            VClass arg = TypeUtil.loadClass(m.getParent().getClassLoader(), v.type, file.getPoint(mem.pos));
             if (arg instanceof ArrayClass) {
                 //VClass arg2 = vClassLoader.loadClass(v.type);
             }
@@ -80,12 +81,12 @@ public class CompilerTools {
 
 
         if (m instanceof VConstructor) {
-            VClass enumClass = m.getParent().getClassLoader().loadClass(Enum.class.getName());
+            VClass enumClass = m.getParent().getClassLoader().loadClass(Enum.class.getName(), file.getPoint(mem.pos));
             if (m.getParent() != enumClass && m.getParent().isParent(enumClass)) {
-                VArgument name = new VArgument("name", m.getParent().getClassLoader().loadClass(String.class.getName()), false, false, m, null, null);
+                VArgument name = new VArgument("name", m.getParent().getClassLoader().loadClass(String.class.getName(), file.getPoint(mem.pos)), false, false, m, null, null);
                 m.addArg(name);
 
-                VArgument ordinal = new VArgument("ordinal", m.getParent().getClassLoader().loadClass("int"), false, false, m, null, null);
+                VArgument ordinal = new VArgument("ordinal", m.getParent().getClassLoader().loadClass("int", file.getPoint(mem.pos)), false, false, m, null, null);
                 m.addArg(ordinal);
             }
 
@@ -111,13 +112,13 @@ public class CompilerTools {
         m.setRuntimeName(mem.getName().toString());
         m.alias = m.getRunTimeName();
         getAnnatationValueString(mem.getModifiers(), MethodName.class).ifPresent(e -> m.alias = e);
-        m.returnType = TypeUtil.loadClass(clazz.getClassLoader(), mem.restype.type);
+        m.returnType = TypeUtil.loadClass(clazz.getClassLoader(), mem.restype.type, sourceFile.getPoint(mem.pos));
         readExecutable(sourceFile, mem, m);
         return m;
     }
 
-    private static VField createFieldMember(VClass clazz, JCTree.JCVariableDecl fie) throws VClassNotFoundException {
-        VField v = new VField(fie.getName().toString(), TypeUtil.loadClass(clazz.getClassLoader(), fie.type), toFlags(fie.getModifiers()), clazz);
+    private static VField createFieldMember(SourceFile sourceFile, VClass clazz, JCTree.JCVariableDecl fie) throws VClassNotFoundException {
+        VField v = new VField(fie.getName().toString(), TypeUtil.loadClass(clazz.getClassLoader(), fie.type, sourceFile.getPoint(fie.pos)), toFlags(fie.getModifiers()), clazz);
         clazz.addLocalField(v);
         return v;
     }
@@ -199,7 +200,14 @@ public class CompilerTools {
         return Optional.empty();
     }
 
-    public static Value cast(Value value, VClass type) throws CompileException {
+    public static Value cast(Value value, VClass type, SourcePoint point) throws CompileException {
+        Objects.requireNonNull(value, "Value is NULL");
+        if (value.getType() == null) {
+            System.out.println("-> " + value);
+        }
+        Objects.requireNonNull(value.getType(), "Value Type is NULL");
+
+        Objects.requireNonNull(type, "Type is NULL");
         //if (true)
         //    return value;
         if (value.getType() == type || value.getType().isParent(type))
@@ -207,12 +215,11 @@ public class CompilerTools {
 
         if (value instanceof Const && ((Const) value).getValue() == null)
             return value;
-        return new Cast(type, value);
-        /*
+        //return new Cast(type, value);
 
         ICastAdapter ica = getCastAdapter(value.getType());
-        return ica.cast(value, type);
-        */
+        return ica.cast(value, type, point);
+
     }
 
     private static ICastAdapter getCastAdapter(VClass clazz) {

@@ -26,7 +26,7 @@ public class Generator implements MainGenerator {
     */
 
     private static Value getValueViaProvider(Value value) throws VClassNotFoundException {
-        VClass typeValueProvider = value.getType().getClassLoader().loadClass(ValueProvider.class.getName());
+        VClass typeValueProvider = value.getType().getClassLoader().loadClass(ValueProvider.class.getName(), null);
         VBlock body = new VBlock();
         body.add(new Return(value, null));
         Lambda lambda = new Lambda(typeValueProvider.methods.get(0), null);
@@ -35,7 +35,7 @@ public class Generator implements MainGenerator {
     }
 
     private static Value getClassViaTypeProvider(VClass vClass) throws VClassNotFoundException {
-        VClass typeProviderClass = vClass.getClassLoader().loadClass(TypeProvider.class.getName());
+        VClass typeProviderClass = vClass.getClassLoader().loadClass(TypeProvider.class.getName(), null);
         VBlock body = new VBlock();
         body.add(new Return(new ClassRecordRef(vClass, null), null));
         Lambda lambda = new Lambda(typeProviderClass.methods.get(0), null);
@@ -45,32 +45,32 @@ public class Generator implements MainGenerator {
 
     public static Value genClassRecord(GenerationContext gc, VClass vClass, Predicate<VExecute> exeNeed, Supplier<Value> newClass, CompileModuls moduls) throws CompileException {
         VClassLoader cl = vClass.getClassLoader();
-        VClass classString = cl.loadClass(String.class.getName());
-        VClass objectClass = cl.loadClass(Object.class.getName());
+        VClass classString = cl.loadClass(String.class.getName(), null);
+        VClass objectClass = cl.loadClass(Object.class.getName(), null);
 
-        VClass classClassRecord = cl.loadClass(ClassRecord.class.getName());
-        VMethod addStaticMethod = classClassRecord.getMethod("addStatic", objectClass);
+        VClass classClassRecord = cl.loadClass(ClassRecord.class.getName(), null);
+        VMethod addStaticMethod = classClassRecord.getMethod("addStatic", null, objectClass);
 
 
-        VClass scriptClass = cl.loadClass(Script.class.getName());
+        VClass scriptClass = cl.loadClass(Script.class.getName(), null);
         VMethod codeMethod = scriptClass.getMethodByName("code").get(0);
 
-        VClass classBoolean = cl.loadClass("boolean");
-        VClass classInt = cl.loadClass("int");
-        VClass classValueProvider = cl.loadClass(ValueProvider.class.getName());
-        VClass classMethodRecord = cl.loadClass(MethodRecord.class.getName());
-        VClass classTypeProvider = cl.loadClass(TypeProvider.class.getName());
-        VClass classArgumentRecord = cl.loadClass(ArgumentRecord.class.getName());
+        VClass classBoolean = cl.loadClass("boolean", null);
+        VClass classInt = cl.loadClass("int", null);
+        VClass classValueProvider = cl.loadClass(ValueProvider.class.getName(), null);
+        VClass classMethodRecord = cl.loadClass(MethodRecord.class.getName(), null);
+        VClass classTypeProvider = cl.loadClass(TypeProvider.class.getName(), null);
+        VClass classArgumentRecord = cl.loadClass(ArgumentRecord.class.getName(), null);
 
-        VMethod methodAddArg = classMethodRecord.getMethod("addArg", classArgumentRecord);
-        VMethod classAddMethod = classClassRecord.getMethod("addMethod", classMethodRecord);
-        VMethod methodSetSuper = classClassRecord.getMethod("setSuper", classTypeProvider);
-        VMethod methodAddImplement = classClassRecord.getMethod("addImplement", classTypeProvider);
-        VConstructor methodConstructor = classMethodRecord.getConstructor(classString, classString, objectClass, classBoolean);//получаем конструктор MethodRecord
-        VMethod addFieldMethod = classClassRecord.getMethod("addField", classString, classString, classTypeProvider, classString, classInt);
-        VMethod setDomNodeMethod = classClassRecord.getMethod("setDomNode", classString);
+        VMethod methodAddArg = classMethodRecord.getMethod("addArg", null, classArgumentRecord);
+        VMethod classAddMethod = classClassRecord.getMethod("addMethod", null, classMethodRecord);
+        VMethod methodSetSuper = classClassRecord.getMethod("setSuper", null, classTypeProvider);
+        VMethod methodAddImplement = classClassRecord.getMethod("addImplement", null, classTypeProvider);
+        VConstructor methodConstructor = classMethodRecord.getConstructor(null, classString, classString, objectClass, classBoolean);//получаем конструктор MethodRecord
+        VMethod addFieldMethod = classClassRecord.getMethod("addField", null, classString, classString, classTypeProvider, classString, classInt);
+        VMethod setDomNodeMethod = classClassRecord.getMethod("setDomNode", null, classString);
 
-        VConstructor argumentConstructor = classArgumentRecord.getConstructor(classString, classBoolean, classTypeProvider);
+        VConstructor argumentConstructor = classArgumentRecord.getConstructor(null, classString, classBoolean, classTypeProvider);
 
 
         ICodeGenerator hc2 = gc.getGenerator(vClass);
@@ -189,7 +189,7 @@ public class Generator implements MainGenerator {
             hc2.operation(gc, b.getBlock(), new Outbuffer(sos.getStream()));
             //sos.getStream().append("}");
             lastScope = new Invoke(addStaticMethod, lastScope)
-                            .addArg(new Invoke(codeMethod, new StaticRef(scriptClass)).addArg(new NewArrayItems(objectClass.getArrayClass()).addEl(new Const(sos.toString(), classString))));
+                    .addArg(new Invoke(codeMethod, new StaticRef(scriptClass)).addArg(new NewArrayItems(objectClass.getArrayClass(), null).addEl(new Const(sos.toString(), classString))));
         }
 
         return lastScope;
@@ -210,26 +210,26 @@ public class Generator implements MainGenerator {
     @Override
     public void generate(VClassLoader projectClassLoader, CompileModuls compileModuls, Outbuffer ps) throws CompileException {
 
-        VClass classClassStorage = projectClassLoader.loadClass(ClassStorage.class.getName());
+        VClass classClassStorage = projectClassLoader.loadClass(ClassStorage.class.getName(), null);
 
         storage = new SVar("S", classClassStorage, null);
 
-        VClass classLoader = projectClassLoader.loadClass(ClassLoader.class.getName());
-        VClass classClass = projectClassLoader.loadClass(Class.class.getName());
-        VClass objectClass = projectClassLoader.loadClass(Object.class.getName());
-        VClass classField = projectClassLoader.loadClass(Field.class.getName());
-        VClass obejctsClass = projectClassLoader.loadClass(Objects.class.getName());
+        VClass classLoader = projectClassLoader.loadClass(ClassLoader.class.getName(), null);
+        VClass classClass = projectClassLoader.loadClass(Class.class.getName(), null);
+        VClass objectClass = projectClassLoader.loadClass(Object.class.getName(), null);
+        VClass classField = projectClassLoader.loadClass(Field.class.getName(), null);
+        VClass obejctsClass = projectClassLoader.loadClass(Objects.class.getName(), null);
 
 
-        VClass classClassRecord = projectClassLoader.loadClass(ClassRecord.class.getName());
-        VClass classFieldRecord = projectClassLoader.loadClass(FieldRecord.class.getName());
-        VClass classMethodRecord = projectClassLoader.loadClass(MethodRecord.class.getName());
-        VClass classArgumentRecord = projectClassLoader.loadClass(ArgumentRecord.class.getName());
-        VClass classTypeProvider = projectClassLoader.loadClass(TypeProvider.class.getName());
-        VClass classString = projectClassLoader.loadClass(String.class.getName());
+        VClass classClassRecord = projectClassLoader.loadClass(ClassRecord.class.getName(), null);
+        VClass classFieldRecord = projectClassLoader.loadClass(FieldRecord.class.getName(), null);
+        VClass classMethodRecord = projectClassLoader.loadClass(MethodRecord.class.getName(), null);
+        VClass classArgumentRecord = projectClassLoader.loadClass(ArgumentRecord.class.getName(), null);
+        VClass classTypeProvider = projectClassLoader.loadClass(TypeProvider.class.getName(), null);
+        VClass classString = projectClassLoader.loadClass(String.class.getName(), null);
 
 
-        addFullClass(projectClassLoader.loadClass(Throwable.class.getName()), compileModuls);
+        addFullClass(projectClassLoader.loadClass(Throwable.class.getName(), null), compileModuls);
         addFullClass(classLoader, compileModuls);
         addFullClass(classClass, compileModuls);
         addFullClass(classField, compileModuls);
@@ -241,7 +241,7 @@ public class Generator implements MainGenerator {
         addFullClass(classTypeProvider, compileModuls);
         addFullClass(objectClass, compileModuls);
         addFullClass(obejctsClass, compileModuls);
-        addFullClass(projectClassLoader.loadClass(ArrayBuilder.class.getName()), compileModuls);
+        addFullClass(projectClassLoader.loadClass(ArrayBuilder.class.getName(), null), compileModuls);
 
 
         HashSet<CompileModuls.ClassRecord> nativs = new HashSet<>();
@@ -278,7 +278,7 @@ public class Generator implements MainGenerator {
 
         gc = new MainGenerationContext(classClassRecord, compileModuls);
         icg = gc.getGenerator(classClassRecord);
-        VMethod storageAddMethod = classClassStorage.getMethod("add", classClassRecord);//получаем метод add класса ClassRecord
+        VMethod storageAddMethod = classClassStorage.getMethod("add", null, classClassRecord);//получаем метод add класса ClassRecord
 
 
         for (CompileModuls.ClassRecord cr : others) {

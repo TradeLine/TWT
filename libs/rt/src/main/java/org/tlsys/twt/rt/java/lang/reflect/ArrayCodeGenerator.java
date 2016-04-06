@@ -8,8 +8,6 @@ import org.tlsys.lex.declare.VExecute;
 import org.tlsys.lex.declare.VMethod;
 import org.tlsys.twt.*;
 
-import java.io.PrintStream;
-
 public class ArrayCodeGenerator extends DefaultGenerator {
     @Override
     public void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
@@ -37,11 +35,11 @@ public class ArrayCodeGenerator extends DefaultGenerator {
         */
 
         if (execute.alias.equals("newInstance")) {
-            VClass intClass = execute.getParent().getClassLoader().loadClass("int");
+            VClass intClass = execute.getParent().getClassLoader().loadClass("int", execute.getPoint());
             if (execute.getArguments().get(1).getType() == intClass) {
                 VClass arrayClass = execute.getParent();
-                VClass classClass = arrayClass.getClassLoader().loadClass(Class.class.getName());
-                VMethod getArrayClassMethod = classClass.getMethod("getArrayClass");
+                VClass classClass = arrayClass.getClassLoader().loadClass(Class.class.getName(), execute.getPoint());
+                VMethod getArrayClassMethod = classClass.getMethod("getArrayClass", execute.getPoint());
                 ICodeGenerator cg = context.getGenerator(execute.getParent());
                 ps.append("return ");
                 cg.operation(context, new Invoke(getArrayClassMethod, execute.getArguments().get(0)), ps);

@@ -1,6 +1,5 @@
 package org.tlsys.lex.declare;
 
-import com.sun.tools.javac.code.Symbol;
 import org.tlsys.sourcemap.SourcePoint;
 
 import java.io.ObjectStreamException;
@@ -9,13 +8,14 @@ import java.util.ArrayList;
 
 public class VMethod extends VExecute {
     private static final long serialVersionUID = 7352639283063310734L;
+    private final String realName;
     public VMethod brigTo;
     private VMethod replace;
 
-    public void setReplace(VMethod method) {
-        if (method == this)
-            throw new IllegalArgumentException("Can't replace self");
-        replace = method;
+    public VMethod(SourcePoint point, String realName, VClass parent, VMethod brigTo) {
+        super(point, parent);
+        this.realName = realName;
+        this.brigTo = brigTo;
     }
 
     @Override
@@ -29,12 +29,10 @@ public class VMethod extends VExecute {
         return replace;
     }
 
-    private final String realName;
-
-    public VMethod(SourcePoint point, String realName, VClass parent, VMethod brigTo) {
-        super(point, parent);
-        this.realName = realName;
-        this.brigTo = brigTo;
+    public void setReplace(VMethod method) {
+        if (method == this)
+            throw new IllegalArgumentException("Can't replace self");
+        replace = method;
     }
 
     @Override
@@ -69,6 +67,7 @@ public class VMethod extends VExecute {
     }
 
     private static class MethodRef implements Serializable {
+        private static final long serialVersionUID = -1899868535852784733L;
         private String alias;
         private VClass parent;
         private ArrayList<VClass> arguments;
@@ -92,7 +91,7 @@ public class VMethod extends VExecute {
         }
 
         Object readResolve() throws Exception {
-            return getParent().getMethod(getAlias(), getArguments());
+            return getParent().getMethod(getAlias(), getArguments(), null);
         }
     }
 }

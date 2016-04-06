@@ -18,18 +18,18 @@ public class VConstructor extends VExecute {
     public VConstructor(SourcePoint point, VClass parent) {
         super(point, parent);
         try {
-            returnType = parent.getClassLoader().loadClass("void");
+            returnType = parent.getClassLoader().loadClass("void", null);
         } catch (VClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
+    public VConstructor() {
+    }
+
     @Override
     public boolean isThis(String name) {
         return false;
-    }
-
-    public VConstructor() {
     }
 
     @Override
@@ -62,6 +62,7 @@ public class VConstructor extends VExecute {
     }
 
     private static class MethodRef implements Serializable {
+        private static final long serialVersionUID = 6039155122715150647L;
         private VClass parent;
         private ArrayList<VClass> arguments;
 
@@ -82,7 +83,7 @@ public class VConstructor extends VExecute {
         Object readResolve() throws Exception {
             if (getParent().constructors == null)
                 getParent().constructors = new ArrayList<>();
-            return getParent().getConstructor(getArguments());
+            return getParent().getConstructor(getArguments(), null);
         }
     }
 }

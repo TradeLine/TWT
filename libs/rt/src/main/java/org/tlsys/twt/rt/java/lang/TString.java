@@ -1,9 +1,6 @@
 package org.tlsys.twt.rt.java.lang;
 
-import org.tlsys.twt.ApplyInvoke;
-import org.tlsys.twt.CastUtil;
-import org.tlsys.twt.JArray;
-import org.tlsys.twt.Script;
+import org.tlsys.twt.*;
 import org.tlsys.twt.annotations.*;
 
 @JSClass
@@ -15,12 +12,49 @@ public final class TString {
     public TString(String text) {
     }
 
+    public static String valueOf(long obj) {
+        return Script.code(obj, ".toString()");
+    }
+
+    public static String valueOf(int obj) {
+        return Script.code(CastUtil.toObject(obj), ".toString()");
+    }
+
+    public static String valueOf(short obj) {
+        return Script.code(CastUtil.toObject(obj), ".toString()");
+    }
+
+    public static String valueOf(byte obj) {
+        return Script.code(CastUtil.toObject(obj), ".toString()");
+    }
+
+    public static String valueOf(boolean obj) {
+        return obj ? "true" : "false";
+    }
+
+    public static String valueOf(char obj) {
+        return Script.code(CastUtil.toObject(obj));
+    }
+
+    public static String valueOf(Object obj) {
+        if (obj == null)
+            return "null";
+        if (obj.getClass() == String.class)
+            return CastUtil.cast(obj);
+
+        if (obj.getClass() == Integer.class || obj.getClass() == Float.class)
+            return obj.toString();
+
+        Console.info("Try convert to string...");
+        Console.dir(obj);
+        return obj.toString();
+    }
+
     @MethodAlias("toString")
     @Override
     public String toString() {
         return null;
     }
-
 
     @NotCompile
     @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
@@ -29,27 +63,6 @@ public final class TString {
     @NotCompile
     @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
     public native boolean equals(Object obj);
-
-    public static String valueOf(Object obj) {
-        if (obj == null)
-            return "null";
-        if (obj.getClass()==String.class)
-            return CastUtil.cast(obj);
-
-        if (obj.getClass()==Integer.class || obj.getClass()==Float.class)
-            return Script.code(obj,".toString()");
-
-        return "Not supported";
-        //return obj.toString();
-    }
-
-    public static String valueOf(int obj) {
-        return Script.code(obj,".toString()");
-    }
-
-    public static String valueOf(long obj) {
-        return Script.code(obj,".toString()");
-    }
 
     @NotCompile
     @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)

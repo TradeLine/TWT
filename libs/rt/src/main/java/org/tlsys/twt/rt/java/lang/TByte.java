@@ -1,10 +1,12 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
 
 @JSClass
 @ReplaceClass(Byte.class)
+@CastAdapter(BoxingCast.class)
 public final class TByte extends Number {
     public static byte MAX_VALUE = 127;
     public static byte MIN_VALUE = -128;

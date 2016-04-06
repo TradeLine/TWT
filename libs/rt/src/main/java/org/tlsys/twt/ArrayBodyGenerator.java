@@ -14,7 +14,7 @@ public class ArrayBodyGenerator extends DefaultGenerator {
         ICodeGenerator defaultCG = ctx.getGenerator(execute.getParent());
         ArrayClass ac = (ArrayClass) execute.getParent();
         if (execute == ac.constructor) {
-            defaultCG.operation(ctx, new Invoke(execute.getParent().extendsClass.getConstructor(), new This(execute.getParent())), ps);
+            defaultCG.operation(ctx, new Invoke(execute.getParent().extendsClass.getConstructor(execute.getPoint()), new This(execute.getParent())), ps);
             ps.append(";");
 
             ps.append("this.").append(ac.jsArray.getRuntimeName()).append("=new Array(").append(execute.getArguments().get(0).getRuntimeName()).append(");");

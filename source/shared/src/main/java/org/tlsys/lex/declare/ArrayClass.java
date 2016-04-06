@@ -58,7 +58,7 @@ public class ArrayClass extends VClass {
 
         parentContext = component.getParentContext();
         //VClass classClass;
-        extendsClass = intType.getClassLoader().loadClass(Object.class.getName());
+        extendsClass = intType.getClassLoader().loadClass(Object.class.getName(), null);
         lengthField = new VField(LENGTH, "length", intType, Modifier.PUBLIC, this);
         lengthField.init = new Const(0, intType);
         fields.add(lengthField);
@@ -82,7 +82,7 @@ public class ArrayClass extends VClass {
         set.alias="set";
         set.addArg(new VArgument("i", intType, false, false, set, null, null));
         set.addArg(new VArgument("v", component, false, false, set, null, null));
-        set.returnType = intType.getClassLoader().loadClass("void");
+        set.returnType = intType.getClassLoader().loadClass("void", null);
         set.setBlock(new VBlock(set, null, null));
         set.setModificators(Modifier.PUBLIC);
 
@@ -98,7 +98,7 @@ public class ArrayClass extends VClass {
         constructor.addArg(new VArgument("l", intType, false, false, constructor, null, null));
         //constructor.generator = ArrayCodeGenerator.class.getName();
         constructor.setBlock(new VBlock(constructor, null, null));
-        constructor.returnType = intType.getClassLoader().loadClass("void");
+        constructor.returnType = intType.getClassLoader().loadClass("void", null);
         constructors.add(constructor);
     }
 

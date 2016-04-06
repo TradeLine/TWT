@@ -1,6 +1,5 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
 import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
@@ -15,15 +14,15 @@ import java.util.function.Predicate;
 public class InstanceOf extends Value implements HavinSourceStart {
 
     private static final long serialVersionUID = -7698411563310867474L;
+    private final SourcePoint point;
     private Value value;
     private VClass clazz;
     private VClass result;
-    private final SourcePoint point;
 
     public InstanceOf(Value value, VClass clazz, SourcePoint point) throws VClassNotFoundException {
         this.value = Objects.requireNonNull(value);
         this.clazz = Objects.requireNonNull(clazz);
-        result = clazz.getClassLoader().loadClass(boolean.class.getName());
+        result = clazz.getClassLoader().loadClass(boolean.class.getName(), point);
         this.point = point;
     }
 

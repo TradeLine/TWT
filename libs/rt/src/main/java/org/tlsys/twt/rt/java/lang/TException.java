@@ -6,6 +6,8 @@ import org.tlsys.twt.annotations.JSClass;
 @JSClass
 @ClassName("java.lang.Exception")
 public class TException extends Throwable {
+    private static final long serialVersionUID = 2366296012699637756L;
+
     public TException() {
         super();
     }

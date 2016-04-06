@@ -8,6 +8,8 @@ import org.tlsys.twt.annotations.ReplaceClass;
 @ClassName("java.lang.ReflectiveOperationException")
 @ReplaceClass(java.lang.ReflectiveOperationException.class)
 public class TReflectiveOperationException extends Exception {
+    private static final long serialVersionUID = 4690764048585796909L;
+
     public TReflectiveOperationException() {
         super();
     }

@@ -83,6 +83,7 @@ public class VField extends VVar implements Member, CodeDynLoad {
 
     private static class FieldRef implements Serializable {
         private static final long serialVersionUID = -1967975223687035241L;
+
         private String name;
         private VClass parent;
 
@@ -100,7 +101,7 @@ public class VField extends VVar implements Member, CodeDynLoad {
         }
 
         Object readResolve() throws Exception {
-            return getParent().getField(getName());
+            return getParent().getField(getName(), null);
         }
     }
 }

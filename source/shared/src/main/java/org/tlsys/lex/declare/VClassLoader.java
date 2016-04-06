@@ -1,5 +1,6 @@
 package org.tlsys.lex.declare;
 
+import org.tlsys.sourcemap.SourcePoint;
 import org.tlsys.twt.CompileException;
 
 import java.io.ObjectInputStream;
@@ -12,19 +13,34 @@ import java.util.List;
 
 public class VClassLoader implements Serializable {
     private static final long serialVersionUID = -8477730129932068195L;
-
-    private String name;
-
+    private static ThreadLocal<List<VClassLoader>> parentList = new ThreadLocal<>();
     private final VPackage rootPackage = new VPackage(null, null);
+    public ArrayList<VClass> classes = new ArrayList<>();
+    public transient ArrayList<VClassLoader> parents = new ArrayList<>();
+    private String name;
+    private transient HashMap<VClass, ArrayClass> arrays = new HashMap<>();
+    private transient ClassLoader javaClassLoader;
+    private transient boolean loading = false;
+    private transient LinkedList<ArrayLazyInit> lazy;
+
+    public VClassLoader(String name) {
+        this.name = name;
+    }
+
+    public VClassLoader() {
+    }
+
+    public static List<VClassLoader> getParentList() {
+        return parentList.get();
+    }
+
+    public static void setParentList(List<VClassLoader> parentList) {
+        VClassLoader.parentList.set(parentList);
+    }
 
     public VPackage getRootPackage() {
         return rootPackage;
     }
-
-    public ArrayList<VClass> classes = new ArrayList<>();
-    public transient ArrayList<VClassLoader> parents = new ArrayList<>();
-    private transient HashMap<VClass, ArrayClass> arrays = new HashMap<>();
-    private transient ClassLoader javaClassLoader;
 
     public ClassLoader getJavaClassLoader() {
         return javaClassLoader;
@@ -32,10 +48,6 @@ public class VClassLoader implements Serializable {
 
     public void setJavaClassLoader(ClassLoader javaClassLoader) {
         this.javaClassLoader = javaClassLoader;
-    }
-
-    public VClassLoader(String name) {
-        this.name = name;
     }
 
     public String getName() {
@@ -51,29 +63,6 @@ public class VClassLoader implements Serializable {
         cl.setClassLoader(this);
     }
 
-    private transient boolean loading = false;
-
-    public VClassLoader() {
-    }
-
-    private class ArrayLazyInit {
-        private ArrayClass clazz;
-
-        public ArrayLazyInit(ArrayClass clazz) {
-            this.clazz = clazz;
-        }
-
-        public void init() {
-            try {
-                clazz.init(loadClass(int.class.getName()));
-            } catch (CompileException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    private transient LinkedList<ArrayLazyInit> lazy;
-
     public ArrayClass getArrayClass(VClass clazz) {
         if (clazz.getClassLoader() != this)
             throw new IllegalStateException("Bad ArrayClasses ClassLoader");
@@ -87,7 +76,7 @@ public class VClassLoader implements Serializable {
             lazy.add(new ArrayLazyInit(ar));
         } else {
             try {
-                ar = new ArrayClass(clazz, loadClass(int.class.getName()));
+                ar = new ArrayClass(clazz, loadClass(int.class.getName(), null));
             } catch (VClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -97,7 +86,7 @@ public class VClassLoader implements Serializable {
         return ar;
     }
 
-    public VClass loadClass(String name) throws VClassNotFoundException{
+    public VClass loadClass(String name, SourcePoint point) throws VClassNotFoundException {
         //name = name.replace('$','.');
         if (classes == null)
             classes = new ArrayList<>();
@@ -109,13 +98,13 @@ public class VClassLoader implements Serializable {
 
         for (VClassLoader v : parents) {
             try {
-                return v.loadClass(name);
+                return v.loadClass(name, point);
             } catch (VClassNotFoundException e) {
 
             }
         }
 
-        throw new VClassNotFoundException(name);
+        throw new VClassNotFoundException(name, point);
     }
 
     private void writeObject(ObjectOutputStream out) throws java.io.IOException {
@@ -124,16 +113,6 @@ public class VClassLoader implements Serializable {
         for (VClass cl : classes)
             cl.saveCode(out);
         out.flush();
-    }
-
-    private static ThreadLocal<List<VClassLoader>> parentList = new ThreadLocal<>();
-
-    public static List<VClassLoader> getParentList() {
-        return parentList.get();
-    }
-
-    public static void setParentList(List<VClassLoader> parentList) {
-        VClassLoader.parentList.set(parentList);
     }
 
     private void readObject(ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
@@ -157,6 +136,22 @@ public class VClassLoader implements Serializable {
         for (ArrayLazyInit a : lazy)
             a.init();
         lazy = null;
+    }
+
+    private class ArrayLazyInit {
+        private ArrayClass clazz;
+
+        public ArrayLazyInit(ArrayClass clazz) {
+            this.clazz = clazz;
+        }
+
+        public void init() {
+            try {
+                clazz.init(loadClass(int.class.getName(), null));
+            } catch (CompileException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /*

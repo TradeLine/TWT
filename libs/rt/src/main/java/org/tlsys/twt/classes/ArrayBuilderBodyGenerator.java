@@ -18,10 +18,10 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
     public void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
         super.generateMethodStart(context, execute, ps);
         VClass arrayBuilderClass = execute.getParent();
-        VClass classRecordClass = arrayBuilderClass.getClassLoader().loadClass(Class.class.getName());
-        VClass classClass = arrayBuilderClass.getClassLoader().loadClass(Class.class.getName());
-        VClass intClass = arrayBuilderClass.getClassLoader().loadClass("int");
-        VClass booleanClass = arrayBuilderClass.getClassLoader().loadClass("boolean");
+        VClass classRecordClass = arrayBuilderClass.getClassLoader().loadClass(Class.class.getName(), execute.getPoint());
+        VClass classClass = arrayBuilderClass.getClassLoader().loadClass(Class.class.getName(), execute.getPoint());
+        VClass intClass = arrayBuilderClass.getClassLoader().loadClass("int", execute.getPoint());
+        VClass booleanClass = arrayBuilderClass.getClassLoader().loadClass("boolean", execute.getPoint());
         ICodeGenerator cg = context.getGenerator(classClass);
         //VMethod getArrayClassMethod = classClass.getMethod("getArrayClass");
 
@@ -31,12 +31,12 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
 
             Value arrayClassRecord = CodeBuilder.scope(CodeBuilder.scope(execute.getArguments().get(0))
                     .method("getRecord")
-                    .invoke().build())
+                    .invoke(execute.getPoint()).build())
                     .method("getArrayClassRecord")
-                    .invoke().build();
+                    .invoke(execute.getPoint()).build();
 
 
-            Value prototypeOfArrayClass = CodeBuilder.scope(arrayClassRecord).method("getPrototype").invoke().build();
+            Value prototypeOfArrayClass = CodeBuilder.scope(arrayClassRecord).method("getPrototype").invoke(execute.getPoint()).build();
 
             cg.operation(context, prototypeOfArrayClass, ps);
             ps.append(".n").append(ArrayClass.CONSTRUCTOR).append("(").append(execute.getArguments().get(1).getRuntimeName()).append(".length);");

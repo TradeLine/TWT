@@ -20,7 +20,7 @@ public class ClassRef extends Value implements HavinSourceStart {
         this.point = point;
 
         try {
-            type = refTo.getClassLoader().loadClass(Class.class.getName());
+            type = refTo.getClassLoader().loadClass(Class.class.getName(), point);
         } catch (VClassNotFoundException e) {
             throw new RuntimeException(e);
         }
