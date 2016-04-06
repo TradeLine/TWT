@@ -37,7 +37,7 @@ public class Generator implements MainGenerator {
     private static Value getClassViaTypeProvider(VClass vClass) throws VClassNotFoundException {
         VClass typeProviderClass = vClass.getClassLoader().loadClass(TypeProvider.class.getName());
         VBlock body = new VBlock();
-        body.add(new Return(new StaticRef(vClass), null));
+        body.add(new Return(new ClassRecordRef(vClass, null), null));
         Lambda lambda = new Lambda(typeProviderClass.methods.get(0), null);
         lambda.setBlock(body);
         return lambda;

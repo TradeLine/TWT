@@ -117,8 +117,10 @@ public class DefaultGenerator implements ICodeGenerator {
                     c.getGenerator(self.getType()).operation(c, new StaticRef(o.getMethod().getParent(), o.getPoint()), p);
                     p.append(".");
 
-                    if (!o.getMethod().isStatic())
-                        p.append(o.getScope().getType().getClassLoader().loadClass(Class.class.getName()).getMethod("getJsClass").getRunTimeName()).append("()").append(".prototype.");
+                    if (!o.getMethod().isStatic()) {
+                        p.append("prototype.");
+                        //p.append(o.getScope().getType().getClassLoader().loadClass(Class.class.getName()).getMethod("getJsClass").getRunTimeName()).append("()").append(".prototype.");
+                    }
                     p.add(o.getMethod().getRunTimeName(), o.getPoint(), pos);
                     p.append(".call(this");
                     printArg.test(false);
@@ -167,6 +169,7 @@ public class DefaultGenerator implements ICodeGenerator {
 
         //ClassRef
 
+        /*
         Gen<Value> classRef = (c, o, p, g) -> {
             VClass cl = null;
             if (o instanceof ClassRef)
@@ -224,53 +227,98 @@ public class DefaultGenerator implements ICodeGenerator {
             //throw new RuntimeException("Class ref not supported yet");
             return true;
         };
+        */
+
+        addGen(ClassRecordRef.class, (c, o, p, g) -> {
+            ICodeGenerator icg = c.getGenerator(o.getType());
+            if (icg != null && icg != g)
+                return icg.operation(c, o, p);
+
+            if (o.getToClass() instanceof ArrayClass) {
+                ArrayClass ac = (ArrayClass) o.getToClass();
+                return g.operation(c,
+                        CodeBuilder.scope(new ClassRecordRef(ac.getComponent(), o.getPoint()))
+                                .method("getArrayClassRecord")
+                                .invoke()
+                                .build(),
+                        p);
+
+            }
+
+            p.add(Generator.storage.getRuntimeName(), o.getPoint());
+            p.append(".");
+            p.add(o.getToClass().fullName, o.getPoint());
+            return true;
+        });
 
         addGen(StaticRef.class, (c, o, p, g) -> {
             ICodeGenerator icg = c.getGenerator(o.getType());
             if (icg != null && icg != g)
                 return icg.operation(c, o, p);
 
+            /*
             if (o.getType() instanceof ArrayClass) {
                 ArrayClass ac = (ArrayClass) o.getType();
                 return g.operation(c,
                         CodeBuilder.scope(
                                 CodeBuilder.scope(
-                                        CodeBuilder
-                                                .scope(new ClassRef(ac.getComponent(), o.getPoint()))
-                                                .method("getRecord")
-                                                .invoke().build()
-                                ).method("getArrayClassRecord").invoke().build()
+                                        new ClassRecordRef(ac.getComponent(), o.getPoint())
+                                )
+                                        .method("getArrayClassRecord")
+                                        .invoke()
+                                        .build()
                         ).method("getPrototype").invoke().build()
                         , p);
             }
+            */
 
+            /*
             g.operation(c,
                     CodeBuilder.scope(
                             CodeBuilder.scope(new ClassRef(o.getType(), o.getPoint()))
                                     .method("getRecord")
                                     .invoke().build()
                     ).method("getPrototype").invoke().build(), p);
+            */
+
+
+            g.operation(c, new ClassRecordRef(o.getType(), o.getPoint()), p);
+            /*
+            p.add(Generator.storage.getRuntimeName(), o.getPoint());
+            p.append(".");
+            p.add(o.getType().fullName, o.getPoint());
+            */
+            p.append(".");
+            p.add(CodeBuilder.scope(o.getType().getClassLoader().loadClass(ClassRecord.class.getName())).method("getPrototype").find().getRunTimeName(), o.getPoint());
+            p.add("()", o.getPoint());
 
 
             return true;
         });
         addGen(ClassRef.class, (c, o, p, g) -> {
+            /*
             if (o.refTo instanceof ArrayClass) {
                 ArrayClass ac = (ArrayClass) o.refTo;
                 return g.operation(c,
                         CodeBuilder.scope(
                                 CodeBuilder.scope(
                                         CodeBuilder
-                                                .scope(new ClassRef(ac.getComponent(), o.getPoint()))
+                                                .scope(new ClassRecordRef(ac.getComponent(), o.getPoint()))
                                                 .method("getRecord")
                                                 .invoke().build()
                                 ).method("getArrayClassRecord").invoke().build()
                         ).method("getAsClass").invoke().build()
                         , p);
             }
+            */
 
+            g.operation(c, new ClassRecordRef(o.refTo, o.getPoint()), p);
+            /*
             p.add(Generator.storage.getRuntimeName(), o.getPoint());
+            p.append(".");
             p.add(o.refTo.fullName, o.getPoint());
+            */
+            p.append(".");
             p.add(CodeBuilder.scope(o.refTo.getClassLoader().loadClass(ClassRecord.class.getName())).method("getAsClass").find().getRunTimeName(), o.getPoint());
             p.add("()", o.getPoint());
             return true;
@@ -289,8 +337,8 @@ public class DefaultGenerator implements ICodeGenerator {
             //p.append(".");
             //p.append(o.getField().name);
             p.add("", o.getPoint());
-            g.operation(c, new StaticRef(o.constructor.getParent(), null), p);
-            p.append(".").append("n").append(o.constructor.getRunTimeName()).append("(");
+            g.operation(c, new StaticRef(o.constructor.getParent(), o.getPoint()), p);
+            p.append(".").add("n", o.getPoint()).append(o.constructor.getRunTimeName()).append("(");
             boolean first = true;
             for (Value v : o.arguments) {
                 if (!first)
@@ -303,13 +351,13 @@ public class DefaultGenerator implements ICodeGenerator {
             //throw new RuntimeException("new operator not suppported");
         });
 
-        addGen(CodeExe.class, (c,o,p,g)->{
+        addGen(CodeExe.class, (c, o, p, g) -> {
             if (o.getExecute().getBlock() == null) {
                 p.append("null");
                 return false;
             }
             if (o.getExecute() instanceof VMethod)
-                p.add("function(", o.getExecute().getPoint(), ((VMethod)o.getExecute()).getRealName());
+                p.add("function(", o.getExecute().getPoint(), ((VMethod) o.getExecute()).getRealName());
             else
                 p.add("function(", o.getExecute().getPoint());
             boolean first = true;
@@ -334,7 +382,7 @@ public class DefaultGenerator implements ICodeGenerator {
             }
             */
 
-            g.operation(gc, o.getExecute().getBlock(), p);
+                g.operation(gc, o.getExecute().getBlock(), p);
 
             return true;
         });
@@ -414,7 +462,6 @@ public class DefaultGenerator implements ICodeGenerator {
 
         addGen(SetField.class, (c, o, p, g) -> {
             VClass pp = o.getField().getParent();
-
 
 
             g.operation(c, o.getScope(), p);
@@ -527,7 +574,7 @@ public class DefaultGenerator implements ICodeGenerator {
                     continue;
                 p.append(";");
             }
-            p.add("}", o.getEndPoint() != null?o.getEndPoint():o.getStartPoint());
+            p.add("}", o.getEndPoint() != null ? o.getEndPoint() : o.getStartPoint());
             return true;
         });
 
@@ -731,7 +778,7 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         });
 
-        addGen(NewArrayLen.class, (c,o,p,g)->{
+        addGen(NewArrayLen.class, (c, o, p, g) -> {
             if (o.sizes.size() > 1) {
                 throw new RuntimeException("Not supported multiarray! yet!");
             }
@@ -742,16 +789,16 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         });
 
-        addGen(NewArrayItems.class, (c,o,p,g)->{
+        addGen(NewArrayItems.class, (c, o, p, g) -> {
             VClass classArrayBuilder = o.getType().getClassLoader().loadClass(ArrayBuilder.class.getName());
             VMethod methodGet = classArrayBuilder.getMethodByName("create").get(0);
             g.operation(c, new Invoke(methodGet, new StaticRef(classArrayBuilder, null))
                     .addArg(new StaticRef(o.getType(), null))
-            .addArg(o), p);
+                    .addArg(o), p);
             return true;
         });
 
-        addGen(Try.class, (c,o,p,g)->{
+        addGen(Try.class, (c, o, p, g) -> {
             p.add("try", o.getPoint());
             g.operation(c, o.block, p);
             if (!o.catchs.isEmpty()) {
@@ -789,7 +836,7 @@ public class DefaultGenerator implements ICodeGenerator {
             return true;
         });
 
-        addGen(InstanceOf.class, (c,o,p,g)->{
+        addGen(InstanceOf.class, (c, o, p, g) -> {
             ICodeGenerator cg = c.getGenerator(o.getClazz());
             if (cg != null && cg != g)
                 return cg.operation(c, o, p);
@@ -798,9 +845,9 @@ public class DefaultGenerator implements ICodeGenerator {
             return g.operation(c, new Invoke(method, new StaticRef(o.getClazz(), null), o.getPoint()).addArg(o.getValue()), p);
         });
 
-        addGen(Switch.class, (c,o,p,g)->{
+        addGen(Switch.class, (c, o, p, g) -> {
             p.add("switch(", o.getPoint());
-            g.operation(c, o.getValue(),p);
+            g.operation(c, o.getValue(), p);
             p.append("){");
             for (Switch.Case ca : o.getCases()) {
                 if (ca.value == null)
@@ -872,7 +919,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 ps.append(";");
             }
         } catch (Throwable e) {
-            throw new CompileException("Can't generate " + execute.getParent().getRealName() + "::"+execute.alias, e);
+            throw new CompileException("Can't generate " + execute.getParent().getRealName() + "::" + execute.alias, e);
         }
     }
 

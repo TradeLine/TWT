@@ -1,12 +1,15 @@
 package org.tlsys.twt.classes;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.JArray;
 import org.tlsys.twt.NativeCodeGenerator;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.rt.java.lang.TClass;
 
 import java.lang.reflect.Modifier;
+import java.util.Objects;
 
 @JSClass
 @CodeGenerator(NativeCodeGenerator.class)
@@ -104,22 +107,26 @@ public class ClassRecord {
             MethodRecord mr = methods.get(i);
             if (mr.getName() == null) {//This is Constructor?
                 String consName = "n" + mr.getJsName();
-                Script.code(prototype, ".[", consName, "]=new Function('var o=new ", prototype, "();o.", mr.getJsName(), ".apply(o, arguments);return o;')", mr.getBody());
+                Object tempProto = prototype;
+                Script.code(prototype, "[", consName, "]=function(){var o=new ", tempProto, "();o[", mr.getJsName(), "].apply(o, arguments);return o;}");
             }
         }
 
+        Script.code("console.info('apply self body to '+", name, ")");
         applyClassBody(prototype);
 
         return prototype;
     }
 
     protected void applyClassBody(Object obj) {
+        if (obj == null && Script.isUndefined(obj))
+            Script.code("throw new Error('Object is NULL')");
         for (int i = 0; i < fields.length(); i++) {
             FieldRecord fr = fields.get(i);
 
             if ((fr.getModificators() & Modifier.STATIC) == 0)
                 continue;
-            Script.code(obj, ".obj[", fr.getJsName(), "]=null");
+            Script.code(obj, "[", fr.getJsName(), "]=null");
         }
 
         for (int i = 0; i < methods.length(); i++) {
@@ -134,16 +141,22 @@ public class ClassRecord {
         }
 
         if (superClass != null) {
-            superClass.getType().applyClassBody(prototype);
+            superClass.getType().applyClassBody(obj);
         }
 
         for (int i = 0; i < imps.length(); i++) {
-            imps.get(i).getType().applyClassBody(prototype);
+            imps.get(i).getType().applyClassBody(obj);
         }
     }
 
+    private TClass clazz;
+
     public Class getAsClass() {
-        return null;
+        if (clazz == null || Script.isUndefined(clazz)) {
+            //Script.code("console.info('init class ' + ",name,")");
+            clazz = new TClass(this);
+        }
+        return CastUtil.cast(clazz);
     }
 
     public ClassRecord getArrayClassRecord() {

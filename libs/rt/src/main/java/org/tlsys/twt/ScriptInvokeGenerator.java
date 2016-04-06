@@ -66,6 +66,17 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
             return true;
         }
 
+        if (invoke.getMethod().alias.equals("hasOwnProperty")) {
+            ps.add("(", invoke.getPoint());
+            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
+            ps.add(".hasOwnProperty(", invoke.getPoint());
+            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(1), ps);
+            ps.append(")");
+            ps.add(")", invoke.getPoint());
+            return true;
+        }
+
+
         if (invoke.getMethod().alias.equals("setTimeout")) {
             ps.add("setTimeout(", invoke.getPoint(), "setTimeout");
             VClass callerClass = invoke.getMethod().getParent().getClassLoader().loadClass(Script.TimeoutCallback.class.getName());

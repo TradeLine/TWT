@@ -111,6 +111,14 @@ public class TClass {
         throw new InstantiationException("Can't find constructor whout arguments");
     }
 
+    public Object cast(Object obj) {
+        if (obj == null)
+            return null;
+        if (isInstance(obj))
+            return obj;
+        throw new ClassCastException("Can not cast from " + getName() + " to " + obj.getClass().getName());
+    }
+
 }
 
     /*
