@@ -7,6 +7,8 @@ import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.tlsys.Outbuffer;
+import org.tlsys.lex.CanUse;
+import org.tlsys.lex.Collect;
 import org.tlsys.lex.declare.*;
 import org.tlsys.sourcemap.SourceMap;
 import org.tlsys.twt.*;
@@ -150,15 +152,26 @@ public class GenerationTask extends DefaultTask {
                         cm.addForced(app.getMainLoader().getTWTClassLoader());
                         cm.detectReplace();
 
-                        /*
+
                         for (CompileModuls.ClassRecord cr : cm.getRecords()) {
+                            System.out.println("====" + cr.getClazz().getRealName() + "====");
                             for (VExecute e : cr.getExe()) {
                                 if (e instanceof VMethod) {
                                     VMethod m = (VMethod)e;
+                                    System.out.println(m.getDescription());
+                                    Collect col = Collect.create();
+                                    m.getUsing(col);
+                                    for (CanUse cu : col.get()) {
+                                        if (cu instanceof VMethod) {
+                                            VMethod mm = (VMethod) cu;
+                                            System.out.println("--->" + mm.getParent().getRealName() + "." + mm.getDescription());
+                                        }
+                                    }
                                 }
                             }
+                            System.out.println("====" + cr.getClazz().getRealName() + "====\n");
                         }
-                        */
+
 
                         Class cl = app.getMainLoader().getJavaClassLoader().loadClass(gt.generator());
                         MainGenerator mg = (MainGenerator) cl.newInstance();

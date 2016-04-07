@@ -53,6 +53,10 @@ public final class CodeBuilder {
         return new FieldBuilder(new StaticRef(field.getParent()), field);
     }
 
+    public static ConstructorFinder constructor(VClass clazz) {
+        return new ConstructorFinder(scopeStatic(clazz).get());
+    }
+
     public static class ScopeBuilder {
         private final Value scope;
 
@@ -80,6 +84,10 @@ public final class CodeBuilder {
 
         public ConstructorFinder constructor() {
             return new ConstructorFinder(scope);
+        }
+
+        public Value get() {
+            return scope;
         }
     }
 
@@ -139,6 +147,14 @@ public final class CodeBuilder {
                 throw new RuntimeException(e);
             }
         }
+
+        public NewClassBuilder newInstance() {
+            return newInstance(null);
+        }
+
+        public NewClassBuilder newInstance(SourcePoint sp) {
+            return new NewClassBuilder(find(), sp);
+        }
     }
 
     public static class ArgumentBuilder {
@@ -176,6 +192,24 @@ public final class CodeBuilder {
             invoke.returnType = exe.returnType;
             invoke.arguments.addAll(args);
             return invoke;
+        }
+    }
+
+    public static class NewClassBuilder extends ArgumentBuilder {
+        private final VConstructor constructor;
+        private final SourcePoint point;
+
+        public NewClassBuilder(VConstructor constructor, SourcePoint point) {
+            this.point = point;
+            this.constructor = constructor;
+        }
+
+        public NewClass build() {
+            NewClass nc = new NewClass(constructor, null);
+            for (Value v : args) {
+                nc.addArg(v);
+            }
+            return nc;
         }
     }
 

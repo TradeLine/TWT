@@ -14,5 +14,7 @@ public final class ArrayBuilder<T> {
 
     @InvokeGen(ArrayBuilderBodyGenerator.class)
     @CodeGenerator(ArrayBuilderBodyGenerator.class)
-    public static <T> T[] create(Class<T> clazz, T...values){return null;}
+    public static <T> T[] create(ClassRecord clazz, T... values) {
+        return null;
+    }
 }

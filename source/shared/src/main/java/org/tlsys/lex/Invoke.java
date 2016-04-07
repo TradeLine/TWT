@@ -62,6 +62,8 @@ public class Invoke extends Value implements HavinSourceStart, HavingScope {
 
     @Override
     public VClass getType() {
+        if (returnType == null)
+            return method.returnType;
         return returnType;
     }
 

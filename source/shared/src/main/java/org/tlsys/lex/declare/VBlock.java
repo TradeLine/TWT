@@ -95,6 +95,10 @@ public class VBlock extends Operation implements Using, CanUse, Context {
         return parentContext;
     }
 
+    public void setParentContext(Context parentContext) {
+        this.parentContext = parentContext;
+    }
+
     @Override
     public void visit(ReplaceVisiter replaceControl) {
         for (int i = 0; i < operations.size(); i++) {

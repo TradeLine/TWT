@@ -1,6 +1,5 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
@@ -18,18 +17,18 @@ public class Increment extends Value {
     public Increment() {
     }
 
+    public Increment(Value value, IncType incType, VClass result) {
+        this.value = value;
+        this.type = incType;
+        this.result = result;
+    }
+
     public IncType getIncType() {
         return type;
     }
 
     public Value getValue() {
         return value;
-    }
-
-    public Increment(Value value, IncType incType, VClass result) {
-        this.value = value;
-        this.type = incType;
-        this.result = result;
     }
 
     @Override
@@ -39,7 +38,7 @@ public class Increment extends Value {
 
     @Override
     public void getUsing(Collect c) {
-        c.add(result);
+        c.add(result, value);
     }
 
     @Override

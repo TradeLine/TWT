@@ -1,9 +1,14 @@
 package org.tlsys.twt.rt.java.lang.reflect;
 
 import org.tlsys.twt.CastUtil;
-import org.tlsys.twt.Script;
-import org.tlsys.twt.annotations.*;
-import org.tlsys.twt.classes.ArrayBuilder;
+import org.tlsys.twt.annotations.ClassName;
+import org.tlsys.twt.annotations.CodeGenerator;
+import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.annotations.ReplaceClass;
+import org.tlsys.twt.classes.ClassRecord;
+import org.tlsys.twt.rt.java.lang.TClass;
+
+import java.util.Objects;
 
 @JSClass
 @ClassName("java.lang.reflect.Array")
@@ -28,9 +33,14 @@ public final class TArray {
     }
 
     @CodeGenerator(ArrayCodeGenerator.class)
-    public static Object newInstance(Class<?> componentType, int length) {
-        //return multiNewArray(componentType, length);
+    public static Object newInstance(ClassRecord componentType, int length) {
         throw new RuntimeException("Not supported yet!");
+    }
+
+
+    public static Object newInstance(Class<?> componentType, int length) {
+        TClass cl = CastUtil.cast(Objects.requireNonNull(componentType, "Component type is NULL"));
+        return newInstance(cl.getRecord(), length);
     }
 
     public static Object newInstance(Class<?> componentType, int... length) {

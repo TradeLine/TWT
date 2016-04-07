@@ -1,9 +1,6 @@
 package org.tlsys.twt.rt.java.lang;
 
-import org.tlsys.twt.CastUtil;
-import org.tlsys.twt.DefaultCast;
-import org.tlsys.twt.DefaultGenerator;
-import org.tlsys.twt.Script;
+import org.tlsys.twt.*;
 import org.tlsys.twt.annotations.*;
 import org.tlsys.twt.classes.ClassRecord;
 import org.tlsys.twt.rt.EmptyMethodBody;
@@ -37,9 +34,18 @@ public class TObject {
                 return float.class;
         }
 
+        if (Script.typeOf(object) == "boolean")
+            return boolean.class;
+
         if (Script.typeOf(object) == "string")
             return String.class;
         ClassRecord cr = Script.code(object, "[", CLASS_RECORD, "]");
+        if (cr == null || Script.isUndefined(cr)) {
+            Console.info("Error! Can't get class of object");
+            Console.dir(object);
+            Script.code("console.error(", object, ")");
+            throw new RuntimeException("Can't get class of object");
+        }
         return cr.getAsClass();
     }
 

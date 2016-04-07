@@ -10,6 +10,18 @@ import java.util.Objects;
 
 public class AnnonimusClass extends VClass implements Serializable {
 
+    private ArrayList<Value> inputs = new ArrayList<>();
+    private boolean useParent;
+
+    public AnnonimusClass(Context context, VClass parent, String name) {
+        super(name, context, parent, null);
+
+    }
+
+    public AnnonimusClass(Context context, VClass parent, Symbol.ClassSymbol classSymbol) {
+        super(extractSimpleName(classSymbol), context, parent, classSymbol);
+    }
+
     public static String extractParentClassName(Symbol.TypeSymbol c) {
         if (!isAnnonimusClass(c))
             throw new IllegalArgumentException("Type " + c.toString() + " must be annonimus class");
@@ -27,13 +39,6 @@ public class AnnonimusClass extends VClass implements Serializable {
     public static boolean isAnnonimusClass(Symbol.TypeSymbol c) {
         return c instanceof Symbol.ClassSymbol && c.owner != null && c.owner instanceof Symbol.MethodSymbol;
     }
-
-    public AnnonimusClass(Context context, VClass parent, Symbol.ClassSymbol classSymbol) {
-        super(extractSimpleName(classSymbol), context, parent, classSymbol);
-    }
-
-    private ArrayList<Value> inputs = new ArrayList<>();
-    private boolean useParent;
 
     public ArrayList<Value> getInputs() {
         return inputs;

@@ -20,14 +20,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class ClassCompiler {
 
     private static Function<VExecute, Void> parentThisReplacer = as -> {
         BoolRef b = new BoolRef(true);
-
-        if (as.getParent().getRealName().contains("TReflectiveOperationException"))
-            System.out.println("123" + as);
 
         while (b.isValue()) {
             b.setValue(false);
@@ -131,6 +129,70 @@ public class ClassCompiler {
         compileCode(cc, VVar.class);
         compileCode(cc, StaticBlock.class);
         findReplaceMethod(cc);
+    }
+
+    public static AnnonimusClass createLambda(TreeCompiler c, JCTree.JCLambda e, Context o) throws CompileException {
+
+        VClass imp = c.loadClass(e.type, c.getFile().getPoint(e.pos));//Class for lambda implement
+        VMethod method = null;
+        for (VMethod m : imp.methods)
+            if (m.getBlock() == null) {
+                method = m;
+                break;
+            }
+        Objects.requireNonNull(method, "Method for replace not found");
+
+        LambdaClazz lc = new LambdaClazz(o);
+
+        for (JCTree.JCVariableDecl v : e.params) {
+            VArgument a = new VArgument(v.name.toString(), c.loadClass(v.type, c.getFile().getPoint(e.pos)), false, false, lc, null, c.getFile().getPoint(e.pos));
+            lc.args.add(a);
+        }
+
+        if (e.body instanceof JCTree.JCBlock) {
+            lc.block = (VBlock) c.st((JCTree.JCStatement) e.body, lc);
+        } else {
+            if (e.body instanceof JCTree.JCExpression) {
+                VBlock block = new VBlock(lc, c.getFile().getPoint(e.body.pos), null);
+                Operation op = c.op((JCTree.JCExpression) e.body, block);
+                if (method.returnType != c.loadClass("void", c.getFile().getPoint(e.pos))) {
+                    block.add(new Return((Value) op, c.getFile().getPoint(e.body.pos)));
+                } else
+                    block.add(op);
+                lc.block = block;
+            } else
+                throw new RuntimeException("No blocked lambda not supportedf yet");
+        }
+        VClass parentClazz = (VClass) TypeUtil.findParentContext(o, e2 -> e2 instanceof VClass).get();
+
+        String name = "$$Lambda_" + Integer.toString(lc.hashCode(), Character.MAX_RADIX).replace('-', '_');
+        AnnonimusClass ac = new AnnonimusClass(parentClazz, parentClazz, name);
+        ac.fullName = parentClazz.getRealName() + name;
+        ac.setClassLoader(parentClazz.getClassLoader());
+        parentClazz.getClassLoader().classes.add(ac);
+        parentClazz.addChild(ac);
+        ac.implementsList.add(imp);
+        VMethod mem = new VMethod(lc.block.getStartPoint(), method.getRealName(), ac, null);
+        mem.setReplace(method);
+        mem.setBlock(lc.block);
+        for (VArgument arg : lc.args) {
+            arg.setParentContext(mem);
+            mem.addArg(arg);
+        }
+        lc.block.setParentContext(mem);
+        ac.methods.add(mem);
+
+        VClass objectClass = parentClazz.getClassLoader().loadClass(Object.class.getName(), c.getFile().getPoint(e.pos));
+        ac.extendsClass = objectClass;
+        VConstructor superCons = objectClass.getConstructor(c.getFile().getPoint(e.pos));
+        VConstructor cons = new VConstructor(null, ac);
+        cons.setBlock(new VBlock(cons, null, null));
+        cons.parentConstructorInvoke = new Invoke(superCons, new This(ac, null));
+        ac.constructors.add(cons);
+
+        parentThisReplacer.apply(mem);
+        return ac;
+
     }
 
     public static AnnonimusClass createAnnonimusClass(CompileContext ctx, Context context, JCTree.JCClassDecl c, VClassLoader vClassLoader, SourcePoint point) throws CompileException {
@@ -518,6 +580,43 @@ public class ClassCompiler {
 
     public interface ClassItemListener {
         public void doneClass(VClass vClass);
+    }
+
+    private static class LambdaClazz extends VBlock {
+
+        private static final long serialVersionUID = 2388651340642726059L;
+        public final List<VArgument> args = new ArrayList<>();
+        public VBlock block;
+        //public final Context parentContext;
+
+        private LambdaClazz(Context parentContext) {
+            super(parentContext, null, null);
+        }
+
+
+        @Override
+        public Optional<Context> find(String name, Predicate<Context> searchIn) {
+
+            for (VArgument a : args) {
+                if (name.equals(a.getAliasName()) || name.equals(a.getRealName()))
+                    return Optional.of(a);
+            }
+            if (searchIn.test(getParentContext()))
+                return getParentContext().find(name, searchIn);
+            return Optional.empty();
+
+            /*
+
+            if (block == null)
+                return Optional.empty();
+            return block.find(name, searchIn.and(e->e!=this));
+            */
+        }
+
+        @Override
+        public void getUsing(Collect c) {
+
+        }
     }
 
     private static class BoolRef {

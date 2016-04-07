@@ -1,6 +1,7 @@
 package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.twt.CastUtil;
+import org.tlsys.twt.Console;
 import org.tlsys.twt.JArray;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.ClassName;
@@ -11,8 +12,6 @@ import org.tlsys.twt.classes.FieldRecord;
 import org.tlsys.twt.rt.java.lang.reflect.TConstructor;
 import org.tlsys.twt.rt.java.lang.reflect.TField;
 
-import java.lang.reflect.Field;
-
 @JSClass
 @ClassName("java.lang.Class")
 @ReplaceClass(Class.class)
@@ -20,7 +19,7 @@ public class TClass {
 
     private final ClassRecord record;
     TConstructor[] constructors;
-    private Field[] fields;
+    private TField[] fields;
 
     public TClass(ClassRecord record) {
         this.record = record;
@@ -31,7 +30,7 @@ public class TClass {
     }
 
     public boolean isArray() {
-        return false;
+        return getRecord().getComponentType() != null;
     }
 
     public String getName() {
@@ -39,7 +38,9 @@ public class TClass {
     }
 
     public Class getComponentType() {
-        return null;
+        if (!isArray())
+            return null;
+        return getRecord().getComponentType().getType().getAsClass();
     }
 
     public boolean isPrimitive() {
@@ -62,13 +63,13 @@ public class TClass {
         return false;
     }
 
-    public Field[] getFields() {
+    public TField[] getFields() {
         if (fields == null) {
-            fields = new Field[getRecord().getFields().length()];
+            fields = new TField[getRecord().getFields().length()];
             for (int i = 0; i < fields.length; i++) {
                 FieldRecord fr = getRecord().getFields().get(i);
                 TField f = new TField(fr.getName(), fr.getJsName(), CastUtil.cast(this), fr.getType().getType().getAsClass(), fr.getModificators());
-                fields[i] = CastUtil.cast(f);
+                fields[i] = f;
             }
         }
         return fields;
@@ -88,7 +89,7 @@ public class TClass {
         JArray<TConstructor> list = new JArray<>();
 
         for (int i = 0; i < getRecord().getMethods().length(); i++) {
-            if (getRecord().getMethods().get(i).getName() == null)
+            if (getRecord().getMethods().get(i).getName() != null)
                 continue;
             list.add(new TConstructor(this, getRecord().getMethods().get(i)));
         }
@@ -103,9 +104,16 @@ public class TClass {
 
 
     private Object newInstance() throws InstantiationException {
+        Console.info("Creating instance of " + getName());
         for (TConstructor c : getConstructors()) {
             if (c.getParameterCount() == 0) {
-                return Script.code(this, "['n'+", c.getRecord().getJsName(), "]()");
+                Object constructor = Script.code(getRecord().getPrototype(), "['n'+", c.getRecord().getJsName(), "]");
+                if (constructor == null || Script.isUndefined(constructor)) {
+                    Console.error("Constructor not found, " + getName() + " ___ " + c.getRecord().getJsName());
+                    Console.dir(getRecord());
+                    throw new RuntimeException("Constructor not found " + getName());
+                }
+                return Script.code(constructor, "()");
             }
         }
         throw new InstantiationException("Can't find constructor whout arguments");

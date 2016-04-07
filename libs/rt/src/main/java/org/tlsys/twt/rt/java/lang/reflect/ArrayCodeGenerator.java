@@ -1,12 +1,15 @@
 package org.tlsys.twt.rt.java.lang.reflect;
 
+import org.tlsys.CodeBuilder;
 import org.tlsys.Outbuffer;
-import org.tlsys.lex.Invoke;
+import org.tlsys.lex.Value;
 import org.tlsys.lex.declare.ArrayClass;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VExecute;
-import org.tlsys.lex.declare.VMethod;
 import org.tlsys.twt.*;
+import org.tlsys.twt.classes.ClassRecord;
+
+import java.util.Objects;
 
 public class ArrayCodeGenerator extends DefaultGenerator {
     @Override
@@ -38,11 +41,27 @@ public class ArrayCodeGenerator extends DefaultGenerator {
             VClass intClass = execute.getParent().getClassLoader().loadClass("int", execute.getPoint());
             if (execute.getArguments().get(1).getType() == intClass) {
                 VClass arrayClass = execute.getParent();
+
+                VClass classRecordClass = arrayClass.getClassLoader().loadClass(ClassRecord.class.getName(), execute.getPoint());
+
                 VClass classClass = arrayClass.getClassLoader().loadClass(Class.class.getName(), execute.getPoint());
-                VMethod getArrayClassMethod = classClass.getMethod("getArrayClass", execute.getPoint());
+                //VMethod getArrayClassMethod = classRecordClass.getMethod("getArrayClass", execute.getPoint());
                 ICodeGenerator cg = context.getGenerator(execute.getParent());
                 ps.append("return ");
-                cg.operation(context, new Invoke(getArrayClassMethod, execute.getArguments().get(0)), ps);
+
+                VClass classObject = arrayClass.getClassLoader().loadClass(Objects.class.getName(), execute.getPoint());
+                VClass classString = arrayClass.getClassLoader().loadClass(String.class.getName(), execute.getPoint());
+
+
+                Value arrayClazz =
+                        CodeBuilder.scope(
+                                CodeBuilder.scope(
+                                        execute.getArguments().get(0)
+                                ).method("getArrayClassRecord").invoke(execute.getPoint()).build()
+                        ).method("getPrototype").invoke(execute.getPoint()).build();
+
+
+                cg.operation(context, arrayClazz, ps);
                 ps.append(".n").append(ArrayClass.CONSTRUCTOR).append("(").append(execute.getArguments().get(1).getRuntimeName()).append(");");
                 return;
             }

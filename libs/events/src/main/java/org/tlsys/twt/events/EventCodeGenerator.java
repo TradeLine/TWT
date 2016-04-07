@@ -35,7 +35,7 @@ public class EventCodeGenerator extends DefaultGenerator {
             //Функция события
             ps.append("var f=function(e){")
                     .append(execute.getArguments().get(2).getRuntimeName()).append(".")
-                    .append(onEventMethod.getRunTimeName()).append("(this,e);")
+                    .append(onEventMethod.getRunTimeName()).append(".call(").append(execute.getArguments().get(2).getRuntimeName()).append(",this,e);")
                     .append("};");
 
             String contener = execute.getArguments().get(0).getRuntimeName()+".E";

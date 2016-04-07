@@ -29,9 +29,14 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
             ps.append("{");
             ps.append("var t=");
 
-            Value arrayClassRecord = CodeBuilder.scope(CodeBuilder.scope(execute.getArguments().get(0))
+            Value arrayClassRecord = CodeBuilder.scope(
+                    execute.getArguments().get(0)
+            /*
+                    CodeBuilder.scope(execute.getArguments().get(0))
                     .method("getRecord")
-                    .invoke(execute.getPoint()).build())
+                    .invoke(execute.getPoint()).build()
+                    */
+            )
                     .method("getArrayClassRecord")
                     .invoke(execute.getPoint()).build();
 

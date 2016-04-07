@@ -1,5 +1,6 @@
 package org.tlsys.twt;
 
+import org.tlsys.CodeBuilder;
 import org.tlsys.NullClass;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
@@ -128,42 +129,6 @@ public class Generator implements MainGenerator {
             else
                 newMethod.arguments.add(new Const(e.alias, classString));
 
-
-
-            /*
-            if (e.getBlock() == null)
-                newMethod.arguments.add(new Const(null, objectClass));
-            else {
-                ICodeGenerator cg = gc2.getGenerator(e);
-                Invoke inv = new Invoke(codeMethod, new StaticRef(scriptClass));
-                NewArrayItems args = new NewArrayItems(objectClass.getArrayClass());
-                inv.addArg(args);
-                StringOutputStream sos = new StringOutputStream();
-
-                sos.getStream().append("function(");
-                boolean first = true;
-                for (VArgument a : e.getArguments()) {
-                    if (!first)
-                        sos.getStream().append(",");
-                    sos.getStream().append(a.getRuntimeName());
-                    first = false;
-                }
-                sos.getStream().append("){");
-
-                if (cg != null) {
-                    cg.generateExecute(gc2, e, new Outbuffer(sos.getStream()), moduls);
-                } else {
-                    hc2.generateExecute(gc2, e, new Outbuffer(sos.getStream()), moduls);
-                }
-                sos.getStream().append("}");
-
-                args.elements.add(new Const(sos.toString(), classString));
-
-
-
-                newMethod.arguments.add(inv);
-            }
-            */
             newMethod.addArg(new CodeExe(e));
             newMethod.arguments.add(new Const(e.isStatic(), classBoolean));
 
@@ -188,8 +153,20 @@ public class Generator implements MainGenerator {
             sos.getStream().append("function()");
             hc2.operation(gc, b.getBlock(), new Outbuffer(sos.getStream()));
             //sos.getStream().append("}");
+            lastScope = CodeBuilder.scope(lastScope).invoke(addStaticMethod, null).arg(CodeBuilder.scopeStatic(scriptClass).invoke(codeMethod, null).arg(new NewArrayItems(objectClass.getArrayClass(), null).addEl(new Const(sos.toString(), classString))).build()).build();
+            /*
             lastScope = new Invoke(addStaticMethod, lastScope)
-                    .addArg(new Invoke(codeMethod, new StaticRef(scriptClass)).addArg(new NewArrayItems(objectClass.getArrayClass(), null).addEl(new Const(sos.toString(), classString))));
+                    .addArg(
+                            CodeBuilder.scopeStatic(scriptClass).invoke(codeMethod, null).arg(new NewArrayItems(objectClass.getArrayClass(), null).addEl(new Const(sos.toString(), classString))).build()
+                            //new Invoke(codeMethod, new StaticRef(scriptClass)).addArg(new NewArrayItems(objectClass.getArrayClass(), null).addEl(new Const(sos.toString(), classString)))
+
+                    );
+                    */
+        }
+
+        if (vClass instanceof ArrayClass) {
+            ArrayClass ac = (ArrayClass) vClass;
+            lastScope = CodeBuilder.scope(lastScope).method("setComponentType").arg(classTypeProvider).invoke(null).arg(getClassViaTypeProvider(ac.getComponent())).build();
         }
 
         return lastScope;

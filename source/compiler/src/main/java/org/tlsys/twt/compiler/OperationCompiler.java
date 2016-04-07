@@ -44,13 +44,6 @@ class OperationCompiler {
             List<VClass> argsParamClasses = buildConstructorInvokeTypes(classIns);//new ArrayList<VClass>();
 
 
-            /*
-            classIns.getModificator(ee->ee.getClass() == OtherClassLink.class).ifPresent(e3->{
-                OtherClassLink o2 = (OtherClassLink)e3;
-                argsParamClasses.add(o2.getToClass());
-            });
-            */
-
             for (JCTree.JCExpression ee : e.args)
                 argsParamClasses.add(c.loadClass(ee.type, c.getFile().getPoint(e.pos)));
 
@@ -164,6 +157,34 @@ class OperationCompiler {
         });
 
         addProc(JCTree.JCLambda.class, (c, e, o) -> {
+
+            AnnonimusClass ac = ClassCompiler.createLambda(c, e, o);
+            List<VClass> addedArgs = buildConstructorInvokeTypes(ac);
+            VConstructor con = ac.getConstructor(addedArgs, c.getFile().getPoint(e.pos));
+
+            NewClass nc = new NewClass(con, c.getFile().getPoint(e.pos));
+
+            for (VArgument arg : con.getArguments()) {
+                if (arg.getCreator() != null) {
+                    if (arg.getCreator() instanceof OtherClassLink.ArgumentLink) {
+                        VClass aa = arg.getType();
+                        nc.addArg(new This(arg.getType()));
+                        continue;
+                    }
+
+                    if (arg.getCreator() instanceof InputsClassModificator.InputArgs) {
+                        InputsClassModificator.InputArgs a = (InputsClassModificator.InputArgs) arg.getCreator();
+                        nc.addArg(a.getInput());
+                        continue;
+                    }
+
+                    throw new RuntimeException("Unknown creator " + arg.getCreator());
+                }
+            }
+
+            return nc;
+
+            /*
             VClass imp = c.loadClass(e.type, c.getFile().getPoint(e.pos));
             VMethod method = null;
             for (VMethod m : imp.methods)
@@ -192,6 +213,7 @@ class OperationCompiler {
                     throw new RuntimeException("No blocked lambda not supportedf yet");
             }
             return l;
+            */
         });
 
         addProc(JCTree.JCMemberReference.class, (c, e, o) -> {

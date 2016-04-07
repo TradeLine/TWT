@@ -23,14 +23,24 @@ public class ClassRecord {
     private JArray<TypeProvider> imps = new JArray<>();
     private TypeProvider superClass;
     private JArray<Object> statics = new JArray<>();
-
+    private TypeProvider component = null;
     private Object prototype;
     private ClassRecord arrayClassRecord;
     private TClass clazz;
-
     public ClassRecord(String jsName, String name) {
         this.jsName = jsName;
         this.name = name;
+    }
+
+    public TypeProvider getComponentType() {
+        if (Script.isUndefined(component))
+            return null;
+        return component;
+    }
+
+    public ClassRecord setComponentType(TypeProvider component) {
+        this.component = component;
+        return this;
     }
 
     public JArray<Object> getStatics() {
@@ -167,6 +177,10 @@ public class ClassRecord {
             } else {
                 if (!Script.hasOwnProperty(Script.code(obj, ".prototype"), mr.getJsName()))
                     Script.code(obj, ".prototype[", mr.getJsName(), "]=", mr.getBody());
+
+                if (mr.getName().equals("toString") && mr.getArguments().length() == 0) {
+                    Script.code(obj, ".prototype.to1String=", mr.getBody());
+                }
             }
         }
 

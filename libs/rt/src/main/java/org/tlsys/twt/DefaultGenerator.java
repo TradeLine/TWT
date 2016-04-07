@@ -798,10 +798,18 @@ public class DefaultGenerator implements ICodeGenerator {
         addGen(NewArrayItems.class, (c, o, p, g) -> {
             VClass classArrayBuilder = o.getType().getClassLoader().loadClass(ArrayBuilder.class.getName(), o.getPoint());
             VMethod methodGet = classArrayBuilder.getMethodByName("create").get(0);
-            g.operation(c, new Invoke(methodGet, new StaticRef(classArrayBuilder, null))
+
+            return g.operation(c, CodeBuilder.scopeStatic((classArrayBuilder)).invoke(methodGet, o.getPoint()).arg(
+                    new ClassRecordRef(o.getType(), null)
+                    ).arg(o).build()
+                    , p);
+            /*
+            g.operation(c, new Invoke(methodGet, new ClassRecordRef(classArrayBuilder, null))
                     .addArg(new StaticRef(o.getType(), null))
                     .addArg(o), p);
+
             return true;
+            */
         });
 
         addGen(Try.class, (c, o, p, g) -> {
@@ -846,9 +854,17 @@ public class DefaultGenerator implements ICodeGenerator {
             ICodeGenerator cg = c.getGenerator(o.getClazz());
             if (cg != null && cg != g)
                 return cg.operation(c, o, p);
+
+            VClass objectClass = o.getClazz().getClassLoader().loadClass(Object.class.getName(), o.getPoint());
+            return g.operation(c,
+                    CodeBuilder.scopeClass(o.getClazz()).method("isInstance").arg(objectClass).invoke(o.getPoint()).arg(o.getValue()).build()
+                    , p);
+
+            /*
             VClass classClass = o.getClazz().getClassLoader().loadClass(Class.class.getName(), o.getPoint());
             VMethod method = classClass.getMethod("isInstance", o.getPoint(), o.getClazz().getClassLoader().loadClass(Object.class.getName(), o.getPoint()));
             return g.operation(c, new Invoke(method, new StaticRef(o.getClazz(), null), o.getPoint()).addArg(o.getValue()), p);
+            */
         });
 
         addGen(Switch.class, (c, o, p, g) -> {

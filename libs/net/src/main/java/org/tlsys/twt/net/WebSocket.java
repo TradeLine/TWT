@@ -60,11 +60,11 @@ public abstract class WebSocket {
     public void close(int code, String reason) {
         if (reason != null && reason.length() > 123)
             throw new IllegalArgumentException("reason argument length must be <123");
-        Script.code(js,".close(",code,",",reason,")");
+        Script.code(js, ".close(", CastUtil.toObject(code), ",", reason, ")");
     }
 
     public State getState() {
-        int st = Script.code(js,".readyState");
+        int st = CastUtil.toInt(Script.code(js, ".readyState"));
         switch (st) {
             case 0: return State.CONNECTING;
             case 1: return State.OPEN;

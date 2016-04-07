@@ -18,11 +18,16 @@ public class Json {
             return null;
         try {
             if (Script.typeOf(obj)=="number")
-                return ""+obj;
+                return Double.toString(CastUtil.toDouble(obj));
+
+            if (Script.typeOf(obj) == "boolean")
+                return Boolean.toString(CastUtil.toBoolean(obj));
+
             if (obj == null)
                 return "null";
             if (obj instanceof String) {
-                return "\"" + obj + "\"";
+                String s = CastUtil.cast(obj);
+                return "\"" + s + "\"";
             }
 
             Class cl = obj.getClass();

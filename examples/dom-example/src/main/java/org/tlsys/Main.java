@@ -8,6 +8,8 @@ import org.tlsys.twt.dom.DOM;
 import org.tlsys.twt.dom.Document;
 import org.tlsys.twt.events.Events;
 
+import java.util.function.Function;
+
 @JSClass
 public class Main {
 
@@ -25,6 +27,13 @@ public class Main {
     public Main(int aaab) {
         Console.info("???");
         //aaa = aaab;
+
+        Function<Void, Void> f = (a) -> {
+            Console.info("Hello from LAMBDA IN CLASS " + this);
+            return null;
+        };
+
+        f.apply(null);
     }
 
     public static void giveException() {
@@ -62,6 +71,10 @@ public class Main {
             public void onEvent(Object o, Object o1) {
                 Console.info("CLIKED!" + this.toString());
             }
+        });
+
+        Events.addEventListener(b, "click", (s, e) -> {
+            Console.info("Hello from lambda! " + b);
         });
 
 

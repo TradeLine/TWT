@@ -125,7 +125,7 @@ public class BoxingCast extends DefaultCast {
                 return CodeBuilder.scope(value).method("booleanValue").invoke(point).build();
                 //return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
             }
-            throw new RuntimeException("Can't convert Boolean to " + vClass);
+            throw new CompileException("Can't convert Boolean to " + vClass, point);
         }
 
         if (boolean.class.getName().equals(value.getType().alias)) {
@@ -133,7 +133,7 @@ public class BoxingCast extends DefaultCast {
                 return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
             }
 
-            throw new RuntimeException("Can't convert boolean to " + vClass);
+            throw new CompileException("Can't convert boolean to " + vClass, point);
         }
 
         if (int.class.getName().equals(value.getType().alias)) {
