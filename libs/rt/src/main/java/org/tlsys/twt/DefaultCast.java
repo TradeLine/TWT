@@ -10,7 +10,7 @@ import org.tlsys.sourcemap.SourcePoint;
 public class DefaultCast implements ICastAdapter {
     @Override
     public Value cast(Value value, VClass to, SourcePoint point) throws CompileException {
-        if (!(to instanceof ArrayClass) && to.alias.equals(String.class.getName())) {
+        if (!(to instanceof ArrayClass) && to.alias != null && to.alias.equals(String.class.getName())) {
             Value val = CodeBuilder.scopeStatic(to).method("valueOf").arg(value.getType()).invoke(point).arg(value).build();
             return val;
             //return new Invoke(value.getType().getMethod("toString"), value);
