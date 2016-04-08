@@ -1,8 +1,10 @@
 package org.tlsys.twt.rt.java.lang.reflect;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
+import org.tlsys.twt.rt.java.BoxCast;
 
 import java.lang.reflect.Field;
 
@@ -42,6 +44,12 @@ public class TField {
     }
 
     public void set(Object obj, Object value) {
+
+        if (type.isPrimitive()) {
+            Script.code(obj,"[",jsName,"]=",BoxCast.toPrimitive(type, value));
+            return;
+        }
+
         Script.code(obj,"[",jsName,"]=",value);
     }
 

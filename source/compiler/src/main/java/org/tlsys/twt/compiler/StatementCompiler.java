@@ -50,6 +50,9 @@ class StatementCompiler {
             Objects.requireNonNull(needClass, "Need Class for return is NULL");
 
             Value v = (Value) c.op(e.expr, o);
+            if (v == null) {
+                throw new NullPointerException("VALUE is NULL: " + e.expr);
+            }
             v = CompilerTools.cast(v, needClass, c.getFile().getPoint(e.pos));
             int pos = e.pos;
             String data = c.getFile().getData();

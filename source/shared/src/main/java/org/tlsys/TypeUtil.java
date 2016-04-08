@@ -52,6 +52,10 @@ public final class TypeUtil {
     }
     */
 
+    public static boolean isPrimitive(VClass clazz) {
+        return clazz.isThis("boolean") || clazz.isThis("char") || clazz.isThis("byte") || clazz.isThis("short") || clazz.isThis("int") || clazz.isThis("long") || clazz.isThis("float") || clazz.isThis("double");
+    }
+
     public static VClass loadClass(VClassLoader loader, Type type, SourcePoint point) throws VClassNotFoundException {
         Objects.requireNonNull(type, "Type is NULL");
         if (type instanceof Type.TypeVar)

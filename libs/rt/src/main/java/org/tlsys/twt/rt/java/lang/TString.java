@@ -7,13 +7,13 @@ import org.tlsys.twt.annotations.*;
 @ClassName("java.lang.String")
 @ReplaceClass(String.class)
 @CodeGenerator(StringCodeGenerator.class)
-public final class TString {
+public final class TString implements TCharSequence {
 
     public TString(String text) {
     }
 
     public static String valueOf(long obj) {
-        return Script.code(obj, ".toString()");
+        return Script.code(CastUtil.toObject(obj), ".toString()");
     }
 
     public static String valueOf(int obj) {
@@ -58,6 +58,7 @@ public final class TString {
 
     @NotCompile
     @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
+    @Override
     public native char charAt(int index);
 
     @NotCompile
@@ -98,6 +99,7 @@ public final class TString {
 
     @NotCompile
     @InvokeGen(org.tlsys.twt.rt.java.lang.StringInvoke.class)
+    @Override
     public native int length();
 
     @NotCompile

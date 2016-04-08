@@ -5,10 +5,11 @@ import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
+import org.tlsys.twt.rt.boxcastadapter.FloatAdapter;
 
 @JSClass
 @ReplaceClass(Float.class)
-@CastAdapter(BoxingCast.class)
+@CastAdapter(FloatAdapter.class)
 public class TFloat extends Number {
     private static final long serialVersionUID = 6217293767823110454L;
     private final float value;
@@ -34,5 +35,9 @@ public class TFloat extends Number {
     @Override
     public double doubleValue() {
         return CastUtil.cast(CastUtil.toObject(value));
+    }
+
+    public TFloat fromjava_lang_Object(Object value) {
+        return CastUtil.cast(value);
     }
 }

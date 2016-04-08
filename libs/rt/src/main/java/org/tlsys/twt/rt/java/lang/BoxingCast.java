@@ -68,6 +68,9 @@ public class BoxingCast extends DefaultCast {
     @Override
     public Value cast(Value value, VClass vClass, SourcePoint point) throws CompileException {
 
+        if (true)
+            throw new RuntimeException("Not supported yet");
+
         if (String.class.getName().equals(vClass.alias)) {
             return CodeBuilder.scopeStatic(vClass).method("valueOf").arg(value.getType()).invoke(point).arg(value).build();
         }

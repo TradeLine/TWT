@@ -1,12 +1,14 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
+import org.tlsys.twt.rt.boxcastadapter.BoxCastAdapter;
 
 @JSClass
 @ReplaceClass(java.lang.Boolean.class)
-@CastAdapter(BoxingCast.class)
+@CastAdapter(BoxCastAdapter.class)
 public class TBoolean {
     private final boolean value;
 
@@ -44,5 +46,9 @@ public class TBoolean {
             return value == ((Boolean) obj).booleanValue();
         }
         return false;
+    }
+
+    public static TBoolean fromjava_lang_Object(Object value) {
+        return CastUtil.cast(value);
     }
 }

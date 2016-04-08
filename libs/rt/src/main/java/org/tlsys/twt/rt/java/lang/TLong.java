@@ -5,10 +5,11 @@ import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
+import org.tlsys.twt.rt.boxcastadapter.LongAdapter;
 
 @JSClass
 @ReplaceClass(Long.class)
-@CastAdapter(BoxingCast.class)
+@CastAdapter(LongAdapter.class)
 public class TLong extends Number {
 
     public static final long MIN_VALUE = CastUtil.toLong(Script.code("Number.MIN_VALUE"));
@@ -56,5 +57,9 @@ public class TLong extends Number {
     @Override
     public double doubleValue() {
         return value;
+    }
+
+    public TLong fromjava_lang_Object(Object value) {
+        return CastUtil.cast(value);
     }
 }

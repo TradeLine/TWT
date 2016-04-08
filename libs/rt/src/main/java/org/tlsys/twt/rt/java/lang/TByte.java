@@ -1,12 +1,14 @@
 package org.tlsys.twt.rt.java.lang;
 
+import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
+import org.tlsys.twt.rt.boxcastadapter.ByteAdapter;
 
 @JSClass
 @ReplaceClass(Byte.class)
-@CastAdapter(BoxingCast.class)
+@CastAdapter(ByteAdapter.class)
 public final class TByte extends Number {
     public static byte MAX_VALUE = 127;
     public static byte MIN_VALUE = -128;
@@ -39,5 +41,9 @@ public final class TByte extends Number {
     @Override
     public double doubleValue() {
         return (double)val;
+    }
+
+    public TByte fromjava_lang_Object(Object value) {
+        return CastUtil.cast(value);
     }
 }

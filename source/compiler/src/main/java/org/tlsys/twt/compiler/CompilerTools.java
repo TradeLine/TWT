@@ -217,8 +217,12 @@ public class CompilerTools {
             return value;
         //return new Cast(type, value);
 
-        ICastAdapter ica = getCastAdapter(value.getType());
-        return ica.cast(value, type, point);
+        System.out.println("Cast " + value.getType().getRealName() + " (" + value.toString() + ") to " + type.getRealName()+"...");
+        ICastAdapter ica = getCastAdapter(type);
+        Value val = ica.cast(value, type, point);
+        Objects.requireNonNull(val, "Result of cast is NULL");
+        System.out.println("Result = " + val);
+        return val;
 
     }
 

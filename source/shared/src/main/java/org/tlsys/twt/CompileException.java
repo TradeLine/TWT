@@ -34,10 +34,11 @@ public class CompileException extends Exception {
 
         StringBuilder sb = new StringBuilder();
         sb.append(point.getSourceFile().getName()).append(":").append(point.getColumn()).append(": ").append(super.getMessage()).append("\n");
+        /*
         int start = point.getSourceFile().getIndex(point.getColumn(), 0);
-        int end = point.getSourceFile().getData().indexOf('\n', start) - 2;
+        int end = point.getSourceFile().getData().indexOf('\n', start) - 1;
         if (end == -2)
-            end = point.getSourceFile().getData().length();
+            end = point.getSourceFile().getData().length()-1;
         //int end = point.getSourceFile().getIndex(point.getColumn() + 1, 0) - 1;
         String line = point.getSourceFile().getData().substring(start, end);
         sb.append(line).append("\n");
@@ -45,6 +46,7 @@ public class CompileException extends Exception {
             sb.append(" ");
         }
         sb.append("^");
+        */
         return sb.toString();
     }
 }

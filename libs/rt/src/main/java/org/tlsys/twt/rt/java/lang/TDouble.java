@@ -5,10 +5,11 @@ import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
+import org.tlsys.twt.rt.boxcastadapter.DoubleAdapter;
 
 @JSClass
 @ReplaceClass(Double.class)
-@CastAdapter(BoxingCast.class)
+@CastAdapter(DoubleAdapter.class)
 public class TDouble extends Number {
     public static final double POSITIVE_INFINITY = CastUtil.toDouble(Script.code("Number.POSITIVE_INFINITY"));
     public static final double NEGATIVE_INFINITY = CastUtil.toDouble(Script.code("Number.NEGATIVE_INFINITY"));
@@ -93,5 +94,9 @@ public class TDouble extends Number {
 
     public double doubleValue() {
         return value;
+    }
+
+    public TDouble fromjava_lang_Object(Object value) {
+        return CastUtil.cast(value);
     }
 }

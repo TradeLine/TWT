@@ -6,15 +6,16 @@ import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.ForceInject;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
+import org.tlsys.twt.rt.boxcastadapter.IntAdapter;
 
 @JSClass
 @ReplaceClass(Integer.class)
-@CastAdapter(BoxingCast.class)
+@CastAdapter(IntAdapter.class)
 public final class TInteger extends Number {
 
-    public static final int   MIN_VALUE = 0x80000000;
+    public static final int MIN_VALUE = 0x80000000;
 
-    public static final int   MAX_VALUE = 0x7fffffff;
+    public static final int MAX_VALUE = 0x7fffffff;
 
     private final int value;
 
@@ -31,10 +32,10 @@ public final class TInteger extends Number {
     }
 
     public static int parseInt(String s, int radix) {
-        boolean b = CastUtil.toBoolean(Script.code("isNaN(",s,")"));
+        boolean b = CastUtil.toBoolean(Script.code("isNaN(", s, ")"));
         if (b)
             throw new NumberFormatException(s);
-        return CastUtil.toInt(Script.code("parseInt(",s,",",radix,")"));
+        return CastUtil.toInt(Script.code("parseInt(", s, ",", radix, ")"));
     }
 
     public static String toString(int value) {
@@ -42,7 +43,7 @@ public final class TInteger extends Number {
     }
 
     public static String toString(int value, int radix) {
-        return Script.code(CastUtil.toObject(value),".toString(",CastUtil.toObject(radix),")");
+        return Script.code(CastUtil.toObject(value), ".toString(", CastUtil.toObject(radix), ")");
     }
 
     @ForceInject
@@ -67,5 +68,9 @@ public final class TInteger extends Number {
     @Override
     public double doubleValue() {
         return value;
+    }
+
+    public TInteger fromjava_lang_Object(Object value) {
+        return CastUtil.cast(value);
     }
 }

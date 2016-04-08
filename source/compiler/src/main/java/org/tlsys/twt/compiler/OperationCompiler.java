@@ -150,7 +150,7 @@ class OperationCompiler {
         });
 
         addProc(JCTree.JCTypeCast.class, (c, e, o) -> {
-            Value v = (Value) c.op(e.expr, o);
+            Value v = c.op(e.expr, o);
             VClass type = c.loadClass(e.type, c.getFile().getPoint(e.pos));
             return CompilerTools.cast(v, type, c.getFile().getPoint(e.pos));
             //return new Cast(type, v);

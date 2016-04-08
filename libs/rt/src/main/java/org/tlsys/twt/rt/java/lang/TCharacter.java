@@ -1,11 +1,14 @@
 package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.twt.CastUtil;
+import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
+import org.tlsys.twt.rt.boxcastadapter.BoxCastAdapter;
 
 @JSClass
 @ReplaceClass(java.lang.Character.class)
+@CastAdapter(BoxCastAdapter.class)
 public class TCharacter {
     public static final int MIN_RADIX = 2;
     public static final int MAX_RADIX = 36;
@@ -21,5 +24,13 @@ public class TCharacter {
     @Override
     public String toString() {
         return CastUtil.cast(CastUtil.toObject(value));
+    }
+
+    public static TCharacter fromjava_lang_Object(Object value) {
+        return CastUtil.cast(value);
+    }
+
+    public char charValue() {
+        return value;
     }
 }
