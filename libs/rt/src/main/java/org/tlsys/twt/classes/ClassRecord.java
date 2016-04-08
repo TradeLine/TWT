@@ -23,7 +23,7 @@ public class ClassRecord {
     private JArray<TypeProvider> imps = new JArray<>();
     private TypeProvider superClass;
     private JArray<Object> statics = new JArray<>();
-    private TypeProvider component = null;
+    private ClassRecord component = null;
     private Object prototype;
     private ClassRecord arrayClassRecord;
     private TClass clazz;
@@ -32,13 +32,13 @@ public class ClassRecord {
         this.name = name;
     }
 
-    public TypeProvider getComponentType() {
+    public ClassRecord getComponentType() {
         if (Script.isUndefined(component))
             return null;
         return component;
     }
 
-    public ClassRecord setComponentType(TypeProvider component) {
+    public ClassRecord setComponentType(ClassRecord component) {
         this.component = component;
         return this;
     }
@@ -139,14 +139,14 @@ public class ClassRecord {
         applyClassBody(prototype);
 
         //init static fields
-        Script.code("console.info('Creating static fields for '+", getName(), "+'...')");
+        //Script.code("console.info('Creating static fields for '+", getName(), "+'...')");
         for (int i = 0; i < fields.length(); i++) {
             FieldRecord fr = fields.get(i);
             if ((fr.getModificators() & Modifier.STATIC) == 0) {
-                Script.code("console.info('Field '+", getName(), "+'=>'+", fr.getName(), "+' is NON static')");
+                //Script.code("console.info('Field '+", getName(), "+'=>'+", fr.getName(), "+' is NON static')");
                 continue;
             }
-            Script.code("console.info('Field '+", getName(), "+'=>'+", fr.getName(), "+' is static! init it!')");
+            //Script.code("console.info('Field '+", getName(), "+'=>'+", fr.getName(), "+' is static! init it!')");
             Object tempProto = prototype;
             Script.code(tempProto, "[", fr.getJsName(), "]=eval(",fr.getInitValue(),")");
         }
@@ -173,13 +173,14 @@ public class ClassRecord {
             MethodRecord mr = methods.get(i);
 
             if (mr.isStaticFlag()) {
-                Script.code(obj, "[", mr.getJsName(), "]=", mr.getBody());
+                if (!Script.hasOwnProperty(obj, mr.getJsName()))
+                    Script.code(obj, "[", mr.getJsName(), "]=", mr.getBody());
             } else {
                 if (!Script.hasOwnProperty(Script.code(obj, ".prototype"), mr.getJsName()))
                     Script.code(obj, ".prototype[", mr.getJsName(), "]=", mr.getBody());
 
                 if (mr.getName().equals("toString") && mr.getArguments().length() == 0) {
-                    Script.code(obj, ".prototype.to1String=", mr.getBody());
+                    Script.code(obj, ".prototype.toString=", mr.getBody());
                 }
             }
         }

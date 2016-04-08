@@ -1,7 +1,7 @@
 package org.tlsys;
 
-import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Console;
+import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.DomNode;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.dom.DOM;
@@ -42,40 +42,11 @@ public class Main {
 
     public static void main() {
 
-        char a1 = 'd';
-        int b1 = (int) a1;
-        int c1 = 'a';
 
-        Console.dir(CastUtil.toObject(a1));
-        Console.dir(CastUtil.toObject(b1));
-        Console.dir(CastUtil.toObject(c1));
-        Console.dir(101);
+        Object o2 = JsonReader.jsonToObject("{\"@type\":\"org.tlsys.Response\",\"id\":11,\"body\":\"1111 from serevr\"}");
+        Console.info("OUT=");
+        Console.dir(o2);
 
-
-        new Main(10);
-        new Main(10);
-        new Main(10);
-        int[] a = new int[10];
-        a[0] = 1;
-        Console.dir(a);
-        Console.info(Integer.toString(a[0]));
-
-        Object o = DOM.getElementsByTagName(Document.get(), "body")[0];
-
-        MyBtn b = new MyBtn();
-        DOM.appendChild(o, b);
-        DOM.setHTML(b, "123 hash=" + b + " class=" + b.getClass().getName());
-
-        Events.addEventListener(b, "click", new Events.EventListener() {
-            @Override
-            public void onEvent(Object o, Object o1) {
-                Console.info("CLIKED!" + this.toString());
-            }
-        });
-
-        Events.addEventListener(b, "click", (s, e) -> {
-            Console.info("Hello from lambda! " + b);
-        });
 
 
         /*
@@ -118,13 +89,13 @@ public class Main {
         //Console.info("Timer setted! " + id);
 
 
-        /*
+
         API api = new API((s)->{
             Console.info("CONNECTED!");
         });
 
-        Button b1 = new Button("Send 1");
-        Button b2 = new Button("Send 2");
+        MyBtn b1 = new MyBtn("Send 1");
+        MyBtn b2 = new MyBtn("Send 2");
 
         Object o = DOM.getElementsByTagName(Document.get(), "body")[0];
 
@@ -146,14 +117,17 @@ public class Main {
                 Console.dir(b2);
             });
         }, false);
-        */
+
 
     }
 
     @DomNode("button")
     private static class MyBtn {
-
+        public MyBtn(String text) {
+            DOM.setHTML(this, text);
+        }
     }
+
 /*
     public void doit() {
 

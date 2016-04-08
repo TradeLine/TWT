@@ -6,6 +6,7 @@ import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
 import org.tlsys.twt.classes.ClassRecord;
+import org.tlsys.twt.rt.java.BoxCast;
 import org.tlsys.twt.rt.java.lang.TClass;
 
 import java.util.Objects;
@@ -19,10 +20,18 @@ public final class TArray {
 
     public static Object get(Object array, int index) {
         Object[] ar = CastUtil.cast(array);
+
+        if (array.getClass().getComponentType().isPrimitive()) {
+            return BoxCast.toObject(array.getClass().getComponentType(), ar[index]);
+        }
+
         return ar[index];
     }
 
     public static void set(Object array, int index, Object value){
+        if (array.getClass().getComponentType().isPrimitive()) {
+            value = BoxCast.toPrimitive(array.getClass().getComponentType(), value);
+        }
         Object[] ar = CastUtil.cast(array);
         ar[index] = value;
     }

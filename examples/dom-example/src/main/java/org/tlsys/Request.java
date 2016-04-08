@@ -1,5 +1,8 @@
 package org.tlsys;
 
+import org.tlsys.twt.annotations.JSClass;
+
+@JSClass
 public class Request {
     private static int ids = 0;
     private int id;

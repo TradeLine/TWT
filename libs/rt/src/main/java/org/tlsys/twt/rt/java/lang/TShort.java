@@ -13,11 +13,16 @@ public class TShort extends Number {
 
     public static final short   MIN_VALUE = -32768;
     public static final short   MAX_VALUE = 32767;
+    private static final long serialVersionUID = -532933355093144222L;
 
     private final short val;
 
     public TShort(short val) {
         this.val = val;
+    }
+
+    public static String toString(short s) {
+        return Integer.toString((int) s, 10);
     }
 
     @Override
@@ -42,5 +47,9 @@ public class TShort extends Number {
 
     public TShort fromjava_lang_Object(Object value) {
         return CastUtil.cast(value);
+    }
+
+    public String toString() {
+        return toString(val);
     }
 }

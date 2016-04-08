@@ -1,8 +1,9 @@
 package org.tlsys;
 
 import org.tlsys.twt.Console;
+import org.tlsys.twt.annotations.JSClass;
 
-
+@JSClass
 public class SecondApi {
 
     private final API api;

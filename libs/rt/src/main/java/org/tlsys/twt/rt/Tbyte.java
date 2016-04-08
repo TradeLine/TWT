@@ -1,13 +1,10 @@
 package org.tlsys.twt.rt;
 
 import org.tlsys.twt.CastUtil;
-import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.ClassName;
-import org.tlsys.twt.annotations.ForceInject;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.rt.boxcastadapter.ByteAdapter;
-import org.tlsys.twt.rt.java.lang.BoxingCast;
 
 @JSClass
 @ClassName(value = "byte", primitive = true, nativeName = "B")
@@ -30,7 +27,7 @@ public class Tbyte {
         return CastUtil.toLong(CastUtil.toObject(value));
     }
 
-    public static long doubleValue(byte value) {
+    public static double doubleValue(byte value) {
         return CastUtil.toDouble(CastUtil.toObject(value));
     }
 

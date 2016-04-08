@@ -16,6 +16,7 @@ public final class TInteger extends Number {
     public static final int MIN_VALUE = 0x80000000;
 
     public static final int MAX_VALUE = 0x7fffffff;
+    private static final long serialVersionUID = 1887258139513155261L;
 
     private final int value;
 
@@ -46,6 +47,10 @@ public final class TInteger extends Number {
         return Script.code(CastUtil.toObject(value), ".toString(", CastUtil.toObject(radix), ")");
     }
 
+    public static TInteger fromjava_lang_Object(Object value) {
+        return CastUtil.cast(value);
+    }
+
     @ForceInject
     @Override
     public int intValue() {
@@ -68,9 +73,5 @@ public final class TInteger extends Number {
     @Override
     public double doubleValue() {
         return value;
-    }
-
-    public TInteger fromjava_lang_Object(Object value) {
-        return CastUtil.cast(value);
     }
 }

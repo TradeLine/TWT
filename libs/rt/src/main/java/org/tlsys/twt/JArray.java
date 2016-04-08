@@ -14,7 +14,8 @@ public class JArray<E> {
         int len = CastUtil.toInt(Script.code(array, ".length"));
         T[] m = CastUtil.cast(Array.newInstance(clazz, len));
         for (int i = 0; i < len; i++) {
-            m[i] = Script.code(array, "[", i, "]");
+            T val = Script.code(array, "[", CastUtil.toObject(i), "]");
+            m[i] = val;
         }
 
         return m;

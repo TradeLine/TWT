@@ -49,6 +49,30 @@ public class TObject {
         return cr.getAsClass();
     }
 
+    public static Integer fromint(int value) {
+        return new Integer(value);
+    }
+
+    public static Long fromlong(long value) {
+        return new Long(value);
+    }
+
+    public static Short fromshort(short value) {
+        return new Short(value);
+    }
+
+    public static Byte frombyte(byte value) {
+        return new Byte(value);
+    }
+
+    public static Float fromfloat(float value) {
+        return new Float(value);
+    }
+
+    public static Double fromdouble(double value) {
+        return new Double(value);
+    }
+
     @Override
     public int hashCode() {
         return hashCode;
@@ -66,6 +90,6 @@ public class TObject {
     }
 
     public boolean equals(Object obj) {
-        return Script.code(this.hashCode(),"==",obj.hashCode());
+        return Script.code(CastUtil.toObject(this.hashCode()), "==", CastUtil.toObject(obj.hashCode()));
     }
 }

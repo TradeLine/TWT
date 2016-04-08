@@ -1,6 +1,5 @@
 package org.tlsys.twt.rt.java.lang.reflect;
 
-import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
@@ -16,8 +15,8 @@ public class TField {
 
     private final String name;
     private final String jsName;
-    private Class type;
     private final Class declaringClass;
+    private Class type;
     private int modificators;
 
     public TField(String name, String jsName, Class declaringClass, Class type, int modificators) {
@@ -44,6 +43,12 @@ public class TField {
     }
 
     public void set(Object obj, Object value) {
+        /*
+        if (Modifier.isStatic(getModifiers())) {
+            TClass c = CastUtil.cast(getDeclaringClass());
+            c.getRecord().getPrototype()
+        }
+        */
 
         if (type.isPrimitive()) {
             Script.code(obj,"[",jsName,"]=",BoxCast.toPrimitive(type, value));

@@ -155,6 +155,26 @@ public final class CodeBuilder {
         public NewClassBuilder newInstance(SourcePoint sp) {
             return new NewClassBuilder(find(), sp);
         }
+
+        @Override
+        public ConstructorFinder arg(VClass argClass) {
+            return (ConstructorFinder) super.arg(argClass);
+        }
+
+        @Override
+        public ConstructorFinder arg(String argClass, SourcePoint point) {
+            return (ConstructorFinder) super.arg(argClass, point);
+        }
+
+        @Override
+        public ConstructorFinder arg(Class argClass, SourcePoint point) {
+            return (ConstructorFinder) super.arg(argClass, point);
+        }
+
+        @Override
+        public InvokeBuilder invoke(SourcePoint point) {
+            return super.invoke(point);
+        }
     }
 
     public static class ArgumentBuilder {
@@ -210,6 +230,16 @@ public final class CodeBuilder {
                 nc.addArg(v);
             }
             return nc;
+        }
+
+        @Override
+        public NewClassBuilder arg(Value value) {
+            return (NewClassBuilder) super.arg(value);
+        }
+
+        @Override
+        public ArrayArgumentBuilder<ArgumentBuilder> array() {
+            return super.array();
         }
     }
 

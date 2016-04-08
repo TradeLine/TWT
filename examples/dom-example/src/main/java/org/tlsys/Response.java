@@ -1,9 +1,12 @@
 package org.tlsys;
 
 import org.tlsys.twt.annotations.ForceInject;
+import org.tlsys.twt.annotations.JSClass;
 
-
+@ForceInject
+@JSClass
 public class Response {
+    public int[] values;
     private int id;
     private String body;
 

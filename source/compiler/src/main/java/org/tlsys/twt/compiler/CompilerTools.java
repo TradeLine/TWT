@@ -208,16 +208,17 @@ public class CompilerTools {
         Objects.requireNonNull(value.getType(), "Value Type is NULL");
 
         Objects.requireNonNull(type, "Type is NULL");
+
         //if (true)
         //    return value;
-        if (value.getType() == type || value.getType().isParent(type))
+        if (value.getType() == type || (value.getType().isParent(type) && TypeUtil.isPrimitive(value.getType()) == TypeUtil.isPrimitive(type)))
             return value;
 
         if (value instanceof Const && ((Const) value).getValue() == null)
             return value;
         //return new Cast(type, value);
 
-        System.out.println("Cast " + value.getType().getRealName() + " (" + value.toString() + ") to " + type.getRealName()+"...");
+        System.out.println("Cast " + value.getType().getRealName() + " to " + type.getRealName() + "..." + point.getSourceFile().getName() + " : " + point.getRow() + 1);
         ICastAdapter ica = getCastAdapter(type);
         Value val = ica.cast(value, type, point);
         Objects.requireNonNull(val, "Result of cast is NULL");

@@ -64,7 +64,10 @@ public abstract class WebSocket {
     }
 
     public State getState() {
-        int st = CastUtil.toInt(Script.code(js, ".readyState"));
+        int st = CastUtil.toInt(CastUtil.toInt(Script.code(js, ".readyState")));
+        Console.info("State:");
+        Console.dir(CastUtil.toObject(st));
+        Console.dir(Script.code(js, ".readyState"));
         switch (st) {
             case 0: return State.CONNECTING;
             case 1: return State.OPEN;

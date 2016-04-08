@@ -35,7 +35,7 @@ public class Generator implements MainGenerator {
         return lambda;
     }
 
-    private static Value getClassViaTypeProvider(VClass vClass) throws VClassNotFoundException {
+    public static Value getClassViaTypeProvider(VClass vClass) throws VClassNotFoundException {
         VClass typeProviderClass = vClass.getClassLoader().loadClass(TypeProvider.class.getName(), null);
         VBlock body = new VBlock();
         body.add(new Return(new ClassRecordRef(vClass, null), null));
@@ -163,12 +163,6 @@ public class Generator implements MainGenerator {
                     );
                     */
         }
-
-        if (vClass instanceof ArrayClass) {
-            ArrayClass ac = (ArrayClass) vClass;
-            lastScope = CodeBuilder.scope(lastScope).method("setComponentType").arg(classTypeProvider).invoke(null).arg(getClassViaTypeProvider(ac.getComponent())).build();
-        }
-
         return lastScope;
     }
 

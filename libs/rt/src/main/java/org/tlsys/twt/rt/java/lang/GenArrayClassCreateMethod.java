@@ -53,6 +53,9 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
                 .addArg(new VBinar(new Const("[", stringClass), new GetField(new This(classClass), nameField, null), stringClass, VBinar.BitType.PLUS, null)
                 ), moduls);
 
+        drecord.init = CodeBuilder.scope((Value) drecord.init).method("setComponentType").arg(classClassRecord).invoke(null).arg(
+                new This(classClassRecord, null)).build();
+
         Value lastScope = clazzRecord;
 
         ICodeGenerator cg = context.getGenerator(classClassStorage);

@@ -1,20 +1,26 @@
 package org.tlsys.twt;
 
 import org.tlsys.CodeBuilder;
+import org.tlsys.TypeUtil;
 import org.tlsys.lex.ClassRef;
 import org.tlsys.lex.Value;
 import org.tlsys.lex.declare.ArrayClass;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.rt.boxcastadapter.BoxCastAdapter;
 
 public class DefaultCast implements ICastAdapter {
     @Override
     public Value cast(Value value, VClass to, SourcePoint point) throws CompileException {
+
+        if (TypeUtil.isPrimitive(value.getType()))
+            return new BoxCastAdapter().cast(value, to, point);
+
+
         if (!(to instanceof ArrayClass) && to.alias != null && to.alias.equals(String.class.getName())) {
             Value val = CodeBuilder.scopeStatic(to).method("valueOf").arg(value.getType()).invoke(point).arg(value).build();
             return val;
             //return new Invoke(value.getType().getMethod("toString"), value);
-
         } else {
             return CodeBuilder
                     .scope(new ClassRef(to, null))

@@ -1,16 +1,20 @@
 package org.tlsys.twt.rt;
 
 import org.tlsys.twt.CastUtil;
+import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.rt.boxcastadapter.ShortAdapter;
-import org.tlsys.twt.rt.java.lang.BoxingCast;
 
 @JSClass
 @ClassName(value = "short", primitive = true, nativeName = "S")
 @CastAdapter(ShortAdapter.class)
 public class Tshort {
+
+    public static char charValue(short value) {
+        return CastUtil.toChar(Script.code("String.fromCharCode(", CastUtil.toObject(value), ")"));
+    }
 
     public static byte byteValue(short value) {
         int cut = value & 255;
@@ -29,7 +33,7 @@ public class Tshort {
         return CastUtil.toLong(CastUtil.toObject(value));
     }
 
-    public static long doubleValue(short value) {
+    public static double doubleValue(short value) {
         return CastUtil.toDouble(CastUtil.toObject(value));
     }
 }

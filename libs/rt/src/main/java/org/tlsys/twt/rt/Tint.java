@@ -6,7 +6,6 @@ import org.tlsys.twt.annotations.CastAdapter;
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.rt.boxcastadapter.IntAdapter;
-import org.tlsys.twt.rt.java.lang.BoxingCast;
 
 @JSClass
 @ClassName(value = "int", primitive = true, nativeName = "I")
@@ -35,7 +34,7 @@ public class Tint {
         return CastUtil.toShort(CastUtil.toObject(value));
     }
 
-    public static long doubleValue(int value) {
+    public static double doubleValue(int value) {
         return CastUtil.toDouble(CastUtil.toObject(value));
     }
 }

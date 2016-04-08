@@ -40,7 +40,7 @@ public class TClass {
     public Class getComponentType() {
         if (!isArray())
             return null;
-        return getRecord().getComponentType().getType().getAsClass();
+        return getRecord().getComponentType().getAsClass();
     }
 
     public boolean isPrimitive() {

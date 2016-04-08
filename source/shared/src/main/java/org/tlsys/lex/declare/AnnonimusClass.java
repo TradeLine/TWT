@@ -37,7 +37,8 @@ public class AnnonimusClass extends VClass implements Serializable {
     }
 
     public static boolean isAnnonimusClass(Symbol.TypeSymbol c) {
-        return c instanceof Symbol.ClassSymbol && c.owner != null && c.owner instanceof Symbol.MethodSymbol;
+        System.out.println(c.owner + "\n\n-----\n" + c.owner.getClass().getName());
+        return c instanceof Symbol.ClassSymbol && c.owner != null && (c.owner instanceof Symbol.MethodSymbol || c.owner instanceof Symbol.VarSymbol);
     }
 
     public ArrayList<Value> getInputs() {

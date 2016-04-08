@@ -54,6 +54,7 @@ public final class DOM {
     }
 
     public static void appendChild(Object element, Object child) {
+        //Elements.requireElement(child, "Child must be Node");
         Script.code(element,".appendChild(",child,")");
     }
 

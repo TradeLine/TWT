@@ -5,13 +5,10 @@ import org.tlsys.twt.NativeCodeGenerator;
 import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.JSClass;
 
-import java.lang.annotation.Native;
-
 @JSClass
 @CodeGenerator(NativeCodeGenerator.class)
 public final class BoxCast {
     public static Object toPrimitive(Class clazz, Object object) {
-
         if (!clazz.isPrimitive())
             throw new IllegalArgumentException("Class " + clazz + " is not primitive");
 
@@ -45,6 +42,46 @@ public final class BoxCast {
 
         if (clazz==double.class) {
             return CastUtil.toObject(((Double)object).doubleValue());
+        }
+
+        throw new RuntimeException("Can't cast " + object + " to " + clazz.getName());
+    }
+
+    public static Object toObject(Class clazz, Object object) {
+
+        if (clazz.isPrimitive())
+            throw new IllegalArgumentException("Class " + clazz + " is primitive");
+
+        if (clazz == Boolean.class) {
+            return new Boolean(CastUtil.toBoolean(object));
+        }
+
+        if (clazz == Character.class) {
+            return new Character(CastUtil.toChar(object));
+        }
+
+        if (clazz == Byte.class) {
+            return new Byte(CastUtil.toByte(object));
+        }
+
+        if (clazz == Short.class) {
+            return new Short(CastUtil.toShort(object));
+        }
+
+        if (clazz == Integer.class) {
+            return new Integer(CastUtil.toInt(object));
+        }
+
+        if (clazz == Long.class) {
+            return new Long(CastUtil.toLong(object));
+        }
+
+        if (clazz == Float.class) {
+            return new Float(CastUtil.toFloat(object));
+        }
+
+        if (clazz == Double.class) {
+            return new Double(CastUtil.toDouble(object));
         }
 
         throw new RuntimeException("Can't cast " + object + " to " + clazz.getName());

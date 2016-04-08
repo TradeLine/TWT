@@ -525,12 +525,17 @@ public class ClassCompiler {
     }
 
     private static void findReplaceMethodInClass(VMethod member) {
+        if (member.isStatic())
+            return;
 
         List<VMethod> methods = getAllMethodsNyName(member.getParent(), member.getRunTimeName());
         METHOD:
         for (VMethod m : methods) {
             if (m == member)
                 continue;
+
+            if (m.isStatic())
+                return;
 
             if (m.getArguments().size() != member.getArguments().size()) {
                 continue;
@@ -552,6 +557,8 @@ public class ClassCompiler {
         for (VMethod m : methods) {
             if (m == member)
                 continue;
+            if (m.isStatic())
+                return;
             if (m.getParent() == member.getParent())
                 continue;
 
@@ -670,7 +677,14 @@ public class ClassCompiler {
                     data.write(buffer, 0, len);
                 }
                 String name = new File(file.getSourceFile().getName()).getName();
-                SourceFile sf = new SourceFile(new String(data.toByteArray()), file.getPackageName().toString().replace('.', '/') + "/" + name, new SourcePointProvider(file));
+                SourceFile sf = new SourceFile(
+
+                        new String(data.toByteArray()),
+
+                        //file.getSourceFile().getName()
+                        file.getPackageName().toString().replace('.', '/') + "/" + name
+
+                        , new SourcePointProvider(file));
                 files.put(file, sf);
             } catch (IOException e) {
                 throw new RuntimeException(e);

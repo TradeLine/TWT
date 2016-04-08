@@ -44,59 +44,76 @@ public class AppCompiller {
     public static App compileApp(Task task) throws IOException, CompileException {
         DLoader loader = new DLoader();
         try {
-            ArtifactRecolver artifactRecolver = new ArtifactRecolver();
-            RepositoryHandler rh = task.getProject().getRepositories();
-            for (ArtifactRepository ar : rh) {
-                if (ar instanceof DefaultMavenLocalArtifactRepository) {
-                    DefaultMavenLocalArtifactRepository mar = (DefaultMavenLocalArtifactRepository) ar;
-                    artifactRecolver.addPath(new File(mar.getUrl()));
-                }
-            }
-
-            FileCollection source = task.getInputs().getSourceFiles();
-            JavaPluginConvention javaConvention = task.getProject().getConvention().getPlugin(JavaPluginConvention.class);
-            SourceSetContainer ssc = javaConvention.getSourceSets();
-            SourceSet ss = ssc.getByName("main");
-
-            Optional<File> sources = ss.getAllSource().getSrcDirs().stream().filter(e -> e.getName().equals("java")).findFirst();
-            if (!sources.isPresent()) {
-                throw new IOException("Can't find directore with java source");
-            }
-
-            File classDir = getClassDir(task.getProject());
-            GradleTWTSourceProject mainLoader = new GradleTWTSourceProject(task.getProject(), artifactRecolver, loader);
-            //ProjectSourceDClassLoader mainLoader = new ProjectSourceDClassLoader(sources.get(), classDir, artifactRecolver, loader, task.getProject());
-
-            ArrayList<File> pathes = new ArrayList<>();
-            for (Configuration c : task.getProject().getConfigurations()) {
-                for (Dependency d : c.getDependencies()) {
-                    if (d instanceof ProjectDependency) {
-                        ProjectDependency pd = (ProjectDependency) d;
-                        pathes.add(new File(pd.getDependencyProject().getBuildDir() + File.separator + "classes" + File.separator + "main"));
+            try {
+                ArtifactRecolver artifactRecolver = new ArtifactRecolver();
+                RepositoryHandler rh = task.getProject().getRepositories();
+                for (ArtifactRepository ar : rh) {
+                    if (ar instanceof DefaultMavenLocalArtifactRepository) {
+                        DefaultMavenLocalArtifactRepository mar = (DefaultMavenLocalArtifactRepository) ar;
+                        artifactRecolver.addPath(new File(mar.getUrl()));
                     }
                 }
-            }
 
-            for (File f : task.getProject().getConfigurations().getByName("compile")) {
-                pathes.add(f);
-            }
+                FileCollection source = task.getInputs().getSourceFiles();
+                JavaPluginConvention javaConvention = task.getProject().getConvention().getPlugin(JavaPluginConvention.class);
+                SourceSetContainer ssc = javaConvention.getSourceSets();
+                SourceSet ss = ssc.getByName("main");
 
-            //LibLoader.loadLibsFor(mainLoader, pathes);
-            loader.add(mainLoader);
-            //ModuleInfo mi = new ModuleInfo(mainLoader.getName(), LibLoader.getAllDependencys(mainLoader));
-            SourceCompiler.compile(mainLoader);
-
-            return new App(loader, classDir, mainLoader/*, mi*/);
-        } catch (Throwable e) {
-            e.printStackTrace();
-            for (TWTModule cl : loader.getLoaders()) {
-                try {
-                    cl.getJavaClassLoader().close();
-                } catch (IOException io) {
-                    //ignore
+                Optional<File> sources = ss.getAllSource().getSrcDirs().stream().filter(e -> e.getName().equals("java")).findFirst();
+                if (!sources.isPresent()) {
+                    throw new IOException("Can't find directore with java source");
                 }
+
+                File classDir = getClassDir(task.getProject());
+                GradleTWTSourceProject mainLoader = new GradleTWTSourceProject(task.getProject(), artifactRecolver, loader);
+                //ProjectSourceDClassLoader mainLoader = new ProjectSourceDClassLoader(sources.get(), classDir, artifactRecolver, loader, task.getProject());
+
+                ArrayList<File> pathes = new ArrayList<>();
+                for (Configuration c : task.getProject().getConfigurations()) {
+                    for (Dependency d : c.getDependencies()) {
+                        if (d instanceof ProjectDependency) {
+                            ProjectDependency pd = (ProjectDependency) d;
+                            pathes.add(new File(pd.getDependencyProject().getBuildDir() + File.separator + "classes" + File.separator + "main"));
+                        }
+                    }
+                }
+
+                for (File f : task.getProject().getConfigurations().getByName("compile")) {
+                    pathes.add(f);
+                }
+
+                //LibLoader.loadLibsFor(mainLoader, pathes);
+                loader.add(mainLoader);
+                //ModuleInfo mi = new ModuleInfo(mainLoader.getName(), LibLoader.getAllDependencys(mainLoader));
+                SourceCompiler.compile(mainLoader);
+
+                return new App(loader, classDir, mainLoader/*, mi*/);
+            } catch (Throwable e) {
+                e.printStackTrace();
+                for (TWTModule cl : loader.getLoaders()) {
+                    try {
+                        cl.getJavaClassLoader().close();
+                    } catch (IOException io) {
+                        //ignore
+                    }
+                }
+                throw e;
             }
-            throw e;
+        } catch (Throwable ee) {
+            AppCompiller.closeLoaded(loader);
+            throw new RuntimeException(ee);
+        }
+    }
+
+    public static void closeLoaded(DLoader loader) {
+        for (TWTModule cl : loader.getLoaders()) {
+            try {
+                System.out.println("Closing " + cl.getName());
+                cl.getJavaClassLoader().clearAssertionStatus();
+                cl.getJavaClassLoader().close();
+            } catch (IOException io) {
+                io.printStackTrace();
+            }
         }
     }
 
@@ -119,8 +136,7 @@ public class AppCompiller {
             return info;
         }
 */
-        
-        
+
 
         public GradleTWTSourceProject getMainLoader() {
             return mainLoader;
@@ -131,15 +147,7 @@ public class AppCompiller {
         }
 
         public void close() {
-            for (TWTModule cl : loader.getLoaders()) {
-                try {
-                    System.out.println("Closing " + cl.getName());
-                    cl.getJavaClassLoader().clearAssertionStatus();
-                    cl.getJavaClassLoader().close();
-                } catch (IOException io) {
-                    io.printStackTrace();
-                }
-            }
+            closeLoaded(loader);
         }
     }
 }

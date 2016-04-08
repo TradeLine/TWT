@@ -14,4 +14,12 @@ public class Tfloat {
     public static double doubleValue(float value) {
         return CastUtil.toDouble(CastUtil.toObject(value));
     }
+
+    public static long longValue(float value) {
+        return CastUtil.toLong(CastUtil.toObject(Math.floor(value)));
+    }
+
+    public static int intValue(float value) {
+        return (int) longValue(value);
+    }
 }

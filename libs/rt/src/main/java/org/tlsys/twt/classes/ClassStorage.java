@@ -35,6 +35,17 @@ public class ClassStorage {
     }
 
     public ClassRecord getByName(String name) throws ClassNotFoundException {
+        if (name.endsWith(";"))
+            name = name.substring(0, name.length() - 1);
+
+        if (name.startsWith("[")) {//is Array?
+            return getByName(name.substring(1)).getArrayClassRecord();
+        }
+        if (name.equals("I"))
+            return getByName("int");
+
+        if (name.equals("Z"))
+            return getByName("boolean");
         ClassRecord o = Script.code(this, "[", name, "]");
         if (o == null || Script.isUndefined(o))
             throw new ClassNotFoundException(name);

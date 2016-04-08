@@ -311,7 +311,7 @@ class OperationCompiler {
             Invoke i = new Invoke(method, self, c.getFile().getPoint(e.pos));
 
 
-            int argInc = 0;
+            //int argInc = 0;
             if (method instanceof VConstructor) {
                 for (VArgument arg : method.getArguments()) {
                     if (arg.getCreator() == null)
@@ -322,15 +322,12 @@ class OperationCompiler {
 
                         OtherClassLink ocl = (OtherClassLink) method.getParent().getModificator(ee -> ee.getClass() == OtherClassLink.class && ((OtherClassLink) ee).getToClass() == al.getToClass()).get();
                         i.addArg(new GetField(new This(ocl.getField().getParent()), ocl.getField(), null));
-                        argInc++;
                         continue;
                     }
 
                     if (arg.getCreator().getClass() == InputsClassModificator.InputArgs.class) {
                         InputsClassModificator.InputArgs al = (InputsClassModificator.InputArgs) arg.getCreator();
-                        //OtherClassLink ocl = (OtherClassLink) method.getParent().getModificator(ee -> ee.getClass() == OtherClassLink.class && ((OtherClassLink) ee).getToClass() == al.getToClass()).get();
                         i.addArg(al.getInput());
-                        argInc++;
                         break;
                     }
 
@@ -353,20 +350,50 @@ class OperationCompiler {
                 */
 
 
-            for (int c1 = argInc; c1 < method.getArguments().size(); c1++) {
-                if (method.getArguments().get(c1).var) {
-                    NewArrayItems nai = new NewArrayItems(method.getArguments().get(c1).getType().getArrayClass(), c.getFile().getPoint(e.pos));
-                    for (int c2 = c1; c2 < e.args.size(); c2++) {
-                        nai.elements.add(c.op(e.args.get(c2 - argInc), o));
+            int dec = 0;
+            for (int c1 = 0; c1 < method.getArguments().size(); c1++) {
+
+                VArgument arg = i.getMethod().getArguments().get(c1);
+
+                //if method is a constructor and creator of argument exist
+                if (method instanceof VConstructor && method.getArguments().get(c1).getCreator() != null) {
+                    if (arg.getCreator().getClass() == OtherClassLink.ArgumentLink.class) {
+                        OtherClassLink.ArgumentLink al = (OtherClassLink.ArgumentLink) arg.getCreator();
+
+                        OtherClassLink ocl = (OtherClassLink) method.getParent().getModificator(ee -> ee.getClass() == OtherClassLink.class && ((OtherClassLink) ee).getToClass() == al.getToClass()).get();
+                        i.addArg(new GetField(new This(ocl.getField().getParent()), ocl.getField(), null));
+                        dec++;
+                        continue;
                     }
-                    i.arguments.add(nai);
+
+                    if (arg.getCreator().getClass() == InputsClassModificator.InputArgs.class) {
+                        InputsClassModificator.InputArgs al = (InputsClassModificator.InputArgs) arg.getCreator();
+                        i.addArg(al.getInput());
+                        dec++;
+                        continue;
+                    }
+
+                    throw new RuntimeException("Unknown exception");
+                }
+
+                if (arg.var) {
+                    ArrayClass argType = (ArrayClass) arg.getType();
+                    NewArrayItems nai = new NewArrayItems(argType, c.getFile().getPoint(e.pos));
+                    for (int c2 = c1; c2 < e.args.size(); c2++) {
+
+                        Value val = c.op(e.args.get(c2 - dec), o);
+                        Value newVal = CompilerTools.cast(val, argType.getComponent(), c.getFile().getPoint(e.args.get(c2 - dec).pos));
+                        nai.elements.add(newVal);
+                    }
+                    i.addArg(nai);
                     break;
                 } else {
-                    int index = c1 - argInc;
-                    VArgument arg = i.getMethod().getArguments().get(index);
-                    Value val = c.op(e.args.get(index), o);
-                    val = CompilerTools.cast(val, arg.getType(), c.getFile().getPoint(e.pos));
-                    i.arguments.add(val);
+
+                    Value val = c.op(e.args.get(c1 - dec), o);
+                    VClass type = arg.getType();
+                    Value newVal = CompilerTools.cast(val, arg.getType(), c.getFile().getPoint(e.args.get(c1 - dec).pos));
+                    System.out.println(val + "" + newVal + "" + type);
+                    i.addArg(newVal);
                 }
             }
             i.returnType = c.loadClass(e.type, c.getFile().getPoint(e.pos));

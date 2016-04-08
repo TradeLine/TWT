@@ -20,7 +20,7 @@ public final class CastUtil {
     public native static float toFloat(Object object);
 
     @InvokeGen(org.tlsys.twt.CastInvoke.class)
-    public native static int toDouble(Object obj);
+    public native static double toDouble(Object obj);
 
     @InvokeGen(org.tlsys.twt.CastInvoke.class)
     public native static long toLong(Object obj);
@@ -51,6 +51,9 @@ public final class CastUtil {
 
     @InvokeGen(org.tlsys.twt.CastInvoke.class)
     public native static Object toObject(long obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static Object toObject(byte obj);
 
     @InvokeGen(org.tlsys.twt.CastInvoke.class)
     public native static Object toObject(short obj);

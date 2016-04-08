@@ -11,6 +11,7 @@ public final class Elements {
     }
 
     public static <T> T requireElement(T object) {
+        Objects.requireNonNull(object);
         if (Script.code(object, " instanceof HTMLElement")) {
             return object;
         }
@@ -19,6 +20,7 @@ public final class Elements {
     }
 
     public static <T> T requireElement(T object, String text) {
+        Objects.requireNonNull(object);
         if (Script.code(object, " instanceof HTMLElement")) {
             return object;
         }

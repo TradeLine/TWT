@@ -17,6 +17,10 @@ public class TLong extends Number {
 
     private final long value;
 
+    public TLong(int value) {
+        this.value = value;
+    }
+
     public TLong(long value) {
         this.value = value;
     }
@@ -37,6 +41,14 @@ public class TLong extends Number {
         if (b)
             throw new NumberFormatException(s);
         return CastUtil.toLong(Script.code("parseInt(", s, ",", CastUtil.toObject(radix), ")"));
+    }
+
+    public static String toString(long value) {
+        return toString(value, 10);
+    }
+
+    public static String toString(long value, int radix) {
+        return Script.code(CastUtil.toObject(value), ".toString(", CastUtil.toObject(radix), ")");
     }
 
     @Override

@@ -17,6 +17,10 @@ public class TFloat extends Number {
         this.value = value;
     }
 
+    public static String toString(float value) {
+        return Script.code(CastUtil.toObject(value), ".toString()");
+    }
+
     @Override
     public int intValue() {
         return CastUtil.toInt(Script.code("Math.floor(", CastUtil.toObject(value), ")"));
@@ -39,5 +43,9 @@ public class TFloat extends Number {
 
     public TFloat fromjava_lang_Object(Object value) {
         return CastUtil.cast(value);
+    }
+
+    public String toString() {
+        return toString(value);
     }
 }

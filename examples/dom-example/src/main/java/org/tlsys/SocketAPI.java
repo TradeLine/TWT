@@ -1,10 +1,12 @@
 package org.tlsys;
 
 import org.tlsys.twt.Console;
-import org.tlsys.twt.json.Json;
+import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.json.JsonReader;
 import org.tlsys.twt.net.WebSocket;
 
 
+@JSClass
 public class SocketAPI extends WebSocket {
 
     private final ConnectListener connectListener;
@@ -19,7 +21,8 @@ public class SocketAPI extends WebSocket {
     @Override
     protected void onMessage(String s) {
         Console.info("Getted " + s);
-        Response rr = (Response) Json.fromJSON(s);
+        Response rr = (Response) JsonReader.jsonToObject(s);
+        Console.dir(rr);
         Console.info("Search request " + rr.getId());
         ResponceListener rl = api.outs.remove(rr.getId());
         if (rl == null)

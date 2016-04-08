@@ -10,6 +10,7 @@ import org.tlsys.twt.rt.boxcastadapter.ByteAdapter;
 @ReplaceClass(Byte.class)
 @CastAdapter(ByteAdapter.class)
 public final class TByte extends Number {
+    private static final long serialVersionUID = -6056530767832062438L;
     public static byte MAX_VALUE = 127;
     public static byte MIN_VALUE = -128;
 
@@ -21,6 +22,10 @@ public final class TByte extends Number {
 
     public TByte(String val) {
         throw new RuntimeException("Constructor Byte(String) not supported yet");
+    }
+
+    public static String toString(byte value) {
+        return Integer.toString((int) value, 10);
     }
 
     @Override
@@ -45,5 +50,9 @@ public final class TByte extends Number {
 
     public TByte fromjava_lang_Object(Object value) {
         return CastUtil.cast(value);
+    }
+
+    public String toString() {
+        return toString(val);
     }
 }

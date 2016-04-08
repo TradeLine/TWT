@@ -1,6 +1,9 @@
 package org.tlsys.twt.rt.java.lang;
 
-import org.tlsys.twt.*;
+import org.tlsys.twt.ApplyInvoke;
+import org.tlsys.twt.CastUtil;
+import org.tlsys.twt.JArray;
+import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.*;
 
 @JSClass
@@ -45,9 +48,33 @@ public final class TString implements TCharSequence {
         if (obj.getClass() == Integer.class || obj.getClass() == Float.class)
             return obj.toString();
 
-        Console.info("Try convert to string...");
-        Console.dir(obj);
+        //Console.info("Try convert to string...");
+        //Console.dir(obj);
         return obj.toString();
+    }
+
+    public static String frombyte(byte value) {
+        return Byte.toString(value);
+    }
+
+    public static String fromshort(short value) {
+        return Short.toString(value);
+    }
+
+    public static String fromint(int value) {
+        return Integer.toString(value);
+    }
+
+    public static String fromfloat(float value) {
+        return Float.toString(value);
+    }
+
+    public static String fromlong(long value) {
+        return Long.toString(value);
+    }
+
+    public static String fromdouble(double value) {
+        return Double.toString(value);
     }
 
     @MethodAlias("toString")
@@ -109,5 +136,10 @@ public final class TString implements TCharSequence {
     @InvokeGen(ApplyInvoke.class)
     public String[] split(String regex) {
         return JArray.fromJSArray(Script.code(this,".split(new RegExp(",regex,"))"), String.class);
+    }
+
+    @InvokeGen(ApplyInvoke.class)
+    public boolean startsWith(String prefix) {
+        return indexOf(prefix) == 0;
     }
 }
