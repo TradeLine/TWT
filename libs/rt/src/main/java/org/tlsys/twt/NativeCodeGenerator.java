@@ -119,9 +119,6 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         if (op instanceof Invoke) {
             Invoke inv = (Invoke) op;
 
-            if (inv.getScope() instanceof This && inv.getMethod() instanceof VConstructor)
-                System.out.println("!!!");
-
             InvokeGenerator icg = ctx.getInvokeGenerator(((Invoke) op).getMethod());
             if (icg != null && icg != this)
                 return icg.generate(ctx, inv, ps);

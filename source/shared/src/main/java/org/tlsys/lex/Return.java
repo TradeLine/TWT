@@ -50,4 +50,9 @@ public class Return extends Operation implements HavinSourceStart {
         super.visit(replaceControl);
         ReplaceHelper.replace(value,replaceControl).ifPresent(e->value = e);
     }
+
+    @Override
+    public String toString() {
+        return "[RETURN " + value + "]";
+    }
 }

@@ -8,8 +8,8 @@ import org.tlsys.twt.annotations.ReplaceClass;
 @ClassName("java.lang.Enum")
 @ReplaceClass(java.lang.Enum.class)
 public class TEnum {
-    public int ordinal;
-    public String name;
+    private int ordinal;
+    private String name;
 
     public TEnum(String name, int ordinal) {
         this.ordinal = ordinal;
@@ -24,6 +24,16 @@ public class TEnum {
     }
 
     public String name() {
+        return name;
+    }
+
+    @Override
+    public final boolean equals(Object other) {
+        return this==other;
+    }
+
+    @Override
+    public String toString() {
         return name;
     }
 }

@@ -27,4 +27,9 @@ public class TRuntimeException extends Exception {
                                 boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

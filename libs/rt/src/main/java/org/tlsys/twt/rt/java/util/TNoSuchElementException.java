@@ -26,4 +26,9 @@ public class TNoSuchElementException extends RuntimeException {
     public TNoSuchElementException(String s) {
         super(s);
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

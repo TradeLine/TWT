@@ -39,18 +39,13 @@ final class Utils {
 
     public static Collection<TWTModule> loadClass(ArtifactRecolver artifactRecolver, DLoader loader, Dependency dependency) throws IOException {
 
-        //System.out.println("====LOAD DEPENDENCY " + dependency + "  :  " + dependency.getClass().getName());
-
         if (dependency instanceof ProjectDependency) {
             ProjectDependency pd = (ProjectDependency)dependency;
             String name = Utils.getDClassLoaderName(pd.getDependencyProject());
-            System.out.print("PROJECT " + pd.getName() + "/"+name+"...");
             Optional<TWTModule> p = loader.getByName(name);
             if (p.isPresent()) {
-                System.out.println("GETTED");
                 return Arrays.asList(p.get());
             }
-            System.out.println("LOADED");
             GradleProjectTWTModule mod = new GradleProjectTWTModule(pd.getDependencyProject(), artifactRecolver, loader);
             loader.add(name, mod);
             return Arrays.asList(mod);

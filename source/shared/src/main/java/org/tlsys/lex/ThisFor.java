@@ -7,23 +7,24 @@ import org.tlsys.sourcemap.SourcePoint;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class Const extends Value implements HavinSourceStart {
+public class ThisFor extends Value implements HavinSourceStart {
 
-    private static final long serialVersionUID = -6904428609017177692L;
-    private Object value;
-    private VClass type;
+    private static final long serialVersionUID = 5355624188287833307L;
+    private final VClass self;
+    private final VClass forClazz;
     private SourcePoint point;
 
-    public Const() {
+    public VClass getSelf() {
+        return self;
     }
 
-    public Const(Object value, VClass type) {
-        this(value, type, null);
+    public ThisFor(VClass self, VClass forClazz) {
+        this(self, forClazz, null);
     }
 
-    public Const(Object value, VClass type, SourcePoint point) {
-        this.value = value;
-        this.type = type;
+    public ThisFor(VClass self, VClass forClazz, SourcePoint point) {
+        this.self = self;
+        this.forClazz = forClazz;
         this.point = point;
     }
 
@@ -32,18 +33,14 @@ public class Const extends Value implements HavinSourceStart {
         return point;
     }
 
-    public Object getValue() {
-        return value;
-    }
-
     @Override
     public VClass getType() {
-        return type;
+        return forClazz;
     }
 
     @Override
     public void getUsing(Collect c) {
-        c.add(type);
+        c.add(self);
     }
 
     @Override
@@ -53,6 +50,6 @@ public class Const extends Value implements HavinSourceStart {
 
     @Override
     public String toString() {
-        return "[CONST " + value + "]";
+        return "[This " + self + "]";
     }
 }

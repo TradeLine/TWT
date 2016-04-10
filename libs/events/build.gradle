@@ -29,13 +29,15 @@ repositories {
     mavenLocal()
 }
 
+apply plugin: 'twt-compile'
+
 dependencies{
     compile files("${System.properties['java.home']}/../lib/tools.jar")
-    compile name:'twt-shared', group:'org.tlsys', version:'1.0'
-    compile project(":rt")
+    twtCompile name:'twt-shared', group:'org.tlsys', version:'1.0'
+    twtCompile project(":rt")
 }
 
-apply plugin: 'twt-compile'
+
 
 build {
     dependsOn publishToMavenLocal

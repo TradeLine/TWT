@@ -16,7 +16,7 @@ public class Tint {
         return CastUtil.toChar(Script.code("String.fromCharCode(", CastUtil.toObject(value),")"));
     }
 
-    public static byte byteValue(int value) {
+    public static byte byteValue(int value) { 
         int cut = value & 255;
         return CastUtil.intToByte((cut & 128) > 0 ? -128 + (cut & 127): cut & 127);
     }

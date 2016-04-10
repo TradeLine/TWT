@@ -50,6 +50,24 @@ public class JArray<E> {
         Script.code(o,".splice(",CastUtil.toObject(index),",1)");
     }
 
+    public E push(E value) {
+        add(value, length()-1);
+        return value;
+    }
+
+    public boolean isEmpty() {
+        return length() == 0;
+    }
+
+    public E pop() {
+        int len = length();
+        if (len == 0)
+            return null;
+        E val = get(len-1);
+        remove(len - 1);
+        return val;
+    }
+
     public E get(int index) {
         if (index < 0 || index>=length())
             return null;

@@ -79,7 +79,7 @@ public class CompilerTools {
             m.addArg(a);
         }
 
-
+/*
         if (m instanceof VConstructor) {
             VClass enumClass = m.getParent().getClassLoader().loadClass(Enum.class.getName(), file.getPoint(mem.pos));
             if (m.getParent() != enumClass && m.getParent().isParent(enumClass)) {
@@ -89,21 +89,8 @@ public class CompilerTools {
                 VArgument ordinal = new VArgument("ordinal", m.getParent().getClassLoader().loadClass("int", file.getPoint(mem.pos)), false, false, m, null, null);
                 m.addArg(ordinal);
             }
-
-            /*
-            //Если конструктор этого класса имеет родителя, при этом не является
-            //интерфейсом,enum'мом и не обявлен как статический, то добавляем
-            //его аргумент на this родителя
-            if (m.getParent().getParent() != null
-                    && !java.lang.reflect.Modifier.isInterface(m.getParent().getModificators())
-                    && !java.lang.reflect.Modifier.isStatic(m.getParent().getModificators())
-                    && !m.getParent().isParent(enumClass)) {
-
-                VArgument parent = new VArgument("this$0",m.getParent().getParent(), false, false, null);
-                m.arguments.add(0, parent);
-            }
-            */
         }
+*/
 
     }
 
@@ -202,9 +189,6 @@ public class CompilerTools {
 
     public static Value cast(Value value, VClass type, SourcePoint point) throws CompileException {
         Objects.requireNonNull(value, "Value is NULL");
-        if (value.getType() == null) {
-            System.out.println("-> " + value);
-        }
         Objects.requireNonNull(value.getType(), "Value Type is NULL");
 
         Objects.requireNonNull(type, "Type is NULL");
@@ -218,11 +202,9 @@ public class CompilerTools {
             return value;
         //return new Cast(type, value);
 
-        System.out.println("Cast " + value.getType().getRealName() + " to " + type.getRealName() + "..." + point.getSourceFile().getName() + " : " + point.getRow() + 1);
         ICastAdapter ica = getCastAdapter(type);
         Value val = ica.cast(value, type, point);
         Objects.requireNonNull(val, "Result of cast is NULL");
-        System.out.println("Result = " + val);
         return val;
 
     }

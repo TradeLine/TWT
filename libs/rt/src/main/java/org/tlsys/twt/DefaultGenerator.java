@@ -62,10 +62,6 @@ public class DefaultGenerator implements ICodeGenerator {
             if (icg != null) {
                 return icg.generate(c, o, p);
             }
-
-            if (o.getScope() instanceof This && o.getMethod() instanceof VConstructor)
-                System.out.println("!!!");
-
             ICodeGenerator icg2 = c.getGenerator(o.getMethod());
             if (icg2 != null && icg2 != g)
                 return icg2.operation(c, o, p);
@@ -413,7 +409,6 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(Line.class, (c, o, p, g) -> {
-            System.out.println("LINE!!!");
             p.add("", o.getStartPoint());
             boolean res = g.operation(c, o.getOperation(), p);
             p.add("", o.getEndPoint());

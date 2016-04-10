@@ -3,6 +3,7 @@ package org.tlsys.twt.net;
 import org.tlsys.twt.CastUtil;
 import org.tlsys.twt.Console;
 import org.tlsys.twt.Script;
+import org.tlsys.twt.annotations.ForceInject;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.events.Events;
 import org.tlsys.twt.rt.java.lang.TThrowable;
@@ -11,6 +12,7 @@ import org.tlsys.twt.rt.java.lang.TThrowable;
 public abstract class WebSocket {
     private Object js;
     public WebSocket(String url) {
+        Console.info("Created for " + url);
         js = Script.code("new WebSocket(",url,")");
 
         Events.addEventListener(js, "open", (s, e)->onOpenEvent(),false);
@@ -38,7 +40,7 @@ public abstract class WebSocket {
     }
 
     private boolean onOpenEvent() {
-        Console.dir(this);
+        Console.info("Connected");
         onOpen();
         return true;
     }
@@ -48,9 +50,16 @@ public abstract class WebSocket {
         return true;
     }
 
+    @ForceInject
     protected abstract void onMessage(String data);
+
+    @ForceInject
     protected abstract void onClose(CloseEvent closeEvent);
+
+    @ForceInject
     protected abstract void onOpen();
+
+    @ForceInject
     protected abstract void onError(Throwable throwable);
 
     public void send(String data) {
@@ -64,7 +73,7 @@ public abstract class WebSocket {
     }
 
     public State getState() {
-        int st = CastUtil.toInt(CastUtil.toInt(Script.code(js, ".readyState")));
+        int st = CastUtil.toInt(Script.code(js, ".readyState"));
         Console.info("State:");
         Console.dir(CastUtil.toObject(st));
         Console.dir(Script.code(js, ".readyState"));

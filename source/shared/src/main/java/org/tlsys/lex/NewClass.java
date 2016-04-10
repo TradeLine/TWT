@@ -61,4 +61,20 @@ public class NewClass extends Value implements HavinSourceStart {
                 arguments.set(i, v.get());
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[NEW ").append(constructor.getParent().getRealName()).append(" :: ").append(constructor.getDescription());
+        sb.append("(");
+        boolean first = true;
+        for (Value v : arguments) {
+            if (!first)
+                sb.append(", ");
+            sb.append(v);
+            first = false;
+        }
+        sb.append(")");
+        return sb.toString();
+    }
 }

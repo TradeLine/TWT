@@ -99,8 +99,18 @@ class OperationCompiler {
         addProc(JCTree.JCIdent.class, (c, e, o) -> {
             if (e.sym instanceof Symbol.ClassSymbol)
                 return new StaticRef(c.loadClass(e.type, c.getFile().getPoint(e.pos)), c.getFile().getPoint(e.pos));
-            if (e.sym instanceof Symbol.VarSymbol && (e.toString().equals("this") || e.toString().equals("super")))
-                return new This(c.loadClass(e.type, c.getFile().getPoint(e.pos)), c.getFile().getPoint(e.pos));
+            if (e.sym instanceof Symbol.VarSymbol && (e.toString().equals("this") || e.toString().equals("super"))) {
+                VClass cl = c.loadClass(e.type, c.getFile().getPoint(e.pos));
+                if (c.getCurrentClass() != cl && c.getCurrentClass().isParent(cl))
+                    return new ThisFor(c.getCurrentClass(), cl, c.getFile().getPoint(e.pos));
+                return new This(cl, c.getFile().getPoint(e.pos));
+                /*
+                if (cl == c.getCurrentClass())
+                    return new This(cl, c.getFile().getPoint(e.pos));
+                else
+                    return new ThisFor(c.getCurrentClass(), cl, c.getFile().getPoint(e.pos));
+                    */
+            }
             if (e.sym instanceof Symbol.VarSymbol) {
                 Symbol.VarSymbol vv = (Symbol.VarSymbol) e.sym;
                 Optional<Context> var = o.find(vv.name.toString(), v -> true);
@@ -271,7 +281,6 @@ class OperationCompiler {
                     try {
                         method = cc.getConstructor(args, c.getFile().getPoint(e.pos));
                     } catch (CompileException eee) {
-                        System.out.println("" + e);
                         throw eee;
                     }
 
@@ -299,14 +308,20 @@ class OperationCompiler {
             }
             if (self == null || method == null)
                 throw new RuntimeException("Self or method is NULL");
-
+/*
             if (method instanceof VConstructor && method.getParent().isParent(method.getParent().getClassLoader().loadClass(Enum.class.getName(), c.getFile().getPoint(e.pos)))) {
                 VBlock block = (VBlock) o;
                 VConstructor cons = (VConstructor) block.getParentContext();
                 return new Invoke(method, new This(cons.getParent())).addArg(cons.getArguments().get(0)).addArg(cons.getArguments().get(1));
             }
+            */
             if (method.isStatic())
                 self = new StaticRef(method.getParent(), null);
+
+            if (self instanceof ThisFor) {
+                ThisFor tf = (ThisFor)self;
+                self = new This(tf.getSelf(), tf.getPoint());
+            }
 
             Invoke i = new Invoke(method, self, c.getFile().getPoint(e.pos));
 
@@ -392,7 +407,6 @@ class OperationCompiler {
                     Value val = c.op(e.args.get(c1 - dec), o);
                     VClass type = arg.getType();
                     Value newVal = CompilerTools.cast(val, arg.getType(), c.getFile().getPoint(e.args.get(c1 - dec).pos));
-                    System.out.println(val + "" + newVal + "" + type);
                     i.addArg(newVal);
                 }
             }

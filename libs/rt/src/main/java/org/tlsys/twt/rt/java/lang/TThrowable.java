@@ -41,13 +41,20 @@ public class TThrowable {
         if (Script.code(o, " instanceof TypeError")) {
             String message = Script.code(o, ".message");
             if (message.endsWith(" not a function")) {
-                return new NoSuchMethodException(message);
+                Object out = new NoSuchMethodException(message);
+                Script.code(out,".steck=",o,".steck");
+                return out;
             }
-            if (message.endsWith(" of null"))
-                return new NullPointerException();
+            if (message.endsWith(" of null")) {
+                Object out = new NullPointerException();
+                Script.code(out,".steck=",o,".steck");
+                return out;
+            }
         }
         String message = Script.code(o, ".toString()");
-        return new RuntimeException(message);
+        Object out = new RuntimeException(message);
+        Script.code(out,".steck=",o,".steck");
+        return out;
     }
 
     public String getMessage() {

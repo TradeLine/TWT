@@ -71,7 +71,7 @@ public class TLong extends Number {
         return value;
     }
 
-    public TLong fromjava_lang_Object(Object value) {
+    public static TLong fromjava_lang_Object(Object value) {
         return CastUtil.cast(value);
     }
 }

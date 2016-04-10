@@ -4,6 +4,7 @@ import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
+import org.tlsys.EnumModificator;
 import org.tlsys.InputsClassModificator;
 import org.tlsys.OtherClassLink;
 import org.tlsys.TypeUtil;
@@ -27,15 +28,15 @@ public class ClassCompiler {
     private static Function<VExecute, Void> parentThisReplacer = as -> {
         BoolRef b = new BoolRef(true);
 
+        VClass currentClass = as.getParent();
+
         while (b.isValue()) {
             b.setValue(false);
             as.visit((r) -> {
-                VClass currentClass = as.getParent();
                 if (r.get() instanceof This) {
                     This t = (This) r.get();
                     if (t.getType() != as.getParent()) {
                         OtherClassLink ocl = OtherClassLink.getOrCreate(as.getParent(), t.getType());
-                        System.out.println("" + currentClass);
                         r.set(new GetField(new This(as.getParent()), ocl.getField(), null));
                         b.setValue(true);
                     }
@@ -120,6 +121,13 @@ public class ClassCompiler {
                 OtherClassLink.getOrCreate(p.vclass, p.vclass.getDependencyParent().get());
 
                 //p.vclass.addMod(new ParentClassModificator(p.vclass));
+            }
+        }
+
+        VClass enumClass = classLoader.loadClass(Enum.class.getName(), null);
+        for (Pair p : cc.pairs) {
+            if (p.vclass != enumClass && p.vclass.isParent(enumClass)) {
+                p.vclass.addMod(new EnumModificator(p.vclass));
             }
         }
 

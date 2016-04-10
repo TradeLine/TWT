@@ -84,13 +84,8 @@ public final class TypeUtil {
                 VClass parentClazz = loader.loadClass(AnnonimusClass.extractParentClassName(type.tsym), point);
                 String simpleName = AnnonimusClass.extractSimpleName(type.tsym);
                 return (VClass) parentClazz.find(simpleName, e->e instanceof AnnonimusClass).get();
-                //System.out.println("IS ANNONUMUS!");
             }
 
-            /*
-            if (type.tsym.toString().contains("<anonymous"))
-                System.out.println("123");
-                */
             return loader.loadClass(type.tsym.toString(), point);
         } catch (VClassNotFoundException e) {
             throw e;

@@ -14,9 +14,10 @@ import java.util.HashSet;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFiles;
 import org.tlsys.twt.TWTModule;
+import org.tlsys.twt.TWTPlugin;
 import org.tlsys.twt.compiler.ModuleInfo;
 
-public class CompileTask extends DefaultTask {
+public class CompileTask extends TWTPlugin {
 
     public static File getOutpit(Project project) {
         return new File(AppCompiller.getClassDir(project) + File.separator + TWTModule.FILE);
@@ -42,7 +43,7 @@ public class CompileTask extends DefaultTask {
 
     @TaskAction
     public void samplePluginTasks() throws TaskExecutionException {
-
+        System.out.println("Files: " + getClasspath().getFiles());
         AppCompiller.App app = null;
         try {
             AppCompiller.getSourceOfProject(getProject());

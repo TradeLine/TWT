@@ -23,7 +23,7 @@ public class InitClassMod implements ClassModificator {
     public void onAdd(VClass clazz) {
         try {
             VClass booleanClass = clazz.getClassLoader().loadClass("boolean", null);
-            fieldInit = new VField("f" + clazz.fullName, booleanClass, Modifier.PRIVATE, clazz);
+            fieldInit = new VField("f" + clazz.fullName, booleanClass, Modifier.PRIVATE | Modifier.TRANSIENT, clazz);
 
             for (VConstructor v : clazz.constructors) {
                 if (v.getBlock() == null)

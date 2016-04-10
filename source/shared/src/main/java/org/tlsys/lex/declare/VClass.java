@@ -267,8 +267,10 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     public VConstructor getConstructor(List<VClass> args, SourcePoint point) throws MethodNotFoundException {
         for (VConstructor v : constructors)
-            if (equalArgs(v, args))
+            if (equalArgs(v, args)) {
                 return v;
+            }
+
         throw new MethodNotFoundException(this, "<init>", args, point);
     }
 

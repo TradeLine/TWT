@@ -1,6 +1,7 @@
 package org.tlsys.twt.json;
 
 import org.tlsys.twt.CastUtil;
+import org.tlsys.twt.Console;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.classes.ClassRecord;
@@ -10,6 +11,7 @@ import org.tlsys.twt.rt.java.lang.TObject;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Objects;
 
 @JSClass
@@ -25,24 +27,49 @@ public final class JsonReader {
         }
 
         if (type == "number") {
+
+            if (TObject.getClassOfObject(o) == float.class) {
+                return new Float(CastUtil.toFloat(o));
+            }
+
+            if (TObject.getClassOfObject(o) == double.class) {
+                return new Double(CastUtil.toDouble(o));
+            }
+
+            if (TObject.getClassOfObject(o) == byte.class) {
+                return new Byte(CastUtil.toByte(o));
+            }
+
+            if (TObject.getClassOfObject(o) == short.class) {
+                return new Short(CastUtil.toShort(o));
+            }
+
             if (TObject.getClassOfObject(o) == int.class) {
                 return new Integer(CastUtil.toInt(o));
+            }
+
+            if (TObject.getClassOfObject(o) == long.class) {
+                return new Long(CastUtil.toLong(o));
             }
         }
 
         if (type == "boolean") {
-            if (TObject.getClassOfObject(o) == int.class) {
+            if (TObject.getClassOfObject(o) == boolean.class) {
                 return new Boolean(CastUtil.toBoolean(o));
             }
         }
 
         if (type == "object") {
+
+            if (needClass == null) {
+                TClass cl = CastUtil.cast(Object.class);
+                needClass = cl.getRecord().getArrayClassRecord().getAsClass();
+            }
+
+            Console.info("read object...");
             if (CastUtil.toBoolean(Script.code("Array.isArray(", o, ")"))) {
+                Console.info("Object is ARRAY...");
                 int len = CastUtil.toInt(Script.code(o, ".length"));
-                if (needClass == null) {
-                    TClass cl = CastUtil.cast(Object.class);
-                    needClass = cl.getRecord().getArrayClassRecord().getAsClass();
-                }
 
                 needClass = needClass.getComponentType();
 
@@ -59,7 +86,8 @@ public final class JsonReader {
 
                 return ar;
             } else {
-                return readObject(o);
+                Console.info("Object is OBJECT...");
+                return readObject(o, needClass);
             }
         }
 
@@ -80,13 +108,21 @@ public final class JsonReader {
         }
     }
 
-    private static Object readObject(Object o) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    private static Object readObject(Object o, Class needClass) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         if (o == null)
             return null;
         String type = Script.code(o, "['@type']");
 
-        ClassRecord cr = ClassStorage.get().getByName(type);
-        Class cl = cr.getAsClass();
+        Class cl = null;
+        if (type == null || Script.isUndefined(type)) {
+            cl = needClass;
+        } else {
+            Console.info("Search class " + type + "...");
+
+            ClassRecord cr = ClassStorage.get().getByName(type);
+            cl = cr.getAsClass();
+        }
+
 
         Object items = Script.code(o, "['@items']");
         if (items != null && !Script.isUndefined(items)) {
@@ -94,15 +130,20 @@ public final class JsonReader {
         }
 
         Object v = cl.newInstance();
-
+        Console.info("Set fields...");
         while (cl != null) {
             if (cl == Object.class)
                 break;
 
             Field[] fields = cl.getFields();
             for (Field f : fields) {
+                if (Modifier.isTransient(f.getModifiers()))
+                    continue;
+                if (Modifier.isStatic(f.getModifiers()))
+                    continue;
                 if (!Script.hasOwnProperty(o, f.getName()))//if the value of the field name is not found
                     continue;//do not work ok
+                Console.info("read value for " + f.getName() + "...");
                 f.set(v, read(Script.code(o, "[", f.getName(), "]"), f.getType()));
             }
             cl = cl.getSuperclass();

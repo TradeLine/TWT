@@ -16,7 +16,7 @@ import org.tlsys.twt.*;
 import java.io.*;
 import java.util.*;
 
-public class GenerationTask extends DefaultTask {
+public class GenerationTask extends TWTPlugin {
 
     private static long classNameIterator = 0;
     private static long methodNameIterator = 0;
@@ -111,12 +111,6 @@ public class GenerationTask extends DefaultTask {
 */
     @TaskAction
     public void samplePluginTasks() throws TaskExecutionException {
-
-        for (Task t : getProject().getTasks()) {
-            System.out.println("==>>" + t + ":" + t.getClass().getName() + " " + t.getClass().getSuperclass().getName());
-
-        }
-
         DLoader loader = new DLoader();
         try {
             AppCompiller.App app = null;
@@ -152,7 +146,7 @@ public class GenerationTask extends DefaultTask {
                         cm.addForced(app.getMainLoader().getTWTClassLoader());
                         cm.detectReplace();
 
-
+                        /*
                         for (CompileModuls.ClassRecord cr : cm.getRecords()) {
                             System.out.println("====" + cr.getClazz().getRealName() + "====");
                             for (VExecute e : cr.getExe()) {
@@ -171,6 +165,7 @@ public class GenerationTask extends DefaultTask {
                             }
                             System.out.println("====" + cr.getClazz().getRealName() + "====\n");
                         }
+                        */
 
 
                         Class cl = app.getMainLoader().getJavaClassLoader().loadClass(gt.generator());

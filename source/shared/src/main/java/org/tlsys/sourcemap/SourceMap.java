@@ -27,9 +27,11 @@ public class SourceMap {
             }
         }
 
+        /*
         for (FileRecord fr : files.values()) {
             fr.sort();
         }
+        */
     }
 
     private FileRecord getOrCreateFileRecord(SourceFile sf) {
@@ -73,7 +75,7 @@ public class SourceMap {
         first = true;
 
         ArrayList<FileRecord> fls = new ArrayList<FileRecord>(files.values());
-        fls.sort((a, b) -> a.id - b.id);
+        //fls.sort((a, b) -> a.id - b.id);
         for (FileRecord sf : fls) {
             if (!first)
                 sb.append(",");
@@ -119,6 +121,7 @@ public class SourceMap {
         public SourceFile getFile() {
             return file;
         }
+
 
         public void sort() {
             records.sort((a, b) -> {
@@ -173,8 +176,6 @@ public class SourceMap {
         }
 
         public void write(Appendable out, State state) throws IOException {
-
-            //System.out.println("--->" + getFile().getName() + " " + point.getRow()+":" + point.getColumn() + "==>" + column);
 
             Base64VLQ.encode(out, column - state.column);
             state.column = column;
