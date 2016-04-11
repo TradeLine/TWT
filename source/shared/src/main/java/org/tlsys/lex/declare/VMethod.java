@@ -1,21 +1,40 @@
 package org.tlsys.lex.declare;
 
+import org.tlsys.lex.Collect;
 import org.tlsys.sourcemap.SourcePoint;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class VMethod extends VExecute {
     private static final long serialVersionUID = 7352639283063310734L;
     private final String realName;
     public VMethod brigTo;
-    private VMethod replace;
+    private transient VMethod replace;
+
+    private transient HashSet<VMethod> replaced;
 
     public VMethod(SourcePoint point, String realName, VClass parent, VMethod brigTo) {
         super(point, parent);
         this.realName = realName;
         this.brigTo = brigTo;
+    }
+
+    private void addReplaced(VMethod method) {
+        if (replaced == null)
+            replaced = new HashSet<>();
+
+        replaced.add(method);
+    }
+
+    private void removeReplaced(VMethod method) {
+        if (replaced == null)
+            return;
+        replaced.remove(method);
     }
 
     @Override
@@ -25,6 +44,14 @@ public class VMethod extends VExecute {
         super.setRuntimeName(name);
     }
 
+    @Override
+    public void getUsing(Collect c) {
+        super.getUsing(c);
+        if (replaced != null)
+            for (VMethod m : replaced)
+                c.add(m);
+    }
+
     public VMethod getReplace() {
         return replace;
     }
@@ -32,12 +59,17 @@ public class VMethod extends VExecute {
     public void setReplace(VMethod method) {
         if (method == this)
             throw new IllegalArgumentException("Can't replace self");
+        if (replace != null)
+            replace.removeReplaced(this);
         replace = method;
+
+        if (replace != null)
+            replace.addReplaced(this);
     }
 
     @Override
     public String getDescription() {
-        return (alias!=null?alias:getRunTimeName()) + "(" + getArgumentDescription() + ")";
+        return (alias != null ? alias : getRunTimeName()) + "(" + getArgumentDescription() + ")";
     }
 
     @Override
@@ -54,6 +86,19 @@ public class VMethod extends VExecute {
         if (replace != null)
             return replace.getRunTimeName();
         return super.getRunTimeName();
+    }
+
+    private void readObject(ObjectInputStream in) throws Exception {
+        in.defaultReadObject();
+        replace = (VMethod) in.readObject();
+
+        if (replace != null)
+            replace.addReplaced(this);
+    }
+
+    private void writeObject(ObjectOutputStream out) throws Exception {
+        out.defaultWriteObject();
+        out.writeObject(replace);
     }
 
     Object writeReplace() throws ObjectStreamException {

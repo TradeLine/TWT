@@ -1,14 +1,10 @@
 package org.tlsys.twt.build;
 
-import org.gradle.api.DefaultTask;
-import org.gradle.api.Task;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.tlsys.Outbuffer;
-import org.tlsys.lex.CanUse;
-import org.tlsys.lex.Collect;
 import org.tlsys.lex.declare.*;
 import org.tlsys.sourcemap.SourceMap;
 import org.tlsys.twt.*;
@@ -144,7 +140,7 @@ public class GenerationTask extends TWTPlugin {
                             cm.add(app.getMainLoader().getTWTClassLoader().loadClass(c, null));
                         }
                         cm.addForced(app.getMainLoader().getTWTClassLoader());
-                        cm.detectReplace();
+                        //cm.detectReplace();
 
                         /*
                         for (CompileModuls.ClassRecord cr : cm.getRecords()) {
