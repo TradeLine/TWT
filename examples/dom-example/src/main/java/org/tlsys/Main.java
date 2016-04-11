@@ -24,7 +24,7 @@ public class Main {
         Console.info("HELLO FROM STATIC BLOCK");
     }
 
-    public Main(int aaab) {
+    public Main(int aaab, int bbb) {
         Console.info("???");
         //aaa = aaab;
 
@@ -42,12 +42,15 @@ public class Main {
 
     public static void main() {
 
+        Console.info("123");
 
-        Object o2 = JsonReader.jsonToObject("{\"@type\":\"org.tlsys.Response\",\"id\":11,\"body\":\"1111 from serevr\"}");
-        Console.info("OUT=");
-        Console.dir(o2);
+        giveException();
 
+        Main m = new Main(1, 2);
+        m.hashCode();
 
+        new Main(5, 6).hashCode();
+        new Main(5, 6).getClass().getName();
 
         /*
         Tabs tabs = new Tabs();

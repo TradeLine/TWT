@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 public class SourceMapTest {
 
+
     @Test
     public void test() throws IOException {
         SourceFile sf1 = new SourceFile("aaa bbb ccc", "test1", new OneLinePosProvider());
@@ -25,7 +26,6 @@ public class SourceMapTest {
         recs.add(new SourceMap.Record(sf2, sf2.getPoint(8), 2, null));
 
         System.out.printf("=>\n" + new SourceMap(recs).generate()+"\n\n");
-
     }
 
     private static class OneLinePosProvider implements SourceFile.PositionProvider {

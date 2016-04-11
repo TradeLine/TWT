@@ -1,6 +1,7 @@
 package org.tlsys.sourcemap;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 
 /**
  * Класс исходного файла
@@ -15,7 +16,7 @@ public class SourceFile implements Serializable {
     public SourceFile(String data, String name, PositionProvider positionProvider) {
         this.data = data;
         this.name = name;
-        this.positionProvider = positionProvider;
+        this.positionProvider = LineMapper.generate(data);//positionProvider;
         /*
         ArrayList<Integer> lines = new ArrayList<>();
 
@@ -83,8 +84,59 @@ public class SourceFile implements Serializable {
 
     public interface PositionProvider {
         public int getLine(int pos);
+
         public int getColumn(int pos);
 
         public int getIndex(int row, int column);
+    }
+
+    public static class LineMapper implements PositionProvider {
+        private final int[] lines;
+
+        private LineMapper(int[] lines) {
+            this.lines = lines;
+        }
+
+        public static LineMapper generate(String text) {
+            LinkedList<Integer> list = new LinkedList<>();
+            for (int i = 0; i < text.length(); i++) {
+                if (text.charAt(i) == '\n')
+                    list.add(i);
+            }
+
+            int[] out = new int[list.size()];
+            for (int i = 0; i < list.size(); i++) {
+                out[i] = list.get(i);
+            }
+
+            return new LineMapper(out);
+        }
+
+        @Override
+        public int getLine(int index) {
+            int out = 0;
+
+            for (int i = 0; i < lines.length; i++) {
+                if (index <= lines[i])
+                    return out;
+                out++;
+            }
+            return out;
+        }
+
+        @Override
+        public int getColumn(int index) {
+            int line = getLine(index);
+            if (line == 0)
+                return index;
+            return lines[line - 1] - index;
+        }
+
+        @Override
+        public int getIndex(int row, int column) {
+            if (row == 0)
+                return column;
+            return lines[row - 1] + column;
+        }
     }
 }
