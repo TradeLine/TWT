@@ -50,6 +50,8 @@ public class VMethod extends VExecute {
         if (replaced != null)
             for (VMethod m : replaced)
                 c.add(m);
+        if (replace != null)
+            c.add(replace);
     }
 
     public VMethod getReplace() {

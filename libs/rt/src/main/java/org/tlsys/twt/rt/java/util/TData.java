@@ -31,7 +31,7 @@ public class TData {
     }
 
     public int getMonth() {
-        int d = Script.code(data,".getMonth()");
+        int d = CastUtil.toInt(Script.code(data, ".getMonth()"));
         return d + 1;
     }
 

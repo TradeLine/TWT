@@ -51,6 +51,15 @@ public class TLong extends Number {
         return Script.code(CastUtil.toObject(value), ".toString(", CastUtil.toObject(radix), ")");
     }
 
+    public static TLong fromjava_lang_Object(Object value) {
+        return CastUtil.cast(value);
+    }
+
+    @Override
+    public String toString() {
+        return Long.toString(value);
+    }
+
     @Override
     public int intValue() {
         return (int) value;
@@ -69,9 +78,5 @@ public class TLong extends Number {
     @Override
     public double doubleValue() {
         return value;
-    }
-
-    public static TLong fromjava_lang_Object(Object value) {
-        return CastUtil.cast(value);
     }
 }

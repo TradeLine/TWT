@@ -108,11 +108,16 @@ public class GenerationTask extends TWTPlugin {
     @TaskAction
     public void samplePluginTasks() throws TaskExecutionException {
         DLoader loader = new DLoader();
+        long start = System.currentTimeMillis();
         try {
             AppCompiller.App app = null;
             try {
+                long startCompile = System.currentTimeMillis();
                 app = AppCompiller.compileApp(this);
+                System.out.println("Compile " + (System.currentTimeMillis() - startCompile));
+                long startRename = System.currentTimeMillis();
                 renaming(app.getMainLoader().getTWTClassLoader());
+                System.out.println("Rename " + (System.currentTimeMillis() - startRename));
                 for (GenerationTarget gt : getTargets()) {
                     File sourceMap = new File(getProject().getBuildDir(), "sourcemap");
                     File mapFile = new File(sourceMap, gt.out() + ".map");
@@ -163,7 +168,7 @@ public class GenerationTask extends TWTPlugin {
                         }
                         */
 
-
+                        long startGeneration = System.currentTimeMillis();
                         Class cl = app.getMainLoader().getJavaClassLoader().loadClass(gt.generator());
                         MainGenerator mg = (MainGenerator) cl.newInstance();
                         mg.generate(app.getMainLoader().getTWTClassLoader(), cm, ps);
@@ -172,15 +177,19 @@ public class GenerationTask extends TWTPlugin {
                             mg.generateInvoke(mainMethod.get(), ps);
                         }
 
+                        System.out.println("Generation " + (System.currentTimeMillis() - startGeneration));
+
                         ps.append("\n//@ sourceMappingURL=" + new File(outFile.getParent()).toURI().relativize(mapFile.toURI()));
                         //ps.getRecords();
 
+                        long startSourceMapGeneration = System.currentTimeMillis();
                         SourceMap sm = new SourceMap(ps.getRecords());
                         try (OutputStream o = new FileOutputStream(mapFile)) {
                             sm.generate(new PrintStream(o));
                             o.flush();
                             o.close();
                         }
+
 
                         sm.getFiles().parallelStream().forEach(e -> {
                             File sourceDir = new File(sourceMap, e.getName()).getParentFile();
@@ -197,6 +206,7 @@ public class GenerationTask extends TWTPlugin {
                                 throw new RuntimeException(e1);
                             }
                         });
+                        System.out.println("SourceMap " + (System.currentTimeMillis() - startSourceMapGeneration));
 
                         //includeSource(sourceMap);
 

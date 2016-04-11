@@ -3,6 +3,7 @@ package org.tlsys;
 import org.tlsys.lex.members.VMember;
 import org.tlsys.lex.members.VPackage;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -15,6 +16,11 @@ public class JavaPackage implements VPackage {
 
     public JavaPackage(String name) {
         this.name = name;
+    }
+
+    @Override
+    public int getModifiers() {
+        return Modifier.PUBLIC;
     }
 
     @Override

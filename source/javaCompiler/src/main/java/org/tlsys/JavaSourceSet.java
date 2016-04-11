@@ -23,10 +23,15 @@ public class JavaSourceSet {
     private final HashMap<String, CompilationUnit> files = new HashMap<>();
     private final HashMap<String, VClass> classes = new HashMap<>();
     private final JavaPackage rootPackage = new JavaPackage(null);
+    private final HashMap<String, String> alias = new HashMap<>();
 
     public JavaSourceSet(VClassLoader classLoader, FileProvider fileProvider) {
         this.fileProvider = fileProvider;
         this.classLoader = classLoader;
+    }
+
+    public void addAlias(String alias, String realName) {
+        this.alias.put(alias, realName);
     }
 
     private Optional<CompilationUnit> getFile(String name) {
@@ -46,6 +51,10 @@ public class JavaSourceSet {
     }
 
     public Optional<VClass> getClass(String name) {
+        String ss = alias.get(name);
+        if (ss != null)
+            return getClass(ss);
+
         VClass cl = classes.get(name);
         if (cl != null)
             return Optional.of(cl);

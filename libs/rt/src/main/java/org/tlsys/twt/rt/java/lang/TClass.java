@@ -113,9 +113,11 @@ public class TClass {
                     Console.dir(getRecord());
                     throw new RuntimeException("Constructor not found " + getName());
                 }
+                Console.info("Method finded! Execute!");
                 return Script.code(constructor, "()");
             }
         }
+        Console.info("Method not found");
         throw new InstantiationException("Can't find constructor whout arguments");
     }
 

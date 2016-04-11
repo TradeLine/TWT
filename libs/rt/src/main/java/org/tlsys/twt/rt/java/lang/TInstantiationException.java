@@ -12,4 +12,9 @@ public class TInstantiationException extends ReflectiveOperationException {
     public TInstantiationException(String s) {
         super(s);
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }
