@@ -12,11 +12,14 @@ public class SourceFile implements Serializable {
     private final String name;
     //private final int[] brs;
     private transient PositionProvider positionProvider;
+    private transient LineMapper mapper;
 
     public SourceFile(String data, String name, PositionProvider positionProvider) {
         this.data = data;
         this.name = name;
-        this.positionProvider = LineMapper.generate(data);//positionProvider;
+        this.positionProvider = positionProvider;
+
+        mapper = LineMapper.generate(data);
         /*
         ArrayList<Integer> lines = new ArrayList<>();
 

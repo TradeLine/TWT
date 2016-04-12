@@ -686,8 +686,6 @@ public class ClassCompiler {
                 SourceFile sf = new SourceFile(
 
                         new String(data.toByteArray()),
-
-                        //file.getSourceFile().getName()
                         file.getPackageName().toString().replace('.', '/') + "/" + name
 
                         , new SourcePointProvider(file));
