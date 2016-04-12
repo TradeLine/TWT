@@ -123,6 +123,32 @@ public final class JsonReader {
             cl = cr.getAsClass();
         }
 
+        if (!Script.isUndefined(Script.code(o, ".value"))) {
+            if (cl == boolean.class)
+                return new Boolean(CastUtil.toBoolean(Script.code(o, ".value")));
+
+            if (cl == char.class)
+                return new Character(CastUtil.toChar(Script.code(o, ".value")));
+
+            if (cl == byte.class)
+                return new Byte(CastUtil.toByte(Script.code(o, ".value")));
+
+            if (cl == short.class)
+                return new Short(CastUtil.toShort(Script.code(o, ".value")));
+
+            if (cl == int.class)
+                return new Integer(CastUtil.toInt(Script.code(o, ".value")));
+
+            if (cl == long.class)
+                return new Long(CastUtil.toLong(Script.code(o, ".value")));
+
+            if (cl == float.class)
+                return new Float(CastUtil.toFloat(Script.code(o, ".value")));
+
+            if (cl == double.class)
+                return new Double(CastUtil.toDouble(Script.code(o, ".value")));
+        }
+
 
         Object items = Script.code(o, "['@items']");
         if (items != null && !Script.isUndefined(items)) {

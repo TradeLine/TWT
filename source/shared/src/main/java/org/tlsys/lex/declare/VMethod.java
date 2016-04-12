@@ -8,7 +8,9 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 public class VMethod extends VExecute {
     private static final long serialVersionUID = 7352639283063310734L;
@@ -22,6 +24,12 @@ public class VMethod extends VExecute {
         super(point, parent);
         this.realName = realName;
         this.brigTo = brigTo;
+    }
+
+    public Set<VMethod> getReplaced() {
+        if (replaced == null)
+            return Collections.EMPTY_SET;
+        return replaced;
     }
 
     private void addReplaced(VMethod method) {

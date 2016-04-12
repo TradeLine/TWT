@@ -147,26 +147,36 @@ public class GenerationTask extends TWTPlugin {
                         cm.addForced(app.getMainLoader().getTWTClassLoader());
                         //cm.detectReplace();
 
-                        /*
+
                         for (CompileModuls.ClassRecord cr : cm.getRecords()) {
+                            if (cr.getClazz().getRealName() == null)
+                                continue;
                             System.out.println("====" + cr.getClazz().getRealName() + "====");
                             for (VExecute e : cr.getExe()) {
                                 if (e instanceof VMethod) {
                                     VMethod m = (VMethod)e;
                                     System.out.println(m.getDescription());
+                                    /*
                                     Collect col = Collect.create();
                                     m.getUsing(col);
                                     for (CanUse cu : col.get()) {
                                         if (cu instanceof VMethod) {
                                             VMethod mm = (VMethod) cu;
                                             System.out.println("--->" + mm.getParent().getRealName() + "." + mm.getDescription());
+
                                         }
+                                    }
+                                    */
+
+                                    System.out.println("\tReplaced:");
+                                    for (VMethod me : m.getReplaced()) {
+                                        System.out.println("\t\t" + me.getParent().getRealName() + "=>" + me.getDescription());
                                     }
                                 }
                             }
                             System.out.println("====" + cr.getClazz().getRealName() + "====\n");
                         }
-                        */
+
 
                         long startGeneration = System.currentTimeMillis();
                         Class cl = app.getMainLoader().getJavaClassLoader().loadClass(gt.generator());

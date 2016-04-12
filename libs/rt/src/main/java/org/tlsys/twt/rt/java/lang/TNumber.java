@@ -23,4 +23,9 @@ public abstract class TNumber {
     public int hashCode() {
         return intValue();
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

@@ -218,8 +218,7 @@ public class ClassCompiler {
         as.setClassLoader(vClassLoader);
 
 
-
-        Pair p = new Pair(as, c, ctx.getPairByClass((VClass) TypeUtil.findParentContext(context, e->e instanceof VClass).get()).file);
+        Pair p = new Pair(as, c, ctx.getPairByClass((VClass) TypeUtil.findParentContext(context, e -> e instanceof VClass).get()).file);
         setExtends(p, vClassLoader);
         searchMembers(ctx, p);
         compileCode(ctx, p, VExecute.class);
@@ -540,21 +539,20 @@ public class ClassCompiler {
         METHOD:
         for (VMethod m : methods) {
             if (m == member)
-                continue;
+                continue METHOD;
 
-            if (m.isStatic())
-                return;
+            if (m.isStatic()) {
+                continue METHOD;
+            }
 
             if (m.getArguments().size() != member.getArguments().size()) {
                 continue;
             }
 
             for (int i = 0; i < m.getArguments().size(); i++) {
-                //for (VArgument b : member.arguments) {
                 if (m.getArguments().get(i).getType() != member.getArguments().get(i).getType()) {
                     continue METHOD;
                 }
-                //}
             }
 
             member.setReplace(m);
@@ -669,7 +667,7 @@ public class ClassCompiler {
 
         public Pair getPairByClass(VClass clazz) {
             for (Pair p : pairs) {
-                if (p.vclass== clazz)
+                if (p.vclass == clazz)
                     return p;
             }
 
@@ -681,7 +679,7 @@ public class ClassCompiler {
                 byte[] buffer = new byte[512];
                 int len;
                 ByteArrayOutputStream data = new ByteArrayOutputStream();
-                while ((len=is.read(buffer))!=-1) {
+                while ((len = is.read(buffer)) != -1) {
                     data.write(buffer, 0, len);
                 }
                 String name = new File(file.getSourceFile().getName()).getName();

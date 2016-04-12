@@ -42,7 +42,11 @@ public class Main {
 
     public static void main() {
 
+        Long l = 110L;
+
         Console.info("123");
+        Console.dir(l);
+        Console.info("LONG=" + l);
 
         giveException();
 

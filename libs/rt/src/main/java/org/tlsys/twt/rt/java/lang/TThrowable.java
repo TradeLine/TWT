@@ -63,6 +63,8 @@ public class TThrowable {
 
     public synchronized Throwable getCause() {
         Object o = this;
+        if (Script.isUndefined(cause))
+            return null;
         return (cause == o ? null : cause);
     }
 
