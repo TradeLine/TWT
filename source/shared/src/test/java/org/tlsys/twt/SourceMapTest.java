@@ -1,6 +1,7 @@
 package org.tlsys.twt;
 
 import org.junit.Test;
+import org.tlsys.sourcemap.Base64VLQ;
 import org.tlsys.sourcemap.SourceFile;
 import org.tlsys.sourcemap.SourceMap;
 
@@ -26,6 +27,11 @@ public class SourceMapTest {
         recs.add(new SourceMap.Record(sf2, sf2.getPoint(8), 2, null));
 
         System.out.printf("=>\n" + new SourceMap(recs).generate()+"\n\n");
+    }
+
+    @Test
+    public void test1() {
+        Base64VLQ.decode()
     }
 
     private static class OneLinePosProvider implements SourceFile.PositionProvider {
