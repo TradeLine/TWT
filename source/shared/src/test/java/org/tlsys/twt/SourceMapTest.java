@@ -29,9 +29,30 @@ public class SourceMapTest {
         System.out.printf("=>\n" + new SourceMap(recs).generate()+"\n\n");
     }
 
+    private static class StringCharIterator implements Base64VLQ.CharIterator {
+
+        private final String data;
+
+        private StringCharIterator(String data) {
+            this.data = data;
+        }
+
+        private int pos = -1;
+
+        @Override
+        public boolean hasNext() {
+            return pos+1 < data.length();
+        }
+
+        @Override
+        public char next() {
+            return data.charAt(++pos);
+        }
+    }
+
     @Test
     public void test1() {
-        Base64VLQ.decode()
+        int Base64VLQ.decode()
     }
 
     private static class OneLinePosProvider implements SourceFile.PositionProvider {
