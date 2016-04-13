@@ -17,10 +17,10 @@ import java.util.function.Predicate;
 public class Try extends Operation implements HavinSourceStart {
 
     private static final long serialVersionUID = 8100497016534329612L;
+    private final SourcePoint point;
     public ArrayList<Catch> catchs = new ArrayList<>();
     public VBlock block;
     private Context parentContext;
-    private final SourcePoint point;
 
     public Try(Context parentContext, SourcePoint point) {
         this.parentContext = Objects.requireNonNull(parentContext);
@@ -28,7 +28,7 @@ public class Try extends Operation implements HavinSourceStart {
     }
 
     @Override
-    public SourcePoint getPoint() {
+    public SourcePoint getStartPoint() {
         return point;
     }
 
@@ -64,11 +64,11 @@ public class Try extends Operation implements HavinSourceStart {
 
     public static class Catch extends Operation implements Context, Using, Serializable, HavinSourceStart {
         private static final long serialVersionUID = 3242922465596941371L;
+        private final SourcePoint point;
         public ArrayList<VClass> classes = new ArrayList<>();
         public VBlock block;
         private Context parentContext;
         private DeclareVar declareVar;
-        private final SourcePoint point;
 
         public Catch(Context parentContext, DeclareVar declareVar, SourcePoint point) {
             this.parentContext = parentContext;
@@ -77,7 +77,7 @@ public class Try extends Operation implements HavinSourceStart {
         }
 
         @Override
-        public SourcePoint getPoint() {
+        public SourcePoint getStartPoint() {
             return point;
         }
 

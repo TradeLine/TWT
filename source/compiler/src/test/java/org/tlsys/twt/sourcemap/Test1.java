@@ -22,11 +22,11 @@ public class Test1 {
         /*
         SourceFile sf = new SourceFile("   ", "simple.js");
         ArrayList<SourceMap.Record> rec = new ArrayList<>();
-        rec.add(new SourceMap.Record(sf, sf.getPoint(0, 0), 0, null));
-        rec.add(new SourceMap.Record(sf, sf.getPoint(0, 9), 9, "test"));
-        rec.add(new SourceMap.Record(sf, sf.getPoint(0, 15), 14, "arg1"));
-        rec.add(new SourceMap.Record(sf, sf.getPoint(0, 17), 16, "arg2"));
-        rec.add(new SourceMap.Record(sf, sf.getPoint(4, 0), 41, "test"));
+        rec.add(new SourceMap.Record(sf, sf.getStartPoint(0, 0), 0, null));
+        rec.add(new SourceMap.Record(sf, sf.getStartPoint(0, 9), 9, "test"));
+        rec.add(new SourceMap.Record(sf, sf.getStartPoint(0, 15), 14, "arg1"));
+        rec.add(new SourceMap.Record(sf, sf.getStartPoint(0, 17), 16, "arg2"));
+        rec.add(new SourceMap.Record(sf, sf.getStartPoint(4, 0), 41, "test"));
 
         System.out.println("=>>\n" + new SourceMap(rec).generate());
         */

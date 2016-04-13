@@ -25,7 +25,7 @@ public class Switch extends Operation implements HavinSourceStart {
     }
 
     @Override
-    public SourcePoint getPoint() {
+    public SourcePoint getStartPoint() {
         return point;
     }
 
@@ -91,7 +91,7 @@ public class Switch extends Operation implements HavinSourceStart {
         }
 
         @Override
-        public SourcePoint getPoint() {
+        public SourcePoint getStartPoint() {
             return point;
         }
 

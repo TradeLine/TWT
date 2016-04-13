@@ -1,5 +1,7 @@
 package org.tlsys.lex.declare;
 
+import org.tlsys.HavinSourceEnd;
+import org.tlsys.HavinSourceStart;
 import org.tlsys.lex.Collect;
 import org.tlsys.lex.Context;
 import org.tlsys.sourcemap.SourcePoint;
@@ -10,7 +12,7 @@ import java.io.ObjectOutputStream;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class StaticBlock implements Context,Member,CodeDynLoad {
+public class StaticBlock implements Context, Member, CodeDynLoad, HavinSourceStart, HavinSourceEnd {
 
     private static final long serialVersionUID = 9204023692970447528L;
     private VBlock block;
@@ -60,5 +62,15 @@ public class StaticBlock implements Context,Member,CodeDynLoad {
     @Override
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
         return parent.find(name, searchIn);
+    }
+
+    @Override
+    public SourcePoint getStartPoint() {
+        return block.getStartPoint();
+    }
+
+    @Override
+    public SourcePoint getEndPoint() {
+        return block.getEndPoint();
     }
 }

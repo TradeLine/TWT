@@ -14,7 +14,7 @@ public class ParentArgumentModif implements ArgumentModificator {
 
     public ParentArgumentModif(VConstructor constructor) {
         this.constructor = constructor;
-        arg = new VArgument("this$0", constructor.getParent().getDependencyParent().get(), false, false, constructor, this, null);
+        arg = new VArgument("this$0", null, constructor.getParent().getDependencyParent().get(), false, false, constructor, this, null);
 
     }
 

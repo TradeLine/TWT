@@ -19,71 +19,71 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
             }
             NewArrayItems items = (NewArrayItems) invoke.arguments.get(0);
             ICodeGenerator gen = ctx.getGenerator(invoke.getMethod().getParent());
-            ps.add("", invoke.getPoint());
+            ps.add("", invoke.getStartPoint());
             for (Value v : items.elements) {
                 if (v instanceof Const) {
                     Const c = (Const) v;
                     if (c.getValue() != null && c.getValue() instanceof String) {
-                        ps.add(c.getValue().toString(), c.getPoint());
+                        ps.add(c.getValue().toString(), c.getStartPoint());
                         continue;
                     }
                 }
                 gen.operation(ctx, v, ps);
             }
-            ps.add("", invoke.getPoint());
+            ps.add("", invoke.getStartPoint());
             return true;
         }
 
         if (invoke.getMethod().alias.equals("isPrototypeOf")) {
             VClassLoader cl = invoke.getMethod().getParent().getClassLoader();
             VBinar bin = new VBinar(
-                    new VBinar(invoke.arguments.get(0), new Const(null, cl.loadClass(Object.class.getName(), invoke.getPoint())), cl.loadClass("boolean", invoke.getPoint()), VBinar.BitType.EQ, null),//первый агрумент == null
-                    new VBinar(invoke.arguments.get(1), new Const(null, cl.loadClass(Object.class.getName(), invoke.getPoint())), cl.loadClass("boolean", invoke.getPoint()), VBinar.BitType.EQ, null),//первый агрумент == null
-                    cl.loadClass("boolean", invoke.getPoint()), VBinar.BitType.OR, null);//если один или оба аргумента == null
-            VMethod codeMethod = invoke.getMethod().getParent().getMethod("code", invoke.getPoint());
+                    new VBinar(invoke.arguments.get(0), new Const(null, cl.loadClass(Object.class.getName(), invoke.getStartPoint())), cl.loadClass("boolean", invoke.getStartPoint()), VBinar.BitType.EQ, null),//первый агрумент == null
+                    new VBinar(invoke.arguments.get(1), new Const(null, cl.loadClass(Object.class.getName(), invoke.getStartPoint())), cl.loadClass("boolean", invoke.getStartPoint()), VBinar.BitType.EQ, null),//первый агрумент == null
+                    cl.loadClass("boolean", invoke.getStartPoint()), VBinar.BitType.OR, null);//если один или оба аргумента == null
+            VMethod codeMethod = invoke.getMethod().getParent().getMethod("code", invoke.getStartPoint());
             Invoke codeInvoke = new Invoke(codeMethod, new StaticRef(codeMethod.getParent()));
 
-            NewArrayItems array = new NewArrayItems(cl.loadClass(Object.class.getName(), invoke.getPoint()).getArrayClass(), invoke.getPoint());
+            NewArrayItems array = new NewArrayItems(cl.loadClass(Object.class.getName(), invoke.getStartPoint()).getArrayClass(), invoke.getStartPoint());
 
             array.elements.add(invoke.arguments.get(0));
-            array.elements.add(new Const(" instanceof ", cl.loadClass(String.class.getName(), invoke.getPoint())));
+            array.elements.add(new Const(" instanceof ", cl.loadClass(String.class.getName(), invoke.getStartPoint())));
             array.elements.add(invoke.arguments.get(1));
             codeInvoke.arguments.add(array);
 
-            Conditional con = new Conditional(bin, new Const(false, cl.loadClass("boolean", invoke.getPoint())), codeInvoke, cl.loadClass("boolean", invoke.getPoint()));
+            Conditional con = new Conditional(bin, new Const(false, cl.loadClass("boolean", invoke.getStartPoint())), codeInvoke, cl.loadClass("boolean", invoke.getStartPoint()));
             ctx.getGenerator(codeMethod.getParent()).operation(ctx, con, ps);
             return true;
         }
 
         if (invoke.getMethod().alias.equals("isUndefined")) {
-            ps.add("(", invoke.getPoint(), "isUndefined");
+            ps.add("(", invoke.getStartPoint(), "isUndefined");
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
             ps.append("==undefined)");
             return true;
         }
         if (invoke.getMethod().alias.equals("typeOf")) {
-            ps.add("(typeof ", invoke.getPoint(), "typeOf");
+            ps.add("(typeof ", invoke.getStartPoint(), "typeOf");
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
             ps.append(")");
             return true;
         }
 
         if (invoke.getMethod().alias.equals("hasOwnProperty")) {
-            ps.add("(", invoke.getPoint());
+            ps.add("(", invoke.getStartPoint());
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
-            ps.add(".hasOwnProperty(", invoke.getPoint());
+            ps.add(".hasOwnProperty(", invoke.getStartPoint());
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(1), ps);
             ps.append(")");
-            ps.add(")", invoke.getPoint());
+            ps.add(")", invoke.getStartPoint());
             return true;
         }
 
 
         if (invoke.getMethod().alias.equals("setTimeout")) {
-            ps.add("setTimeout(", invoke.getPoint(), "setTimeout");
-            VClass callerClass = invoke.getMethod().getParent().getClassLoader().loadClass(Script.TimeoutCallback.class.getName(), invoke.getPoint());
+            ps.add("setTimeout(", invoke.getStartPoint(), "setTimeout");
+            VClass callerClass = invoke.getMethod().getParent().getClassLoader().loadClass(Script.TimeoutCallback.class.getName(), invoke.getStartPoint());
             ps.append("function(){");
-            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, new Invoke(callerClass.getMethod("onTimeout", invoke.getPoint()), invoke.arguments.get(1)), ps);
+            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, new Invoke(callerClass.getMethod("onTimeout", invoke.getStartPoint()), invoke.arguments.get(1)), ps);
             ps.append(";}.bind(this)");
             ps.append(",");
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);

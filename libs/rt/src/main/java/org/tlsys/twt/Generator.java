@@ -121,7 +121,7 @@ public class Generator implements MainGenerator {
         for (VExecute e : methods) {
             if (!exeNeed.test(e))
                 continue;
-            NewClass newMethod = new NewClass(methodConstructor, null)
+            NewClass newMethod = new NewClass(methodConstructor, e.getStartPoint())
                     .addArg(new Const(e.getRunTimeName(), classString));
             Value lastMethodScope = newMethod;
             if (e instanceof VConstructor)
@@ -133,12 +133,12 @@ public class Generator implements MainGenerator {
             newMethod.arguments.add(new Const(e.isStatic(), classBoolean));
 
             for (VArgument a : e.getArguments()) {
-                NewClass newArg = new NewClass(argumentConstructor, null)
+                NewClass newArg = new NewClass(argumentConstructor, a.getStartPoint())
                         .addArg(new Const(a.getRuntimeName(), classString))
                         .addArg(new Const(a.var, classBoolean))
                         .addArg(getClassViaTypeProvider(a.getType()));
 
-                lastMethodScope = new Invoke(methodAddArg, lastMethodScope)
+                lastMethodScope = new Invoke(methodAddArg, lastMethodScope, e.getStartPoint(), e.getStartPoint())
                         .addArg(newArg);
             }
 
@@ -148,12 +148,11 @@ public class Generator implements MainGenerator {
         }
 
         for (StaticBlock b : vClass.statics) {
-
             StringOutputStream sos = new StringOutputStream();
             sos.getStream().append("function()");
             hc2.operation(gc, b.getBlock(), new Outbuffer(sos.getStream()));
             //sos.getStream().append("}");
-            lastScope = CodeBuilder.scope(lastScope).invoke(addStaticMethod, null).arg(CodeBuilder.scopeStatic(scriptClass).invoke(codeMethod, null).arg(new NewArrayItems(objectClass.getArrayClass(), null).addEl(new Const(sos.toString(), classString))).build()).build();
+            lastScope = CodeBuilder.scope(lastScope).invoke(addStaticMethod, b.getStartPoint(), b.getEndPoint()).arg(CodeBuilder.scopeStatic(scriptClass).invoke(codeMethod, null, null).arg(new NewArrayItems(objectClass.getArrayClass(), null).addEl(new Const(sos.toString(), classString))).build()).build();
             /*
             lastScope = new Invoke(addStaticMethod, lastScope)
                     .addArg(

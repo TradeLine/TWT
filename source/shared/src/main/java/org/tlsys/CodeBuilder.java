@@ -37,13 +37,13 @@ public final class CodeBuilder {
     }
 
     public static InvokeBuilder invokeStatic(VExecute execute) {
-        return invokeStatic(execute, null);
+        return invokeStatic(execute, null, null);
     }
 
-    public static InvokeBuilder invokeStatic(VExecute execute, SourcePoint point) {
+    public static InvokeBuilder invokeStatic(VExecute execute, SourcePoint start, SourcePoint end) {
         if (!execute.isStatic())
             throw new IllegalArgumentException("Method " + execute + " not static");
-        return new InvokeBuilder(execute, new StaticRef(execute.getParent(), point), point);
+        return new InvokeBuilder(execute, new StaticRef(execute.getParent(), start), start, end);
     }
 
     public static FieldBuilder field(VField field) {
@@ -78,8 +78,8 @@ public final class CodeBuilder {
             return new MethodFinder(scope, name);
         }
 
-        public InvokeBuilder invoke(VMethod vMethod, SourcePoint point) {
-            return new InvokeBuilder(vMethod, scope, point);
+        public InvokeBuilder invoke(VMethod vMethod, SourcePoint start, SourcePoint end) {
+            return new InvokeBuilder(vMethod, scope, start, end);
         }
 
         public ConstructorFinder constructor() {
@@ -123,8 +123,12 @@ public final class CodeBuilder {
             return find(null);
         }
 
-        public InvokeBuilder invoke(SourcePoint point) {
-            return new InvokeBuilder(find(), scope, point);
+        public InvokeBuilder invoke() {
+            return invoke(null, null);
+        }
+
+        public InvokeBuilder invoke(SourcePoint startPoint, SourcePoint endPoint) {
+            return new InvokeBuilder(find(), scope, startPoint, endPoint);
         }
     }
 
@@ -172,8 +176,8 @@ public final class CodeBuilder {
         }
 
         @Override
-        public InvokeBuilder invoke(SourcePoint point) {
-            return super.invoke(point);
+        public InvokeBuilder invoke(SourcePoint startPoint, SourcePoint endPoint) {
+            return super.invoke(startPoint, endPoint);
         }
     }
 
@@ -193,13 +197,15 @@ public final class CodeBuilder {
     public static class InvokeBuilder extends ArgumentBuilder {
         private final VExecute exe;
         private final Value scope;
-        private final SourcePoint point;
+        private final SourcePoint endPoint;
+        private final SourcePoint startPoint;
 
 
-        public InvokeBuilder(VExecute exe, Value scope, SourcePoint point) {
+        public InvokeBuilder(VExecute exe, Value scope, SourcePoint startPoint, SourcePoint endPoint) {
             this.exe = exe;
             this.scope = scope;
-            this.point = point;
+            this.startPoint = startPoint;
+            this.endPoint = endPoint;
         }
 
         @Override
@@ -208,7 +214,7 @@ public final class CodeBuilder {
         }
 
         public Invoke build() {
-            Invoke invoke = new Invoke(exe, scope, point);
+            Invoke invoke = new Invoke(exe, scope, startPoint, endPoint);
             invoke.returnType = exe.returnType;
             invoke.arguments.addAll(args);
             return invoke;

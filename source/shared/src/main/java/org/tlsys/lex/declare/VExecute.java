@@ -1,6 +1,7 @@
 package org.tlsys.lex.declare;
 
 import org.tlsys.ArgumentModificator;
+import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.Collect;
 import org.tlsys.lex.Context;
@@ -14,9 +15,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public abstract class VExecute implements Context, Member, CodeDynLoad {
+public abstract class VExecute implements Context, Member, CodeDynLoad, HavinSourceStart {
     private static final long serialVersionUID = 3706412942276907442L;
     private final ArrayList<ArgumentModificator> mods = new ArrayList<>();
+    private final SourcePoint startPoint;
     public VClass returnType;
     public String alias;
     public boolean force;
@@ -30,11 +32,14 @@ public abstract class VExecute implements Context, Member, CodeDynLoad {
     private transient VBlock block = null;
     private int modificators;
 
-    public VExecute() {
-    }
-
     public VExecute(SourcePoint point, VClass parent) {
         this.parent = parent;
+        startPoint = point;
+    }
+
+    @Override
+    public SourcePoint getStartPoint() {
+        return startPoint;
     }
 
     public ArrayList<ArgumentModificator> getMods() {

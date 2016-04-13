@@ -151,7 +151,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ICodeGenerator icg = ctx.getGenerator(sr.getType());
             if (icg != this)
                 return icg.operation(ctx, op, ps);
-            ps.add(sr.getType().fullName, sr.getPoint(), sr.getType().getRealName());
+            ps.add(sr.getType().fullName, sr.getStartPoint(), sr.getType().getRealName());
             ps.append("/*FROM NATIVE 222*/");
             return true;
         }
@@ -161,7 +161,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ICodeGenerator icg = ctx.getGenerator(sr.refTo);
             if (icg != this)
                 return icg.operation(ctx, op, ps);
-            ps.add(sr.refTo.fullName, sr.getPoint(), sr.refTo.getRealName());
+            ps.add(sr.refTo.fullName, sr.getStartPoint(), sr.refTo.getRealName());
             ps.append("/*FROM NATIVE 111*/");
             return true;
         }
@@ -191,7 +191,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             for(VArgument a : l.getMethod().getArguments()) {
                 if(!first)
                     ps.append(",");
-                ps.add(a.getRuntimeName(), a.getPoint(), a.getRealName());
+                ps.add(a.getRuntimeName(), a.getStartPoint(), a.getRealName());
                 first = false;
             }
             ps.append(")");

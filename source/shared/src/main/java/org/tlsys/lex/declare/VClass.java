@@ -2,10 +2,7 @@ package org.tlsys.lex.declare;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
-import org.tlsys.ClassModificator;
-import org.tlsys.NullClass;
-import org.tlsys.ReplaceVisiter;
-import org.tlsys.TypeUtil;
+import org.tlsys.*;
 import org.tlsys.lex.*;
 import org.tlsys.sourcemap.SourcePoint;
 
@@ -13,14 +10,13 @@ import java.io.*;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class VClass extends VLex implements Member, Using, Context, Serializable, CodeDynLoad {
+public class VClass extends VLex implements Member, Using, Context, Serializable, CodeDynLoad, HavinSourceStart {
 
     private static final long serialVersionUID = 4915815860381948883L;
     private static final ThreadLocal<VClassLoader> currentClassLoader = new ThreadLocal<>();
     private static final int VCLASS = 2;
     private static final int REF = 3;
-
-
+    private final SourcePoint startPoint;
     public String fullName;
     public String name;
     public String alias;
@@ -45,14 +41,16 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     //private VField parentVar;
     private transient Class javaClass;
 
-    protected VClass(String realSimpleName) {
+    protected VClass(String realSimpleName, SourcePoint startPoint) {
         this.realSimpleName = realSimpleName;
+        this.startPoint = startPoint;
     }
 
-    public VClass(String realSimpleName, Context parentContext, VClass parent, Symbol.ClassSymbol classSymbol) {
+    public VClass(String realSimpleName, Context parentContext, VClass parent, Symbol.ClassSymbol classSymbol, SourcePoint startPoint) {
         this.realSimpleName = realSimpleName;
         this.parentContext = Objects.requireNonNull(parentContext, "Parent content is NULL");
         this.parent = parent;
+        this.startPoint = startPoint;
     }
 
     public static VClassLoader getCurrentClassLoader() {
@@ -492,6 +490,11 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     public void addLocalField(VField v) {
         fields.add(v);
+    }
+
+    @Override
+    public SourcePoint getStartPoint() {
+        return startPoint;
     }
 
     private static class ClassRef implements Serializable {

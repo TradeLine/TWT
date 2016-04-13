@@ -5,11 +5,14 @@ import org.tlsys.sourcemap.SourcePoint;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Outbuffer implements Appendable {
-    private int current;
     private final Appendable out;
+    private final LinkedList<HoldState> holdStates = new LinkedList<>();
+    private int current;
+    private ArrayList<SourceMap.Record> records = new ArrayList<>();
 
     public Outbuffer(Appendable out) {
         this.out = out;
@@ -43,6 +46,23 @@ public class Outbuffer implements Appendable {
         }
     }
 
+    public void pushHold(SourcePoint point) {
+        if (point == null)
+            holdStates.addFirst(null);
+        else
+            holdStates.addFirst(new HoldState(point.getRow(), point.getColumn()));
+    }
+
+    private HoldState peek() {
+        if (holdStates.isEmpty())
+            return null;
+        return holdStates.getLast();
+    }
+
+    public void popHold() {
+        holdStates.removeFirst();
+    }
+
     @Override
     public Outbuffer append(char c) {
         try {
@@ -58,15 +78,17 @@ public class Outbuffer implements Appendable {
         return current;
     }
 
-    private ArrayList<SourceMap.Record> records = new ArrayList<>();
-
     public Outbuffer add(CharSequence csq, SourcePoint point, String name) {
         return add(csq, point, getCurrent(), name);
     }
 
     public Outbuffer add(CharSequence csq, SourcePoint point, int pos, String name) {
-        if (point != null)
-            records.add(new SourceMap.Record(point.getSourceFile(), point, current, name));
+        if (point != null) {
+            if (peek() != null) {
+                records.add(new SourceMap.Record(point.getSourceFile(), point.getSourceFile().getPoint(peek().row, peek().column), current, name));
+            } else
+                records.add(new SourceMap.Record(point.getSourceFile(), point, current, name));
+        }
         append(csq);
         return this;
     }
@@ -81,5 +103,15 @@ public class Outbuffer implements Appendable {
 
     public List<SourceMap.Record> getRecords() {
         return records;
+    }
+
+    private class HoldState {
+        private final int row;
+        private final int column;
+
+        public HoldState(int row, int column) {
+            this.row = row;
+            this.column = column;
+        }
     }
 }

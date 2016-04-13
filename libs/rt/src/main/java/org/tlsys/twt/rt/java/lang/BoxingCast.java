@@ -72,13 +72,13 @@ public class BoxingCast extends DefaultCast {
             throw new RuntimeException("Not supported yet");
 
         if (String.class.getName().equals(vClass.alias)) {
-            return CodeBuilder.scopeStatic(vClass).method("valueOf").arg(value.getType()).invoke(point).arg(value).build();
+            return CodeBuilder.scopeStatic(vClass).method("valueOf").arg(value.getType()).invoke().arg(value).build();
         }
 
         if (char.class.getName().equals(value.getType().alias)) {
 
             if (int.class.getName().equals(vClass.alias)) {
-                return CodeBuilder.scopeStatic(value.getType()).method("toInt").arg(value.getType()).invoke(point).arg(value).build();
+                return CodeBuilder.scopeStatic(value.getType()).method("toInt").arg(value.getType()).invoke().arg(value).build();
 
             }
             throw new RuntimeException("Not supported yet!");
@@ -87,7 +87,7 @@ public class BoxingCast extends DefaultCast {
         if (char.class.getName().equals(vClass.alias)) {
 
             if (int.class.getName().equals(value.getType().alias)) {
-                return CodeBuilder.scopeStatic(vClass, point).method("toChar").arg(value.getType()).invoke(point).arg(value).build();
+                return CodeBuilder.scopeStatic(vClass, point).method("toChar").arg(value.getType()).invoke().arg(value).build();
             }
 
             throw new RuntimeException("Not supported yet! from " + value.getType());
@@ -125,7 +125,7 @@ public class BoxingCast extends DefaultCast {
 
         if (Boolean.class.getName().equals(value.getType().alias)) {
             if (boolean.class.getName().equals(vClass.alias)) {
-                return CodeBuilder.scope(value).method("booleanValue").invoke(point).build();
+                return CodeBuilder.scope(value).method("booleanValue").invoke().build();
                 //return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
             }
             throw new CompileException("Can't convert Boolean to " + vClass, point);
@@ -145,7 +145,7 @@ public class BoxingCast extends DefaultCast {
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
-                return CodeBuilder.scopeStatic(vClass, point).method("fromInt").arg(value.getType()).invoke(point).arg(value).build();
+                return CodeBuilder.scopeStatic(vClass, point).method("fromInt").arg(value.getType()).invoke().arg(value).build();
             }
 
             if (long.class.getName().equals(vClass.alias)) {

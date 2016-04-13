@@ -47,7 +47,7 @@ public class VBinar extends Value implements HavinSourceStart {
     }
 
     @Override
-    public SourcePoint getPoint() {
+    public SourcePoint getStartPoint() {
         return point;
     }
 

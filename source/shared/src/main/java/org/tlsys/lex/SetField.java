@@ -28,23 +28,6 @@ public class SetField extends Value implements HavinSourceStart, HavingScope {
     public SetField() {
     }
 
-    @Override
-    public Value getScope() {
-        return scope;
-    }
-
-    public VField getField() {
-        return field;
-    }
-
-    public Value getValue() {
-        return value;
-    }
-
-    public SourcePoint getOpPoint() {
-        return opPoint;
-    }
-
     /**
      * @param scope   this класса, поле которого меняется
      * @param field   поле класса
@@ -63,7 +46,24 @@ public class SetField extends Value implements HavinSourceStart, HavingScope {
     }
 
     @Override
-    public SourcePoint getPoint() {
+    public Value getScope() {
+        return scope;
+    }
+
+    public VField getField() {
+        return field;
+    }
+
+    public Value getValue() {
+        return value;
+    }
+
+    public SourcePoint getOpPoint() {
+        return opPoint;
+    }
+
+    @Override
+    public SourcePoint getStartPoint() {
         return point;
     }
 

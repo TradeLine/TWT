@@ -20,7 +20,7 @@ class StatementCompiler {
             for (JCTree.JCStatement t : e.getStatements()) {
                 Operation oo = c.st(t, b);
                 if (o != null)
-                    //b.add(new Line(oo, e.pos<0?null:c.getFile().getPoint(e.pos), e.endpos<0?null:c.getFile().getPoint(e.endpos), b));
+                    //b.add(new Line(oo, e.pos<0?null:c.getFile().getStartPoint(e.pos), e.endpos<0?null:c.getFile().getStartPoint(e.endpos), b));
                     b.add(oo);
             }
             return b;
@@ -121,10 +121,10 @@ class StatementCompiler {
                 SVar iterator = new SVar("it" + Integer.toString(new Object().hashCode(), Character.MAX_RADIX), classIterator, block);
                 DeclareVar it = new DeclareVar(iterator, c.getFile().getPoint(e.expr.pos));
 
-                it.init = CodeBuilder.scope(v).method("iterator").invoke(c.getFile().getPoint(e.expr.pos)).build();//new Invoke(v.getType().getMethod("iterator", c.getFile().getPoint(e.pos)), v);
+                it.init = CodeBuilder.scope(v).method("iterator").invoke().build();//new Invoke(v.getType().getMethod("iterator", c.getFile().getStartPoint(e.pos)), v);
                 block.add(it);
                 WhileLoop wl = new WhileLoop(block, null);
-                wl.value = CodeBuilder.scope(it.getVar()).method("hasNext").invoke(c.getFile().getPoint(e.pos)).build();//new Invoke(classIterator.getMethod("hasNext", c.getFile().getPoint(e.pos)), );
+                wl.value = CodeBuilder.scope(it.getVar()).method("hasNext").invoke().build();//new Invoke(classIterator.getMethod("hasNext", c.getFile().getStartPoint(e.pos)), );
                 wl.block = new VBlock(wl, null, null);
                 block.add(wl);
 

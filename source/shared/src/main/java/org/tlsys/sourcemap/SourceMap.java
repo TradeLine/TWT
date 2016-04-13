@@ -15,6 +15,7 @@ public class SourceMap {
     public SourceMap(Collection<Record> records) {
         //this.records = records;
         for (Record r : records) {
+            if (!r.getFile().getName().contains("Main")) continue;
             getOrCreateFileRecord(r.getFile()).getRecords().add(r);
             /*
             if (!files.contains(r.getFile()))
@@ -27,11 +28,11 @@ public class SourceMap {
             }
         }
 
-        /*
+
         for (FileRecord fr : files.values()) {
             fr.sort();
         }
-        */
+
     }
 
     private FileRecord getOrCreateFileRecord(SourceFile sf) {
@@ -56,7 +57,6 @@ public class SourceMap {
         State state = new State();
         state.map = this;
         for (FileRecord fr : files.values()) {
-
             //System.out.println("========FILE " + fr.file.getName() + "===========");
             /*
             state.column = 0;
@@ -65,7 +65,7 @@ public class SourceMap {
             state.file = 0;
             */
             for (Record r : fr.records) {
-                //System.out.println("\t" + r.getPoint().getRow() + " : " + r.getPoint().getColumn() + " => " + r.column);
+                //System.out.println("\t" + r.getStartPoint().getRow() + " : " + r.getStartPoint().getColumn() + " => " + r.column);
                 if (!first)
                     sb.append(",");
                 r.write(sb, state);
@@ -80,7 +80,7 @@ public class SourceMap {
         first = true;
 
         ArrayList<FileRecord> fls = new ArrayList<FileRecord>(files.values());
-        //fls.sort((a, b) -> a.id - b.id);
+        fls.sort((a, b) -> a.id - b.id);
         for (FileRecord sf : fls) {
             if (!first)
                 sb.append(",");

@@ -103,12 +103,14 @@ class OperationCompiler {
                 VClass cl = c.loadClass(e.type, c.getFile().getPoint(e.pos));
                 if (c.getCurrentClass() != cl && c.getCurrentClass().isParent(cl))
                     return new ThisFor(c.getCurrentClass(), cl, c.getFile().getPoint(e.pos));
+                SourcePoint sp = c.getFile().getPoint(e.pos);
+                System.out.println("THIS " + sp.getRow() + ":" + sp.getColumn() + " in " + sp.getSourceFile().getName());
                 return new This(cl, c.getFile().getPoint(e.pos));
                 /*
                 if (cl == c.getCurrentClass())
-                    return new This(cl, c.getFile().getPoint(e.pos));
+                    return new This(cl, c.getFile().getStartPoint(e.pos));
                 else
-                    return new ThisFor(c.getCurrentClass(), cl, c.getFile().getPoint(e.pos));
+                    return new ThisFor(c.getCurrentClass(), cl, c.getFile().getStartPoint(e.pos));
                     */
             }
             if (e.sym instanceof Symbol.VarSymbol) {
@@ -195,7 +197,7 @@ class OperationCompiler {
             return nc;
 
             /*
-            VClass imp = c.loadClass(e.type, c.getFile().getPoint(e.pos));
+            VClass imp = c.loadClass(e.type, c.getFile().getStartPoint(e.pos));
             VMethod method = null;
             for (VMethod m : imp.methods)
                 if (m.getBlock() == null) {
@@ -205,7 +207,7 @@ class OperationCompiler {
             Objects.requireNonNull(method, "Method for replace not found");
             Lambda l = new Lambda(method, o);
             for (JCTree.JCVariableDecl v : e.params) {
-                VArgument a = new VArgument(v.name.toString(), c.loadClass(v.type, c.getFile().getPoint(e.pos)), false, false, l, null, c.getFile().getPoint(e.pos));
+                VArgument a = new VArgument(v.name.toString(), c.loadClass(v.type, c.getFile().getStartPoint(e.pos)), false, false, l, null, c.getFile().getStartPoint(e.pos));
                 l.arguments.add(a);
             }
             if (e.body instanceof JCTree.JCBlock) {
@@ -214,8 +216,8 @@ class OperationCompiler {
                 if (e.body instanceof JCTree.JCExpression) {
                     VBlock block = new VBlock(l, null, null);
                     Operation op = c.op((JCTree.JCExpression) e.body, block);
-                    if (l.getMethod().returnType != c.loadClass("void", c.getFile().getPoint(e.pos))) {
-                        block.add(new Return((Value) op, c.getFile().getPoint(e.body.pos)));
+                    if (l.getMethod().returnType != c.loadClass("void", c.getFile().getStartPoint(e.pos))) {
+                        block.add(new Return((Value) op, c.getFile().getStartPoint(e.body.pos)));
                     } else
                         block.add(op);
                     l.setBlock(block);
@@ -308,22 +310,17 @@ class OperationCompiler {
             }
             if (self == null || method == null)
                 throw new RuntimeException("Self or method is NULL");
-/*
-            if (method instanceof VConstructor && method.getParent().isParent(method.getParent().getClassLoader().loadClass(Enum.class.getName(), c.getFile().getPoint(e.pos)))) {
-                VBlock block = (VBlock) o;
-                VConstructor cons = (VConstructor) block.getParentContext();
-                return new Invoke(method, new This(cons.getParent())).addArg(cons.getArguments().get(0)).addArg(cons.getArguments().get(1));
-            }
-            */
+
             if (method.isStatic())
                 self = new StaticRef(method.getParent(), null);
 
             if (self instanceof ThisFor) {
                 ThisFor tf = (ThisFor)self;
-                self = new This(tf.getSelf(), tf.getPoint());
+                self = new This(tf.getSelf(), tf.getStartPoint());
             }
 
-            Invoke i = new Invoke(method, self, c.getFile().getPoint(e.pos));
+
+            Invoke i = new Invoke(method, self, c.getFile().getPoint(getStart(e.meth).pos), c.getFile().getPoint(e.pos));
 
 
             //int argInc = 0;
@@ -349,21 +346,6 @@ class OperationCompiler {
                     throw new RuntimeException("Unknown exception");
                 }
             }
-
-
-            /*
-            if (i.getMethod() instanceof VConstructor && self.getType().isParent(i.getMethod().getParent()) && i.getMethod().getParent().getDependencyParent().isPresent()) {
-                argInc = 1;
-                if (o instanceof VBlock && ((VBlock) o).getParentContext() instanceof VConstructor) {
-                    VBlock block = (VBlock) o;
-                    VConstructor cons = (VConstructor) block.getParentContext();
-                    i.addArg(cons.getArguments().get(0));
-                } /* else
-                    i.addArg(new GetField(self, TypeUtil.getParentThis(self.getType())));
-                    * /
-            }
-                */
-
 
             int dec = 0;
             for (int c1 = 0; c1 < method.getArguments().size(); c1++) {
@@ -411,6 +393,11 @@ class OperationCompiler {
                 }
             }
             i.returnType = c.loadClass(e.type, c.getFile().getPoint(e.pos));
+
+            SourcePoint sp = null;
+
+
+            System.out.println("INVOKE " + i.getMethod().getParent().getRealName() + "=>" + i.getMethod().getDescription() + " on from " + c.getFile().getPoint(getStart(e.meth).pos).toStringShort() + " to " + i.getStartPoint().toStringLong());
             return i;
         });
 
@@ -500,13 +487,13 @@ class OperationCompiler {
             Value v2 = c.op(e.rhs, o);
             if (v instanceof GetField) {
                 GetField gf = (GetField) v;
-                SetField sf = new SetField(gf.getScope(), gf.getField(), v2, Assign.AsType.ASSIGN, gf.getPoint(), c.getFile().getPoint(e.pos));
+                SetField sf = new SetField(gf.getScope(), gf.getField(), v2, Assign.AsType.ASSIGN, gf.getStartPoint(), c.getFile().getPoint(e.pos));
                 return sf;
             }
 
             if (v instanceof GetValue) {
                 GetValue g = (GetValue) v;
-                return new SetValue(g.getValue(), v2, c.loadClass(e.type, c.getFile().getPoint(e.pos)), Assign.AsType.ASSIGN, g.getPoint(), c.getFile().getPoint(e.pos));
+                return new SetValue(g.getValue(), v2, c.loadClass(e.type, c.getFile().getPoint(e.pos)), Assign.AsType.ASSIGN, g.getStartPoint(), c.getFile().getPoint(e.pos));
             }
             if (v instanceof ArrayGet) {
                 ArrayGet gf = (ArrayGet) v;
@@ -533,12 +520,12 @@ class OperationCompiler {
             }
             if (v instanceof GetField) {
                 GetField gf = (GetField) v;
-                SetField sf = new SetField(gf.getScope(), gf.getField(), v2, type, gf.getPoint(), c.getFile().getPoint(e.pos));
+                SetField sf = new SetField(gf.getScope(), gf.getField(), v2, type, gf.getStartPoint(), c.getFile().getPoint(e.pos));
                 return sf;
             }
             if (v instanceof GetValue) {
                 GetValue gf = (GetValue) v;
-                SetValue sf = new SetValue(gf.getValue(), v2, c.loadClass(e.type, c.getFile().getPoint(e.pos)), type, gf.getPoint(), c.getFile().getPoint(e.pos));
+                SetValue sf = new SetValue(gf.getValue(), v2, c.loadClass(e.type, c.getFile().getPoint(e.pos)), type, gf.getStartPoint(), c.getFile().getPoint(e.pos));
                 return sf;
             }
             if (v instanceof ArrayGet) {
@@ -676,6 +663,25 @@ class OperationCompiler {
     }
 
 
+    private static JCTree.JCExpression getStart(JCTree.JCExpression exp) {
+        if (exp instanceof JCTree.JCMethodInvocation) {
+            return getStart(((JCTree.JCMethodInvocation) exp).getMethodSelect());
+        }
+
+        if (exp instanceof JCTree.JCIdent) {
+            return exp;
+        }
+
+        if (exp instanceof JCTree.JCFieldAccess) {
+            return getStart(((JCTree.JCFieldAccess) exp).selected);
+        }
+
+        if (exp instanceof JCTree.JCParens) {
+            return exp;
+        }
+
+        throw new RuntimeException("Unknown Tree " + exp.getClass().getName());
+    }
 
     /*
     private final VClass compileClass;

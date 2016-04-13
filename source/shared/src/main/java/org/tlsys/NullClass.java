@@ -8,7 +8,7 @@ public class NullClass extends VClass {
 
 
     protected NullClass() {
-        super("NULL");
+        super("NULL", null);
     }
 
     @Override

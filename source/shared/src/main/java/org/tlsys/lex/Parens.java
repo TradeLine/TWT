@@ -1,6 +1,5 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
 import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
@@ -20,21 +19,21 @@ public class Parens extends Value implements HavinSourceStart {
     private Value value;
     private SourcePoint point;
 
-    public Value getValue() {
-        return value;
-    }
-
     public Parens() {
-    }
-
-    @Override
-    public SourcePoint getPoint() {
-        return point;
     }
 
     public Parens(Value value, SourcePoint point) {
         this.value = Objects.requireNonNull(value);
         this.point = point;
+    }
+
+    public Value getValue() {
+        return value;
+    }
+
+    @Override
+    public SourcePoint getStartPoint() {
+        return point;
     }
 
     @Override

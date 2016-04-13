@@ -12,7 +12,7 @@ public class StringCodeGenerator extends DefaultGenerator {
     public boolean operation(GenerationContext context, Operation op, Outbuffer out) throws CompileException {
         if (op instanceof InstanceOf) {
             InstanceOf in = (InstanceOf)op;
-            if (in.getClazz() == context.getCurrentClass().getClassLoader().loadClass(String.class.getName(), in.getPoint())) {
+            if (in.getClazz() == context.getCurrentClass().getClassLoader().loadClass(String.class.getName(), in.getStartPoint())) {
                 out.append("(typeof ");
                 operation(context, in.getValue(), out);
                 out.append("=='string')");

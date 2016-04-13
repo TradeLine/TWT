@@ -57,8 +57,8 @@ public class ArrayCodeGenerator extends DefaultGenerator {
                         CodeBuilder.scope(
                                 CodeBuilder.scope(
                                         execute.getArguments().get(0)
-                                ).method("getArrayClassRecord").invoke(execute.getPoint()).build()
-                        ).method("getPrototype").invoke(execute.getPoint()).build();
+                                ).method("getArrayClassRecord").invoke().build()
+                        ).method("getPrototype").invoke().build();
 
 
                 cg.operation(context, arrayClazz, ps);

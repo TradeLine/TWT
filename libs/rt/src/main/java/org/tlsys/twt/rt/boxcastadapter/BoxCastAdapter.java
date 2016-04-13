@@ -21,14 +21,14 @@ public class BoxCastAdapter implements ICastAdapter {
     public Value cast(Value from, VClass to, SourcePoint p) throws CompileException {
         if (TypeUtil.isPrimitive(to)) {
             if (TypeUtil.isPrimitive(from.getType()))
-                return CodeBuilder.scopeStatic(from.getType()).method(to.alias + "Value").arg(from.getType()).invoke(p).arg(from).build();
+                return CodeBuilder.scopeStatic(from.getType()).method(to.alias + "Value").arg(from.getType()).invoke().arg(from).build();
             else
-                return CodeBuilder.scope(from).method(to.alias + "Value").invoke(p).build();
+                return CodeBuilder.scope(from).method(to.alias + "Value").invoke().build();
         } else {
             if (TypeUtil.isPrimitive(from.getType()))
-                return CodeBuilder.scopeStatic(to).method("from" + from.getType().alias.replace(".", "_")).arg(from.getType()).invoke(p).arg(from).build();
+                return CodeBuilder.scopeStatic(to).method("from" + from.getType().alias.replace(".", "_")).arg(from.getType()).invoke().arg(from).build();
             else
-                return CodeBuilder.scopeStatic(to).method("from"+from.getType().alias.replace(".","_")).arg(from.getType()).invoke(p).arg(from).build();
+                return CodeBuilder.scopeStatic(to).method("from" + from.getType().alias.replace(".", "_")).arg(from.getType()).invoke().arg(from).build();
                 //return CodeBuilder.constructor(to).arg(from.getType()).invoke(p).arg(from).build();
         }
 

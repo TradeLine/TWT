@@ -37,6 +37,13 @@ public class SourceFile implements Serializable {
         */
     }
 
+    @Override
+    public String toString() {
+        return "SourceFile{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+
     public String getData() {
         return data;
     }

@@ -29,6 +29,7 @@ publishing {
 dependencies{
     compile files("${System.properties['java.home']}/../lib/tools.jar")
     testCompile 'junit:junit:4.12'
+    compile 'org.json:json:20160212'
 }
 build {
     dependsOn publishToMavenLocal

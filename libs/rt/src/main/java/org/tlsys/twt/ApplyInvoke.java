@@ -14,7 +14,7 @@ public class ApplyInvoke implements InvokeGenerator {
         if (invoke.getMethod().isStatic()) {
             icg.operation(ctx, new StaticRef(clazz), ps);
         } else {
-            VClass classClass = clazz.getClassLoader().loadClass(Class.class.getName(), invoke.getPoint());
+            VClass classClass = clazz.getClassLoader().loadClass(Class.class.getName(), invoke.getStartPoint());
             icg.operation(ctx, new StaticRef(clazz), ps);
             ps.append(".prototype");
         }

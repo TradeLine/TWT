@@ -18,7 +18,7 @@ public class DefaultCast implements ICastAdapter {
 
 
         if (!(to instanceof ArrayClass) && to.alias != null && to.alias.equals(String.class.getName())) {
-            Value val = CodeBuilder.scopeStatic(to).method("valueOf").arg(value.getType()).invoke(point).arg(value).build();
+            Value val = CodeBuilder.scopeStatic(to).method("valueOf").arg(value.getType()).invoke().arg(value).build();
             return val;
             //return new Invoke(value.getType().getMethod("toString"), value);
         } else {
@@ -26,7 +26,7 @@ public class DefaultCast implements ICastAdapter {
                     .scope(new ClassRef(to, null))
                     .method("cast")
                     .arg(value.getType().getClassLoader().loadClass(Object.class.getName(), point))
-                    .invoke(point)
+                    .invoke()
                     .arg(value)
                     .build();
             /*

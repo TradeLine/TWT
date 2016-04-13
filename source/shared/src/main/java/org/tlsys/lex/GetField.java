@@ -30,7 +30,7 @@ public class GetField extends Value implements HavinSourceStart, HavingScope {
     }
 
     @Override
-    public SourcePoint getPoint() {
+    public SourcePoint getStartPoint() {
         return point;
     }
 

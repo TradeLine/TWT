@@ -12,7 +12,7 @@ public class ObjectInvokeAdapter implements InvokeGenerator {
     @Override
     public boolean generate(GenerationContext ctx, Invoke invoke, Outbuffer printStream) throws CompileException {
         VClass classObject = invoke.getMethod().getParent();
-        return ctx.getGenerator(classObject).operation(ctx, CodeBuilder.scopeStatic(classObject).method("getClassOfObject").arg(classObject).invoke(invoke.getPoint()).arg(invoke.getScope()).build(), printStream);
+        return ctx.getGenerator(classObject).operation(ctx, CodeBuilder.scopeStatic(classObject).method("getClassOfObject").arg(classObject).invoke(invoke.getStartPoint(), invoke.getEndPoint()).arg(invoke.getScope()).build(), printStream);
         //return ctx.getGenerator(classObject).operation(ctx, new Invoke(classObject.getMethod("getClassOfObject", classObject), new StaticRef(classObject)).addArg(invoke.getScope()), printStream);
     }
 }

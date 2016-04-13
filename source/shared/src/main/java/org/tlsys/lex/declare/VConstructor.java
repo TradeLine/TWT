@@ -24,9 +24,6 @@ public class VConstructor extends VExecute {
         }
     }
 
-    public VConstructor() {
-    }
-
     @Override
     public boolean isThis(String name) {
         return false;

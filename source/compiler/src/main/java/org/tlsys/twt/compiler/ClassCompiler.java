@@ -153,7 +153,7 @@ public class ClassCompiler {
         LambdaClazz lc = new LambdaClazz(o);
 
         for (JCTree.JCVariableDecl v : e.params) {
-            VArgument a = new VArgument(v.name.toString(), c.loadClass(v.type, c.getFile().getPoint(e.pos)), false, false, lc, null, c.getFile().getPoint(e.pos));
+            VArgument a = new VArgument(v.name.toString(), null, c.loadClass(v.type, c.getFile().getPoint(e.pos)), false, false, lc, null, c.getFile().getPoint(e.pos));
             lc.args.add(a);
         }
 
@@ -174,7 +174,7 @@ public class ClassCompiler {
         VClass parentClazz = (VClass) TypeUtil.findParentContext(o, e2 -> e2 instanceof VClass).get();
 
         String name = "$$Lambda_" + Integer.toString(lc.hashCode(), Character.MAX_RADIX).replace('-', '_');
-        AnnonimusClass ac = new AnnonimusClass(parentClazz, parentClazz, name);
+        AnnonimusClass ac = new AnnonimusClass(parentClazz, parentClazz, name, c.getFile().getPoint(e.pos));
         ac.fullName = parentClazz.getRealName() + name;
         ac.setClassLoader(parentClazz.getClassLoader());
         parentClazz.getClassLoader().classes.add(ac);
@@ -204,7 +204,7 @@ public class ClassCompiler {
     }
 
     public static AnnonimusClass createAnnonimusClass(CompileContext ctx, Context context, JCTree.JCClassDecl c, VClassLoader vClassLoader, SourcePoint point) throws CompileException {
-        AnnonimusClass as = new AnnonimusClass(context, null, c.sym);
+        AnnonimusClass as = new AnnonimusClass(context, null, c.sym, point);
 
 
         VClass parentClazz = vClassLoader.loadClass(AnnonimusClass.extractParentClassName(c.sym), point);
@@ -286,7 +286,7 @@ public class ClassCompiler {
     }
 
     private static void compileClassDefine(VClass parent, JCTree.JCClassDecl des, CompileContext context, ClassItemListener listener, CompilationUnitTree file) throws VClassNotFoundException {
-        VClass v = createClassFromDes(parent, des, context.getLoader());
+        VClass v = createClassFromDes(context, file, parent, des, context.getLoader());
         context.addPair(des, v, file);
         if (listener != null)
             listener.doneClass(v);
@@ -298,7 +298,7 @@ public class ClassCompiler {
         }
     }
 
-    private static VClass createClassFromDes(VClass parent, JCTree.JCClassDecl c, VClassLoader vClassLoader) throws VClassNotFoundException {
+    private static VClass createClassFromDes(CompileContext context, CompilationUnitTree file, VClass parent, JCTree.JCClassDecl c, VClassLoader vClassLoader) throws VClassNotFoundException {
 
         String[] list = c.sym.toString().split("\\.");
 
@@ -326,7 +326,8 @@ public class ClassCompiler {
         if (parentContext == null)
             throw new RuntimeException("Can't find parent for class " + c.sym.toString());
 
-        VClass v = new VClass(list[list.length - 1], parentContext, parent, c.sym);
+
+        VClass v = new VClass(list[list.length - 1], parentContext, parent, c.sym, context.getFileSource(file).getPoint(c.pos));
 
         if (parentContext instanceof VPackage) {
             ((VPackage) parentContext).addChild(v);

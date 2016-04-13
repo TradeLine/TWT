@@ -10,16 +10,11 @@ public class VArgument extends SVar implements HavinSourceStart {
     private static final long serialVersionUID = 8365717984255691676L;
     public final boolean var;
     public final  boolean generic;
+    private final ArgumentModificator creator;
     private SourcePoint point;
 
-    private final ArgumentModificator creator;
-
-    public ArgumentModificator getCreator() {
-        return creator;
-    }
-
-    public VArgument(String realName, VClass clazz, boolean var, boolean generic, Context method, ArgumentModificator creator, SourcePoint point) {
-        super(realName, clazz, method);
+    public VArgument(String realName, String alias, VClass clazz, boolean var, boolean generic, Context method, ArgumentModificator creator, SourcePoint point) {
+        super(realName, alias, clazz, method);
         this.var = var;
         this.generic = generic;
         this.creator = creator;
@@ -27,14 +22,15 @@ public class VArgument extends SVar implements HavinSourceStart {
     }
 
     public VArgument(String realName, String alias, VClass clazz, boolean var, boolean generic, Context method, ArgumentModificator creator) {
-        super(realName, alias, clazz, method);
-        this.var = var;
-        this.generic = generic;
-        this.creator = creator;
+        this(realName, alias, clazz, var, generic, method, creator, null);
+    }
+
+    public ArgumentModificator getCreator() {
+        return creator;
     }
 
     @Override
-    public SourcePoint getPoint() {
+    public SourcePoint getStartPoint() {
         return point;
     }
 }

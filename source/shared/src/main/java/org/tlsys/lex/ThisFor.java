@@ -14,10 +14,6 @@ public class ThisFor extends Value implements HavinSourceStart {
     private final VClass forClazz;
     private SourcePoint point;
 
-    public VClass getSelf() {
-        return self;
-    }
-
     public ThisFor(VClass self, VClass forClazz) {
         this(self, forClazz, null);
     }
@@ -28,8 +24,12 @@ public class ThisFor extends Value implements HavinSourceStart {
         this.point = point;
     }
 
+    public VClass getSelf() {
+        return self;
+    }
+
     @Override
-    public SourcePoint getPoint() {
+    public SourcePoint getStartPoint() {
         return point;
     }
 

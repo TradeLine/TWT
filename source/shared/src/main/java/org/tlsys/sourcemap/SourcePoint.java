@@ -28,4 +28,17 @@ public class SourcePoint implements Serializable {
     public SourceFile getSourceFile() {
         return sourceFile;
     }
+
+    @Override
+    public String toString() {
+        return "SourcePoint{" + row + ":" + column + " in " + sourceFile.getName() + '}';
+    }
+
+    public String toStringShort() {
+        return row + ":" + column;
+    }
+
+    public String toStringLong() {
+        return row + ":" + column + " in " + sourceFile.getName();
+    }
 }

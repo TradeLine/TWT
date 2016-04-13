@@ -31,7 +31,7 @@ public class Throw extends Operation implements HavinSourceStart {
     }
 
     @Override
-    public SourcePoint getPoint() {
+    public SourcePoint getStartPoint() {
         return point;
     }
 

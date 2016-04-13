@@ -24,7 +24,7 @@ public class EventCodeGenerator extends DefaultGenerator {
         VMethod onEventMethod = eventListenerClass.getMethod("onEvent", execute.getPoint(), objectClass, objectClass);
         if (execute.alias.equals("addEventListener")) {
             ps.append("{");
-            Invoke inv = CodeBuilder.scopeStatic(objectsClass).method("requireNonNull").arg(objectClass).arg(stringClass).invoke(execute.getPoint()).arg(execute.getArguments().get(0)).arg(new Const("Argument listener is NULL", stringClass)).build();
+            Invoke inv = CodeBuilder.scopeStatic(objectsClass).method("requireNonNull").arg(objectClass).arg(stringClass).invoke().arg(execute.getArguments().get(0)).arg(new Const("Argument listener is NULL", stringClass)).build();
             //Invoke inv = new Invoke(objectsClass.getMethod("requireNonNull", execute.getPoint(), objectClass,stringClass), new StaticRef(objectsClass)).addArg(execute.getArguments().get(0)).addArg(new Const("Argument listener is NULL",stringClass));
             moduls.add(inv.getMethod());
             context.getGenerator(objectsClass).operation(context,

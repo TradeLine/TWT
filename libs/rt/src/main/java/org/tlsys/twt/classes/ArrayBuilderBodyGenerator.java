@@ -38,10 +38,10 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
                     */
             )
                     .method("getArrayClassRecord")
-                    .invoke(execute.getPoint()).build();
+                    .invoke().build();
 
 
-            Value prototypeOfArrayClass = CodeBuilder.scope(arrayClassRecord).method("getPrototype").invoke(execute.getPoint()).build();
+            Value prototypeOfArrayClass = CodeBuilder.scope(arrayClassRecord).method("getPrototype").invoke().build();
 
             cg.operation(context, prototypeOfArrayClass, ps);
             ps.append(".n").append(ArrayClass.CONSTRUCTOR).append("(").append(execute.getArguments().get(1).getRuntimeName()).append(".length);");

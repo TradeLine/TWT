@@ -5,7 +5,6 @@ import org.tlsys.lex.Value;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.sourcemap.SourcePoint;
 import org.tlsys.twt.CompileException;
-import org.tlsys.twt.annotations.JSClass;
 
 import java.util.Optional;
 
@@ -22,7 +21,7 @@ public final class BoxCastUtil {
                 double.class.getName().equals(to.alias)) {
             return Optional.of(CodeBuilder.scopeStatic(to, p).method(functionName)
                     .arg(from.getType())
-                    .invoke(p)
+                    .invoke()
                     .arg(from)
                     .build());
         }
@@ -34,7 +33,7 @@ public final class BoxCastUtil {
         VClass stringSequence = to.getClassLoader().loadClass(String.class.getName(), p);
 
         if (to == stringSequence || stringSequence.isParent(to)) {
-            return Optional.of(CodeBuilder.scopeStatic(stringSequence).method("valueOf").arg(from.getType()).invoke(p).arg(from).build());
+            return Optional.of(CodeBuilder.scopeStatic(stringSequence).method("valueOf").arg(from.getType()).invoke().arg(from).build());
         }
 
         return Optional.empty();
@@ -43,7 +42,7 @@ public final class BoxCastUtil {
     public static Optional<Value> objectToString(Value from, VClass to, SourcePoint p) throws CompileException {
         VClass stringSequence = to.getClassLoader().loadClass(String.class.getName(), p);
         if (to == stringSequence || stringSequence.isParent(to)) {
-            return Optional.of(CodeBuilder.scope(from).method("toString").invoke(p).build());
+            return Optional.of(CodeBuilder.scope(from).method("toString").invoke().build());
         }
         return Optional.empty();
     }

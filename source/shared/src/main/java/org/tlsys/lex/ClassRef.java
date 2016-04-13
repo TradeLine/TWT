@@ -27,7 +27,7 @@ public class ClassRef extends Value implements HavinSourceStart {
     }
 
     @Override
-    public SourcePoint getPoint() {
+    public SourcePoint getStartPoint() {
         return point;
     }
 

@@ -32,7 +32,7 @@ public class ArrayClass extends VClass {
     }
 
     public ArrayClass(VClass component) {
-        super(component.getSimpleRealName()+"[]");
+        super(component.getSimpleRealName() + "[]", null);
         this.component = Objects.requireNonNull(component, "Component is NULL");
         setClassLoader(component.getClassLoader());
 
@@ -72,7 +72,7 @@ public class ArrayClass extends VClass {
         get = new VMethod(null, "get", this, null);
         get.setRuntimeName(GET);
         get.alias="get";
-        get.addArg(new VArgument("i", intType, false, false, get, null, null));
+        get.addArg(new VArgument("i", null, intType, false, false, get, null, null));
         get.setBlock(new VBlock(get, null, null));
         get.returnType = component;
         get.setModificators(Modifier.PUBLIC);
@@ -80,8 +80,8 @@ public class ArrayClass extends VClass {
         set = new VMethod(null, "set", this, null);
         set.setRuntimeName(SET);
         set.alias="set";
-        set.addArg(new VArgument("i", intType, false, false, set, null, null));
-        set.addArg(new VArgument("v", component, false, false, set, null, null));
+        set.addArg(new VArgument("i", null, intType, false, false, set, null, null));
+        set.addArg(new VArgument("v", null, component, false, false, set, null, null));
         set.returnType = intType.getClassLoader().loadClass("void", null);
         set.setBlock(new VBlock(set, null, null));
         set.setModificators(Modifier.PUBLIC);
@@ -95,7 +95,7 @@ public class ArrayClass extends VClass {
         constructor = new VConstructor(null, this);
         constructor.setModificators(Modifier.PUBLIC);
         constructor.setRuntimeName(CONSTRUCTOR);
-        constructor.addArg(new VArgument("l", intType, false, false, constructor, null, null));
+        constructor.addArg(new VArgument("l", null, intType, false, false, constructor, null, null));
         //constructor.generator = ArrayCodeGenerator.class.getName();
         constructor.setBlock(new VBlock(constructor, null, null));
         constructor.returnType = intType.getClassLoader().loadClass("void", null);
