@@ -19,12 +19,12 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
     @Override
     public void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
         VClass classClass = execute.getParent();
-        VClass classClassStorage = classClass.getClassLoader().loadClass(ClassStorage.class.getName(), execute.getPoint());
-        VClass classClassRecord = classClass.getClassLoader().loadClass(ClassRecord.class.getName(), execute.getPoint());
-        VClass classMethodRecord = classClass.getClassLoader().loadClass(MethodRecord.class.getName(), execute.getPoint());
-        VClass classFieldRecord = classClass.getClassLoader().loadClass(FieldRecord.class.getName(), execute.getPoint());
-        VClass stringClass = classClass.getClassLoader().loadClass(String.class.getName(), execute.getPoint());
-        VClass booleanClass = classClass.getClassLoader().loadClass("boolean", execute.getPoint());
+        VClass classClassStorage = classClass.getClassLoader().loadClass(ClassStorage.class.getName(), execute.getStartPoint());
+        VClass classClassRecord = classClass.getClassLoader().loadClass(ClassRecord.class.getName(), execute.getStartPoint());
+        VClass classMethodRecord = classClass.getClassLoader().loadClass(MethodRecord.class.getName(), execute.getStartPoint());
+        VClass classFieldRecord = classClass.getClassLoader().loadClass(FieldRecord.class.getName(), execute.getStartPoint());
+        VClass stringClass = classClass.getClassLoader().loadClass(String.class.getName(), execute.getStartPoint());
+        VClass booleanClass = classClass.getClassLoader().loadClass("boolean", execute.getStartPoint());
 
         generateMethodStart(context, execute, ps);
         ps.append("{");
@@ -39,15 +39,15 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
 
         SVar clazzRecord = new SVar("clazz", classClassRecord, execute);
         DeclareVar drecord = new DeclareVar(clazzRecord, null);
-        VField jsNameField = classClass.getField("jsName", execute.getPoint());
-        VField nameField = classClass.getField("name", execute.getPoint());
+        VField jsNameField = classClass.getField("jsName", execute.getStartPoint());
+        VField nameField = classClass.getField("name", execute.getStartPoint());
         ArrayClass ac = classClass.getArrayClass();
 
         ac.set.generator = ArrayBodyGenerator.class.getName();
         ac.constructor.generator = ArrayBodyGenerator.class.getName();
         ac.get.generator = ArrayBodyGenerator.class.getName();
 
-        VConstructor constructorClassRecord = classClassRecord.getConstructor(execute.getPoint(), stringClass, stringClass);
+        VConstructor constructorClassRecord = classClassRecord.getConstructor(execute.getStartPoint(), stringClass, stringClass);
         drecord.init = Generator.genClassRecord(context, ac, execute1 -> true, () -> new NewClass(constructorClassRecord, null)
                 .addArg(new VBinar(new Const("$", stringClass), new GetField(new This(classClass), jsNameField, null), stringClass, VBinar.BitType.PLUS, null))
                 .addArg(new VBinar(new Const("[", stringClass), new GetField(new This(classClass), nameField, null), stringClass, VBinar.BitType.PLUS, null)

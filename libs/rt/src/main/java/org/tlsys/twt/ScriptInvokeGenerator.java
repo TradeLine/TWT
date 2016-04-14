@@ -19,18 +19,16 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
             }
             NewArrayItems items = (NewArrayItems) invoke.arguments.get(0);
             ICodeGenerator gen = ctx.getGenerator(invoke.getMethod().getParent());
-            ps.add("", invoke.getStartPoint());
             for (Value v : items.elements) {
                 if (v instanceof Const) {
                     Const c = (Const) v;
                     if (c.getValue() != null && c.getValue() instanceof String) {
-                        ps.add(c.getValue().toString(), c.getStartPoint());
+                        ps.append(c.getValue().toString());
                         continue;
                     }
                 }
                 gen.operation(ctx, v, ps);
             }
-            ps.add("", invoke.getStartPoint());
             return true;
         }
 
@@ -56,31 +54,31 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
         }
 
         if (invoke.getMethod().alias.equals("isUndefined")) {
-            ps.add("(", invoke.getStartPoint(), "isUndefined");
+            ps.append("(");
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
             ps.append("==undefined)");
             return true;
         }
         if (invoke.getMethod().alias.equals("typeOf")) {
-            ps.add("(typeof ", invoke.getStartPoint(), "typeOf");
+            ps.append("(typeof ");
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
             ps.append(")");
             return true;
         }
 
         if (invoke.getMethod().alias.equals("hasOwnProperty")) {
-            ps.add("(", invoke.getStartPoint());
+            ps.append("(");
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
-            ps.add(".hasOwnProperty(", invoke.getStartPoint());
+            ps.append(".hasOwnProperty(");
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(1), ps);
             ps.append(")");
-            ps.add(")", invoke.getStartPoint());
+            ps.append(")");
             return true;
         }
 
 
         if (invoke.getMethod().alias.equals("setTimeout")) {
-            ps.add("setTimeout(", invoke.getStartPoint(), "setTimeout");
+            ps.append("setTimeout(");
             VClass callerClass = invoke.getMethod().getParent().getClassLoader().loadClass(Script.TimeoutCallback.class.getName(), invoke.getStartPoint());
             ps.append("function(){");
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, new Invoke(callerClass.getMethod("onTimeout", invoke.getStartPoint()), invoke.arguments.get(1)), ps);

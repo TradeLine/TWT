@@ -18,10 +18,10 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
     public void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
         super.generateMethodStart(context, execute, ps);
         VClass arrayBuilderClass = execute.getParent();
-        VClass classRecordClass = arrayBuilderClass.getClassLoader().loadClass(Class.class.getName(), execute.getPoint());
-        VClass classClass = arrayBuilderClass.getClassLoader().loadClass(Class.class.getName(), execute.getPoint());
-        VClass intClass = arrayBuilderClass.getClassLoader().loadClass("int", execute.getPoint());
-        VClass booleanClass = arrayBuilderClass.getClassLoader().loadClass("boolean", execute.getPoint());
+        VClass classRecordClass = arrayBuilderClass.getClassLoader().loadClass(Class.class.getName(), execute.getStartPoint());
+        VClass classClass = arrayBuilderClass.getClassLoader().loadClass(Class.class.getName(), execute.getStartPoint());
+        VClass intClass = arrayBuilderClass.getClassLoader().loadClass("int", execute.getStartPoint());
+        VClass booleanClass = arrayBuilderClass.getClassLoader().loadClass("boolean", execute.getStartPoint());
         ICodeGenerator cg = context.getGenerator(classClass);
         //VMethod getArrayClassMethod = classClass.getMethod("getArrayClass");
 

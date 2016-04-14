@@ -31,14 +31,14 @@ public class SourcePoint implements Serializable {
 
     @Override
     public String toString() {
-        return "SourcePoint{" + row + ":" + column + " in " + sourceFile.getName() + '}';
+        return "SourcePoint{" + (row + 1) + ":" + (column + 1) + " in " + sourceFile.getName() + '}';
     }
 
     public String toStringShort() {
-        return row + ":" + column;
+        return (row + 1) + ":" + (column + 1);
     }
 
     public String toStringLong() {
-        return row + ":" + column + " in " + sourceFile.getName();
+        return (row + 1) + ":" + (column + 1) + " in " + sourceFile.getName();
     }
 }

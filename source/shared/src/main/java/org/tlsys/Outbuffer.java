@@ -46,23 +46,25 @@ public class Outbuffer implements Appendable {
         }
     }
 
-    public void pushHold(SourcePoint point) {
-        if (point == null)
-            holdStates.addFirst(null);
-        else
-            holdStates.addFirst(new HoldState(point.getRow(), point.getColumn()));
-    }
+    /*
+        public void pushHold(SourcePoint point) {
+            if (point == null)
+                holdStates.addFirst(null);
+            else
+                holdStates.addFirst(new HoldState(point.getRow(), point.getColumn()));
+        }
 
-    private HoldState peek() {
-        if (holdStates.isEmpty())
-            return null;
-        return holdStates.getLast();
-    }
+        private HoldState peek() {
+            if (holdStates.isEmpty())
+                return null;
+            return holdStates.getLast();
+        }
 
-    public void popHold() {
-        holdStates.removeFirst();
-    }
+        public void popHold() {
+            holdStates.removeFirst();
+        }
 
+        */
     @Override
     public Outbuffer append(char c) {
         try {
@@ -78,6 +80,7 @@ public class Outbuffer implements Appendable {
         return current;
     }
 
+    /*
     public Outbuffer add(CharSequence csq, SourcePoint point, String name) {
         return add(csq, point, getCurrent(), name);
     }
@@ -99,6 +102,17 @@ public class Outbuffer implements Appendable {
 
     public Outbuffer add(CharSequence csq, SourcePoint point, int pos) {
         return add(csq, point, pos, null);
+    }
+    */
+
+    public void add(SourcePoint point) {
+        add(point, null);
+    }
+
+    public void add(SourcePoint point, String name) {
+        if (point == null)
+            return;
+        records.add(new SourceMap.Record(point.getSourceFile(), point, current, name));
     }
 
     public List<SourceMap.Record> getRecords() {

@@ -104,7 +104,7 @@ class OperationCompiler {
                 if (c.getCurrentClass() != cl && c.getCurrentClass().isParent(cl))
                     return new ThisFor(c.getCurrentClass(), cl, c.getFile().getPoint(e.pos));
                 SourcePoint sp = c.getFile().getPoint(e.pos);
-                System.out.println("THIS " + sp.getRow() + ":" + sp.getColumn() + " in " + sp.getSourceFile().getName());
+                //System.out.println("THIS " + sp.getRow() + ":" + sp.getColumn() + " in " + sp.getSourceFile().getName());
                 return new This(cl, c.getFile().getPoint(e.pos));
                 /*
                 if (cl == c.getCurrentClass())
@@ -397,7 +397,7 @@ class OperationCompiler {
             SourcePoint sp = null;
 
 
-            System.out.println("INVOKE " + i.getMethod().getParent().getRealName() + "=>" + i.getMethod().getDescription() + " on from " + c.getFile().getPoint(getStart(e.meth).pos).toStringShort() + " to " + i.getStartPoint().toStringLong());
+            //System.out.println("INVOKE " + i.getMethod().getParent().getRealName() + "=>" + i.getMethod().getDescription() + " on from " + c.getFile().getPoint(getStart(e.meth).pos).toStringShort() + " to " + i.getStartPoint().toStringLong());
             return i;
         });
 

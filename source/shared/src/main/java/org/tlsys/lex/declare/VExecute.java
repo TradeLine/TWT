@@ -27,7 +27,7 @@ public abstract class VExecute implements Context, Member, CodeDynLoad, HavinSou
     public String invokeGenerator = null;
     protected ArrayList<VArgument> arguments = new ArrayList<>();
     private String name;
-    private SourcePoint point;
+    //private SourcePoint point;
     private VClass parent;
     private transient VBlock block = null;
     private int modificators;
@@ -79,9 +79,11 @@ public abstract class VExecute implements Context, Member, CodeDynLoad, HavinSou
         this.block = block;
     }
 
+    /*
     public SourcePoint getPoint() {
         return point;
     }
+    */
 
     public VClass getParent() {
         return parent;

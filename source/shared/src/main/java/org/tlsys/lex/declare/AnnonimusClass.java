@@ -15,12 +15,12 @@ public class AnnonimusClass extends VClass implements Serializable {
     private boolean useParent;
 
     public AnnonimusClass(Context context, VClass parent, String name, SourcePoint point) {
-        super(name, context, parent, null, point);
+        super(name, context, parent, point);
 
     }
 
     public AnnonimusClass(Context context, VClass parent, Symbol.ClassSymbol classSymbol, SourcePoint point) {
-        super(extractSimpleName(classSymbol), context, parent, classSymbol, point);
+        super(extractSimpleName(classSymbol), context, parent, point);
     }
 
     public static String extractParentClassName(Symbol.TypeSymbol c) {

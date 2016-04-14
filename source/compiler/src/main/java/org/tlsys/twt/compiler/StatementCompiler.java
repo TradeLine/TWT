@@ -17,11 +17,18 @@ class StatementCompiler {
     static {
         addProcSt(JCTree.JCBlock.class, (c, e, o) -> {
             VBlock b = new VBlock(o, e.pos < 0 ? null : c.getFile().getPoint(e.pos), e.endpos < 0 ? null : c.getFile().getPoint(e.endpos));
+            int lastLine = -1;
             for (JCTree.JCStatement t : e.getStatements()) {
                 Operation oo = c.st(t, b);
-                if (o != null)
-                    //b.add(new Line(oo, e.pos<0?null:c.getFile().getStartPoint(e.pos), e.endpos<0?null:c.getFile().getStartPoint(e.endpos), b));
-                    b.add(oo);
+                if (o != null) {
+                    SourcePoint start = e.pos < 0 ? null : c.getFile().getPoint(e.pos);
+                    if (start.getRow() > lastLine) {
+                        lastLine = start.getRow();
+                        start = c.getFile().getPoint(start.getRow(), 0);
+                    }
+                    b.add(new Line(oo, start, e.endpos < 0 ? null : c.getFile().getPoint(e.endpos), b));
+                }
+                //b.add(oo);
             }
             return b;
         });
@@ -49,7 +56,7 @@ class StatementCompiler {
 
             Objects.requireNonNull(needClass, "Need Class for return is NULL");
 
-            Value v = (Value) c.op(e.expr, o);
+            Value v = c.op(e.expr, o);
             if (v == null) {
                 throw new NullPointerException("VALUE is NULL: " + e.expr);
             }
@@ -97,7 +104,7 @@ class StatementCompiler {
 
         addProcSt(JCTree.JCVariableDecl.class, (c, e, o) -> {
             SVar var = new SVar(e.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.type, c.getFile().getPoint(e.pos)), o);
-            DeclareVar dv = new DeclareVar(var, c.getFile().getPoint(e.pos));
+            DeclareVar dv = new DeclareVar(var, c.getFile().getPoint(e.getType().pos));
             if (e.init == null)
                 dv.init = OperationCompiler.getInitValueForType(var.getType(), c.getFile().getPoint(e.pos));
             else

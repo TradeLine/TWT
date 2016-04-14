@@ -327,7 +327,7 @@ public class ClassCompiler {
             throw new RuntimeException("Can't find parent for class " + c.sym.toString());
 
 
-        VClass v = new VClass(list[list.length - 1], parentContext, parent, c.sym, context.getFileSource(file).getPoint(c.pos));
+        VClass v = new VClass(list[list.length - 1], parentContext, parent, context.getFileSource(file).getPoint(c.pos));
 
         if (parentContext instanceof VPackage) {
             ((VPackage) parentContext).addChild(v);
@@ -484,8 +484,14 @@ public class ClassCompiler {
             if (method instanceof VConstructor) {
                 VConstructor cons = (VConstructor) method;
                 if (!method.getBlock().getNativeOperations().isEmpty()) {
-                    if (method.getBlock().getNativeOperations().get(0) instanceof Invoke) {
-                        Invoke inv = (Invoke) method.getBlock().getNativeOperations().get(0);
+
+                    Operation op = method.getBlock().getNativeOperations().get(0);
+                    while (op instanceof Line) {
+                        op = ((Line) op).getOperation();
+                    }
+
+                    if (op instanceof Invoke) {
+                        Invoke inv = (Invoke) op;
                         if (inv.getMethod() instanceof VConstructor) {
                             cons.parentConstructorInvoke = inv;
                             cons.getBlock().getNativeOperations().remove(0);

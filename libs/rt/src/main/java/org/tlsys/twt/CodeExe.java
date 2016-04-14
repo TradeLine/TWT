@@ -12,6 +12,7 @@ import java.util.function.Predicate;
 
 public class CodeExe extends Value {
 
+    private static final long serialVersionUID = 4293191532633928203L;
     private VExecute execute;
     private VClass type;
 

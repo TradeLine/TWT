@@ -17,11 +17,11 @@ import java.util.Objects;
 public class EventCodeGenerator extends DefaultGenerator {
     @Override
     public void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
-        VClass eventListenerClass = context.getCurrentClass().getClassLoader().loadClass(Events.EventListener.class.getName(), execute.getPoint());
-        VClass objectClass = context.getCurrentClass().getClassLoader().loadClass(Object.class.getName(), execute.getPoint());
-        VClass objectsClass = context.getCurrentClass().getClassLoader().loadClass(Objects.class.getName(), execute.getPoint());
-        VClass stringClass = context.getCurrentClass().getClassLoader().loadClass(String.class.getName(), execute.getPoint());
-        VMethod onEventMethod = eventListenerClass.getMethod("onEvent", execute.getPoint(), objectClass, objectClass);
+        VClass eventListenerClass = context.getCurrentClass().getClassLoader().loadClass(Events.EventListener.class.getName(), execute.getStartPoint());
+        VClass objectClass = context.getCurrentClass().getClassLoader().loadClass(Object.class.getName(), execute.getStartPoint());
+        VClass objectsClass = context.getCurrentClass().getClassLoader().loadClass(Objects.class.getName(), execute.getStartPoint());
+        VClass stringClass = context.getCurrentClass().getClassLoader().loadClass(String.class.getName(), execute.getStartPoint());
+        VMethod onEventMethod = eventListenerClass.getMethod("onEvent", execute.getStartPoint(), objectClass, objectClass);
         if (execute.alias.equals("addEventListener")) {
             ps.append("{");
             Invoke inv = CodeBuilder.scopeStatic(objectsClass).method("requireNonNull").arg(objectClass).arg(stringClass).invoke().arg(execute.getArguments().get(0)).arg(new Const("Argument listener is NULL", stringClass)).build();

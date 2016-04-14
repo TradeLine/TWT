@@ -27,20 +27,22 @@ public class Main {
 
         f.apply(null);
     }
-
+*/
     public static void giveException() {
         throw new RuntimeException("ERROR!");
     }
-*/
 
-    public static int get() {
+
+    public static int get(int abc, int def) {
+        int a = abc;
         return 0;
     }
 
     public static void main() {
         int a = 10;
         int b = 11;
-        int c = get();
+        int c = get(1, 2);
+        giveException();
         return;
     }
 }

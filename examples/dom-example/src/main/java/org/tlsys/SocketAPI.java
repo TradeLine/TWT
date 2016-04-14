@@ -1,12 +1,11 @@
 package org.tlsys;
 
 import org.tlsys.twt.Console;
-import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.json.JsonReader;
 import org.tlsys.twt.net.WebSocket;
 
 
-@JSClass
+//@JSClass
 public class SocketAPI extends WebSocket {
 
     private final ConnectListener connectListener;

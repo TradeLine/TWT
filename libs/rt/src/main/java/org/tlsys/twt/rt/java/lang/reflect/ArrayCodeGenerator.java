@@ -38,19 +38,19 @@ public class ArrayCodeGenerator extends DefaultGenerator {
         */
 
         if (execute.alias.equals("newInstance")) {
-            VClass intClass = execute.getParent().getClassLoader().loadClass("int", execute.getPoint());
+            VClass intClass = execute.getParent().getClassLoader().loadClass("int", execute.getStartPoint());
             if (execute.getArguments().get(1).getType() == intClass) {
                 VClass arrayClass = execute.getParent();
 
-                VClass classRecordClass = arrayClass.getClassLoader().loadClass(ClassRecord.class.getName(), execute.getPoint());
+                VClass classRecordClass = arrayClass.getClassLoader().loadClass(ClassRecord.class.getName(), execute.getStartPoint());
 
-                VClass classClass = arrayClass.getClassLoader().loadClass(Class.class.getName(), execute.getPoint());
+                VClass classClass = arrayClass.getClassLoader().loadClass(Class.class.getName(), execute.getStartPoint());
                 //VMethod getArrayClassMethod = classRecordClass.getMethod("getArrayClass", execute.getPoint());
                 ICodeGenerator cg = context.getGenerator(execute.getParent());
                 ps.append("return ");
 
-                VClass classObject = arrayClass.getClassLoader().loadClass(Objects.class.getName(), execute.getPoint());
-                VClass classString = arrayClass.getClassLoader().loadClass(String.class.getName(), execute.getPoint());
+                VClass classObject = arrayClass.getClassLoader().loadClass(Objects.class.getName(), execute.getStartPoint());
+                VClass classString = arrayClass.getClassLoader().loadClass(String.class.getName(), execute.getStartPoint());
 
 
                 Value arrayClazz =

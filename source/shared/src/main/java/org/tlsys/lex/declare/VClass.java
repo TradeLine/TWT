@@ -46,7 +46,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         this.startPoint = startPoint;
     }
 
-    public VClass(String realSimpleName, Context parentContext, VClass parent, Symbol.ClassSymbol classSymbol, SourcePoint startPoint) {
+    public VClass(String realSimpleName, Context parentContext, VClass parent, SourcePoint startPoint) {
         this.realSimpleName = realSimpleName;
         this.parentContext = Objects.requireNonNull(parentContext, "Parent content is NULL");
         this.parent = parent;

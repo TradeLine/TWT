@@ -1,11 +1,10 @@
 package org.tlsys;
 
 import org.tlsys.twt.JDictionary;
-import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.json.Json;
 
 
-@JSClass
+//@JSClass
 public class API {
     final JDictionary<ResponceListener> outs = new JDictionary<>();
     private SocketAPI s;
