@@ -8,4 +8,6 @@ public interface VMember {
     public boolean add(VMember member);
     public boolean remove(VMember member);
     public <T extends VMember> Optional<T> getChild(Predicate<VMember> predicate);
+
+    public VMember getParent();
 }

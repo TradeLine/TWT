@@ -5,7 +5,7 @@ import com.github.javaparser.ParseException;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import org.tlsys.lex.declare.VClassLoader;
+import org.tlsys.lex.members.TClassLoader;
 import org.tlsys.lex.members.VClass;
 import org.tlsys.lex.members.VPackage;
 
@@ -18,14 +18,14 @@ public class JavaSourceSet {
 
 
     private final HashMap<CompilationUnit, JavaFile> compiled = new HashMap<>();
-    private final VClassLoader classLoader;
+    private final TClassLoader classLoader;
     private final FileProvider fileProvider;
     private final HashMap<String, CompilationUnit> files = new HashMap<>();
     private final HashMap<String, VClass> classes = new HashMap<>();
-    private final JavaPackage rootPackage = new JavaPackage(null);
+    private final VPackage rootPackage = new VPackage(null, null);
     private final HashMap<String, String> alias = new HashMap<>();
 
-    public JavaSourceSet(VClassLoader classLoader, FileProvider fileProvider) {
+    public JavaSourceSet(TClassLoader classLoader, FileProvider fileProvider) {
         this.fileProvider = fileProvider;
         this.classLoader = classLoader;
     }
@@ -39,7 +39,7 @@ public class JavaSourceSet {
         if (c != null)
             return Optional.of(c);
 
-        try (InputStream is = fileProvider.getFile(name).get()) {
+        try (InputStream is = fileProvider.getFile(name).orElseThrow(() -> new RuntimeException("File " + name + " not found"))) {
             CompilationUnit cu = JavaParser.parse(is);
             files.put(name, cu);
             return Optional.of(cu);
@@ -77,7 +77,9 @@ public class JavaSourceSet {
                 if (fullName.equals(name)) {
 
                     if (cu.getPackage().getName().getName().isEmpty()) {
-                        cl = new JavaClass(cd, rootPackage, this);
+                        cl = new JavaClass(cd, rootPackage, classLoader);
+                        classLoader.addClass(cl);
+                        classes.put(name, cl);
                         return Optional.of(cl);
                     } else {
                         String[] list = cu.getPackage().getName().getName().split("\\.");
@@ -95,12 +97,14 @@ public class JavaSourceSet {
                             if (op.isPresent())
                                 p = op.get();
                             else {
-                                JavaPackage ppp = new JavaPackage(s);
+                                VPackage ppp = new VPackage(s, p);
                                 p.add(ppp);
                                 p = ppp;
                             }
                         }
-                        cl = new JavaClass(cd, p, this);
+                        cl = new JavaClass(cd, p, classLoader);
+                        classLoader.addClass(cl);
+                        classes.put(name, cl);
                         return Optional.of(cl);
                     }
                 }

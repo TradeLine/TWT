@@ -1,5 +1,10 @@
 package org.tlsys.lex.members;
 
-public interface VExecute extends VMember {
+import java.util.List;
 
+public interface VExecute extends VMember {
+    @Override
+    public VClass getParent();
+
+    public List<TArgument> getArguments();
 }

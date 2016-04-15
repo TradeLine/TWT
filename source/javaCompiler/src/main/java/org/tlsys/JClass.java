@@ -3,24 +3,48 @@ package org.tlsys;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import org.tlsys.lex.members.VClass;
-import org.tlsys.lex.members.VMember;
-import org.tlsys.lex.members.VMethod;
+import org.tlsys.lex.members.*;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class JClass implements VClass {
+public abstract class JClass implements VClass {
 
     private final VMember parent;
     private final int modifiers;
+    private final transient TClassLoader classLoader;
+    private final ArrayList<VMethod> methods = new ArrayList<>();
+    private final ArrayList<ClassModificator> modificators = new ArrayList<>();
     private transient TypeDeclaration typeDeclaration;
 
-    public JClass(TypeDeclaration typeDeclaration, VMember parent) {
+    public JClass(TypeDeclaration typeDeclaration, VMember parent, TClassLoader classLoader) {
         this.typeDeclaration = typeDeclaration;
         this.parent = parent;
+        this.classLoader = classLoader;
         parent.add(this);
         modifiers = typeDeclaration.getModifiers();
+    }
+
+    public void addModificator(ClassModificator mod) {
+        modificators.add(mod);
+    }
+
+    protected abstract String getSimpleName();
+
+    @Override
+    public String getName() {
+        VMember m = getParent();
+        if (m instanceof VClass)
+            return ((VClass) m).getName() + "$" + getSimpleName();
+
+        if (m instanceof VPackage) {
+            if (((VPackage) m).getName() == null)
+                return getSimpleName();
+            return ((VPackage) m).getName() + "." + getSimpleName();
+        }
+
+        throw new RuntimeException("Unknown parent");
     }
 
     @Override
@@ -29,15 +53,38 @@ public class JClass implements VClass {
     }
 
     @Override
-    public Optional<VMethod> findMethod(String name, ArgumentRequid... requids) {
+    public Optional<VMethod> findMethod(String name, MehtodSearchRequest request) {
+
         for (BodyDeclaration bd : typeDeclaration.getMembers()) {
             if (bd instanceof MethodDeclaration) {
                 MethodDeclaration md = (MethodDeclaration) bd;
                 if (!md.getName().equals(name))
                     continue;
+                if (md.getParameters().isEmpty() && !md.getParameters().isEmpty())
+                    continue;
+
+                JavaMethod jm = new JavaMethod(md, this);
+
+                for (ClassModificator m : modificators) {
+                    m.on
+                }
+
+                methods.add(jm);
+                typeDeclaration.getMembers().remove(md);
+                return Optional.of(jm);
             }
         }
+
+        for (VMethod m : methods) {
+            if (!m.getName().equals(name))
+                continue;
+        }
         return null;
+    }
+
+    @Override
+    public TClassLoader getClassLoader() {
+        return classLoader;
     }
 
     @Override
@@ -58,5 +105,10 @@ public class JClass implements VClass {
     @Override
     public <T extends VMember> Optional<T> getChild(Predicate<VMember> predicate) {
         return null;
+    }
+
+    @Override
+    public VMember getParent() {
+        return parent;
     }
 }

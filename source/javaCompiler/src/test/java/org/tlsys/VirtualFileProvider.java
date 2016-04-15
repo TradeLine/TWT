@@ -7,8 +7,30 @@ import java.util.Optional;
 
 public class VirtualFileProvider implements FileProvider {
 
+    private final VDir root = new VDir(null);
+
     public VDir getRoot() {
         return root;
+    }
+
+    @Override
+    public Optional<InputStream> getFile(String name) {
+        String[] list = name.split("/");
+        VEntity e = root;
+
+        for (String s : list) {
+            if (e instanceof VDir) {
+                Optional<VEntity> ee = ((VDir) e).get(s);
+                if (!ee.isPresent())
+                    return Optional.empty();
+                e = ee.get();
+            }
+        }
+        if (e instanceof VFile) {
+            byte[] data = ((VFile) e).data;
+            return Optional.of(new ByteArrayInputStream(data));
+        }
+        return Optional.empty();
     }
 
     public class VEntity {
@@ -44,6 +66,9 @@ public class VirtualFileProvider implements FileProvider {
         }
 
         public VDir dir(String name) {
+            Optional<VEntity> o = list.stream().filter(e -> e instanceof VDir && e.name.equals(name)).findAny();
+            if (o.isPresent())
+                return (VDir) o.get();
             VDir d = new VDir(name);
             list.add(d);
             return d;
@@ -55,27 +80,5 @@ public class VirtualFileProvider implements FileProvider {
             return d;
         }
 
-    }
-
-    private final VDir root = new VDir(null);
-
-    @Override
-    public Optional<InputStream> getFile(String name) {
-        String[] list = name.split("/");
-        VEntity e  = root;
-
-        for (String s : list) {
-            if (e instanceof VDir) {
-                Optional<VEntity> ee = ((VDir)e).get(s);
-                if (!ee.isPresent())
-                    return Optional.empty();
-                e = ee.get();
-            }
-        }
-        if (e instanceof VFile) {
-            byte[] data = ((VFile)e).data;
-            return Optional.of(new ByteArrayInputStream(data));
-        }
-        return Optional.empty();
     }
 }
