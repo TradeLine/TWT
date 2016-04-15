@@ -52,7 +52,7 @@ public class DefaultGenerator implements ICodeGenerator {
                     return g.operation(c, TypeUtil.getParentThis(c.getCurrentClass()), p);
                 }
                 */
-                throw new RuntimeException("Not support other this type. Current " + c.getCurrentClass() + ", this=" + o.getType());
+                throw new CompileException("Not support other this type. Current " + c.getCurrentClass() + ", this=" + o.getType(), o.getStartPoint());
             }
             p.append("this");
             return true;

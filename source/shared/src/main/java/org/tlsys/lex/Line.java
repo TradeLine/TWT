@@ -1,5 +1,7 @@
 package org.tlsys.lex;
 
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.sourcemap.SourcePoint;
 
 import java.util.Optional;
@@ -8,11 +10,10 @@ import java.util.function.Predicate;
 public class Line extends Operation {
 
     private static final long serialVersionUID = 6128722248032842560L;
-    private final Operation operation;
     private final SourcePoint startPoint;
     private final SourcePoint endPoint;
-
     private final Operation parent;
+    private Operation operation;
 
     public Line(Operation operation, SourcePoint startPoint, SourcePoint endPoint, Operation parent) {
         this.operation = operation;
@@ -42,5 +43,11 @@ public class Line extends Operation {
 
     public Operation getOperation() {
         return operation;
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        super.visit(replaceControl);
+        ReplaceHelper.replace(operation, replaceControl).ifPresent(e -> operation = e);
     }
 }

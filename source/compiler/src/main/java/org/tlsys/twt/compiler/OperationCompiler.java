@@ -680,6 +680,10 @@ class OperationCompiler {
             return exp;
         }
 
+        if (exp instanceof JCTree.JCArrayAccess) {
+            return exp;
+        }
+
         throw new RuntimeException("Unknown Tree " + exp.getClass().getName());
     }
 

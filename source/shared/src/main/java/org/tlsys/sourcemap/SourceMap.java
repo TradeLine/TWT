@@ -15,8 +15,10 @@ public class SourceMap {
     public SourceMap(Collection<Record> records) {
         //this.records = records;
         for (Record r : records) {
+            /*
             if (!r.getFile().getName().contains("Main")) continue;
             getOrCreateFileRecord(r.getFile()).getRecords().add(r);
+            */
             /*
             if (!files.contains(r.getFile()))
                 files.add(r.getFile());

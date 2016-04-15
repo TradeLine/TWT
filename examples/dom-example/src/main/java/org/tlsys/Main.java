@@ -11,6 +11,12 @@ public class Main {
     private InitClass non_stat = new InitClass("NONSTATIC FIELD");
     */
 
+    int a = 100;
+
+    public Main() {
+        new AA();
+    }
+
 /*
     static {
         Console.info("HELLO FROM STATIC BLOCK");
@@ -32,7 +38,6 @@ public class Main {
         throw new RuntimeException("ERROR!");
     }
 
-
     public static int get(int abc, int def) {
         int a = abc;
         return 0;
@@ -43,6 +48,13 @@ public class Main {
         int b = 11;
         int c = get(1, 2);
         giveException();
+        new Main();
         return;
+    }
+
+    private class AA {
+        public void doit() {
+            a = 200;
+        }
     }
 }
