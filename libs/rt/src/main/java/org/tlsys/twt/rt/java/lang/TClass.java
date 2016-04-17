@@ -48,16 +48,36 @@ public class TClass {
     }
 
     public boolean isInstance(Object obj) {
-        if (obj == null)
+        if (obj == null) {
             return false;
+        }
         return isAssignableFrom(obj.getClass());
     }
 
-    public boolean isAssignableFrom(Class cls) {
-        Class t = CastUtil.cast(this);
+    private TClass[] imterfaces = null;
+
+    public TClass[] getInterfaces() {
+        if (imterfaces != null)
+            return imterfaces;
+
+        imterfaces = new TClass[getRecord().getImplementations().length()];
+        for (int i = 0; i < getRecord().getImplementations().length(); i++) {
+            imterfaces[i] = CastUtil.cast(getRecord().getImplementations().get(i).getType().getAsClass());
+        }
+        return imterfaces;
+    }
+
+    public boolean isAssignableFrom(Class clazz) {
+        TClass cls = CastUtil.cast(clazz);
+        //Class t = CastUtil.cast(this);
         while (cls != null) {
-            if (cls == t)
+            if (cls == this)
                 return true;
+
+            for (TClass c : cls.getInterfaces())
+                if (isAssignableFrom(CastUtil.cast(c)))
+                    return true;
+
             cls = cls.getSuperclass();
         }
         return false;
@@ -75,10 +95,10 @@ public class TClass {
         return fields;
     }
 
-    public Class getSuperclass() {
+    public TClass getSuperclass() {
         if (getRecord().getSuper() == null)
             return null;
-        return getRecord().getSuper().getType().getAsClass();
+        return CastUtil.cast(getRecord().getSuper().getType().getAsClass());
     }
 
     public TConstructor[] getConstructors() {
@@ -104,20 +124,15 @@ public class TClass {
 
 
     private Object newInstance() throws InstantiationException {
-        Console.info("Creating instance of " + getName());
         for (TConstructor c : getConstructors()) {
             if (c.getParameterCount() == 0) {
                 Object constructor = Script.code(getRecord().getPrototype(), "['n'+", c.getRecord().getJsName(), "]");
                 if (constructor == null || Script.isUndefined(constructor)) {
-                    Console.error("Constructor not found, " + getName() + " ___ " + c.getRecord().getJsName());
-                    Console.dir(getRecord());
                     throw new RuntimeException("Constructor not found " + getName());
                 }
-                Console.info("Method finded! Execute!");
                 return Script.code(constructor, "()");
             }
         }
-        Console.info("Method not found");
         throw new InstantiationException("Can't find constructor whout arguments");
     }
 

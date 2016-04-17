@@ -15,7 +15,7 @@ public abstract class JClass implements VClass {
     private final int modifiers;
     private final transient TClassLoader classLoader;
     private final ArrayList<VMethod> methods = new ArrayList<>();
-    private final ArrayList<ClassModificator> modificators = new ArrayList<>();
+    private final ArrayList<org.tlsys.lex.members.ClassModificator> modificators = new ArrayList<>();
     private transient TypeDeclaration typeDeclaration;
 
     public JClass(TypeDeclaration typeDeclaration, VMember parent, TClassLoader classLoader) {
@@ -26,7 +26,7 @@ public abstract class JClass implements VClass {
         modifiers = typeDeclaration.getModifiers();
     }
 
-    public void addModificator(ClassModificator mod) {
+    public void addModificator(org.tlsys.lex.members.ClassModificator mod) {
         modificators.add(mod);
     }
 
@@ -63,10 +63,10 @@ public abstract class JClass implements VClass {
                 if (md.getParameters().isEmpty() && !md.getParameters().isEmpty())
                     continue;
 
-                JavaMethod jm = new JavaMethod(md, this);
+                VMethod jm = new JavaMethod(md, this);
 
-                for (ClassModificator m : modificators) {
-                    m.on
+                for (org.tlsys.lex.members.ClassModificator m : modificators) {
+                    jm = m.onAddMethod(jm);
                 }
 
                 methods.add(jm);

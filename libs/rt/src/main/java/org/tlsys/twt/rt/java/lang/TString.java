@@ -142,4 +142,8 @@ public final class TString implements TCharSequence {
     public boolean startsWith(String prefix) {
         return indexOf(prefix) == 0;
     }
+
+    public static String fromboolean(boolean value) {
+        return Boolean.toString(value);
+    }
 }

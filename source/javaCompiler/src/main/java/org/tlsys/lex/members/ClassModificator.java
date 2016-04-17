@@ -6,7 +6,7 @@ public interface ClassModificator {
         return request;
     }
 
-    public default VExecute onAddExecute(VExecute execute) {
+    public default VMethod onAddMethod(VMethod execute) {
         return execute;
     }
 }
