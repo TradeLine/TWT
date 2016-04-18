@@ -11,6 +11,7 @@ import java.util.function.Predicate;
 
 public abstract class JClass implements VClass {
 
+    private static final long serialVersionUID = 2551751885402816213L;
     private final VMember parent;
     private final int modifiers;
     private final transient TClassLoader classLoader;

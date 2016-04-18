@@ -150,7 +150,7 @@ public class ClassCompiler {
             }
         Objects.requireNonNull(method, "Method for replace not found");
 
-        LambdaClazz lc = new LambdaClazz(o);
+        LambdaClazz lc = new LambdaClazz(o, method.returnType);
 
         for (JCTree.JCVariableDecl v : e.params) {
             VArgument a = new VArgument(v.name.toString(), null, c.loadClass(v.type, c.getFile().getPoint(e.pos)), false, false, lc, null, c.getFile().getPoint(e.pos));
@@ -602,17 +602,22 @@ public class ClassCompiler {
         public void doneClass(VClass vClass);
     }
 
-    private static class LambdaClazz extends VBlock {
+    public static class LambdaClazz extends VBlock {
 
         private static final long serialVersionUID = 2388651340642726059L;
         public final List<VArgument> args = new ArrayList<>();
+        private final VClass result;
         public VBlock block;
         //public final Context parentContext;
 
-        private LambdaClazz(Context parentContext) {
+        private LambdaClazz(Context parentContext, VClass result) {
             super(parentContext, null, null);
+            this.result = result;
         }
 
+        public VClass getResult() {
+            return result;
+        }
 
         @Override
         public Optional<Context> find(String name, Predicate<Context> searchIn) {

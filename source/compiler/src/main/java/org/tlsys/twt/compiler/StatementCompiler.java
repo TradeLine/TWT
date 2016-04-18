@@ -41,16 +41,19 @@ class StatementCompiler {
             if (e.expr == null)
                 return new Return(null, c.getFile().getPoint(e.pos));
 
-            Optional<Context> ctx = TypeUtil.findParentContext(o, ee->ee instanceof VExecute || ee instanceof Lambda);
+            Optional<Context> ctx = TypeUtil.findParentContext(o, ee -> ee instanceof VExecute || ee instanceof ClassCompiler.LambdaClazz);
 
             if (!ctx.isPresent())
                 throw new RuntimeException("Can't find root content for get return type");
 
             VClass needClass = null;
-
-            if (ctx.get() instanceof Lambda) {
-                needClass = ((Lambda)ctx.get()).getMethod().returnType;
+            System.out.println("Read return... Context = " + ctx.get());
+            if (ctx.get() instanceof ClassCompiler.LambdaClazz) {
+                System.out.println("Context is Lambda...");
+                needClass = ((ClassCompiler.LambdaClazz) ctx.get()).getResult();
+                System.out.println("Return class is " + needClass);
             } else if (ctx.get() instanceof VExecute) {
+                System.out.println("Context is method");
                 needClass = ((VExecute)ctx.get()).returnType;
             }
 

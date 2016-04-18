@@ -2,9 +2,8 @@ package org.tlsys;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseException;
-import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.Statement;
 import org.junit.Test;
+import org.tlsys.java.lex.JavaBlock;
 import org.tlsys.java.lex.JavaStaExpression;
 import org.tlsys.java.lex.JavaVarDeclare;
 import org.tlsys.lex.members.MehtodSearchRequest;
@@ -14,47 +13,29 @@ import org.tlsys.lex.members.VMethod;
 
 import java.util.Optional;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 
 public class JavaCompillerTest {
 
-    private void addSimpleClass(VirtualFileProvider fs, String name) {
+    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(JavaCompillerTest.class.getName());
+
+    private String addSimpleClass(VirtualFileProvider fs, String name, String body) {
         StringBuilder sb = new StringBuilder();
         sb.append("package org.tlsys;").
-                append("public class T"+name+" {")
-                .append("}");
-        fs.getRoot().dir("org").dir("tlsys").file("T"+name+".java", sb.toString().getBytes());
+                append("public class " + name + " {");
+        if (body != null)
+            sb.append(body);
+        sb.append("}");
+        fs.getRoot().dir("org").dir("tlsys").file(name + ".java", sb.toString().getBytes());
+        return "org.tlsys." + name;
     }
 
-    private static class JClassLoader extends TClassLoader {
-        private JavaSourceSet javaSourceSet;
+    private String addSimpleClass(VirtualFileProvider fs, String name) {
+        return addSimpleClass(fs, name, null);
+    }
 
-        private JClassLoader() {
-        }
-
-        public JavaSourceSet getJavaSourceSet() {
-            return javaSourceSet;
-        }
-
-        public void setJavaSourceSet(JavaSourceSet javaSourceSet) {
-            this.javaSourceSet = javaSourceSet;
-        }
-
-        @Override
-        public Optional<VClass> findClassByName(String name) {
-            if (name.equals("void")) {
-                Optional<VClass> o = super.findClassByName("org.tlsys.T" + name);
-                if (o.isPresent())
-                    return o;
-            }
-            Optional<VClass> ck = super.findClassByName(name);
-            if (ck.isPresent())
-                return ck;
-
-            return javaSourceSet.getClass(name);
-        }
+    private void addSimpleNativeClass(VirtualFileProvider fs, String name) {
+        addSimpleClass(fs, "T" + name);
     }
 
     @Test
@@ -80,7 +61,7 @@ public class JavaCompillerTest {
 
         */
 
-        addSimpleClass(fs, "void");
+        addSimpleNativeClass(fs, "void");
 
 
         JClassLoader classLoader = new JClassLoader();
@@ -104,13 +85,49 @@ public class JavaCompillerTest {
     public void testParseVarDeclaration() throws ParseException {
         VirtualFileProvider fs = new VirtualFileProvider();
 
+        addSimpleNativeClass(fs, "int");
+
         JClassLoader classLoader = new JClassLoader();
 
         JavaSourceSet com = new JavaSourceSet(classLoader, fs);
         classLoader.setJavaSourceSet(com);
 
-        Statement st = JavaParser.parseBlock("{int a=8;}").getStmts().get(0);
-        JavaVarDeclare jvd = (JavaVarDeclare) ((JavaStaExpression)JavaCompiller.statement(st, null)).getExpression();
+        VClass clazz = classLoader.findClassByName(addSimpleClass(fs, "Test")).get();
+
+        JavaBlock block = JavaCompiller.statement(JavaParser.parseBlock("{int a=8;}"), clazz);
+        JavaStaExpression exp = (JavaStaExpression) block.getStatement(0);
+        JavaVarDeclare jvd = (JavaVarDeclare) exp.getExpression();
         assertEquals(jvd.getVars().size(), 1);
+        assertEquals(jvd.getVars().get(0).getType(), classLoader.findClassByName("int").get());
+    }
+
+    private static class JClassLoader extends TClassLoader {
+        private JavaSourceSet javaSourceSet;
+
+        private JClassLoader() {
+        }
+
+        public JavaSourceSet getJavaSourceSet() {
+            return javaSourceSet;
+        }
+
+        public void setJavaSourceSet(JavaSourceSet javaSourceSet) {
+            this.javaSourceSet = javaSourceSet;
+        }
+
+        @Override
+        public Optional<VClass> findClassByName(String name) {
+            if (!name.contains(".")) {
+                Optional<VClass> o = findClassByName("org.tlsys.T" + name);
+                if (o.isPresent())
+                    return o;
+            }
+
+            Optional<VClass> ck = super.findClassByName(name);
+            if (ck.isPresent())
+                return ck;
+
+            return javaSourceSet.getClass(name);
+        }
     }
 }

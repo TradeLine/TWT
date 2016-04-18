@@ -1,11 +1,14 @@
 package org.tlsys.lex.members;
 
+import org.tlsys.lex.Named;
+
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class VPackage implements VMember {
+public class VPackage implements VMember, Named {
+    private static final long serialVersionUID = -231494842065847334L;
     private final String name;
     private final VPackage parent;
 
@@ -16,6 +19,7 @@ public class VPackage implements VMember {
         this.parent = parent;
     }
 
+    @Override
     public String getName() {
         return name;
     }

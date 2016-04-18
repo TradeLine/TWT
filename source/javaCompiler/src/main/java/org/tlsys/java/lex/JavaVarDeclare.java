@@ -1,9 +1,7 @@
 package org.tlsys.java.lex;
 
-import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import org.tlsys.JavaCompiller;
-import org.tlsys.lex.TExpression;
 import org.tlsys.lex.TNode;
 import org.tlsys.lex.TVar;
 import org.tlsys.lex.TVarDeclare;
@@ -16,9 +14,10 @@ import java.util.Vector;
 public class JavaVarDeclare implements TVarDeclare {
 
     private static final long serialVersionUID = 6324423789569347577L;
+    transient final VariableDeclarationExpr declarationExpr;
     private final TNode parent;
     private List<TVar> var;
-    transient final VariableDeclarationExpr declarationExpr;
+    private VClass result;
 
     public JavaVarDeclare(TNode parent, VariableDeclarationExpr declarationExpr) {
         this.parent = parent;
@@ -31,10 +30,10 @@ public class JavaVarDeclare implements TVarDeclare {
             return var;
 
 
-        VClass type = JavaCompiller.findClass(declarationExpr.getType(), this);
+
         Vector<TVar> vars = new Vector<>();
         declarationExpr.getVars().parallelStream().forEach(e->{
-            vars.add(new JavaVar(e, this, type));
+            vars.add(new JavaVar(e, this, getResult()));
         });
 
         var = new ArrayList<>();
@@ -45,5 +44,13 @@ public class JavaVarDeclare implements TVarDeclare {
     @Override
     public TNode getParent() {
         return parent;
+    }
+
+    @Override
+    public VClass getResult() {
+        if (result != null)
+            return result;
+        result = JavaCompiller.findClass(declarationExpr.getType(), this);
+        return result;
     }
 }

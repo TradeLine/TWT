@@ -1,7 +1,7 @@
 package org.tlsys.lex;
 
-import java.util.List;
-
 public interface TBlock extends TStatement {
-    public List<TStatement> getStatements();
+    public TStatement getStatement(int index);
+
+    public int getStatementCount();
 }

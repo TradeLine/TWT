@@ -9,7 +9,13 @@ import java.util.List;
 
 public class JavaBlock implements TBlock {
 
+    private static final long serialVersionUID = 4609415030959114525L;
     private final List<TStatement> statements = new ArrayList<>();
+    private final TNode parent;
+
+    public JavaBlock(TNode parent) {
+        this.parent = parent;
+    }
 
     public JavaBlock add(TStatement statement) {
         statements.add(statement);
@@ -17,12 +23,17 @@ public class JavaBlock implements TBlock {
     }
 
     @Override
-    public List<TStatement> getStatements() {
-        return statements;
+    public TNode getParent() {
+        return parent;
     }
 
     @Override
-    public TNode getParent() {
-        return null;
+    public TStatement getStatement(int index) {
+        return statements.get(index);
+    }
+
+    @Override
+    public int getStatementCount() {
+        return statements.size();
     }
 }
