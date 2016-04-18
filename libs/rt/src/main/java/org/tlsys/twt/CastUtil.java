@@ -47,6 +47,9 @@ public final class CastUtil {
     public native static Object toObject(int obj);
 
     @InvokeGen(org.tlsys.twt.CastInvoke.class)
+    public native static Object toObject(float obj);
+
+    @InvokeGen(org.tlsys.twt.CastInvoke.class)
     public native static Object toObject(double obj);
 
     @InvokeGen(org.tlsys.twt.CastInvoke.class)

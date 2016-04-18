@@ -29,6 +29,11 @@ public class JArray<E> {
         this.o = o;
     }
 
+    public void add(E[] list) {
+        for (E e : list)
+            add(e);
+    }
+
     public void add(E o) {
         Script.code(this.o,".push(",o,")");
     }

@@ -21,6 +21,10 @@ public class TFloat extends Number {
         return Script.code(CastUtil.toObject(value), ".toString()");
     }
 
+    public static TFloat fromjava_lang_Object(Object value) {
+        return CastUtil.cast(value);
+    }
+
     @Override
     public int intValue() {
         return CastUtil.toInt(Script.code("Math.floor(", CastUtil.toObject(value), ")"));
@@ -38,11 +42,7 @@ public class TFloat extends Number {
 
     @Override
     public double doubleValue() {
-        return CastUtil.cast(CastUtil.toObject(value));
-    }
-
-    public TFloat fromjava_lang_Object(Object value) {
-        return CastUtil.cast(value);
+        return CastUtil.toDouble(CastUtil.toObject(value));
     }
 
     public String toString() {

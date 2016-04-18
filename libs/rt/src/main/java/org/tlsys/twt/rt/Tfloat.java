@@ -12,7 +12,8 @@ import org.tlsys.twt.rt.boxcastadapter.FloatAdapter;
 public class Tfloat {
 
     public static double doubleValue(float value) {
-        return CastUtil.toDouble(CastUtil.toObject(value));
+        Object o = CastUtil.toObject(value);
+        return CastUtil.toDouble(o);
     }
 
     public static long longValue(float value) {

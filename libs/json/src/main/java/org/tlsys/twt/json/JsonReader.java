@@ -29,10 +29,18 @@ public final class JsonReader {
         if (type == "number") {
 
             if (TObject.getClassOfObject(o) == float.class) {
+                if (needClass == byte.class)
+                    return new Byte(CastUtil.toByte(o));
+
+                if (needClass == double.class)
+                    return new Double(CastUtil.toDouble(o));
+
                 return new Float(CastUtil.toFloat(o));
             }
 
             if (TObject.getClassOfObject(o) == double.class) {
+                if (needClass == float.class)
+                    return new Float(CastUtil.toFloat(o));
                 return new Double(CastUtil.toDouble(o));
             }
 
@@ -45,6 +53,10 @@ public final class JsonReader {
             }
 
             if (TObject.getClassOfObject(o) == int.class) {
+                if (needClass == float.class)
+                    return new Float(CastUtil.toFloat(o));
+                if (needClass == double.class)
+                    return new Double(CastUtil.toDouble(o));
                 return new Integer(CastUtil.toInt(o));
             }
 
@@ -170,7 +182,9 @@ public final class JsonReader {
                 if (!Script.hasOwnProperty(o, f.getName()))//if the value of the field name is not found
                     continue;//do not work ok
                 Console.info("read value for " + f.getName() + "...");
-                f.set(v, read(Script.code(o, "[", f.getName(), "]"), f.getType()));
+                Object o2 = read(Script.code(o, "[", f.getName(), "]"), f.getType());
+                Console.dir(o2);
+                f.set(v, o2);
             }
             cl = cl.getSuperclass();
         }
