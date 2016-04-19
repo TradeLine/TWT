@@ -60,6 +60,10 @@ public class TDouble extends Number {
         return Script.code(CastUtil.toObject(d), ".toString()");
     }
 
+    public static TDouble fromjava_lang_Object(Object value) {
+        return CastUtil.cast(value);
+    }
+
     public boolean isNaN() {
         return isNaN(value);
     }
@@ -94,9 +98,5 @@ public class TDouble extends Number {
 
     public double doubleValue() {
         return value;
-    }
-
-    public TDouble fromjava_lang_Object(Object value) {
-        return CastUtil.cast(value);
     }
 }

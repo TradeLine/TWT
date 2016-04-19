@@ -164,7 +164,8 @@ public class ClassCompiler {
                 VBlock block = new VBlock(lc, c.getFile().getPoint(e.body.pos), null);
                 Operation op = c.op((JCTree.JCExpression) e.body, block);
                 if (method.returnType != c.loadClass("void", c.getFile().getPoint(e.pos))) {
-                    block.add(new Return((Value) op, c.getFile().getPoint(e.body.pos)));
+                    Value val = CompilerTools.cast((Value) op, method.returnType, c.getFile().getPoint(e.body.pos));
+                    block.add(new Return(val, c.getFile().getPoint(e.body.pos)));
                 } else
                     block.add(op);
                 lc.block = block;

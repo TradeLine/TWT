@@ -509,8 +509,8 @@ public class DefaultGenerator implements ICodeGenerator {
                 case LT://<
                     p.append("<");
                     break;
-                case GE://>
-                    p.append(">");
+                case GE://>=
+                    p.append(">=");
                     break;
                 case GT://>
                     p.append(">");
