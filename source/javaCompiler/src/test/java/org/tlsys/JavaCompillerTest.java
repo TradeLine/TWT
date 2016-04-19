@@ -101,6 +101,22 @@ public class JavaCompillerTest {
         assertEquals(jvd.getVars().get(0).getType(), classLoader.findClassByName("int").get());
     }
 
+    @Test
+    public void testParseVarSet() throws ParseException {
+        VirtualFileProvider fs = new VirtualFileProvider();
+
+        addSimpleNativeClass(fs, "int");
+
+        JClassLoader classLoader = new JClassLoader();
+
+        JavaSourceSet com = new JavaSourceSet(classLoader, fs);
+        classLoader.setJavaSourceSet(com);
+
+        VClass clazz = classLoader.findClassByName(addSimpleClass(fs, "Test")).get();
+
+        JavaBlock block = JavaCompiller.statement(JavaParser.parseBlock("{int a = 10; a = 8;}"), clazz);
+    }
+
     private static class JClassLoader extends TClassLoader {
         private JavaSourceSet javaSourceSet;
 

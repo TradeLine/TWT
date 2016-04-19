@@ -1,6 +1,6 @@
 package org.tlsys;
 
-import org.tlsys.lex.members.TArgument;
+import org.tlsys.lex.TArgument;
 import org.tlsys.lex.members.VClass;
 
 @FunctionalInterface

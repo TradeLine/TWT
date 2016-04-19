@@ -20,7 +20,10 @@ public class JavaVar implements TVar {
         this.parent = parent;
         this.type = type;
         name = declare.getId().getName();
-        initValue = JavaCompiller.expression(declare.getInit(), parent, getType());
+        if (declare.getInit() == null)
+            initValue = JavaCompiller.getInitValueFor(type);
+        else
+            initValue = JavaCompiller.expression(declare.getInit(), parent, getType());
     }
 
     @Override

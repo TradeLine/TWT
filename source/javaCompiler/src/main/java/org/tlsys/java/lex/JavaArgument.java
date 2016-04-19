@@ -1,7 +1,9 @@
-package org.tlsys;
+package org.tlsys.java.lex;
 
 import com.github.javaparser.ast.body.Parameter;
-import org.tlsys.lex.members.TArgument;
+import org.tlsys.JavaCompiller;
+import org.tlsys.lex.TNode;
+import org.tlsys.lex.TArgument;
 import org.tlsys.lex.members.VClass;
 import org.tlsys.lex.members.VExecute;
 
@@ -30,5 +32,10 @@ public class JavaArgument implements TArgument {
 
         type = JavaCompiller.findClass(desc.getType(), parent);
         return type;
+    }
+
+    @Override
+    public TNode getParent() {
+        return parent;
     }
 }

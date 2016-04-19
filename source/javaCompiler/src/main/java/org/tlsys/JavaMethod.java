@@ -2,7 +2,8 @@ package org.tlsys;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
-import org.tlsys.lex.members.TArgument;
+import org.tlsys.java.lex.JavaArgument;
+import org.tlsys.lex.TArgument;
 import org.tlsys.lex.members.VClass;
 import org.tlsys.lex.members.VMember;
 import org.tlsys.lex.members.VMethod;

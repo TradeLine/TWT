@@ -1,7 +1,8 @@
 package org.tlsys.lex.members;
 
-public interface NamedVariabel {
-    public String getName();
+import org.tlsys.lex.Named;
+import org.tlsys.lex.TNode;
 
+public interface NamedVariabel extends Named, TNode {
     public VClass getType();
 }
