@@ -85,7 +85,17 @@ public class TObject {
         throw new RuntimeException("Not supported");
     }
 
+    //@InvokeGen(ApplyInvoke.class)
     public String toString() {
+        /*
+        if (this == null || Script.isUndefined(this))
+            throw new NullPointerException();
+
+        Class clazz = getClass();
+
+        if (clazz == String.class)
+            return CastUtil.cast(this);
+*/
         return getClass().getName()+"@"+hashCode();
     }
 
