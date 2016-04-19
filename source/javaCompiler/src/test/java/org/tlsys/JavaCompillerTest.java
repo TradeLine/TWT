@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.tlsys.java.lex.JavaBlock;
 import org.tlsys.java.lex.JavaStaExpression;
 import org.tlsys.java.lex.JavaVarDeclare;
+import org.tlsys.lex.StaExpression;
+import org.tlsys.lex.TAssign;
 import org.tlsys.lex.members.MehtodSearchRequest;
 import org.tlsys.lex.members.TClassLoader;
 import org.tlsys.lex.members.VClass;
@@ -115,6 +117,9 @@ public class JavaCompillerTest {
         VClass clazz = classLoader.findClassByName(addSimpleClass(fs, "Test")).get();
 
         JavaBlock block = JavaCompiller.statement(JavaParser.parseBlock("{int a = 10; a = 8;}"), clazz);
+
+        StaExpression ex = (StaExpression) block.getStatement(1);
+        assertTrue(ex.getExpression() instanceof TAssign);
     }
 
     private static class JClassLoader extends TClassLoader {
