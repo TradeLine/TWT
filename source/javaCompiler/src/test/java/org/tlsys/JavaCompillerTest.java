@@ -8,10 +8,7 @@ import org.tlsys.java.lex.JavaStaExpression;
 import org.tlsys.java.lex.JavaVarDeclare;
 import org.tlsys.lex.StaExpression;
 import org.tlsys.lex.TAssign;
-import org.tlsys.lex.members.MehtodSearchRequest;
-import org.tlsys.lex.members.TClassLoader;
-import org.tlsys.lex.members.VClass;
-import org.tlsys.lex.members.VMethod;
+import org.tlsys.lex.members.*;
 
 import java.util.Optional;
 
@@ -51,17 +48,6 @@ public class JavaCompillerTest {
 
         VirtualFileProvider fs = new VirtualFileProvider();
         fs.getRoot().dir("org").dir("tlsys").file("Main.java", sb.toString().getBytes());
-
-/*
-        sb = new StringBuilder();
-
-
-        sb.append("package org.tlsys;").
-                append("public class Tvoid {")
-                .append("}");
-        fs.getRoot().dir("org").dir("tlsys").file("Tvoid.java", sb.toString().getBytes());
-
-        */
 
         addSimpleNativeClass(fs, "void");
 
@@ -120,6 +106,59 @@ public class JavaCompillerTest {
 
         StaExpression ex = (StaExpression) block.getStatement(1);
         assertTrue(ex.getExpression() instanceof TAssign);
+    }
+
+    @Test
+    public void fieldDeclare() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("package org.tlsys;").
+                append("public class Main {")
+                .append("public int a;")
+                .append("public static void main(){int a = 8;}")
+                .append("}");
+
+        VirtualFileProvider fs = new VirtualFileProvider();
+        addSimpleNativeClass(fs, "int");
+        fs.getRoot().dir("org").dir("tlsys").file("Main.java", sb.toString().getBytes());
+
+        JClassLoader classLoader = new JClassLoader();
+
+        JavaSourceSet com = new JavaSourceSet(classLoader, fs);
+        classLoader.setJavaSourceSet(com);
+
+        VClass clazz = classLoader.findClassByName("org.tlsys.Main").get();
+        Optional<TField> v = clazz.getField("a");
+        assertTrue(v.isPresent());
+    }
+
+    @Test
+    public void findField() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("package org.tlsys;").
+                append("public class Main {")
+                .append("public int a;")
+                .append("public Main b;")
+                .append("public org.tlsys.Main c;")
+                .append("public static void main(){int a = 8;}")
+                .append("}");
+
+        VirtualFileProvider fs = new VirtualFileProvider();
+        addSimpleNativeClass(fs, "int");
+        fs.getRoot().dir("org").dir("tlsys").file("Main.java", sb.toString().getBytes());
+
+        JClassLoader classLoader = new JClassLoader();
+
+        JavaSourceSet com = new JavaSourceSet(classLoader, fs);
+        classLoader.setJavaSourceSet(com);
+
+        VClass clazz = classLoader.findClassByName("org.tlsys.Main").get();
+
+        assertEquals(clazz.getField("b").get().getType(), clazz);
+        assertEquals(clazz.getField("c").get().getType(), clazz);
+
+        JavaBlock block = JavaCompiller.statement(JavaParser.parseBlock("{a = 8;}"), clazz);
     }
 
     private static class JClassLoader extends TClassLoader {

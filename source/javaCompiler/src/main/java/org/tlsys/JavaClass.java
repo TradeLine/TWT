@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public class JavaClass extends JClass {
 
+    private static final long serialVersionUID = 6278642675602796968L;
     private final String name;
 
     public JavaClass(ClassOrInterfaceDeclaration declaration, VMember parent, TClassLoader classLoader) {
@@ -17,7 +18,7 @@ public class JavaClass extends JClass {
     }
 
     @Override
-    protected String getSimpleName() {
+    public String getSimpleName() {
         return name;
     }
 

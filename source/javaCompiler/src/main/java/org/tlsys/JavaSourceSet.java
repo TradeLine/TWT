@@ -82,7 +82,7 @@ public class JavaSourceSet {
                         classes.put(name, cl);
                         return Optional.of(cl);
                     } else {
-                        String[] list = cu.getPackage().getName().getName().split("\\.");
+                        String[] list = cu.getPackage().getName().toString().split("\\.");
                         VPackage p = rootPackage;
                         for (String s : list) {
                             Optional<VPackage> op = p.getChild(e->{

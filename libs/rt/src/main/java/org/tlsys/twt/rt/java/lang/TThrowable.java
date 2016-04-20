@@ -26,7 +26,7 @@ public class TThrowable {
     }
 
     public TThrowable(Throwable cause) {
-        detailMessage = (cause == null ? null : cause.toString());
+        detailMessage = (cause == null || Script.isUndefined(cause) ? null : cause.toString());
         this.cause = cause;
     }
 

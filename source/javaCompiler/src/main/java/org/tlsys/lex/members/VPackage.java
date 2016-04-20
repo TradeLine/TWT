@@ -11,7 +11,6 @@ public class VPackage implements VMember, Named {
     private static final long serialVersionUID = -231494842065847334L;
     private final String name;
     private final VPackage parent;
-
     private final ArrayList<VMember> members = new ArrayList<>();
 
     public VPackage(String name, VPackage parent) {
@@ -19,8 +18,19 @@ public class VPackage implements VMember, Named {
         this.parent = parent;
     }
 
+    public String getSimpleName() {
+        return name;
+    }
+
     @Override
     public String getName() {
+        VMember m = getParent();
+        if (m instanceof VPackage) {
+            if (((VPackage) m).getName() == null)
+                return getSimpleName();
+            return ((VPackage) m).getName() + "." + getSimpleName();
+        }
+
         return name;
     }
 

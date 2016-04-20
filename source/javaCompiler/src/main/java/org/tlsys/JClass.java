@@ -1,8 +1,7 @@
 package org.tlsys;
 
-import com.github.javaparser.ast.body.BodyDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.body.*;
+import org.tlsys.java.lex.JavaField;
 import org.tlsys.lex.members.*;
 
 import java.util.ArrayList;
@@ -15,8 +14,8 @@ public abstract class JClass implements VClass {
     private final VMember parent;
     private final int modifiers;
     private final transient TClassLoader classLoader;
-    private final ArrayList<VMethod> methods = new ArrayList<>();
     private final ArrayList<org.tlsys.lex.members.ClassModificator> modificators = new ArrayList<>();
+    private final ArrayList<VMember> members = new ArrayList<>();
     private transient TypeDeclaration typeDeclaration;
 
     public JClass(TypeDeclaration typeDeclaration, VMember parent, TClassLoader classLoader) {
@@ -29,23 +28,6 @@ public abstract class JClass implements VClass {
 
     public void addModificator(org.tlsys.lex.members.ClassModificator mod) {
         modificators.add(mod);
-    }
-
-    protected abstract String getSimpleName();
-
-    @Override
-    public String getName() {
-        VMember m = getParent();
-        if (m instanceof VClass)
-            return ((VClass) m).getName() + "$" + getSimpleName();
-
-        if (m instanceof VPackage) {
-            if (((VPackage) m).getName() == null)
-                return getSimpleName();
-            return ((VPackage) m).getName() + "." + getSimpleName();
-        }
-
-        throw new RuntimeException("Unknown parent");
     }
 
     @Override
@@ -70,15 +52,18 @@ public abstract class JClass implements VClass {
                     jm = m.onAddMethod(jm);
                 }
 
-                methods.add(jm);
+                members.add(jm);
                 typeDeclaration.getMembers().remove(md);
                 return Optional.of(jm);
             }
         }
 
-        for (VMethod m : methods) {
-            if (!m.getName().equals(name))
-                continue;
+        for (VMember me : members) {
+            if (me instanceof VMethod) {
+                VMethod m = (VMethod) me;
+                if (!m.getName().equals(name))
+                    continue;
+            }
         }
         return null;
     }
@@ -111,5 +96,40 @@ public abstract class JClass implements VClass {
     @Override
     public VMember getParent() {
         return parent;
+    }
+
+    @Override
+    public Optional<TField> getField(String name) {
+        if (typeDeclaration != null)
+            for (BodyDeclaration bd : typeDeclaration.getMembers()) {
+                if (bd instanceof FieldDeclaration) {
+                    FieldDeclaration fs = (FieldDeclaration) bd;
+                    for (VariableDeclarator vd : fs.getVariables()) {
+                        if (vd.getId().getName().equals(name)) {
+                            VClass result = JavaCompiller.findClass(fs.getType(), this);
+                            JavaField jf = new JavaField(vd, fs.getModifiers(), result, this);
+                            members.add(jf);
+                            fs.getVariables().remove(vd);
+                            if (fs.getVariables().isEmpty()) {
+                                typeDeclaration.getMembers().remove(fs);
+                            }
+                            return Optional.of(jf);
+                        }
+                    }
+                }
+            }
+        for (VMember me : members) {
+            if (me instanceof TField) {
+                TField f = (TField) me;
+                if (f.getName().equals(name))
+                    return Optional.of(f);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 }

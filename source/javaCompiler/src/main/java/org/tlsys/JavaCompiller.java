@@ -4,18 +4,17 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
-import com.github.javaparser.ast.type.PrimitiveType;
-import com.github.javaparser.ast.type.Type;
-import com.github.javaparser.ast.type.VoidType;
+import com.github.javaparser.ast.type.*;
 import org.tlsys.java.lex.*;
 import org.tlsys.lex.*;
-import org.tlsys.lex.TArgument;
-import org.tlsys.lex.members.TClassLoader;
-import org.tlsys.lex.members.VClass;
-import org.tlsys.lex.members.VExecute;
+import org.tlsys.lex.members.*;
 
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public final class JavaCompiller {
     private static final HashMap<Class, StatementCompiler> stats = new HashMap<>();
@@ -60,17 +59,30 @@ public final class JavaCompiller {
         });
 
         addExp(NameExpr.class, (e, p, t) -> {
-            Optional<TNode> node = seachUpByName(e.getName(), p);
+            Optional<TNode> node = seachUpByName(e.getName(), p, o -> true);
             if (node.isPresent()) {
                 TNode n = node.get();
                 if (n instanceof TVar)
                     return new JavaVarRef((TVar)n, p);
+
+                if (n instanceof TField) {
+                    TField f = (TField) n;
+                    TExpression scope = Modifier.isStatic(f.getModifiers()) ? new JavaStaticRef(f.getParent(), p) : new JavaThis(f.getParent(), p);
+                    JavaFieldRef jfr = new JavaFieldRef(scope, scope, f);
+                    return jfr;
+                }
+
+                throw new RuntimeException("Unknown name type" + n.getClass().getName());
             }
             throw new RuntimeException("Unknown name " + e.getName());
         });
     }
 
-    private static <T extends TNode> Optional<T> seachUpByName(String name, TNode from) {
+    private JavaCompiller() {
+    }
+
+    private static <T extends TNode> Optional<T> seachUpByName(String name, TNode from, Predicate<TNode> validator) {
+        Objects.requireNonNull(from, "From argument is NULL");
         if (from instanceof TBlock) {
             TBlock block = (TBlock)from;
             for (int i = 0; i < block.getStatementCount(); i++) {
@@ -87,7 +99,26 @@ public final class JavaCompiller {
                     }
                 }
             }
+            return seachUpByName(name, from.getParent(), validator);
         }
+
+        if (from instanceof VClass) {
+            VClass cl = (VClass) from;
+            if (cl.getSimpleName().equals(name) && validator.test(cl))
+                return Optional.of((T) cl);
+            Optional<TField> f = cl.getField(name);
+            if (f.isPresent())
+                return Optional.of((T) f.get());
+            return seachUpByName(name, cl.getParent(), validator);
+        }
+
+        if (from instanceof VPackage) {
+            VPackage p = (VPackage) from;
+            if (name.equals(p.getSimpleName()) && validator.test(p))
+                return Optional.of((T) p);
+            return seachUpByName(name, p.getParent(), validator);
+        }
+
         if (from instanceof VExecute) {
             VExecute e = (VExecute)from;
             for (TArgument ar : e.getArguments()) {
@@ -96,43 +127,84 @@ public final class JavaCompiller {
             }
         }
         if (from instanceof TAssign)
-            return seachUpByName(name, from.getParent());
+            return seachUpByName(name, from.getParent(), validator);
         if (from instanceof StaExpression) {
-            return seachUpByName(name, from.getParent());
+            return seachUpByName(name, from.getParent(), validator);
         }
         throw new RuntimeException("Unknown node " + from.getClass().getName());
     }
 
-    private JavaCompiller() {
-    }
+    public static <T extends VMember> T findClass(Type type, TNode from) {
 
-    public static VClass findClass(Type type, TNode from) {
-        TClassLoader cl = getClassNode(from).get().getClassLoader();
 
-        if (type instanceof VoidType)
-            return cl.findClassByName("void").get();
+        if (type instanceof VoidType) {
+            TClassLoader cl = getClassNode(from).get().getClassLoader();
+            return (T) cl.findClassByName("void").get();
+        }
 
         if (type instanceof PrimitiveType) {
+            TClassLoader cl = getClassNode(from).get().getClassLoader();
             PrimitiveType.Primitive pt = ((PrimitiveType) type).getType();
             switch (pt) {
                 case Boolean:
-                    return cl.findClassByName("boolean").get();
+                    return (T) cl.findClassByName("boolean").get();
                 case Byte:
-                    return cl.findClassByName("byte").get();
+                    return (T) cl.findClassByName("byte").get();
                 case Char:
-                    return cl.findClassByName("char").get();
+                    return (T) cl.findClassByName("char").get();
                 case Short:
-                    return cl.findClassByName("short").get();
+                    return (T) cl.findClassByName("short").get();
                 case Int:
-                    return cl.findClassByName("int").get();
+                    return (T) cl.findClassByName("int").get();
                 case Float:
-                    return cl.findClassByName("float").get();
+                    return (T) cl.findClassByName("float").get();
                 case Double:
-                    return cl.findClassByName("double").get();
+                    return (T) cl.findClassByName("double").get();
                 case Long:
-                    return cl.findClassByName("long").get();
+                    return (T) cl.findClassByName("long").get();
             }
         }
+
+        if (type instanceof ReferenceType) {
+            ReferenceType rt = (ReferenceType) type;
+            return findClass(rt.getType(), from);
+        }
+
+        if (type instanceof ClassOrInterfaceType) {
+            ClassOrInterfaceType ci = (ClassOrInterfaceType) type;
+            if (ci.getScope() != null) {
+
+                LinkedList<ClassOrInterfaceType> list = new LinkedList<>();
+                ClassOrInterfaceType t = ci;
+                do {
+                    list.addFirst(t);
+                    t = t.getScope();
+                } while (t != null);
+
+                VMember member = (VMember) seachUp(from, e -> e instanceof VPackage && e.getParent() == null).get();
+                for (ClassOrInterfaceType c : list) {
+                    //member;
+                    Optional<VMember> m = member.getChild(e -> {
+                        if (e instanceof VPackage)
+                            return ((VPackage) e).getSimpleName().equals(c.getName());
+                        if (e instanceof VClass)
+                            return ((VClass) e).getSimpleName().equals(c.getName());
+                        System.out.println("" + c);
+                        return false;
+                    });
+                    member = m.get();
+                }
+                return (T) member;
+            } else {
+                VClass clazz = getClassNode(from).get();
+                if (clazz.getSimpleName().equals(ci.getName()))
+                    return (T) clazz;
+                //Optional<VClass> cls = seachUp(from, e-> e instanceof VClass);
+                return (T) seachUpByName(ci.getName(), from, e -> e instanceof VClass).get();
+            }
+        }
+
+
 
         throw new RuntimeException("Not supported yet");
     }
@@ -153,6 +225,16 @@ public final class JavaCompiller {
         if (sc != null)
             return (T) sc.compile(expression, parent, needType);
         throw new RuntimeException("Not supported " + expression.getClass().getName());
+    }
+
+    private static <T extends TNode> Optional<T> seachUp(TNode from, Predicate<TNode> validator) {
+        while (from != null) {
+            if (validator.test(from))
+                return Optional.of((T) from);
+            from = from.getParent();
+        }
+
+        return Optional.empty();
     }
 
     private static <T extends Statement> void addSta(Class<T> clazz, StatementCompiler<T> sta) {

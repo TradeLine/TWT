@@ -2,8 +2,7 @@ package org.tlsys.lex;
 
 import org.tlsys.lex.members.VClass;
 
-public interface StaticRef extends TExpression {
-
+public interface This extends TExpression {
     public VClass getClassRef();
 
     @Override
