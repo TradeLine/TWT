@@ -1,10 +1,12 @@
 package org.tlsys.twt.rt.java.io;
 
-import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.annotations.ReplaceClass;
+
+import java.io.IOException;
 
 @JSClass
-@ClassName("java.io.IOException")
+@ReplaceClass(IOException.class)
 public class TIOException extends Exception {
     static final long serialVersionUID = 7818375828146090155L;
 
