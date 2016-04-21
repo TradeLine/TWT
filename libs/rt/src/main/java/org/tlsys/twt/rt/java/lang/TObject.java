@@ -73,6 +73,10 @@ public class TObject {
         return new Double(value);
     }
 
+    public static Object fromboolean(boolean value) {
+        return new Boolean(true);
+    }
+
     @Override
     public int hashCode() {
         return hashCode;
