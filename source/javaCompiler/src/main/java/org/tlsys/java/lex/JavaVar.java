@@ -9,6 +9,7 @@ import org.tlsys.lex.members.VClass;
 
 public class JavaVar implements TVar {
 
+    private static final long serialVersionUID = -3506994485280348414L;
     private final VariableDeclarator declare;
     private final String name;
     private final TNode parent;

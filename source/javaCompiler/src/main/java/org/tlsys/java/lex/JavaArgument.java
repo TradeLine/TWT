@@ -2,12 +2,13 @@ package org.tlsys.java.lex;
 
 import com.github.javaparser.ast.body.Parameter;
 import org.tlsys.JavaCompiller;
-import org.tlsys.lex.TNode;
 import org.tlsys.lex.TArgument;
+import org.tlsys.lex.TNode;
 import org.tlsys.lex.members.VClass;
 import org.tlsys.lex.members.VExecute;
 
 public class JavaArgument implements TArgument {
+    private static final long serialVersionUID = 540512926595151896L;
     private final String name;
     private final transient Parameter desc;
     private final VExecute parent;

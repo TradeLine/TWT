@@ -684,6 +684,10 @@ class OperationCompiler {
             return exp;
         }
 
+        if (exp instanceof JCTree.JCNewClass) {
+            return exp;
+        }
+
         throw new RuntimeException("Unknown Tree " + exp.getClass().getName());
     }
 
