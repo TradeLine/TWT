@@ -42,6 +42,10 @@ public class JArray<E> {
         Script.code(this.o,".splice(",CastUtil.toObject(index),",0,",o,")");
     }
 
+    public void clear() {
+        o = Script.code("[]");
+    }
+
     public boolean remove(E value) {
         int i = indexOf(value);
         if (i >= 0) {

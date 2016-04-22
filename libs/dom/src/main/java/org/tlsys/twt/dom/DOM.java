@@ -53,14 +53,16 @@ public final class DOM {
         return s;
     }
 
-    public static void appendChild(Object element, Object child) {
+    public static <T> T appendChild(Object element, T child) {
         //Elements.requireElement(child, "Child must be Node");
         Script.code(element,".appendChild(",child,")");
+        return child;
     }
 
-    public static void appendChildBefor(Object before, Object child) {
+    public static <T> T appendChildBefor(Object before, T child) {
         Object parent = Objects.requireNonNull(getParent(before));
         Script.code(parent,".insertBefore(",child,",",before,")");
+        return child;
     }
 
     public static void appendChildAfter(Object after, Object child) {
