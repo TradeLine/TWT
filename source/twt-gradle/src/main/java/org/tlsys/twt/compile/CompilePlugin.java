@@ -63,7 +63,7 @@ public class CompilePlugin implements org.gradle.api.Plugin<Project> {
     }
 
     public static Configuration configConfiguration(Project target) {
-        System.out.println("Added config to " + target + "...");
+        //System.out.println("Added config to " + target + "...");
         Configuration conf = target.getConfigurations().create(TWT_COMPILE_CONFIGURATION).setVisible(false)
                 .setDescription("TWT Compile Libs");
         target.getConfigurations().getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME).extendsFrom(conf);

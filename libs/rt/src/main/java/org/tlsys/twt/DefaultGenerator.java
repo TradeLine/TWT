@@ -347,7 +347,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 return false;
             }
 
-            System.out.println(o.getExecute().getParent().getRealName() + "=>" + o.getExecute().getDescription() + " : " + (o.getExecute().getStartPoint() == null ? "NULL POINT" : o.getExecute().getStartPoint().toStringLong()));
+            //System.out.println(o.getExecute().getParent().getRealName() + "=>" + o.getExecute().getDescription() + " : " + (o.getExecute().getStartPoint() == null ? "NULL POINT" : o.getExecute().getStartPoint().toStringLong()));
 
             //p.add(o.getExecute().getStartPoint(), o.getExecute().getParent().getRealName() + "." + o.getExecute().getDescription());
             if (o.getExecute() instanceof VMethod) {

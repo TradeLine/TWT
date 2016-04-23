@@ -114,10 +114,10 @@ public class GenerationTask extends TWTPlugin {
             try {
                 long startCompile = System.currentTimeMillis();
                 app = AppCompiller.compileApp(this);
-                System.out.println("Compile " + (System.currentTimeMillis() - startCompile));
+                //System.out.println("Compile " + (System.currentTimeMillis() - startCompile));
                 long startRename = System.currentTimeMillis();
                 renaming(app.getMainLoader().getTWTClassLoader());
-                System.out.println("Rename " + (System.currentTimeMillis() - startRename));
+                //System.out.println("Rename " + (System.currentTimeMillis() - startRename));
                 for (GenerationTarget gt : getTargets()) {
                     File sourceMap = new File(getProject().getBuildDir(), "sourcemap");
                     File mapFile = new File(sourceMap, gt.out() + ".map");
@@ -147,7 +147,7 @@ public class GenerationTask extends TWTPlugin {
                         cm.addForced(app.getMainLoader().getTWTClassLoader());
                         //cm.detectReplace();
 
-
+                        /*
                         for (CompileModuls.ClassRecord cr : cm.getRecords()) {
                             if (cr.getClazz().getRealName() == null)
                                 continue;
@@ -156,7 +156,7 @@ public class GenerationTask extends TWTPlugin {
                                 if (e instanceof VMethod) {
                                     VMethod m = (VMethod)e;
                                     System.out.println(m.getDescription());
-                                    /*
+                                    / *
                                     Collect col = Collect.create();
                                     m.getUsing(col);
                                     for (CanUse cu : col.get()) {
@@ -166,7 +166,7 @@ public class GenerationTask extends TWTPlugin {
 
                                         }
                                     }
-                                    */
+                                    * /
 
                                     System.out.println("\tReplaced:");
                                     for (VMethod me : m.getReplaced()) {
@@ -176,6 +176,7 @@ public class GenerationTask extends TWTPlugin {
                             }
                             System.out.println("====" + cr.getClazz().getRealName() + "====\n");
                         }
+                        */
 
 
                         long startGeneration = System.currentTimeMillis();
