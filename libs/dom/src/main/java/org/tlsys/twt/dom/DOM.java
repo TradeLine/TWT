@@ -54,7 +54,7 @@ public final class DOM {
     }
 
     public static <T> T appendChild(Object element, T child) {
-        //Elements.requireElement(child, "Child must be Node");
+        //Elements.requireElement(child, "Child must be Node");//FIXME исправить
         Script.code(element,".appendChild(",child,")");
         return child;
     }
