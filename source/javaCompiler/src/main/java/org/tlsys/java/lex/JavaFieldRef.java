@@ -1,9 +1,9 @@
 package org.tlsys.java.lex;
 
-import org.tlsys.lex.FieldRef;
-import org.tlsys.lex.TExpression;
-import org.tlsys.lex.TNode;
-import org.tlsys.lex.members.TField;
+import org.tlsys.twt.TNode;
+import org.tlsys.twt.expressions.FieldRef;
+import org.tlsys.twt.expressions.TExpression;
+import org.tlsys.twt.members.TField;
 
 public class JavaFieldRef implements FieldRef {
 

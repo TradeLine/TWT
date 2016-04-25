@@ -19,10 +19,7 @@ buildscript {
 }
 
 dependencies {
-    compile name: 'maven-model', group:'org.apache.maven', version:'3.0.3'
-    compile name: 'asm', group:'org.ow2.asm', version:'5.0.2'
-    compile name: 'asm-tree', group:'org.ow2.asm', version:'5.0.2'
-    compile project(':compiler')
+    compile project(':common')
     compile name: 'javaparser-core', group: 'com.github.javaparser', version: '2.3.0'
 }
 
@@ -40,7 +37,6 @@ publishing {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile project(":shared")
 }
 
 build {

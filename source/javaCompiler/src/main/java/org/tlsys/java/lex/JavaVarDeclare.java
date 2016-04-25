@@ -2,10 +2,10 @@ package org.tlsys.java.lex;
 
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import org.tlsys.JavaCompiller;
-import org.tlsys.lex.TNode;
-import org.tlsys.lex.TVar;
-import org.tlsys.lex.TVarDeclare;
-import org.tlsys.lex.members.VClass;
+import org.tlsys.twt.TNode;
+import org.tlsys.twt.expressions.TVarDeclare;
+import org.tlsys.twt.members.TVar;
+import org.tlsys.twt.members.VClass;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -3,10 +3,11 @@ package org.tlsys;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import org.tlsys.java.lex.JavaArgument;
-import org.tlsys.lex.TArgument;
-import org.tlsys.lex.members.VClass;
-import org.tlsys.lex.members.VMember;
-import org.tlsys.lex.members.VMethod;
+import org.tlsys.twt.expressions.AnntationItem;
+import org.tlsys.twt.members.TArgument;
+import org.tlsys.twt.members.VClass;
+import org.tlsys.twt.members.VMember;
+import org.tlsys.twt.members.VMethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.function.Predicate;
 
 public class JavaMethod implements VMethod {
 
+    private static final long serialVersionUID = -6500271832948870581L;
     private final transient MethodDeclaration methodDeclaration;
 
     private final String realName;
@@ -81,5 +83,15 @@ public class JavaMethod implements VMethod {
             arguments.add(new JavaArgument(p, this));
         }
         return arguments;
+    }
+
+    @Override
+    public List<AnntationItem> getList() {
+        throw new RuntimeException("Not ready yet");
+    }
+
+    @Override
+    public Optional<AnntationItem> getByClass(VClass clazz) {
+        throw new RuntimeException("Not ready yet");
     }
 }

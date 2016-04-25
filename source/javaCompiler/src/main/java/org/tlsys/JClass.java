@@ -1,10 +1,13 @@
 package org.tlsys;
 
 import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.expr.AnnotationExpr;
 import org.tlsys.java.lex.JavaField;
-import org.tlsys.lex.members.*;
+import org.tlsys.twt.expressions.AnntationItem;
+import org.tlsys.twt.members.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -17,6 +20,10 @@ public abstract class JClass implements VClass {
     private final ArrayList<org.tlsys.lex.members.ClassModificator> modificators = new ArrayList<>();
     private final ArrayList<VMember> members = new ArrayList<>();
     private transient TypeDeclaration typeDeclaration;
+    private String runtimeName;
+
+    private transient String runtimeSimpleName;
+    private ArrayList<AnntationItem> annotationList;
 
     public JClass(TypeDeclaration typeDeclaration, VMember parent, TClassLoader classLoader) {
         this.typeDeclaration = typeDeclaration;
@@ -26,13 +33,40 @@ public abstract class JClass implements VClass {
         modifiers = typeDeclaration.getModifiers();
     }
 
-    public void addModificator(org.tlsys.lex.members.ClassModificator mod) {
-        modificators.add(mod);
+    public void setRuntimeName(String runtimeName) {
+        this.runtimeName = runtimeName;
+        runtimeSimpleName = null;
     }
 
     @Override
-    public Optional<VClass> getClass(String name) {
-        return null;
+    public String getSimpleRealTimeName() {
+        if (runtimeSimpleName != null)
+            return runtimeSimpleName;
+        int p = getRealTimeName().lastIndexOf(".");
+        int p1 = getRealTimeName().lastIndexOf("$");
+
+        if (p != -1 && (p > p1 || p1 == -1))
+            return getRealTimeName().substring(p + 1);
+
+        if (p1 != -1 && (p1 > p || p == -1))
+            return getRealTimeName().substring(p1 + 1);
+
+        return getRealTimeName();
+    }
+
+    @Override
+    public String getRealTimeName() {
+        if (runtimeName == null)
+            return getName();
+        return runtimeName;
+    }
+
+    public TypeDeclaration getTypeDeclaration() {
+        return typeDeclaration;
+    }
+
+    public void addModificator(org.tlsys.lex.members.ClassModificator mod) {
+        modificators.add(mod);
     }
 
     @Override
@@ -66,6 +100,11 @@ public abstract class JClass implements VClass {
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean isPrimitive() {
+        return false;
     }
 
     @Override
@@ -131,5 +170,15 @@ public abstract class JClass implements VClass {
     @Override
     public String toString() {
         return getName();
+    }
+
+    @Override
+    public List<AnntationItem> getList() {
+        if (annotationList != null)
+            return annotationList;
+        annotationList = new ArrayList<>();
+        for (AnnotationExpr ae : getTypeDeclaration().getAnnotations()) {
+        }
+        return annotationList;
     }
 }

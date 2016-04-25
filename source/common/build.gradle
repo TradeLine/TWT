@@ -1,0 +1,35 @@
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'idea'
+
+/*
+buildscript {
+    dependencies {
+        classpath group: 'org.tlsys', name:'twt-gradle', version:'1.0'
+    }
+}
+*/
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId "org.tlsys"
+            artifactId 'twt-common'
+            version "1.0"
+            from components.java
+        }
+    }
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+}
+
+build {
+    dependsOn publishToMavenLocal
+}

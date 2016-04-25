@@ -1,8 +1,8 @@
 package org.tlsys.java.lex;
 
-import org.tlsys.lex.LocalVar;
-import org.tlsys.lex.TNode;
-import org.tlsys.lex.VarRef;
+import org.tlsys.twt.TNode;
+import org.tlsys.twt.expressions.VarRef;
+import org.tlsys.twt.members.LocalVar;
 
 import java.util.Objects;
 

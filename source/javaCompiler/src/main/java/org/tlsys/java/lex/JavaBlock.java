@@ -1,8 +1,8 @@
 package org.tlsys.java.lex;
 
-import org.tlsys.lex.TBlock;
-import org.tlsys.lex.TNode;
-import org.tlsys.lex.TStatement;
+import org.tlsys.twt.TNode;
+import org.tlsys.twt.statement.TBlock;
+import org.tlsys.twt.statement.TStatement;
 
 import java.util.ArrayList;
 import java.util.List;

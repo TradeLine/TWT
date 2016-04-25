@@ -5,9 +5,9 @@ import com.github.javaparser.ParseException;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import org.tlsys.lex.members.TClassLoader;
-import org.tlsys.lex.members.VClass;
-import org.tlsys.lex.members.VPackage;
+import org.tlsys.twt.members.TClassLoader;
+import org.tlsys.twt.members.VClass;
+import org.tlsys.twt.members.VPackage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +28,14 @@ public class JavaSourceSet {
     public JavaSourceSet(TClassLoader classLoader, FileProvider fileProvider) {
         this.fileProvider = fileProvider;
         this.classLoader = classLoader;
+    }
+
+    public VPackage getRootPackage() {
+        return rootPackage;
+    }
+
+    public TClassLoader getClassLoader() {
+        return classLoader;
     }
 
     public void addAlias(String alias, String realName) {

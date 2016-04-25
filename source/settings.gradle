@@ -2,4 +2,8 @@ rootProject.name = 'TWT'
 include "compiler"
 include "twt-gradle"
 include "shared"
+
+//--NEW TWT--///
+include "common"
+include "js-codegen"
 include "javaCompiler"

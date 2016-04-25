@@ -1,6 +1,6 @@
 package org.tlsys.java.lex;
 
-import org.tlsys.lex.members.VMember;
+import org.tlsys.twt.members.VMember;
 
 public abstract class JavaMember implements VMember {
 

@@ -2,11 +2,14 @@ package org.tlsys.java.lex;
 
 import com.github.javaparser.ast.body.VariableDeclarator;
 import org.tlsys.JavaCompiller;
-import org.tlsys.lex.TExpression;
-import org.tlsys.lex.members.TField;
-import org.tlsys.lex.members.VClass;
-import org.tlsys.lex.members.VMember;
+import org.tlsys.twt.expressions.AnntationItem;
+import org.tlsys.twt.expressions.TExpression;
+import org.tlsys.twt.members.TField;
+import org.tlsys.twt.members.VClass;
+import org.tlsys.twt.members.VMember;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -71,5 +74,10 @@ public class JavaField extends JavaMember implements TField {
     @Override
     public VClass getParent() {
         return (VClass) super.getParent();
+    }
+
+    @Override
+    public List<AnntationItem> getList() {
+        return Collections.EMPTY_LIST;
     }
 }

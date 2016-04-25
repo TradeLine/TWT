@@ -4,9 +4,9 @@ import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.LiteralExpr;
 import com.github.javaparser.ast.expr.LongLiteralExpr;
 import org.tlsys.JavaCompiller;
-import org.tlsys.lex.TConst;
-import org.tlsys.lex.TNode;
-import org.tlsys.lex.members.VClass;
+import org.tlsys.twt.TNode;
+import org.tlsys.twt.expressions.TConst;
+import org.tlsys.twt.members.VClass;
 
 public class JavaConst implements TConst {
 
@@ -42,12 +42,12 @@ public class JavaConst implements TConst {
             return result;
 
         if (expr instanceof IntegerLiteralExpr) {
-            result = JavaCompiller.getClassNode(parent).get().getClass("int").get();
+            result = JavaCompiller.getClassNode(parent).get().getClassLoader().findClassByName("int").get();
             return result;
         }
 
         if (expr instanceof LongLiteralExpr) {
-            result = JavaCompiller.getClassNode(parent).get().getClass("long").get();
+            result = JavaCompiller.getClassNode(parent).get().getClassLoader().findClassByName("long").get();
             return result;
         }
 

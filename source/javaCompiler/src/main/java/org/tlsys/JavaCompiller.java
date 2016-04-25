@@ -6,8 +6,14 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.*;
 import org.tlsys.java.lex.*;
-import org.tlsys.lex.*;
-import org.tlsys.lex.members.*;
+import org.tlsys.twt.TNode;
+import org.tlsys.twt.expressions.TAssign;
+import org.tlsys.twt.expressions.TExpression;
+import org.tlsys.twt.expressions.TVarDeclare;
+import org.tlsys.twt.members.*;
+import org.tlsys.twt.statement.StaExpression;
+import org.tlsys.twt.statement.TBlock;
+import org.tlsys.twt.statement.TStatement;
 
 import java.lang.reflect.Modifier;
 import java.util.HashMap;

@@ -1,8 +1,8 @@
 package org.tlsys.java.lex;
 
-import org.tlsys.lex.StaticRef;
-import org.tlsys.lex.TNode;
-import org.tlsys.lex.members.VClass;
+import org.tlsys.twt.TNode;
+import org.tlsys.twt.expressions.StaticRef;
+import org.tlsys.twt.members.VClass;
 
 public class JavaStaticRef implements StaticRef {
     private static final long serialVersionUID = 6584591303337994320L;

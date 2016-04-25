@@ -3,12 +3,15 @@ package org.tlsys;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseException;
 import org.junit.Test;
+import org.tlsys.RT.IntClass;
+import org.tlsys.RT.ObjectClass;
+import org.tlsys.RT.TestClass;
 import org.tlsys.java.lex.JavaBlock;
 import org.tlsys.java.lex.JavaStaExpression;
 import org.tlsys.java.lex.JavaVarDeclare;
-import org.tlsys.lex.StaExpression;
-import org.tlsys.lex.TAssign;
-import org.tlsys.lex.members.*;
+import org.tlsys.twt.expressions.TAssign;
+import org.tlsys.twt.members.*;
+import org.tlsys.twt.statement.StaExpression;
 
 import java.util.Optional;
 
@@ -73,12 +76,14 @@ public class JavaCompillerTest {
     public void testParseVarDeclaration() throws ParseException {
         VirtualFileProvider fs = new VirtualFileProvider();
 
-        addSimpleNativeClass(fs, "int");
+        //addSimpleNativeClass(fs, "int");
 
         JClassLoader classLoader = new JClassLoader();
 
         JavaSourceSet com = new JavaSourceSet(classLoader, fs);
         classLoader.setJavaSourceSet(com);
+        TestClass.inject("org.tlsys", new ObjectClass(com.getClassLoader()), com);
+        TestClass.inject("org.tlsys", new IntClass(com.getClassLoader()), com);
 
         VClass clazz = classLoader.findClassByName(addSimpleClass(fs, "Test")).get();
 
@@ -177,17 +182,24 @@ public class JavaCompillerTest {
 
         @Override
         public Optional<VClass> findClassByName(String name) {
+
+            Optional<VClass> ck = super.findClassByName(name);
+            if (ck.isPresent())
+                return ck;
+
             if (!name.contains(".")) {
                 Optional<VClass> o = findClassByName("org.tlsys.T" + name);
                 if (o.isPresent())
                     return o;
             }
 
-            Optional<VClass> ck = super.findClassByName(name);
+            ck = super.findClassByName(name);
             if (ck.isPresent())
                 return ck;
 
+
             return javaSourceSet.getClass(name);
         }
+
     }
 }

@@ -1,8 +1,8 @@
 package org.tlsys.java.lex;
 
-import org.tlsys.lex.TNode;
-import org.tlsys.lex.This;
-import org.tlsys.lex.members.VClass;
+import org.tlsys.twt.TNode;
+import org.tlsys.twt.expressions.This;
+import org.tlsys.twt.members.VClass;
 
 public class JavaThis implements This {
     private static final long serialVersionUID = 6293721661184749165L;

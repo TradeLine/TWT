@@ -1,7 +1,7 @@
 package org.tlsys;
 
-import org.tlsys.lex.TArgument;
-import org.tlsys.lex.members.VClass;
+import org.tlsys.twt.members.TArgument;
+import org.tlsys.twt.members.VClass;
 
 @FunctionalInterface
 public interface ArgumentRequid {
