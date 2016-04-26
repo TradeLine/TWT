@@ -16,7 +16,9 @@ public final class Storage {
     }
 
     public Optional<String> get(String key) {
-        return Optional.ofNullable(Script.code(js, ".getItem(", key, ")"));
+        String s = Script.code(js, ".getItem(", key, ")");
+        Optional<String> res = Optional.ofNullable(s);
+        return res;
     }
 
     public Optional<String> get(int index) {
