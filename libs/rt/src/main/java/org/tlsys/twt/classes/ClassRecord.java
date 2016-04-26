@@ -114,6 +114,19 @@ public class ClassRecord {
         return jsName;
     }
 
+    private void createConstructor(MethodRecord mr) {
+        //MethodRecord mr = methods.get(i);
+        if (mr.getName() == null) {//This is Constructor?
+            String nam = mr.getJsName();
+            Object tempProto = prototype;
+            String dom = getDomNode();
+            if (dom == null)
+                Script.code(prototype, "['n'+", nam, "]=function(){var o=new ", tempProto, "();o[", nam, "].apply(o, arguments);return o;}");
+            else
+                Script.code(prototype, "['n'+", nam, "]=function(){var o=document.createElement(", dom, "); for(k in ", tempProto, ".prototype) o[k]=", tempProto, ".prototype[k];o[", nam, "].apply(o, arguments);return o;}");
+        }
+    }
+
     public Object getPrototype() {
         if (prototype != null) {
             return prototype;
@@ -123,16 +136,7 @@ public class ClassRecord {
         Script.code(prototype, ".prototype[", TObject.CLASS_RECORD, "]=", this);
 
         for (int i = 0; i < methods.length(); i++) {
-            MethodRecord mr = methods.get(i);
-            if (mr.getName() == null) {//This is Constructor?
-                String nam = mr.getJsName();
-                Object tempProto = prototype;
-                String dom = getDomNode();
-                if (dom == null)
-                    Script.code(prototype, "['n'+", mr.getJsName(), "]=function(){var o=new ", tempProto, "();o[", nam, "].apply(o, arguments);return o;}");
-                else
-                    Script.code(prototype, "['n'+", mr.getJsName(), "]=function(){var o=document.createElement(", dom, "); for(k in ", tempProto, ".prototype) o[k]=", tempProto, ".prototype[k];o[", nam, "].apply(o, arguments);return o;}");
-            }
+            createConstructor(methods.get(i));
         }
 
         applyClassBody(prototype);

@@ -1,5 +1,7 @@
 package org.tlsys.twt.rt.java.util;
 
+import org.tlsys.twt.Console;
+import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.annotations.ReplaceClass;
@@ -84,7 +86,11 @@ public final class TOptional<T> {
      * is non-null, otherwise an empty {@code Optional}
      */
     public static <T> TOptional<T> ofNullable(T value) {
-        return value == null ? empty() : of(value);
+        if (value == null) {
+            return empty();
+        } else {
+            return of(value);
+        }
     }
 
     /**
