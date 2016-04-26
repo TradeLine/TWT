@@ -126,13 +126,12 @@ public class ClassRecord {
             MethodRecord mr = methods.get(i);
             if (mr.getName() == null) {//This is Constructor?
                 String nam = mr.getJsName();
-                String consName = "n" + nam;
                 Object tempProto = prototype;
                 String dom = getDomNode();
                 if (dom == null)
-                    Script.code(prototype, "[", consName, "]=function(){var o=new ", tempProto, "();o[", nam, "].apply(o, arguments);return o;}");
+                    Script.code(prototype, "['n'+", mr.getJsName(), "]=function(){var o=new ", tempProto, "();o[", nam, "].apply(o, arguments);return o;}");
                 else
-                    Script.code(prototype, "[", consName, "]=function(){var o=document.createElement(", dom, "); for(k in ", tempProto, ".prototype) o[k]=", tempProto, ".prototype[k];o[", nam, "].apply(o, arguments);return o;}");
+                    Script.code(prototype, "['n'+", mr.getJsName(), "]=function(){var o=document.createElement(", dom, "); for(k in ", tempProto, ".prototype) o[k]=", tempProto, ".prototype[k];o[", nam, "].apply(o, arguments);return o;}");
             }
         }
 

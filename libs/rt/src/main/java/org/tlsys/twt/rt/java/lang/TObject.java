@@ -17,10 +17,6 @@ public class TObject {
     private static int hashCodeCounter = 0;
     private int hashCode = ++hashCodeCounter;
 
-    {
-        Script.code("console.info('Object prototype is created! hashCode='+", CastUtil.toObject(hashCodeCounter), ")");
-    }
-
     @CodeGenerator(EmptyMethodBody.class)
     //@MethodBodyGen("org.tlsys.twt.rt.EmptyMethodBody")
     public TObject() {
