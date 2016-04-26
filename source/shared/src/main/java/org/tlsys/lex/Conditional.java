@@ -1,6 +1,7 @@
 package org.tlsys.lex;
 
-import com.sun.tools.javac.code.Symbol;
+import org.tlsys.ReplaceHelper;
+import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 
 import java.util.Optional;
@@ -16,6 +17,16 @@ public class Conditional extends Value {
     private Value elseValue;
     private VClass type;
 
+    public Conditional() {
+    }
+
+    public Conditional(Value value, Value thenValue, Value elseValue, VClass type) {
+        this.value = value;
+        this.thenValue = thenValue;
+        this.elseValue = elseValue;
+        this.type = type;
+    }
+
     public Value getValue() {
         return value;
     }
@@ -26,16 +37,6 @@ public class Conditional extends Value {
 
     public Value getElseValue() {
         return elseValue;
-    }
-
-    public Conditional() {
-    }
-
-    public Conditional(Value value, Value thenValue, Value elseValue, VClass type) {
-        this.value = value;
-        this.thenValue = thenValue;
-        this.elseValue = elseValue;
-        this.type = type;
     }
 
     @Override
@@ -51,5 +52,12 @@ public class Conditional extends Value {
     @Override
     public void getUsing(Collect c) {
         c.add(type).add(value, thenValue, elseValue);
+    }
+
+    @Override
+    public void visit(ReplaceVisiter replaceControl) {
+        ReplaceHelper.replace(value, replaceControl).ifPresent(e -> value = e);
+        ReplaceHelper.replace(thenValue, replaceControl).ifPresent(e -> thenValue = e);
+        ReplaceHelper.replace(elseValue, replaceControl).ifPresent(e -> elseValue = e);
     }
 }
