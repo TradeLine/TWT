@@ -186,4 +186,22 @@ public final class DOM {
         }
         return ds;
     }
+
+    public static int getGlobalX(Object object) {
+        int x = 0;
+        while (object != null) {
+            x = x + CastUtil.toInt(Script.code(object, ".offsetLeft"));
+            object = Script.code(object, ".offsetParent");
+        }
+        return x;
+    }
+
+    public static int getGlobalY(Object object) {
+        int x = 0;
+        while (object != null) {
+            x = x + CastUtil.toInt(Script.code(object, ".offsetTop"));
+            object = Script.code(object, ".offsetParent");
+        }
+        return x;
+    }
 }
