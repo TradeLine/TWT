@@ -108,5 +108,12 @@ public class Try extends Operation implements HavinSourceStart {
                 c.add(cc);
             c.add(block);
         }
+
+        @Override
+        public void visit(ReplaceVisiter replaceControl) {
+            block.visit(replaceControl);
+        }
     }
+
+
 }
