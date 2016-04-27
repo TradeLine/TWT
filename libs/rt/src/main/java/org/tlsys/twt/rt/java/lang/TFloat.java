@@ -48,4 +48,11 @@ public class TFloat extends Number {
     public String toString() {
         return toString(value);
     }
+
+    public static float parseFloat(String s) {
+        boolean b = CastUtil.toBoolean(Script.code("isNaN(", s, ")"));
+        if (b)
+            throw new NumberFormatException(s);
+        return CastUtil.toFloat(Script.code("parseFloat(", s, ")"));
+    }
 }
