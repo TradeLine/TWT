@@ -62,6 +62,11 @@ public abstract class JClass implements VClass {
         return runtimeName;
     }
 
+    @Override
+    public List<VMember> getMembers() {
+        return members;
+    }
+
     public TypeDeclaration getTypeDeclaration() {
         return typeDeclaration;
     }

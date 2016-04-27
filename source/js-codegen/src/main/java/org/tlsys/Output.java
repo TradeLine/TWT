@@ -7,22 +7,27 @@ public class Output implements Appendable {
     private StringBuilder builder = new StringBuilder();
 
     @Override
-    public Appendable append(CharSequence csq) throws IOException {
-        return builder.append(csq);
+    public Output append(CharSequence csq) {
+        builder.append(csq);
+        return this;
     }
 
     @Override
-    public Appendable append(CharSequence csq, int start, int end) throws IOException {
-        return builder.append(csq, start, end);
+    public Output append(CharSequence csq, int start, int end) {
+        builder.append(csq, start, end);
+        return this;
     }
 
     @Override
-    public Appendable append(char c) throws IOException {
-        return builder.append(c);
+    public Output append(char c) {
+        builder.append(c);
+        return this;
     }
 
     @Override
     public String toString() {
         return builder.toString();
     }
+
+
 }

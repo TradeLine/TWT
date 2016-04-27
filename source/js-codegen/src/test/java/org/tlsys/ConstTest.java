@@ -35,6 +35,13 @@ public class ConstTest extends TestVM {
                 ((JClass) cl).compileAll();
         }
 
+        SimpleNameContext nameContext = new SimpleNameContext();
+        Nativegenerator ng = new Nativegenerator();
+        Output out = new Output();
+        ng.generate(classRecord, out, nameContext);
+
+        System.out.println("OUT=" + out.toString());
+
         System.out.println(""+loader);
     }
 

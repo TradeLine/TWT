@@ -1,5 +1,6 @@
 package org.tlsys.twt.members;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface VClass extends VMember, Named {
@@ -33,4 +34,6 @@ public interface VClass extends VMember, Named {
     Optional<TField> getField(String name);
 
     public boolean isPrimitive();
+
+    public List<VMember> getMembers();
 }
