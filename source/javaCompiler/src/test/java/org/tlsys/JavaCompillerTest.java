@@ -55,7 +55,7 @@ public class JavaCompillerTest {
         addSimpleNativeClass(fs, "void");
 
 
-        JClassLoader classLoader = new JClassLoader();
+        CompileClassLoader classLoader = new CompileClassLoader();
 
         JavaSourceSet com = new JavaSourceSet(classLoader, fs);
         classLoader.setJavaSourceSet(com);
@@ -78,7 +78,7 @@ public class JavaCompillerTest {
 
         //addSimpleNativeClass(fs, "int");
 
-        JClassLoader classLoader = new JClassLoader();
+        CompileClassLoader classLoader = new CompileClassLoader();
 
         JavaSourceSet com = new JavaSourceSet(classLoader, fs);
         classLoader.setJavaSourceSet(com);
@@ -100,7 +100,7 @@ public class JavaCompillerTest {
 
         addSimpleNativeClass(fs, "int");
 
-        JClassLoader classLoader = new JClassLoader();
+        CompileClassLoader classLoader = new CompileClassLoader();
 
         JavaSourceSet com = new JavaSourceSet(classLoader, fs);
         classLoader.setJavaSourceSet(com);
@@ -127,7 +127,7 @@ public class JavaCompillerTest {
         addSimpleNativeClass(fs, "int");
         fs.getRoot().dir("org").dir("tlsys").file("Main.java", sb.toString().getBytes());
 
-        JClassLoader classLoader = new JClassLoader();
+        CompileClassLoader classLoader = new CompileClassLoader();
 
         JavaSourceSet com = new JavaSourceSet(classLoader, fs);
         classLoader.setJavaSourceSet(com);
@@ -153,7 +153,7 @@ public class JavaCompillerTest {
         addSimpleNativeClass(fs, "int");
         fs.getRoot().dir("org").dir("tlsys").file("Main.java", sb.toString().getBytes());
 
-        JClassLoader classLoader = new JClassLoader();
+        CompileClassLoader classLoader = new CompileClassLoader();
 
         JavaSourceSet com = new JavaSourceSet(classLoader, fs);
         classLoader.setJavaSourceSet(com);
@@ -166,40 +166,4 @@ public class JavaCompillerTest {
         JavaBlock block = JavaCompiller.statement(JavaParser.parseBlock("{a = 8;}"), clazz);
     }
 
-    private static class JClassLoader extends TClassLoader {
-        private JavaSourceSet javaSourceSet;
-
-        private JClassLoader() {
-        }
-
-        public JavaSourceSet getJavaSourceSet() {
-            return javaSourceSet;
-        }
-
-        public void setJavaSourceSet(JavaSourceSet javaSourceSet) {
-            this.javaSourceSet = javaSourceSet;
-        }
-
-        @Override
-        public Optional<VClass> findClassByName(String name) {
-
-            Optional<VClass> ck = super.findClassByName(name);
-            if (ck.isPresent())
-                return ck;
-
-            if (!name.contains(".")) {
-                Optional<VClass> o = findClassByName("org.tlsys.T" + name);
-                if (o.isPresent())
-                    return o;
-            }
-
-            ck = super.findClassByName(name);
-            if (ck.isPresent())
-                return ck;
-
-
-            return javaSourceSet.getClass(name);
-        }
-
-    }
 }

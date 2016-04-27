@@ -8,6 +8,7 @@ import org.tlsys.twt.members.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -69,6 +70,39 @@ public abstract class JClass implements VClass {
         modificators.add(mod);
     }
 
+    private void compile(BodyDeclaration bd) {
+        Objects.requireNonNull(bd, "Body Declaration is NULL");
+
+        if (bd instanceof MethodDeclaration) {
+            MethodDeclaration md = (MethodDeclaration) bd;
+            VMethod jm = new JavaMethod(md, this);
+
+            for (org.tlsys.lex.members.ClassModificator m : modificators) {
+                jm = m.onAddMethod(jm);
+            }
+
+            members.add(jm);
+            typeDeclaration.getMembers().remove(md);
+
+            return;
+        }
+
+        if (bd instanceof FieldDeclaration) {
+            FieldDeclaration fs = (FieldDeclaration) bd;
+            for (VariableDeclarator vd : fs.getVariables()) {
+                VClass result = JavaCompiller.findClass(fs.getType(), this);
+                JavaField jf = new JavaField(vd, fs.getModifiers(), result, this);
+                members.add(jf);
+
+            }
+            typeDeclaration.getMembers().remove(fs);
+            return;
+        }
+
+        throw new RuntimeException("Unknown body delaration " + bd.getClass().getName());
+
+    }
+
     @Override
     public Optional<VMethod> findMethod(String name, MehtodSearchRequest request) {
 
@@ -79,16 +113,7 @@ public abstract class JClass implements VClass {
                     continue;
                 if (md.getParameters().isEmpty() && !md.getParameters().isEmpty())
                     continue;
-
-                VMethod jm = new JavaMethod(md, this);
-
-                for (org.tlsys.lex.members.ClassModificator m : modificators) {
-                    jm = m.onAddMethod(jm);
-                }
-
-                members.add(jm);
-                typeDeclaration.getMembers().remove(md);
-                return Optional.of(jm);
+                compile(bd);
             }
         }
 
@@ -99,7 +124,7 @@ public abstract class JClass implements VClass {
                     continue;
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -145,14 +170,7 @@ public abstract class JClass implements VClass {
                     FieldDeclaration fs = (FieldDeclaration) bd;
                     for (VariableDeclarator vd : fs.getVariables()) {
                         if (vd.getId().getName().equals(name)) {
-                            VClass result = JavaCompiller.findClass(fs.getType(), this);
-                            JavaField jf = new JavaField(vd, fs.getModifiers(), result, this);
-                            members.add(jf);
-                            fs.getVariables().remove(vd);
-                            if (fs.getVariables().isEmpty()) {
-                                typeDeclaration.getMembers().remove(fs);
-                            }
-                            return Optional.of(jf);
+                            compile(bd);
                         }
                     }
                 }
@@ -170,6 +188,12 @@ public abstract class JClass implements VClass {
     @Override
     public String toString() {
         return getName();
+    }
+
+    public void compileAll() {
+        while (!getTypeDeclaration().getMembers().isEmpty()) {
+            compile(getTypeDeclaration().getMembers().get(0));
+        }
     }
 
     @Override

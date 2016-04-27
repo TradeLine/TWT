@@ -88,7 +88,9 @@ public final class JavaCompiller {
     }
 
     private static <T extends TNode> Optional<T> seachUpByName(String name, TNode from, Predicate<TNode> validator) {
-        Objects.requireNonNull(from, "From argument is NULL");
+        if (from == null) {
+            throw new IllegalArgumentException("From argument is NULL");
+        }
         if (from instanceof TBlock) {
             TBlock block = (TBlock)from;
             for (int i = 0; i < block.getStatementCount(); i++) {
@@ -122,6 +124,8 @@ public final class JavaCompiller {
             VPackage p = (VPackage) from;
             if (name.equals(p.getSimpleName()) && validator.test(p))
                 return Optional.of((T) p);
+            if (p.getParent() == null)
+                return Optional.empty();
             return seachUpByName(name, p.getParent(), validator);
         }
 
@@ -195,7 +199,6 @@ public final class JavaCompiller {
                             return ((VPackage) e).getSimpleName().equals(c.getName());
                         if (e instanceof VClass)
                             return ((VClass) e).getSimpleName().equals(c.getName());
-                        System.out.println("" + c);
                         return false;
                     });
                     member = m.get();
@@ -203,10 +206,28 @@ public final class JavaCompiller {
                 return (T) member;
             } else {
                 VClass clazz = getClassNode(from).get();
-                if (clazz.getSimpleName().equals(ci.getName()))
+                if (clazz.getSimpleName().equals(ci.getName()))//if seach self class
                     return (T) clazz;
+
+                if (clazz.getParent() instanceof VClass) {
+                    if (((VClass) clazz.getParent()).getSimpleName().equals(ci.getName()))//if seach parent class
+                        return (T)clazz.getParent();
+                }
+                VPackage parentPackage = (VPackage) seachUp(clazz, e->e instanceof VPackage).get();//finded parent class package
+
+
+                //search class in parent class
+                Optional<VClass> tempClass = clazz.getClassLoader().findClassByName(parentPackage.getName() + "." + ci.getName());
+                if (tempClass.isPresent())
+                    return (T)tempClass.get();
+
+                //search class in java.lang
+                tempClass = clazz.getClassLoader().findClassByName("java.lang." + ci.getName());//search class in parent class
+                if (tempClass.isPresent())
+                    return (T)tempClass.get();
+
                 //Optional<VClass> cls = seachUp(from, e-> e instanceof VClass);
-                return (T) seachUpByName(ci.getName(), from, e -> e instanceof VClass).get();
+                //return (T) seachUpByName(ci.getName(), from, e -> e instanceof VClass).get();
             }
         }
 

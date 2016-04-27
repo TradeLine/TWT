@@ -1,11 +1,13 @@
 package org.tlsys;
 
+import org.tlsys.twt.SourceProvider;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public class VirtualFileProvider implements FileProvider {
+public class VirtualFileProvider implements SourceProvider {
 
     private final VDir root = new VDir(null);
 

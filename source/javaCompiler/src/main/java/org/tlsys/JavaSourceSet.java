@@ -5,6 +5,7 @@ import com.github.javaparser.ParseException;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import org.tlsys.twt.SourceProvider;
 import org.tlsys.twt.members.TClassLoader;
 import org.tlsys.twt.members.VClass;
 import org.tlsys.twt.members.VPackage;
@@ -19,13 +20,13 @@ public class JavaSourceSet {
 
     private final HashMap<CompilationUnit, JavaFile> compiled = new HashMap<>();
     private final TClassLoader classLoader;
-    private final FileProvider fileProvider;
+    private final SourceProvider fileProvider;
     private final HashMap<String, CompilationUnit> files = new HashMap<>();
     private final HashMap<String, VClass> classes = new HashMap<>();
     private final VPackage rootPackage = new VPackage(null, null);
     private final HashMap<String, String> alias = new HashMap<>();
 
-    public JavaSourceSet(TClassLoader classLoader, FileProvider fileProvider) {
+    public JavaSourceSet(TClassLoader classLoader, SourceProvider fileProvider) {
         this.fileProvider = fileProvider;
         this.classLoader = classLoader;
     }

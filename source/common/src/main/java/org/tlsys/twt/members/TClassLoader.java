@@ -8,6 +8,10 @@ public class TClassLoader {
 
     private final List<VClass> classes = new ArrayList<>();
 
+    public List<VClass> getClasses() {
+        return classes;
+    }
+
     public void addClass(VClass clazz) {
         classes.add(clazz);
     }
