@@ -38,6 +38,8 @@ public class TThrowable {
     }
 
     public static Object jsErrorConvert(Object o) {
+        if (!Script.isUndefined(Script.code(o, "[", TObject.CLASS_RECORD, "]")))
+            return o;
         if (Script.code(o, " instanceof TypeError")) {
             String message = Script.code(o, ".message");
             if (message.endsWith(" not a function")) {
