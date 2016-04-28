@@ -36,4 +36,6 @@ public interface VClass extends VMember, Named {
     public boolean isPrimitive();
 
     public List<VMember> getMembers();
+
+    public Optional<TConstructor> findConstructor(MehtodSearchRequest request);
 }

@@ -210,4 +210,25 @@ public abstract class JClass implements VClass {
         }
         return annotationList;
     }
+
+    @Override
+    public Optional<TConstructor> findConstructor(MehtodSearchRequest request) {
+        for (BodyDeclaration bd : typeDeclaration.getMembers()) {
+            if (bd instanceof MethodDeclaration) {
+                MethodDeclaration md = (MethodDeclaration) bd;
+                if (md.getParameters().isEmpty() && !md.getParameters().isEmpty())
+                    continue;
+                compile(bd);
+            }
+        }
+
+        for (VMember me : members) {
+            if (me instanceof VMethod) {
+                VMethod m = (VMethod) me;
+                if (!m.getName().equals(name))
+                    continue;
+            }
+        }
+        return Optional.empty();
+    }
 }
