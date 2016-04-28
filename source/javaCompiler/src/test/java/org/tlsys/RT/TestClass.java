@@ -117,6 +117,11 @@ public class TestClass implements VClass {
     }
 
     @Override
+    public List<VMember> getMembers() {
+        return null;
+    }
+
+    @Override
     public int getModifiers() {
         return modifiers;
     }

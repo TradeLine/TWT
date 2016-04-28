@@ -18,7 +18,6 @@ import org.tlsys.twt.statement.TStatement;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -31,6 +30,10 @@ public final class JavaCompiller {
             JavaStaExpression jse = new JavaStaExpression(p);
             jse.setExpression(expression(s.getExpression(), jse, null));
             return jse;
+        });
+
+        addExp(ObjectCreationExpr.class, (e, p, t) -> {
+
         });
 
         addExp(VariableDeclarationExpr.class, (e, p, t) -> {
@@ -82,6 +85,8 @@ public final class JavaCompiller {
             }
             throw new RuntimeException("Unknown name " + e.getName());
         });
+
+
     }
 
     private JavaCompiller() {
