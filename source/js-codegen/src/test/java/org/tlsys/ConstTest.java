@@ -1,6 +1,5 @@
 package org.tlsys;
 
-import junit.framework.Assert;
 import org.junit.Test;
 import org.tlsys.loads.ClassRecord;
 import org.tlsys.twt.FSSourceProvider;
@@ -36,9 +35,9 @@ public class ConstTest extends TestVM {
         }
 
         SimpleNameContext nameContext = new SimpleNameContext();
-        Nativegenerator ng = new Nativegenerator();
+        Generator ng = new Generator();
         Output out = new Output();
-        ng.generate(classRecord, out, nameContext);
+        ng.generateNative(classRecord, out, nameContext);
 
         System.out.println("OUT=" + out.toString());
 
