@@ -72,6 +72,10 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         return true;
     }
 
+    public List<ClassModificator> getMods() {
+        return mods;
+    }
+
     public VClass addMod(ClassModificator modificator) {
         if (mods.add(modificator))
             modificator.onAdd(this);

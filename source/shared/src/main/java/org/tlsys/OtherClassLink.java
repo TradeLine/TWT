@@ -1,6 +1,9 @@
 package org.tlsys;
 
-import org.tlsys.lex.*;
+import org.tlsys.lex.Assign;
+import org.tlsys.lex.Operation;
+import org.tlsys.lex.SetField;
+import org.tlsys.lex.This;
 import org.tlsys.lex.declare.*;
 
 import java.lang.reflect.Modifier;
@@ -12,17 +15,35 @@ public class OtherClassLink implements ClassModificator {
     private final VClass toClass;
     private final VField field;
 
-    public VField getField() {
-        return field;
-    }
-
     public OtherClassLink(VClass forClass, VClass toClass) {
         this.toClass = toClass;
-        field = new VField("c"+Integer.toString(toClass.hashCode()).replace('-','_'), null, toClass, Modifier.PUBLIC, forClass);
+        field = new VField("c" + Integer.toString(toClass.hashCode()).replace('-', '_'), null, toClass, Modifier.PUBLIC, forClass);
 
         for (VConstructor con : forClass.constructors) {
             con.getMods().add(new ArgumentLink(toClass, con, this));
         }
+    }
+
+    public static OtherClassLink getOrCreate(VClass forClass, VClass toClass) {
+        Optional<ClassModificator> cm = forClass.getModificator(e -> {
+            if (e instanceof OtherClassLink) {
+                OtherClassLink m = (OtherClassLink) e;
+                if (m.toClass == toClass)
+                    return true;
+            }
+            return false;
+        });
+
+        if (cm.isPresent())
+            return (OtherClassLink) cm.get();
+
+        OtherClassLink ocl = new OtherClassLink(forClass, toClass);
+        forClass.addMod(ocl);
+        return ocl;
+    }
+
+    public VField getField() {
+        return field;
     }
 
     public VClass getToClass() {
@@ -40,24 +61,6 @@ public class OtherClassLink implements ClassModificator {
         return fields;
     }
 
-    public static OtherClassLink getOrCreate(VClass forClass, VClass toClass) {
-        Optional<ClassModificator> cm = forClass.getModificator(e->{
-            if (e instanceof OtherClassLink) {
-                OtherClassLink m = (OtherClassLink)e;
-                if (m.toClass == toClass)
-                    return true;
-            }
-            return false;
-        });
-
-        if (cm.isPresent())
-            return (OtherClassLink) cm.get();
-
-        OtherClassLink ocl = new OtherClassLink(forClass, toClass);
-        forClass.addMod(ocl);
-        return ocl;
-    }
-
     public static class ArgumentLink implements ArgumentModificator {
 
         private static final long serialVersionUID = -3340377371594356849L;
@@ -73,7 +76,7 @@ public class OtherClassLink implements ClassModificator {
             this.otherClassLink = otherClassLink;
             //this.constructor = constructor;
 
-            String str = "to" + Integer.toString(toClass.hashCode()).replace('-','_');
+            String str = "to" + toClass.getRealName().replace('.', '_');
             arg = new VArgument(str, str, toClass, false, false, con, this);
 
             cba = new ConstructorBlockArgs(con, this);

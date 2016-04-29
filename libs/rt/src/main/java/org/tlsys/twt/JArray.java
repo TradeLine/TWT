@@ -83,6 +83,13 @@ public class JArray<E> {
         return Script.code(o,"[",CastUtil.toObject(index),"]");
     }
 
+    public JArray<E> set(int index, E value) {
+        if (index < 0 || index>=length())
+            return null;
+        Script.code(o,"[",CastUtil.toObject(index),"]=",value);
+        return this;
+    }
+
     public int length() {
         return CastUtil.toInt(Script.code(o,".length"));
     }

@@ -1,7 +1,6 @@
 package org.tlsys.twt.json;
 
 import org.tlsys.twt.CastUtil;
-import org.tlsys.twt.Console;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.classes.ClassRecord;
@@ -78,9 +77,7 @@ public final class JsonReader {
                 needClass = cl.getRecord().getArrayClassRecord().getAsClass();
             }
 
-            Console.info("read object...");
             if (CastUtil.toBoolean(Script.code("Array.isArray(", o, ")"))) {
-                Console.info("Object is ARRAY...");
                 int len = CastUtil.toInt(Script.code(o, ".length"));
 
                 needClass = needClass.getComponentType();
@@ -98,7 +95,6 @@ public final class JsonReader {
 
                 return ar;
             } else {
-                Console.info("Object is OBJECT...");
                 return readObject(o, needClass);
             }
         }
@@ -129,7 +125,6 @@ public final class JsonReader {
         if (type == null || Script.isUndefined(type)) {
             cl = needClass;
         } else {
-            Console.info("Search class " + type + "...");
 
             ClassRecord cr = ClassStorage.get().getByName(type);
             cl = cr.getAsClass();
@@ -168,7 +163,6 @@ public final class JsonReader {
         }
 
         Object v = cl.newInstance();
-        Console.info("Set fields...");
         while (cl != null) {
             if (cl == Object.class)
                 break;
@@ -181,9 +175,7 @@ public final class JsonReader {
                     continue;
                 if (!Script.hasOwnProperty(o, f.getName()))//if the value of the field name is not found
                     continue;//do not work ok
-                Console.info("read value for " + f.getName() + "...");
                 Object o2 = read(Script.code(o, "[", f.getName(), "]"), f.getType());
-                Console.dir(o2);
                 f.set(v, o2);
             }
             cl = cl.getSuperclass();

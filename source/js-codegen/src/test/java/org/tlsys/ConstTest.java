@@ -37,7 +37,7 @@ public class ConstTest extends TestVM {
         SimpleNameContext nameContext = new SimpleNameContext();
         Generator ng = new Generator();
         Output out = new Output();
-        ng.generateNative(classRecord, out, nameContext);
+        //ng.generateNative(classRecord, out, nameContext);
 
         System.out.println("OUT=" + out.toString());
 

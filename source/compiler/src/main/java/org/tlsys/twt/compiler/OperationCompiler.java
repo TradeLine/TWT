@@ -172,29 +172,34 @@ class OperationCompiler {
 
             AnnonimusClass ac = ClassCompiler.createLambda(c, e, o);
             List<VClass> addedArgs = buildConstructorInvokeTypes(ac);
-            VConstructor con = ac.getConstructor(addedArgs, c.getFile().getPoint(e.pos));
+            try {
+                VConstructor con = ac.getConstructor(addedArgs, c.getFile().getPoint(e.pos));
+                NewClass nc = new NewClass(con, c.getFile().getPoint(e.pos));
 
-            NewClass nc = new NewClass(con, c.getFile().getPoint(e.pos));
+                for (VArgument arg : con.getArguments()) {
+                    if (arg.getCreator() != null) {
+                        if (arg.getCreator() instanceof OtherClassLink.ArgumentLink) {
+                            VClass aa = arg.getType();
+                            nc.addArg(new This(arg.getType()));
+                            continue;
+                        }
 
-            for (VArgument arg : con.getArguments()) {
-                if (arg.getCreator() != null) {
-                    if (arg.getCreator() instanceof OtherClassLink.ArgumentLink) {
-                        VClass aa = arg.getType();
-                        nc.addArg(new This(arg.getType()));
-                        continue;
+                        if (arg.getCreator() instanceof InputsClassModificator.InputArgs) {
+                            InputsClassModificator.InputArgs a = (InputsClassModificator.InputArgs) arg.getCreator();
+                            nc.addArg(a.getInput());
+                            continue;
+                        }
+
+                        throw new RuntimeException("Unknown creator " + arg.getCreator());
                     }
-
-                    if (arg.getCreator() instanceof InputsClassModificator.InputArgs) {
-                        InputsClassModificator.InputArgs a = (InputsClassModificator.InputArgs) arg.getCreator();
-                        nc.addArg(a.getInput());
-                        continue;
-                    }
-
-                    throw new RuntimeException("Unknown creator " + arg.getCreator());
                 }
+
+                return nc;
+            } catch (Throwable ex) {
+                throw ex;
             }
 
-            return nc;
+
 
             /*
             VClass imp = c.loadClass(e.type, c.getFile().getStartPoint(e.pos));
@@ -619,9 +624,11 @@ class OperationCompiler {
         Objects.requireNonNull(vClass);
         List<VClass> argsParamClasses = new ArrayList<VClass>();
 
-        vClass.getModificator(ee -> ee.getClass() == OtherClassLink.class).ifPresent(e3 -> {
-            OtherClassLink o2 = (OtherClassLink) e3;
-            argsParamClasses.add(o2.getToClass());
+        vClass.getMods().stream().forEach(e -> {
+            if (e instanceof OtherClassLink) {
+                OtherClassLink o2 = (OtherClassLink) e;
+                argsParamClasses.add(o2.getToClass());
+            }
         });
 
         vClass.getModificator(ee -> ee.getClass() == InputsClassModificator.class).ifPresent(e3 -> {

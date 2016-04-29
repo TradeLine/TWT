@@ -35,7 +35,7 @@ public final class JavaCompiller {
         addExp(ObjectCreationExpr.class, (e, p, t) -> {
             JavaNewObject jn = new JavaNewObject(p);
             VClass clazz = JavaCompiller.findClass(e.getType(), p);
-            clazz.findConstructor();
+            //clazz.findConstructor();
             return jn;
         });
 

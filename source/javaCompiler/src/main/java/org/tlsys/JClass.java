@@ -225,8 +225,6 @@ public abstract class JClass implements VClass {
         for (VMember me : members) {
             if (me instanceof VMethod) {
                 VMethod m = (VMethod) me;
-                if (!m.getName().equals(name))
-                    continue;
             }
         }
         return Optional.empty();

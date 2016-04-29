@@ -122,6 +122,11 @@ public class TestClass implements VClass {
     }
 
     @Override
+    public Optional<TConstructor> findConstructor(MehtodSearchRequest request) {
+        return null;
+    }
+
+    @Override
     public int getModifiers() {
         return modifiers;
     }

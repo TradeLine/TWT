@@ -35,7 +35,7 @@ public class ClassCompiler {
             as.visit((r) -> {
                 if (r.get() instanceof This) {
                     This t = (This) r.get();
-                    if (t.getType() != as.getParent()) {
+                    if (!as.getParent().isParent(t.getType())) {
                         OtherClassLink ocl = OtherClassLink.getOrCreate(as.getParent(), t.getType());
                         r.set(new GetField(new This(as.getParent()), ocl.getField(), null));
                         b.setValue(true);
@@ -172,10 +172,14 @@ public class ClassCompiler {
             } else
                 throw new RuntimeException("No blocked lambda not supportedf yet");
         }
+
+
         VClass parentClazz = (VClass) TypeUtil.findParentContext(o, e2 -> e2 instanceof VClass).get();
 
         String name = "$$Lambda_" + Integer.toString(lc.hashCode(), Character.MAX_RADIX).replace('-', '_');
         AnnonimusClass ac = new AnnonimusClass(parentClazz, parentClazz, name, c.getFile().getPoint(e.pos));
+
+
         ac.fullName = parentClazz.getRealName() + name;
         ac.setClassLoader(parentClazz.getClassLoader());
         parentClazz.getClassLoader().classes.add(ac);
@@ -198,6 +202,18 @@ public class ClassCompiler {
         cons.setBlock(new VBlock(cons, null, null));
         cons.parentConstructorInvoke = new Invoke(superCons, new This(ac, null));
         ac.constructors.add(cons);
+
+        lc.block.visit((r) -> {
+            if (r.get() instanceof This) {
+                This t = (This) r.get();
+                if (t.getType() != ac) {
+                    OtherClassLink ocl = OtherClassLink.getOrCreate(ac, t.getType());
+                    r.set(new GetField(new This(ac), ocl.getField(), null));
+                    return false;
+                }
+            }
+            return true;
+        });
 
         parentThisReplacer.apply(mem);
         return ac;
