@@ -1,9 +1,9 @@
 package org.tlsys.twt.build;
 
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.OutputFiles;
-import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.TaskExecutionException;
+import org.gradle.api.Task;
+import org.gradle.api.internal.tasks.DefaultTaskInputs;
+import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.tasks.*;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.declare.*;
 import org.tlsys.sourcemap.SourceMap;
@@ -11,6 +11,7 @@ import org.tlsys.twt.*;
 
 import java.io.*;
 import java.util.*;
+import java.util.Optional;
 
 public class GenerationTask extends TWTPlugin {
 
@@ -107,6 +108,21 @@ public class GenerationTask extends TWTPlugin {
 */
     @TaskAction
     public void samplePluginTasks() throws TaskExecutionException {
+        /*cd WORK
+        TaskInputs inputs = getInputs();
+        System.out.println("INPUT = " + inputs);
+        Set<Task> tasks = getProject().getTasksByName(JavaPlugin.COMPILE_JAVA_TASK_NAME, true);
+
+        for (Task t : tasks) {
+            DefaultTaskInputs in = (DefaultTaskInputs) t.getInputs();
+            System.out.println("=>" + in.getFiles());
+
+            for (File f : in.getSourceFiles()) {
+                System.out.println("=>>" + f);
+            }
+        }
+        */
+
         DLoader loader = new DLoader();
         long start = System.currentTimeMillis();
         try {
