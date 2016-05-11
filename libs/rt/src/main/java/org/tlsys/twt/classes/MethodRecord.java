@@ -10,16 +10,27 @@ import org.tlsys.twt.annotations.JSClass;
 @CodeGenerator(NativeCodeGenerator.class)
 public class MethodRecord {
     private final JArray<ArgumentRecord> arguments = new JArray<>();
+    private final JArray<AnnotationProvider> annotations = new JArray<>();
     private String jsName;
     private String name;
     private Object body;
     private boolean staticFlag;
+
 
     public MethodRecord(String jsName, String name, Object body, boolean staticFlag) {
         this.body = body;
         this.jsName = jsName;
         this.name = name;
         this.staticFlag = staticFlag;
+    }
+
+    public MethodRecord addAnnotation(AnnotationProvider annotationProvider) {
+        annotations.add(annotationProvider);
+        return this;
+    }
+
+    public JArray<AnnotationProvider> getAnnotations() {
+        return annotations;
     }
 
     public JArray<ArgumentRecord> getArguments() {

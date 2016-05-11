@@ -43,6 +43,7 @@ public class TField {
     }
 
     public void set(Object obj, Object value) {
+
         /*
         if (Modifier.isStatic(getModifiers())) {
             TClass c = CastUtil.cast(getDeclaringClass());

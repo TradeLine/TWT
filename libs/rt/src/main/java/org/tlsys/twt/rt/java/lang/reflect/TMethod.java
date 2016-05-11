@@ -22,10 +22,4 @@ public class TMethod extends TExecutable {
     public String getName() {
         return name;
     }
-/*
-    @Override
-    public Class<?>[] getParameterTypes() {
-        return new Class<?>[0];
-    }
-    */
 }
