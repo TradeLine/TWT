@@ -23,6 +23,16 @@ import java.util.Set;
  */
 public abstract class TWTModuleSource extends TWTModuleLoader {
 
+    private final Set<File> sourcees;
+    private final Set<File> testsSource;
+
+    public TWTModuleSource(File classses, File sources, File resource, File testClasses, File testSource) throws IOException {
+        super(classses, resource);
+
+        sourcees = findSource(classses, sources);
+        testsSource = findSource(testClasses, testSource);
+    }
+
     public static Set<File> findSource(File classes, File source) throws IOException {
         return SourceFinder.getCompileClasses(classes, name -> {
             String classFilePath = name.replace('.', File.separatorChar) + ".java";
@@ -32,14 +42,6 @@ public abstract class TWTModuleSource extends TWTModuleLoader {
             }
             return Optional.empty();
         });
-    }
-
-    private final Set<File> sourcees;
-
-    public TWTModuleSource(File classses, File sources, File resource) throws IOException {
-        super(classses, resource);
-
-        sourcees = findSource(classses, sources);
     }
 
     public Set<File> getSourcees() {

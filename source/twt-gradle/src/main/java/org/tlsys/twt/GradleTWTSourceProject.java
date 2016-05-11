@@ -24,7 +24,30 @@ public class GradleTWTSourceProject extends TWTModuleSource {
 
     private final String name;
     
-      public static Set<File> findSource(File classes, File source) throws IOException {
+    public GradleTWTSourceProject(Project project, ArtifactRecolver artifactRecolver, DLoader loader) throws IOException {
+        super(
+                new File(project.getBuildDir() + File.separator + "classes" + File.separator + "main"),//source classes
+                new File(project.getProjectDir() + File.separator + "src" + File.separator + "main" + File.separator + "java"),//source files
+                new File(project.getBuildDir() + File.separator + "resources" + File.separator + "main"),//resources
+                null,//test classes
+                null);//test source
+        name = project.getGroup() + "-" + project.getName();
+        loader.add(this);
+
+        for (Configuration c : project.getConfigurations()) {
+            for (Dependency d : c.getDependencies()) {
+                for (TWTModule m : Utils.loadClass(artifactRecolver, loader, d)) {
+                    addParent(m);
+                }
+            }
+        }
+
+        VClassLoader cl = new VClassLoader(getName());
+        cl.setJavaClassLoader(getJavaClassLoader());
+        setTWTClassLoader(cl);
+    }
+
+    public static Set<File> findSource(File classes, File source) throws IOException {
         return SourceFinder.getCompileClasses(classes, name -> {
             String classFilePath = name.replace('.', File.separatorChar) + ".java";
             File f = new File(source + File.separator + classFilePath);
@@ -33,26 +56,6 @@ public class GradleTWTSourceProject extends TWTModuleSource {
             }
             return Optional.empty();
         });
-    }
-
-    public GradleTWTSourceProject(Project project, ArtifactRecolver artifactRecolver, DLoader loader) throws IOException {
-        super(new File(project.getBuildDir()+ File.separator+"classes" + File.separator + "main"),
-                new File(project.getProjectDir()+ File.separator+"src" + File.separator + "main" + File.separator + "java"),
-                new File(project.getBuildDir()+ File.separator+"resources" + File.separator + "main"));
-        name = project.getGroup() + "-" + project.getName();
-        loader.add(this);
-        
-        for (Configuration c : project.getConfigurations()) {
-            for (Dependency d : c.getDependencies()) {
-                for (TWTModule m : Utils.loadClass(artifactRecolver, loader, d)) {
-                    addParent(m);
-                }
-            }
-        }
-        
-        VClassLoader cl = new VClassLoader(getName());
-        cl.setJavaClassLoader(getJavaClassLoader());
-        setTWTClassLoader(cl);
     }
     
     @Override
