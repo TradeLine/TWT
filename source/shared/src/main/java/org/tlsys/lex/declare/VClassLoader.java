@@ -6,10 +6,7 @@ import org.tlsys.twt.CompileException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class VClassLoader implements Serializable {
     private static final long serialVersionUID = -8477730129932068195L;
@@ -22,6 +19,7 @@ public class VClassLoader implements Serializable {
     private transient ClassLoader javaClassLoader;
     private transient boolean loading = false;
     private transient LinkedList<ArrayLazyInit> lazy;
+    private transient HashMap<String, VClass> cash;
 
     public VClassLoader(String name) {
         this.name = name;
@@ -59,7 +57,9 @@ public class VClassLoader implements Serializable {
     }
 
     public void addClass(VClass cl) {
-        classes.add(cl);
+        synchronized (classes) {
+            classes.add(cl);
+        }
         cl.setClassLoader(this);
     }
 
@@ -86,14 +86,31 @@ public class VClassLoader implements Serializable {
         return ar;
     }
 
-    public VClass loadClass(String name, SourcePoint point) throws VClassNotFoundException {
+    public synchronized VClass loadClass(String name, SourcePoint point) throws VClassNotFoundException {
         //name = name.replace('$','.');
         if (classes == null)
             classes = new ArrayList<>();
-        for (VClass v : classes) {
-            if (v.isThis(name)) {
-                return v;
+
+        if (cash == null)
+            cash = new HashMap<>();
+
+        VClass c = cash.get(name);
+        if (c != null)
+            return c;
+
+        synchronized (classes) {
+            Optional<VClass> cl = classes.parallelStream().filter(v->v.isThis(name)).findFirst();
+            if (cl.isPresent()) {
+                cash.put(name, cl.get());
+                return cl.get();
             }
+            /*
+            for (VClass v : classes) {
+                if (v.isThis(name)) {
+                    return v;
+                }
+            }
+            */
         }
 
         for (VClassLoader v : parents) {
@@ -110,8 +127,10 @@ public class VClassLoader implements Serializable {
     private void writeObject(ObjectOutputStream out) throws java.io.IOException {
         VClass.setCurrentClassLoader(this);
         out.defaultWriteObject();
-        for (VClass cl : classes)
-            cl.saveCode(out);
+        synchronized (classes) {
+            for (VClass cl : classes)
+                cl.saveCode(out);
+        }
         out.flush();
     }
 
@@ -128,9 +147,10 @@ public class VClassLoader implements Serializable {
         in.defaultReadObject();
 
 
-
-        for (VClass cl : classes)
-            cl.loadCode(in);
+        synchronized (classes) {
+            for (VClass cl : classes)
+                cl.loadCode(in);
+        }
         loading = false;
 
         for (ArrayLazyInit a : lazy)
