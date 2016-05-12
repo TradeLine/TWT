@@ -24,13 +24,13 @@ import java.util.Set;
 public abstract class TWTModuleSource extends TWTModuleLoader {
 
     private final Set<File> sourcees;
-    private final Set<File> testsSource;
+    //private final Set<File> testsSource;
 
     public TWTModuleSource(File classses, File sources, File resource, File testClasses, File testSource) throws IOException {
         super(classses, resource);
 
         sourcees = findSource(classses, sources);
-        testsSource = findSource(testClasses, testSource);
+        //testsSource = findSource(testClasses, testSource);
     }
 
     public static Set<File> findSource(File classes, File source) throws IOException {

@@ -259,10 +259,9 @@ public class Generator implements MainGenerator {
                             .addArg(new Const(cr.getClazz().fullName, classString))
                             .addArg(new Const(cr.getClazz().alias, classString))
                     , compileModuls);
-
-            //gc = new MainGenerationContext(classClassStorage, compileModuls);
             Invoke inv = new Invoke(storageAddMethod, storage)
                     .addArg(lastScope);
+
             icg.operation(gc, inv, ps);
             ps.append(";");
         }

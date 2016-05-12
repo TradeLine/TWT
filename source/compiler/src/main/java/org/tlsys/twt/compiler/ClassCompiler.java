@@ -431,9 +431,13 @@ public class ClassCompiler {
     public static void compileCode(CompileContext ctx, Pair p, Class forClass) throws CompileException {
 
         TreeCompiler com = new TreeCompiler(p.vclass, ctx.getFileSource(p.file), ctx);
-        for (Map.Entry<JCTree, Member> e : p.members.entrySet()) {
+        for (Map.Entry<JCTree, Member> e : p.members.entrySet())
+        //p.members.entrySet().parallelStream().forEach(e->
+        {
+            //try {
             Member member = e.getValue();
             if (!forClass.isInstance(member))
+                //return;
                 continue;
             JCTree tree = e.getKey();
 
@@ -456,12 +460,14 @@ public class ClassCompiler {
                         nc.addArg(new Const(f.getAliasName() != null ? f.getAliasName() : f.getRealName(), f.getParent().getClassLoader().loadClass(String.class.getName(), ctx.getFileSource(p.file).getPoint(v.init.pos))));
                         nc.addArg(new Const(f.getParent().getLocalFields().indexOf(f), f.getParent().getClassLoader().loadClass("int", ctx.getFileSource(p.file).getPoint(v.init.pos))));
                     }
-                }
+                    }
+                //return;
                 continue;
-            }
+                }
 
             if (member instanceof VExecute) {
                 compileExecuteCode(com, (VExecute) member, (JCTree.JCMethodDecl) tree);
+                //return;
                 continue;
             }
 
@@ -471,18 +477,32 @@ public class ClassCompiler {
                 for (JCTree.JCStatement t : b.getStatements()) {
                     sb.getBlock().add(com.st(t, sb));
                 }
+                //return;
                 continue;
-            }
+                }
 
             throw new RuntimeException("Code analize for " + tree.getClass().getName() + " not ready yet");
-        }
+                /*
+            }catch (CompileException ex) {
+                throw new RuntimeException(ex);
+            }
+            */
+        }//);
 
         if (forClass == VExecute.class) {
+            /*
+            p.members.entrySet().parallelStream().filter(e->e instanceof VExecute).forEach(e->{
+                parentThisReplacer.apply((VExecute) e.getValue());
+            });
+            */
+
+
             for (Map.Entry<JCTree, Member> e : p.members.entrySet()) {
                 if (e.getValue() instanceof VExecute) {
                     parentThisReplacer.apply((VExecute) e.getValue());
                 }
             }
+
         }
     }
 
