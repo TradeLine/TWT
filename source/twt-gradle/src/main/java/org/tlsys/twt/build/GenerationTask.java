@@ -1,9 +1,9 @@
 package org.tlsys.twt.build;
 
-import org.gradle.api.Task;
-import org.gradle.api.internal.tasks.DefaultTaskInputs;
-import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.OutputFiles;
+import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.TaskExecutionException;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.declare.*;
 import org.tlsys.sourcemap.SourceMap;
@@ -11,14 +11,18 @@ import org.tlsys.twt.*;
 
 import java.io.*;
 import java.util.*;
-import java.util.Optional;
 
 public class GenerationTask extends TWTPlugin {
 
+    static int counter = 0;
     private static long classNameIterator = 0;
     private static long methodNameIterator = 0;
     private static int fieldIterator = 0;
     private ArrayList<GenerationTarget> targets = new ArrayList<>();
+
+    public GenerationTask() {
+        counter++;
+    }
 
     public static void renaming(VClassLoader loader) {
         String name = loader.getName();
@@ -108,7 +112,9 @@ public class GenerationTask extends TWTPlugin {
 */
     @TaskAction
     public void samplePluginTasks() throws TaskExecutionException {
-        /*cd WORK
+
+        System.out.println("==============\ncounter=" + counter + "===================\n");
+        /*
         TaskInputs inputs = getInputs();
         System.out.println("INPUT = " + inputs);
         Set<Task> tasks = getProject().getTasksByName(JavaPlugin.COMPILE_JAVA_TASK_NAME, true);
@@ -123,6 +129,7 @@ public class GenerationTask extends TWTPlugin {
         }
         */
 
+
         DLoader loader = new DLoader();
         long start = System.currentTimeMillis();
         try {
@@ -130,10 +137,10 @@ public class GenerationTask extends TWTPlugin {
             try {
                 long startCompile = System.currentTimeMillis();
                 app = AppCompiller.compileApp(this);
-                //System.out.println("Compile " + (System.currentTimeMillis() - startCompile));
+                System.out.println("Compile " + (System.currentTimeMillis() - startCompile));
                 long startRename = System.currentTimeMillis();
                 renaming(app.getMainLoader().getTWTClassLoader());
-                //System.out.println("Rename " + (System.currentTimeMillis() - startRename));
+                System.out.println("Rename " + (System.currentTimeMillis() - startRename));
                 for (GenerationTarget gt : getTargets()) {
                     File sourceMap = new File(getProject().getBuildDir(), "sourcemap");
                     File mapFile = new File(sourceMap, gt.out() + ".map");
@@ -145,6 +152,7 @@ public class GenerationTask extends TWTPlugin {
                     if (!sourceMap.exists())
                         sourceMap.mkdirs();
                     try (PrintStream ps1 = new PrintStream(new FileOutputStream(outFile), false, "UTF-8")) {
+                        long startSeachUsing = System.currentTimeMillis();
                         Outbuffer ps = new Outbuffer(ps1);
                         CompileModuls cm = new CompileModuls();
                         Optional<VMethod> mainMethod = null;
@@ -161,38 +169,7 @@ public class GenerationTask extends TWTPlugin {
                             cm.add(app.getMainLoader().getTWTClassLoader().loadClass(c, null));
                         }
                         cm.addForced(app.getMainLoader().getTWTClassLoader());
-                        //cm.detectReplace();
-
-                        /*
-                        for (CompileModuls.ClassRecord cr : cm.getRecords()) {
-                            if (cr.getClazz().getRealName() == null)
-                                continue;
-                            System.out.println("====" + cr.getClazz().getRealName() + "====");
-                            for (VExecute e : cr.getExe()) {
-                                if (e instanceof VMethod) {
-                                    VMethod m = (VMethod)e;
-                                    System.out.println(m.getDescription());
-                                    / *
-                                    Collect col = Collect.create();
-                                    m.getUsing(col);
-                                    for (CanUse cu : col.get()) {
-                                        if (cu instanceof VMethod) {
-                                            VMethod mm = (VMethod) cu;
-                                            System.out.println("--->" + mm.getParent().getRealName() + "." + mm.getDescription());
-
-                                        }
-                                    }
-                                    * /
-
-                                    System.out.println("\tReplaced:");
-                                    for (VMethod me : m.getReplaced()) {
-                                        System.out.println("\t\t" + me.getParent().getRealName() + "=>" + me.getDescription());
-                                    }
-                                }
-                            }
-                            System.out.println("====" + cr.getClazz().getRealName() + "====\n");
-                        }
-                        */
+                        System.out.println("Seach usin " + (System.currentTimeMillis() - startSeachUsing) + ", classes " + cm.getRecords().size());
 
 
                         long startGeneration = System.currentTimeMillis();
