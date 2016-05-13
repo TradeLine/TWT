@@ -1,13 +1,26 @@
 package org.tlsys.twt.expressions;
 
+import org.tlsys.twt.TNode;
+import org.tlsys.twt.links.ClassVal;
 import org.tlsys.twt.members.LocalVar;
-import org.tlsys.twt.members.VClass;
 
-public interface VarRef extends TExpression {
-    public LocalVar getVar();
+public final class VarRef extends TStaticExpression {
+
+    private static final long serialVersionUID = -2662237130880867037L;
+    private final LocalVar var;
+
+    public VarRef(TNode parent, LocalVar var) {
+        super(parent);
+        this.var = var;
+    }
+
+
+    public LocalVar getVar() {
+        return var;
+    }
 
     @Override
-    default VClass getResult() {
+    public ClassVal getResult() {
         return getVar().getType();
     }
 }

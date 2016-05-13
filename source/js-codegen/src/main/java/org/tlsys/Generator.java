@@ -1,5 +1,6 @@
 package org.tlsys;
 
+import org.tlsys.twt.ClassResolver;
 import org.tlsys.twt.expressions.TConst;
 import org.tlsys.twt.expressions.TExpression;
 import org.tlsys.twt.generate.NameContext;
@@ -21,7 +22,7 @@ public class Generator {
                 return true;
             }
 
-            if (e.getResult().getRealTimeName().equals(String.class.getName())) {
+            if (ClassResolver.resolve(e.getResult()).getRealTimeName().equals(String.class.getName())) {
                 o.append("'").append(e.getValue().toString()).append("'");
                 return true;
             }

@@ -96,7 +96,7 @@ public abstract class JClass implements VClass {
             FieldDeclaration fs = (FieldDeclaration) bd;
             for (VariableDeclarator vd : fs.getVariables()) {
                 VClass result = JavaCompiller.findClass(fs.getType(), this);
-                JavaField jf = new JavaField(vd, fs.getModifiers(), result, this);
+                JavaField jf = new JavaField(vd, fs.getModifiers(), result.asRef(), this);
                 members.add(jf);
 
             }

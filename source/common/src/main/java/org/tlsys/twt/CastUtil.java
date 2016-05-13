@@ -79,7 +79,7 @@ public final class CastUtil {
             if (cl == to)
                 return r;
             r++;
-            cl = cl.getSuperClass();
+            cl = ClassResolver.resolve(cl.getSuperClass());
         }
 
         return -1;

@@ -3,8 +3,8 @@ package org.tlsys.java.lex;
 import com.github.javaparser.ast.body.Parameter;
 import org.tlsys.JavaCompiller;
 import org.tlsys.twt.TNode;
+import org.tlsys.twt.links.ClassVal;
 import org.tlsys.twt.members.TArgument;
-import org.tlsys.twt.members.VClass;
 import org.tlsys.twt.members.VExecute;
 
 public class JavaArgument implements TArgument {
@@ -12,7 +12,7 @@ public class JavaArgument implements TArgument {
     private final String name;
     private final transient Parameter desc;
     private final VExecute parent;
-    private VClass type;
+    private ClassVal type;
 
     public JavaArgument(Parameter desc, VExecute parent) {
         this.desc = desc;
@@ -27,7 +27,7 @@ public class JavaArgument implements TArgument {
     }
 
     @Override
-    public VClass getType() {
+    public ClassVal getType() {
         if (type != null)
             return type;
 

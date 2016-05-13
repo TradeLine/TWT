@@ -4,6 +4,7 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import org.tlsys.java.lex.JavaArgument;
 import org.tlsys.twt.expressions.AnntationItem;
+import org.tlsys.twt.links.ClassVal;
 import org.tlsys.twt.members.TArgument;
 import org.tlsys.twt.members.VClass;
 import org.tlsys.twt.members.VMember;
@@ -22,7 +23,7 @@ public class JavaMethod implements VMethod {
     private final String realName;
     private final VClass parent;
     private final int modifiers;
-    private VClass result;
+    private ClassVal result;
     private List<TArgument> arguments;
 
     public JavaMethod(MethodDeclaration methodDeclaration, VClass parent) {
@@ -40,7 +41,7 @@ public class JavaMethod implements VMethod {
     }
 
     @Override
-    public VClass getResult() {
+    public ClassVal getResult() {
         if (result != null)
             return result;
         result = JavaCompiller.findClass(methodDeclaration.getType(), this);

@@ -1,5 +1,8 @@
 package org.tlsys.twt.members;
 
+import org.tlsys.twt.NamedClassVal;
+import org.tlsys.twt.links.ClassVal;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -10,7 +13,7 @@ public interface VClass extends VMember, Named {
 
     public String getRealTimeName();
 
-    public VClass getSuperClass();
+    public ClassVal getSuperClass();
 
     @Override
     default String getName() {
@@ -38,4 +41,8 @@ public interface VClass extends VMember, Named {
     public List<VMember> getMembers();
 
     public Optional<TConstructor> findConstructor(MehtodSearchRequest request);
+
+    public default NamedClassVal asRef() {
+        return new NamedClassVal(getName());
+    }
 }

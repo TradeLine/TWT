@@ -5,11 +5,11 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.*;
-import org.tlsys.java.lex.*;
+import org.tlsys.java.lex.JavaBlock;
+import org.tlsys.twt.ClassResolver;
 import org.tlsys.twt.TNode;
-import org.tlsys.twt.expressions.TAssign;
-import org.tlsys.twt.expressions.TExpression;
-import org.tlsys.twt.expressions.TVarDeclare;
+import org.tlsys.twt.expressions.*;
+import org.tlsys.twt.links.ClassVal;
 import org.tlsys.twt.members.*;
 import org.tlsys.twt.statement.StaExpression;
 import org.tlsys.twt.statement.TBlock;
@@ -19,6 +19,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Optional;
+import java.util.Vector;
 import java.util.function.Predicate;
 
 public final class JavaCompiller {
@@ -27,21 +28,30 @@ public final class JavaCompiller {
 
     static {
         addSta(ExpressionStmt.class, (s, p) -> {
-            JavaStaExpression jse = new JavaStaExpression(p);
+            StaExpression jse = new StaExpression(p);
             jse.setExpression(expression(s.getExpression(), jse, null));
             return jse;
         });
 
         addExp(ObjectCreationExpr.class, (e, p, t) -> {
-            JavaNewObject jn = new JavaNewObject(p);
+            throw new RuntimeException("Not supported yet");
+            /*
+            NewObject jn = new NewObject(p);
             VClass clazz = JavaCompiller.findClass(e.getType(), p);
             //clazz.findConstructor();
             return jn;
+            */
         });
 
         addExp(VariableDeclarationExpr.class, (e, p, t) -> {
-            JavaVarDeclare jvd = new JavaVarDeclare(p, e);
-            return jvd;
+
+            VClass type = JavaCompiller.findClass(e.getType(), p);
+            Vector<TVar> vars = new Vector<>();
+            e.getVars().parallelStream().forEach(v -> {
+                vars.add(new TVar(v.getId().getName(), p, type.asRef()));
+            });
+
+            return new TVarDeclare(p, vars.stream().toArray(TVar[]::new));
         });
 
         addSta(BlockStmt.class, (e, p) -> {
@@ -55,14 +65,49 @@ public final class JavaCompiller {
         });
 
         ExpressionCompiler<LiteralExpr> constCompiller = (e, p, t) -> {
-            return new JavaConst(p, e);
+            if (e.getData() == null)
+                return new TConst(null, p, ClassResolver.resolve(Object.class).asRef());
+
+            ClassVal type = null;
+
+            if (e.getData() instanceof String)
+                type = ClassResolver.resolve(String.class).asRef();
+
+            if (e.getData() instanceof Boolean)
+                type = ClassResolver.resolve(boolean.class).asRef();
+
+            if (e.getData() instanceof Character)
+                type = ClassResolver.resolve(char.class).asRef();
+
+            if (e.getData() instanceof Byte)
+                type = ClassResolver.resolve(byte.class).asRef();
+
+            if (e.getData() instanceof Short)
+                type = ClassResolver.resolve(short.class).asRef();
+
+            if (e.getData() instanceof Integer)
+                type = ClassResolver.resolve(int.class).asRef();
+
+            if (e.getData() instanceof Long)
+                type = ClassResolver.resolve(long.class).asRef();
+
+            if (e.getData() instanceof Float)
+                type = ClassResolver.resolve(float.class).asRef();
+
+            if (e.getData() instanceof Double)
+                type = ClassResolver.resolve(double.class).asRef();
+
+            if (type == null)
+                throw new RuntimeException("Can't resolve type for " + e.getData().getClass());
+
+            return new TConst(e.getData(), p, type);
         };
 
         addExp(IntegerLiteralExpr.class, constCompiller);
         addExp(LongLiteralExpr.class, constCompiller);
 
         addExp(AssignExpr.class, (e, p, t) -> {
-            JavaAssign ja = new JavaAssign(p);
+            TAssign ja = new TAssign(p);
             ja.setTarget(JavaCompiller.expression(e.getTarget(), ja, null));
 
             ja.setValue(JavaCompiller.expression(e.getValue(), ja, ja.getTarget().getResult()));
@@ -74,13 +119,13 @@ public final class JavaCompiller {
             Optional<TNode> node = seachUpByName(e.getName(), p, o -> true);
             if (node.isPresent()) {
                 TNode n = node.get();
-                if (n instanceof TVar)
-                    return new JavaVarRef((TVar)n, p);
+                if (n instanceof LocalVar)
+                    return new VarRef(p, (LocalVar) n);
 
                 if (n instanceof TField) {
                     TField f = (TField) n;
-                    TExpression scope = Modifier.isStatic(f.getModifiers()) ? new JavaStaticRef(f.getParent(), p) : new JavaThis(f.getParent(), p);
-                    JavaFieldRef jfr = new JavaFieldRef(scope, scope, f);
+                    TExpression scope = Modifier.isStatic(f.getModifiers()) ? new StaticRef(p, f.getParent().asRef()) : new This(p, f.getParent().asRef());
+                    FieldRef jfr = new FieldRef(scope, scope, f.asRef());
                     return jfr;
                 }
 
@@ -100,16 +145,16 @@ public final class JavaCompiller {
             throw new IllegalArgumentException("From argument is NULL");
         }
         if (from instanceof TBlock) {
-            TBlock block = (TBlock)from;
+            TBlock block = (TBlock) from;
             for (int i = 0; i < block.getStatementCount(); i++) {
                 TStatement st = block.getStatement(i);
                 if (st instanceof StaExpression) {
-                    StaExpression e = (StaExpression)st;
+                    StaExpression e = (StaExpression) st;
                     if (e.getExpression() instanceof TVarDeclare) {
-                        TVarDeclare dec = (TVarDeclare)e.getExpression();
+                        TVarDeclare dec = (TVarDeclare) e.getExpression();
                         for (TVar v : dec.getVars()) {
                             if (v.getName().equals(name)) {
-                                return Optional.of((T)v);
+                                return Optional.of((T) v);
                             }
                         }
                     }
@@ -138,10 +183,10 @@ public final class JavaCompiller {
         }
 
         if (from instanceof VExecute) {
-            VExecute e = (VExecute)from;
+            VExecute e = (VExecute) from;
             for (TArgument ar : e.getArguments()) {
                 if (ar.getName().equals(name))
-                return Optional.of((T)ar);
+                    return Optional.of((T) ar);
             }
         }
         if (from instanceof TAssign)
@@ -219,20 +264,20 @@ public final class JavaCompiller {
 
                 if (clazz.getParent() instanceof VClass) {
                     if (((VClass) clazz.getParent()).getSimpleName().equals(ci.getName()))//if seach parent class
-                        return (T)clazz.getParent();
+                        return (T) clazz.getParent();
                 }
-                VPackage parentPackage = (VPackage) seachUp(clazz, e->e instanceof VPackage).get();//finded parent class package
+                VPackage parentPackage = (VPackage) seachUp(clazz, e -> e instanceof VPackage).get();//finded parent class package
 
 
                 //search class in parent class
                 Optional<VClass> tempClass = clazz.getClassLoader().findClassByName(parentPackage.getName() + "." + ci.getName());
                 if (tempClass.isPresent())
-                    return (T)tempClass.get();
+                    return (T) tempClass.get();
 
                 //search class in java.lang
                 tempClass = clazz.getClassLoader().findClassByName("java.lang." + ci.getName());//search class in parent class
                 if (tempClass.isPresent())
-                    return (T)tempClass.get();
+                    return (T) tempClass.get();
 
                 //Optional<VClass> cls = seachUp(from, e-> e instanceof VClass);
                 //return (T) seachUpByName(ci.getName(), from, e -> e instanceof VClass).get();
@@ -240,11 +285,10 @@ public final class JavaCompiller {
         }
 
 
-
         throw new RuntimeException("Not supported yet");
     }
 
-    public static TExpression getInitValueFor(VClass type) {
+    public static TExpression getInitValueFor(ClassVal type) {
         throw new RuntimeException("Not supported yet");
     }
 
@@ -255,7 +299,7 @@ public final class JavaCompiller {
         throw new RuntimeException("Not supported " + statement.getClass().getName());
     }
 
-    public static <T extends TExpression> T expression(Expression expression, TNode parent, VClass needType) {
+    public static <T extends TExpression> T expression(Expression expression, TNode parent, ClassVal needType) {
         ExpressionCompiler sc = exps.get(expression.getClass());
         if (sc != null)
             return (T) sc.compile(expression, parent, needType);
@@ -295,6 +339,6 @@ public final class JavaCompiller {
     }
 
     private interface ExpressionCompiler<T extends Expression> {
-        public TExpression compile(T exr, TNode parent, VClass needClass);
+        public TExpression compile(T exr, TNode parent, ClassVal needClass);
     }
 }

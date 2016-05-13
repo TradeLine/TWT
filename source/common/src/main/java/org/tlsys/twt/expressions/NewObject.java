@@ -1,19 +1,38 @@
 package org.tlsys.twt.expressions;
 
-import org.tlsys.twt.members.TArgument;
-import org.tlsys.twt.members.TConstructor;
-import org.tlsys.twt.members.VClass;
+import org.tlsys.twt.ConstructorVal;
+import org.tlsys.twt.TNode;
+import org.tlsys.twt.links.ClassVal;
 
-import java.util.Map;
+public final class NewObject extends TExpression {
 
-public interface NewObject extends TExpression {
-    public Map<TArgument, TExpression> getArguments();
+    private static final long serialVersionUID = -8849661153972212434L;
+    private final TNode parent;
+    private final ConstructorVal constructorRef;
+    private final TExpression[] arguments;
 
-    public TConstructor getConstructor();
+    public NewObject(TNode parent, ConstructorVal constructorRef, TExpression[] arguments) {
+        this.parent = parent;
+        this.constructorRef = constructorRef;
+        this.arguments = arguments;
+    }
+
+    public TExpression[] getArguments() {
+        return arguments;
+    }
+
+    public ConstructorVal getConstructor() {
+        return constructorRef;
+    }
 
 
     @Override
-    public default VClass getResult() {
+    public ClassVal getResult() {
         return getConstructor().getParent();
+    }
+
+    @Override
+    public TNode getParent() {
+        return parent;
     }
 }

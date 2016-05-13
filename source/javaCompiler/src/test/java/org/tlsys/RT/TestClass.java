@@ -2,6 +2,7 @@ package org.tlsys.RT;
 
 import org.tlsys.JavaSourceSet;
 import org.tlsys.twt.expressions.AnntationItem;
+import org.tlsys.twt.links.ClassVal;
 import org.tlsys.twt.members.*;
 
 import java.util.List;
@@ -18,9 +19,9 @@ public class TestClass implements VClass {
     private boolean primitive;
     private String simpleName;
     private String realtimeName;
-    private VClass superClass;
+    private ClassVal superClass;
 
-    public TestClass(TClassLoader classLoader, String simpleName, String realtimeName, VClass superClass) {
+    public TestClass(TClassLoader classLoader, String simpleName, String realtimeName, ClassVal superClass) {
         this.parent = parent;
         this.classLoader = classLoader;
         this.simpleName = simpleName;
@@ -87,7 +88,7 @@ public class TestClass implements VClass {
     }
 
     @Override
-    public VClass getSuperClass() {
+    public ClassVal getSuperClass() {
         return superClass;
     }
 

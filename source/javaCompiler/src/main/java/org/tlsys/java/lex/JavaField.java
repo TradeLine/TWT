@@ -4,6 +4,7 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import org.tlsys.JavaCompiller;
 import org.tlsys.twt.expressions.AnntationItem;
 import org.tlsys.twt.expressions.TExpression;
+import org.tlsys.twt.links.ClassVal;
 import org.tlsys.twt.members.TField;
 import org.tlsys.twt.members.VClass;
 import org.tlsys.twt.members.VMember;
@@ -18,11 +19,11 @@ public class JavaField extends JavaMember implements TField {
 
     private final VariableDeclarator vd;
     private final String name;
-    private final VClass type;
+    private final ClassVal type;
     private final int modifiers;
     private TExpression init;
 
-    public JavaField(VariableDeclarator vd, int modifiers, VClass type, VClass parent) {
+    public JavaField(VariableDeclarator vd, int modifiers, ClassVal type, VClass parent) {
         super(parent);
         this.vd = vd;
         this.name = vd.getId().getName();
@@ -42,7 +43,7 @@ public class JavaField extends JavaMember implements TField {
     }
 
     @Override
-    public VClass getType() {
+    public ClassVal getType() {
         return type;
     }
 

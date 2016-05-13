@@ -1,5 +1,7 @@
 package org.tlsys.twt.members;
 
+import org.tlsys.twt.ClassResolver;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -8,7 +10,8 @@ public final class MehtodSearchRequest {
     public static final byte BAD = -1;
     public static final byte EQUAL = 0;
     public static final Predicate<TArgument> UNKNOWN = e -> true;
-    public static final Predicate<TArgument> NULL = e -> !e.getType().isPrimitive();
+    public static final Predicate<TArgument> NULL = e -> !ClassResolver.resolve(e.getType()).isPrimitive();
+
     private final VMember member;
     private final List<ArgumentCheck> list = new ArrayList<>();
 
