@@ -1,7 +1,6 @@
 package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.twt.CastUtil;
-import org.tlsys.twt.Console;
 import org.tlsys.twt.JArray;
 import org.tlsys.twt.Script;
 import org.tlsys.twt.annotations.ClassName;
@@ -11,6 +10,7 @@ import org.tlsys.twt.classes.ClassRecord;
 import org.tlsys.twt.classes.FieldRecord;
 import org.tlsys.twt.rt.java.lang.reflect.TConstructor;
 import org.tlsys.twt.rt.java.lang.reflect.TField;
+import org.tlsys.twt.rt.java.lang.reflect.TMethod;
 
 @JSClass
 @ClassName("java.lang.Class")
@@ -20,6 +20,7 @@ public class TClass {
     private final ClassRecord record;
     TConstructor[] constructors;
     private TField[] fields;
+    private TClass[] imterfaces = null;
 
     public TClass(ClassRecord record) {
         this.record = record;
@@ -53,8 +54,6 @@ public class TClass {
         }
         return isAssignableFrom(obj.getClass());
     }
-
-    private TClass[] imterfaces = null;
 
     public TClass[] getInterfaces() {
         if (imterfaces != null)
@@ -120,6 +119,10 @@ public class TClass {
             constructors[i] = list.get(i);
         }
         return constructors;
+    }
+
+    public TMethod[] getMethods() {
+        return null;
     }
 
 

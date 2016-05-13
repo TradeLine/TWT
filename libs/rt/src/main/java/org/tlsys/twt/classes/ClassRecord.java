@@ -114,6 +114,21 @@ public class ClassRecord {
         return jsName;
     }
 
+    public Object createUnsafe() {
+        if (getAsClass().isPrimitive())
+            throw new RuntimeException("Can't create primitive");
+        Object tempProto = prototype;
+
+        if (getDomNode() == null) {
+            return Script.code("new ", tempProto, "()");
+        } else {
+            TObject temp = Script.code("document.createElement(", getDomNode(), ")");
+            Script.code("for(k in ", tempProto, ".prototype) o[k]=", tempProto, ".prototype[k]");
+            temp.setHashCode(TObject.genHashCode());
+            return CastUtil.cast(temp);
+        }
+    }
+
     private void createConstructor(MethodRecord mr) {
         //MethodRecord mr = methods.get(i);
         if (mr.getName() == null) {//This is Constructor?

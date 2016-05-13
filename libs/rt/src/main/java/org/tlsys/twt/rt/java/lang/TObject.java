@@ -11,15 +11,19 @@ import org.tlsys.twt.rt.EmptyMethodBody;
 @ReplaceClass(java.lang.Object.class)
 @CodeGenerator(DefaultGenerator.class)
 @CastAdapter(DefaultCast.class)
-public class TObject {
+public class TObject extends Object {
 
     public static final String CLASS_RECORD = "1:CLASS";
     private static int hashCodeCounter = 0;
-    private int hashCode = ++hashCodeCounter;
+    private int hashCode = genHashCode();
 
     @CodeGenerator(EmptyMethodBody.class)
     //@MethodBodyGen("org.tlsys.twt.rt.EmptyMethodBody")
     public TObject() {
+    }
+
+    public static int genHashCode() {
+        return ++hashCodeCounter;
     }
 
     public static Class getClassOfObject(Object object) {
@@ -73,6 +77,10 @@ public class TObject {
         return new Boolean(true);
     }
 
+    public void setHashCode(int hashCode) {
+        this.hashCode = hashCode;
+    }
+
     @Override
     public int hashCode() {
         return hashCode;
@@ -101,5 +109,16 @@ public class TObject {
 
     public boolean equals(Object obj) {
         return Script.code(CastUtil.toObject(this.hashCode()), "==", CastUtil.toObject(obj.hashCode()));
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        TClass cl = CastUtil.cast(getClass());
+        TObject o = CastUtil.cast(cl.getRecord().createUnsafe());
+        int oldHash = o.hashCode;
+        Object vv = null;
+
+        Script.code("for(", vv, " in ", this, ") ", o, "[", vv, "]=", this, "[", vv, "]");
+        o.hashCode = oldHash;
+        return CastUtil.cast(o);
     }
 }

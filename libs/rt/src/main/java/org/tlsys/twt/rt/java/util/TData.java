@@ -43,4 +43,9 @@ public class TData {
     public int getYear() {
         return CastUtil.toInt(Script.code(data,".getFullYear()"));
     }
+
+    @Deprecated
+    public int getDay() {
+        return CastUtil.toInt(Script.code(data, ".getDay()"));
+    }
 }
