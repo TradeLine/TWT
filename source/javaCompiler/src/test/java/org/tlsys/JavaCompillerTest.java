@@ -2,6 +2,7 @@ package org.tlsys;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseException;
+import org.junit.Test;
 import org.tlsys.RT.IntClass;
 import org.tlsys.RT.ObjectClass;
 import org.tlsys.RT.TestClass;
@@ -43,7 +44,7 @@ public class JavaCompillerTest {
         loader.addAlias(name, addSimpleClass(fs, "T" + name));
     }
 
-    //@Test
+    @Test
     public void test() {
         StringBuilder sb = new StringBuilder();
 
