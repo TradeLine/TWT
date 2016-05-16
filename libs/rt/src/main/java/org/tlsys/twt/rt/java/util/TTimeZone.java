@@ -17,16 +17,19 @@ public abstract class TTimeZone implements Cloneable {
     private static TTimeZone defaultTimeZone;
 
     static {
+        resetDefault();
+    }
+
+    private String ID;
+
+    private static void resetDefault() {
         Optional<TTimeZone> opt = TZoneInfo.getZoneByOffset(CastUtil.toInt(Script.code("-(new Date().getTimezoneOffset()*1000*60)")));
-        /*
+
         if (opt.isPresent())
             defaultTimeZone = opt.get();
         else
             defaultTimeZone = TZoneInfo.getZoneByOffset(0).get();
-            */
     }
-
-    private String ID;
 
     public static TTimeZone getDefault() {
         return (TTimeZone) defaultTimeZone.clone();
