@@ -15,6 +15,7 @@ public class VClassLoader implements Serializable {
     public ArrayList<VClass> classes = new ArrayList<>();
     public transient ArrayList<VClassLoader> parents = new ArrayList<>();
     private String name;
+
     private transient HashMap<VClass, ArrayClass> arrays = new HashMap<>();
     private transient ClassLoader javaClassLoader;
     private transient boolean loading = false;
