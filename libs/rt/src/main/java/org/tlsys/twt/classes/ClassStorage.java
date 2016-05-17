@@ -39,7 +39,10 @@ public class ClassStorage {
             name = name.substring(0, name.length() - 1);
 
         if (name.startsWith("[")) {//is Array?
-            return getByName(name.substring(1)).getArrayClassRecord();
+            name = name.substring(1);
+            if (name.startsWith("L"))
+                name = name.substring(1);
+            return getByName(name).getArrayClassRecord();
         }
         if (name.equals("I"))
             return getByName("int");

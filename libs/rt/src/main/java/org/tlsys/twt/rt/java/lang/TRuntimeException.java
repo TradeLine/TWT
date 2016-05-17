@@ -6,6 +6,8 @@ import org.tlsys.twt.annotations.JSClass;
 @JSClass
 @ClassName("java.lang.RuntimeException")
 public class TRuntimeException extends Exception {
+    private static final long serialVersionUID = -2639473776752775026L;
+
     public TRuntimeException() {
         super();
     }
@@ -27,4 +29,6 @@ public class TRuntimeException extends Exception {
                                 boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
+
+
 }
