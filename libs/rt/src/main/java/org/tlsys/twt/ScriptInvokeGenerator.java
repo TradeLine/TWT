@@ -89,6 +89,18 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
             return true;
         }
 
+        if (invoke.getMethod().alias.equals("setInterval")) {
+            ps.append("setInterval(");
+            VClass callerClass = invoke.getMethod().getParent().getClassLoader().loadClass(Script.TimeoutCallback.class.getName(), invoke.getStartPoint());
+            ps.append("function(){");
+            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, new Invoke(callerClass.getMethod("onTimeout", invoke.getStartPoint()), invoke.arguments.get(1)), ps);
+            ps.append(";}.bind(this)");
+            ps.append(",");
+            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
+            ps.append(")");
+            return true;
+        }
+
 
 
         throw new RuntimeException("Unknown method " + invoke.getMethod().alias);

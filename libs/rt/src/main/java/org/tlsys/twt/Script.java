@@ -43,4 +43,7 @@ public class Script {
 
     @InvokeGen(org.tlsys.twt.ScriptInvokeGenerator.class)
     public static native long setTimeout(int timeOut, TimeoutCallback callback);
+
+    @InvokeGen(org.tlsys.twt.ScriptInvokeGenerator.class)
+    public static native long setInterval(int timeOut, TimeoutCallback callback);
 }

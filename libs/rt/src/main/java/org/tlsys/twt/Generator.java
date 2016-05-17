@@ -6,6 +6,7 @@ import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.twt.classes.*;
+import org.tlsys.twt.name.NameMap;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;
@@ -178,7 +179,7 @@ public class Generator implements MainGenerator {
     }
 
     @Override
-    public void generate(VClassLoader projectClassLoader, CompileModuls compileModuls, Outbuffer ps) throws CompileException {
+    public void generate(NameMap nameMap, VClassLoader projectClassLoader, CompileModuls compileModuls, Outbuffer ps) throws CompileException {
 
         VClass classClassStorage = projectClassLoader.loadClass(ClassStorage.class.getName(), null);
 
@@ -268,7 +269,7 @@ public class Generator implements MainGenerator {
     }
 
     @Override
-    public void generateInvoke(VMethod method, Outbuffer out, Value... arguments) throws CompileException {
+    public void generateInvoke(NameMap nameMap, VMethod method, Outbuffer out, Value... arguments) throws CompileException {
         Invoke inv = new Invoke(method, new StaticRef(method.getParent()));
         for (Value v : arguments)
             inv.addArg(v);
