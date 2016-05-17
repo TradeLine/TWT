@@ -186,6 +186,7 @@ public class ClassCompiler {
         parentClazz.addChild(ac);
         ac.implementsList.add(imp);
         VMethod mem = new VMethod(lc.block.getStartPoint(), method.getRealName(), ac, null);
+        mem.force = true;
         mem.setReplace(method);
         mem.setBlock(lc.block);
         for (VArgument arg : lc.args) {

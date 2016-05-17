@@ -140,7 +140,7 @@ public class ClassRecord {
     }
 
     public Object getPrototype() {
-        if (prototype != null) {
+        if (prototype != null && !Script.isUndefined(prototype)) {
             return prototype;
         }
 
