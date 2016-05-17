@@ -8,6 +8,7 @@ import org.tlsys.Outbuffer;
 import org.tlsys.lex.declare.*;
 import org.tlsys.sourcemap.SourceMap;
 import org.tlsys.twt.*;
+import org.tlsys.twt.name.NameMap;
 
 import java.io.*;
 import java.util.*;
@@ -132,6 +133,7 @@ public class GenerationTask extends TWTPlugin {
 
         DLoader loader = new DLoader();
         long start = System.currentTimeMillis();
+        NameMap nameMap = new NameMap();
         try {
             AppCompiller.App app = null;
             try {
@@ -175,15 +177,15 @@ public class GenerationTask extends TWTPlugin {
                         long startGeneration = System.currentTimeMillis();
                         Class cl = app.getMainLoader().getJavaClassLoader().loadClass(gt.generator());
                         MainGenerator mg = (MainGenerator) cl.newInstance();
-                        mg.generate(app.getMainLoader().getTWTClassLoader(), cm, ps);
+                        mg.generate(nameMap, app.getMainLoader().getTWTClassLoader(), cm, ps);
 
                         if (mainMethod != null) {
-                            mg.generateInvoke(mainMethod.get(), ps);
+                            mg.generateInvoke(nameMap, mainMethod.get(), ps);
                         }
 
                         System.out.println("Generation " + (System.currentTimeMillis() - startGeneration));
 
-                        ps.append("\n//@ sourceMappingURL=" + new File(outFile.getParent()).toURI().relativize(mapFile.toURI()));
+                        ps.append("\n//# sourceMappingURL=" + new File(outFile.getParent()).toURI().relativize(mapFile.toURI()));
                         //ps.getRecords();
 
                         long startSourceMapGeneration = System.currentTimeMillis();
