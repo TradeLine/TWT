@@ -70,6 +70,7 @@ public class TThrowable {
         return (cause == o ? null : cause);
     }
 
+    @Override
     public String toString() {
         String out = getClass().getName();
         if (getMessage() != null)

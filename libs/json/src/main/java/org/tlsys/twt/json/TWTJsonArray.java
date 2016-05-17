@@ -7,6 +7,8 @@ import java.util.List;
 
 public class TWTJsonArray extends ArrayList<JsonValue> implements JsonArray {
 
+    private static final long serialVersionUID = 1679813626545348105L;
+
     @Override
     public boolean getBoolean(int index) {
         return false;

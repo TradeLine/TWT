@@ -1,9 +1,6 @@
 package org.tlsys.twt.classes;
 
-import org.tlsys.twt.CastUtil;
-import org.tlsys.twt.JArray;
-import org.tlsys.twt.NativeCodeGenerator;
-import org.tlsys.twt.Script;
+import org.tlsys.twt.*;
 import org.tlsys.twt.annotations.CodeGenerator;
 import org.tlsys.twt.annotations.JSClass;
 import org.tlsys.twt.rt.java.lang.GenArrayClassCreateMethod;
@@ -156,15 +153,12 @@ public class ClassRecord {
 
         applyClassBody(prototype);
 
-        //init static fields
-        //Script.code("console.info('Creating static fields for '+", getName(), "+'...')");
         for (int i = 0; i < fields.length(); i++) {
             FieldRecord fr = fields.get(i);
             if ((fr.getModificators() & Modifier.STATIC) == 0) {
                 //Script.code("console.info('Field '+", getName(), "+'=>'+", fr.getName(), "+' is NON static')");
                 continue;
             }
-            //Script.code("console.info('Field '+", getName(), "+'=>'+", fr.getName(), "+' is static! init it!')");
             Object tempProto = prototype;
             Script.code(tempProto, "[", fr.getJsName(), "]=eval(",fr.getInitValue(),")");
         }
@@ -177,6 +171,11 @@ public class ClassRecord {
     }
 
     protected void applyClassBody(Object obj) {
+
+        if (Script.isUndefined(Script.code(obj, ".toString_setted"))) {
+            Script.code(obj, ".toString_setted=false");
+        }
+
         if (obj == null && Script.isUndefined(obj))
             Script.code("throw new Error('Object is NULL')");
         for (int i = 0; i < fields.length(); i++) {
@@ -197,8 +196,12 @@ public class ClassRecord {
                 if (!Script.hasOwnProperty(Script.code(obj, ".prototype"), mr.getJsName()))
                     Script.code(obj, ".prototype[", mr.getJsName(), "]=", mr.getBody());
 
-                if (mr.getName().equals("toString") && mr.getArguments().length() == 0) {
-                    Script.code(obj, ".prototype.toString=", mr.getBody());
+                if (!CastUtil.toBoolean(Script.code(obj, ".toString_setted"))) {
+                    Console.info("Set toString for " + getName());
+                    if (mr.getName().equals("toString") && mr.getArguments().length() == 0) {
+                        Script.code(obj, ".prototype.toString=", mr.getBody());
+                        Script.code(obj, ".toString_setted=true");
+                    }
                 }
             }
         }
