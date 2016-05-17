@@ -70,6 +70,8 @@ public class Assign extends Value {
     public enum AsType {
         ASSIGN,
         PLUS,
-        MINUS
+        MINUS,
+        MUL,
+        DIV
     }
 }
