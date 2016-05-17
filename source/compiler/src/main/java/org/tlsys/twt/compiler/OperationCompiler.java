@@ -520,6 +520,12 @@ class OperationCompiler {
                 case MINUS_ASG:
                     type = Assign.AsType.MINUS;
                     break;
+                case MUL_ASG:
+                    type = Assign.AsType.MUL;
+                    break;
+                case DIV_ASG:
+                    type = Assign.AsType.DIV;
+                    break;
                 default:
                     throw new RuntimeException("Unknown type " + e.getTag());
             }
