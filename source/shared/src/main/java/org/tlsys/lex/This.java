@@ -3,6 +3,7 @@ package org.tlsys.lex;
 import org.tlsys.HavinSourceStart;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -24,6 +25,10 @@ public class This extends Value implements HavinSourceStart {
     }
 
     public This(VClass self, SourcePoint point) {
+        if (self == null) {
+            System.out.println("132");
+            throw new RuntimeException(new CompileException("Self type of this is NULL", point));
+        }
         this.self = self;
         this.point = point;
     }

@@ -557,9 +557,9 @@ class OperationCompiler {
             Value scope = c.op(e.selected, o);
             if (scope instanceof StaticRef) {
                 String name = e.name.toString();
-
+                StaticRef self = (StaticRef)scope;
                 if (name.equals("this")) {
-                    return new This(c.getCurrentClass().getParent(), c.getFile().getPoint(e.pos));
+                    return new This(self.getType(), c.getFile().getPoint(e.pos));
                     //return new GetField(new This(c.getCurrentClass()), TypeUtil.getParentThis(c.getCurrentClass()));
                     //throw new RuntimeException("Not supported parent this parent class");
                     //return c.getCurrentClass().getParentVar();
@@ -573,7 +573,16 @@ class OperationCompiler {
 
             if (e.sym instanceof Symbol.VarSymbol) {
                 VClass scopeClass = scope.getType();
-                VField field = (VField) scope.getType().find(((Symbol.VarSymbol) e.sym).name.toString(), v -> v instanceof VField).orElseThrow(() ->
+
+                if (scopeClass == null)
+                    System.out.println("123");
+
+                Objects.requireNonNull(scope, "Scope is NULL");
+                Objects.requireNonNull(scope.getType(), "Type of scope is NULL");
+                Objects.requireNonNull(((Symbol.VarSymbol) e.sym).name, "Name of var is NULL");
+                VField field = (VField) scope.getType().find(((Symbol.VarSymbol) e.sym).name.toString(), v -> v instanceof VField)
+
+                        .orElseThrow(() ->
                         new CompileException("Can't find field " + e.name.toString() + " in " + scopeClass.getRealName(), c.getFile().getPoint(e.pos))
                 );
 
