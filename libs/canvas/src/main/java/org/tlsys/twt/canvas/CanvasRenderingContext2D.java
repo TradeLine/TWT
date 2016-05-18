@@ -149,4 +149,17 @@ public class CanvasRenderingContext2D {
         Script.code(ctx, ".rotate(",
                 CastUtil.toObject(angle), ")");
     }
+
+    //TODO create function for gradient, and for pattern
+    public void fill() {
+        Script.code(ctx, ".fill()");
+    }
+
+    public void stroke() {
+        Script.code(ctx, ".stroke()");
+    }
+
+    public void clip() {
+        Script.code(ctx, ".clip()");
+    }
 }
