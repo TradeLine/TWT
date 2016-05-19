@@ -237,7 +237,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         return false;
     }
 
-    private boolean equalArgs(VExecute exe, List<VClass> args) throws MethodNotFoundException {
+    private boolean equalArgs(VExecute exe, List<VClass> args) {
         for (int i = 0; i < exe.getArguments().size(); i++) {
             VArgument a = exe.getArguments().get(i);
             if (a.var) {
@@ -325,6 +325,51 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     public VMethod getMethod(String name, List<VClass> args, SourcePoint point) throws MethodNotFoundException {
+        final ArrayList<VMethod> methods = new ArrayList<>();
+
+
+        for (VMethod v : methods) {
+            if (!equalArgs(v, args))
+                continue;
+            if (!name.equals(v.getRunTimeName()) && !name.equals(v.alias))
+                continue;
+            methods.add(v);
+        }
+
+        if (extendsClass != null) {
+            extendsClass.methods.parallelStream().forEach(v -> {
+                if (!equalArgs(v, args))
+                    return;
+                if (!name.equals(v.getRunTimeName()) && !name.equals(v.alias))
+                    return;
+
+                if (v.getReplaced().parallelStream().filter(e -> methods.contains(e)).count() <= 0)
+                    methods.add(v);
+            });
+        }
+
+        implementsList.parallelStream().forEach(c -> {
+            c.methods.parallelStream().forEach(v -> {
+                if (!equalArgs(v, args))
+                    return;
+                if (!name.equals(v.getRunTimeName()) && !name.equals(v.alias))
+                    return;
+                if (v.getReplaced().parallelStream().filter(e -> methods.contains(e)).count() <= 0)
+                    methods.add(v);
+            });
+        });
+
+        if (methods.parallelStream().filter(e -> e.getArguments().parallelStream().filter(arg -> arg.var).count() > 0).count() > 0) {//если среди найденых методов есть те, которые содержат переменное число аргументов
+            if (methods.parallelStream().filter(e -> e.getArguments().parallelStream().filter(arg -> arg.var).count() == 0).count() > 0) {//если среди найденых есть методы, не содержащие переменное число аргументов
+                methods.removeIf(e -> e.getArguments().parallelStream().filter(arg -> arg.var).count() > 0);//удаляем все методы, содержащие переменное число аргументов
+            }
+        } else {
+
+        }
+
+        throw new MethodNotFoundException(this, name, args, point);
+
+        /*
         for (VMethod v : methods) {
             if (!name.equals(v.getRunTimeName()) && !name.equals(v.alias))
                 continue;
@@ -347,6 +392,7 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         }
 
         throw new MethodNotFoundException(this, name, args, point);
+        */
     }
 
 

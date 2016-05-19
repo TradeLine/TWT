@@ -77,6 +77,14 @@ public final class TString implements TCharSequence {
         return Double.toString(value);
     }
 
+    public static String fromboolean(boolean value) {
+        return Boolean.toString(value);
+    }
+
+    public static String fromchar(char value) {
+        return CastUtil.cast(CastUtil.toObject(value));
+    }
+
     @MethodAlias("toString")
     @Override
     public String toString() {
@@ -141,9 +149,5 @@ public final class TString implements TCharSequence {
     @InvokeGen(ApplyInvoke.class)
     public boolean startsWith(String prefix) {
         return indexOf(prefix) == 0;
-    }
-
-    public static String fromboolean(boolean value) {
-        return Boolean.toString(value);
     }
 }

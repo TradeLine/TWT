@@ -47,16 +47,24 @@ public class JArray<E> {
     }
 
     public boolean remove(E value) {
+        Console.info("remove by element...");
         int i = indexOf(value);
         if (i >= 0) {
+            Console.info("Element finded! " + i);
             remove(i);
+            Console.info("Removed");
             return true;
         }
+        Console.info("Element not found");
         return false;
     }
 
     public void remove(int index) {
+        Console.info("Remove element #" + index + ". Before:");
+        Console.dir(o);
         Script.code(o,".splice(",CastUtil.toObject(index),",1)");
+        Console.info("After:");
+        Console.dir(o);
     }
 
     public E push(E value) {
