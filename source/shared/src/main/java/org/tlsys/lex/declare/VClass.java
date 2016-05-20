@@ -72,6 +72,17 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         return true;
     }
 
+    private static int calcCof(VMethod method, List<VClass> args) {
+        int t = 0;
+        for (int i = 0; i < args.size(); i++) {
+            int r = TypeUtil.getCastLevelResult(args.get(i), method.getArguments().get(i).var ? method.getArguments().get(i).getType().getArrayClass() : method.getArguments().get(i).getType());
+            if (r < 0)
+                return -1;
+            t += r;
+        }
+        return t;
+    }
+
     public List<ClassModificator> getMods() {
         return mods;
     }
@@ -92,16 +103,16 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         childs.add(clazz);
     }
 
-    public String getSimpleRealName() {
-        return realSimpleName;
-    }
-
     /*
     public VClass() {
         classSymbol = null;
         classLoader.classes.add(this);
     }
     */
+
+    public String getSimpleRealName() {
+        return realSimpleName;
+    }
 
     public String getRealName() {
         if (parentContext instanceof VPackage) {
@@ -221,20 +232,28 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         return getRealName();
     }
 
-    public boolean isParent(VClass clazz) {
+    public int getParentCount(VClass clazz, int level) {
         if (clazz == this)
-            return true;
+            return level;
         if (extendsClass == clazz)
-            return true;
-        else if (extendsClass != null && extendsClass.isParent(clazz))
-            return true;
+            return level + 1;
+        else if (extendsClass != null) {
+            int r = extendsClass.getParentCount(clazz, level);
+            if (r >= 0)
+                return r + 1;
+        }
         for (VClass e : implementsList) {
             if (e == clazz)
-                return true;
-            if (e.isParent(clazz))
-                return true;
+                return level + 1;
+            int r = e.getParentCount(clazz, level);
+            if (r >= 0)
+                return r + 1;
         }
-        return false;
+        return -1;
+    }
+
+    public boolean isParent(VClass clazz) {
+        return getParentCount(clazz, 0) >= 0;
     }
 
     private boolean equalArgs(VExecute exe, List<VClass> args) {
@@ -298,6 +317,17 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         return false;
     }
 
+    /*
+    Правила выбора метода
+        1. Если нашелся только один подходящий метод, то выбераем его
+        2. Если среди подходящих методов нашлись и те что с переменным числом аргументов и те что без, то при поиске НЕ учитываем методы с переменным числом аргументов
+        3. Если среди методов есть метод, аргументы которого ПОЛНОСТЬЮ совпадают требуемыми, то нужно выбрать его
+
+        На первой фазе (§15.12.2.2) performs overload resolution без нужды боксинга или анбоксинга, или методов, используемых переменное число аргшументов. Если если требуемый метод не найден, то переходим ко второй фазе.
+        На второй фазе (§15.12.2.3) performs overload resolution с допустимым боксингом или анбоксингом, но без исользования методов с переменным числом аргументов. Если если требуемый метод не найден, то переходим к третей фазе.
+        На третей фазе (§15.12.2.4) допускаются использовать методы с переменным числом аргументов, боксингом и анбоксингом.
+     */
+
     public List<VMethod> getMethodByName(String name) {
         ArrayList<VMethod> methods = new ArrayList<>();
 
@@ -324,50 +354,129 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
         return methods;
     }
 
-    public VMethod getMethod(String name, List<VClass> args, SourcePoint point) throws MethodNotFoundException {
-        final ArrayList<VMethod> methods = new ArrayList<>();
+    private void getMethodForSearch(String name, Collection<VMethod> out, List<VClass> args) {
+        System.out.println("==Seach in " + getRealName() + " for " + name);
+        for (VClass cl : args)
+            System.out.println("=>" + cl);
 
-
+        METHODS:
         for (VMethod v : methods) {
-            if (!equalArgs(v, args))
-                continue;
             if (!name.equals(v.getRunTimeName()) && !name.equals(v.alias))
                 continue;
+
+            if (!equalArgs(v, args))
+                continue;
+
+            if (out.contains(v))
+                continue;
+
+            for (VMethod m : v.getReplaced()) {
+                out.contains(out);
+                continue METHODS;
+            }
+
+
+            if (out.contains(v.getReplace())) {
+                System.out.println("remove " + v.getReplace());
+                out.remove(v.getReplace());
+            }
+            System.out.println("add " + v);
+            out.add(v);
+        }
+
+        if (extendsClass != null)
+            extendsClass.getMethodForSearch(name, out, args);
+
+        for (VClass v : implementsList)
+            v.getMethodForSearch(name, out, args);
+    }
+
+    public VMethod getMethod(String name, List<VClass> args, SourcePoint point) throws MethodNotFoundException {
+        final List<VMethod> methods = Collections.synchronizedList(new ArrayList<>());
+        System.out.println("Seach " + getRealName() + "." + name + " with args:\t\ton" + point);
+        for (VClass v : args) {
+            System.out.println("=>" + v.getRealName());
+        }
+
+        System.out.println("-------------------");
+
+        this.methods.parallelStream().forEach(v -> {
+            if (!name.equals(v.getRunTimeName()) && !name.equals(v.alias))
+                return;
+
+            if (!equalArgs(v, args)) {
+                System.out.println("BAD ARGUMENTS " + v);
+                return;
+            }
+            System.out.println("add " + v);
             methods.add(v);
-        }
-
-        if (extendsClass != null) {
-            extendsClass.methods.parallelStream().forEach(v -> {
-                if (!equalArgs(v, args))
-                    return;
-                if (!name.equals(v.getRunTimeName()) && !name.equals(v.alias))
-                    return;
-
-                if (v.getReplaced().parallelStream().filter(e -> methods.contains(e)).count() <= 0)
-                    methods.add(v);
-            });
-        }
+        });
 
         implementsList.parallelStream().forEach(c -> {
-            c.methods.parallelStream().forEach(v -> {
-                if (!equalArgs(v, args))
-                    return;
-                if (!name.equals(v.getRunTimeName()) && !name.equals(v.alias))
-                    return;
-                if (v.getReplaced().parallelStream().filter(e -> methods.contains(e)).count() <= 0)
-                    methods.add(v);
-            });
+            c.getMethodForSearch(name, methods, args);
         });
+
+        if (extendsClass != null) {
+            extendsClass.getMethodForSearch(name, methods, args);
+        }
+
+        //------------------АНАЛИЗ АРГУМЕНТОВ МЕТОДОВ------------------//
+
+
+        //первая фаза: ищем методы с полным совпадением
+        METHOD:
+        for (VMethod m : methods) {
+            if (m.getArguments().size() != args.size())
+                continue;
+            for (int i = 0; i < m.getArguments().size(); i++) {
+                if (m.getArguments().get(i).getType() != args.get(i))
+                    continue METHOD;
+            }
+            System.out.println("FINDED " + m);
+            return m;
+        }
+
+        final ArrayList<VMethod> p2 = new ArrayList<>(methods);
+
+        p2.removeIf(e -> e.getArguments().stream().filter(arg -> arg.var).count() > 0 && e.getArguments().size() != args.size());
+
+        if (!p2.isEmpty()) {
+            p2.sort((v1, v2) -> {
+                return calcCof(v1, args) - calcCof(v2, args);
+            });
+
+            System.out.println("FINDED " + p2.get(0));
+            return p2.get(0);
+        }
+
+        throw new MethodNotFoundException(this, name, args, point);
+
+        /*
+        //Правило #1
+        if (methods.size() == 1)
+            return methods.get(0);
 
         if (methods.parallelStream().filter(e -> e.getArguments().parallelStream().filter(arg -> arg.var).count() > 0).count() > 0) {//если среди найденых методов есть те, которые содержат переменное число аргументов
             if (methods.parallelStream().filter(e -> e.getArguments().parallelStream().filter(arg -> arg.var).count() == 0).count() > 0) {//если среди найденых есть методы, не содержащие переменное число аргументов
-                methods.removeIf(e -> e.getArguments().parallelStream().filter(arg -> arg.var).count() > 0);//удаляем все методы, содержащие переменное число аргументов
+                methods.removeIf(e -> e.getArguments().parallelStream().filter(arg -> arg.var).count() > 0);//удаляем все методы, содержащие переменное число аргументов. Правило #2
+            }
+            //Ищем методы, у которых ПОЛНОСТЬЮ совпадают типы аргументов с теми, с которыми вызывают. Правило #3
+            METHOD:
+            for (VMethod m : methods) {
+                if (m.getArguments().size() != args.size())
+                    continue;
+                for (int i = 0; i < m.getArguments().size(); i++) {
+                    if (m.getArguments().get(i).getType() != args.get(i))
+                        continue METHOD;
+                }
+                return m;
             }
         } else {
 
         }
 
         throw new MethodNotFoundException(this, name, args, point);
+        */
 
         /*
         for (VMethod v : methods) {

@@ -52,6 +52,45 @@ public final class TypeUtil {
     }
     */
 
+    private static boolean isNumberClass(VClass clazz) {
+        return clazz.isThis("byte") || clazz.isThis("short") || clazz.isThis("int") || clazz.isThis("long") || clazz.isThis("float") || clazz.isThis("double");
+    }
+
+    private static int getNumberClassLevel(VClass clazz) {
+        if (clazz.isThis("byte"))
+            return 0;
+
+        if (clazz.isThis("short"))
+            return 1;
+
+        if (clazz.isThis("int"))
+            return 2;
+        if (clazz.isThis("long"))
+            return 3;
+        if (clazz.isThis("float"))
+            return 4;
+        if (clazz.isThis("double"))
+            return 5;
+
+        throw new RuntimeException("Unknown number clazz " + clazz.getRealName());
+    }
+
+    public static int getCastLevelResult(VClass v1, VClass v2) {
+        if (isPrimitive(v1) && isPrimitive(v2)) {
+            if (isNumberClass(v1) && isNumberClass(v2)) {
+                return getNumberClassLevel(v2) - getNumberClassLevel(v2);
+            }
+
+            throw new RuntimeException("Not supported yet");
+        }
+
+        if (!isPrimitive(v1) && !isPrimitive(v2)) {
+            return v1.getParentCount(v2, 0);
+        }
+
+        throw new RuntimeException("Not supported");
+    }
+
     public static boolean isPrimitive(VClass clazz) {
         return clazz.isThis("boolean") || clazz.isThis("char") || clazz.isThis("byte") || clazz.isThis("short") || clazz.isThis("int") || clazz.isThis("long") || clazz.isThis("float") || clazz.isThis("double");
     }
@@ -165,5 +204,38 @@ public final class TypeUtil {
         }
 
         throw new RuntimeException("Unknown context " + context.getClass().getName());
+    }
+
+    public static class CastResult {
+    }
+
+    public static class NoCast extends CastResult {
+    }
+
+    public static class EqualCast extends CastResult {
+    }
+
+    public static class PrimitiveCast extends CastResult {
+        private final int level;
+
+        public PrimitiveCast(int level) {
+            this.level = level;
+        }
+    }
+
+    public static class BoxingCast extends CastResult {
+        private final int level;
+
+        public BoxingCast(int level) {
+            this.level = level;
+        }
+    }
+
+    public static class ClassCast extends CastResult {
+        private final int level;
+
+        public ClassCast(int level) {
+            this.level = level;
+        }
     }
 }

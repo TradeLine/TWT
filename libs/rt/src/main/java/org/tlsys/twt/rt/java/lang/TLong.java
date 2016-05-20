@@ -10,7 +10,7 @@ import org.tlsys.twt.rt.boxcastadapter.LongAdapter;
 @JSClass
 @ReplaceClass(Long.class)
 @CastAdapter(LongAdapter.class)
-public class TLong extends Number {
+public class TLong extends TNumber {
 
     public static final long MIN_VALUE = CastUtil.toLong(Script.code("Number.MIN_VALUE"));
     public static final long MAX_VALUE = CastUtil.toLong(Script.code("Number.MAX_VALUE"));
@@ -78,5 +78,9 @@ public class TLong extends Number {
     @Override
     public double doubleValue() {
         return value;
+    }
+
+    public static TLong fromlong(long value) {
+        return new TLong(value);
     }
 }

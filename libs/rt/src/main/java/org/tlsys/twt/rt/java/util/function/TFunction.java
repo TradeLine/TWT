@@ -1,12 +1,12 @@
 package org.tlsys.twt.rt.java.util.function;
 
-import org.tlsys.twt.annotations.ClassName;
 import org.tlsys.twt.annotations.JSClass;
+import org.tlsys.twt.annotations.ReplaceClass;
 
 import java.util.Objects;
 import java.util.function.Function;
 
-@ClassName("java.util.function.Function")
+@ReplaceClass(Function.class)
 @JSClass
 @FunctionalInterface
 public interface TFunction<T, R> {

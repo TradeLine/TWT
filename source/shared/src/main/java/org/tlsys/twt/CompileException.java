@@ -33,20 +33,27 @@ public class CompileException extends Exception {
             return super.getMessage();
 
         StringBuilder sb = new StringBuilder();
-        sb.append(point.getSourceFile().getName()).append(":").append(point.getColumn()).append(": ").append(super.getMessage()).append("\n");
-        /*
-        int start = point.getSourceFile().getIndex(point.getColumn(), 0);
+        sb.append(point.getSourceFile().getName()).append(":").append(point.getRow() + 1).append(":").append(point.getColumn() + 1).append(": ").append(super.getMessage()).append("\n");
+
+        int start = point.getSourceFile().getIndex(point.getRow(), 0);
         int end = point.getSourceFile().getData().indexOf('\n', start) - 1;
         if (end == -2)
-            end = point.getSourceFile().getData().length()-1;
+            end = point.getSourceFile().getData().length() - 1;
+
+        if (end - start > 50) {
+            int newStart = point.getColumn() - 25;
+            int newEnd = point.getColumn() + 25;
+            start = start > newStart ? start : newStart;
+            end = end < newEnd ? end : newEnd;
+        }
+
         //int end = point.getSourceFile().getIndex(point.getColumn() + 1, 0) - 1;
         String line = point.getSourceFile().getData().substring(start, end);
         sb.append(line).append("\n");
-        for (int i = 0; i < point.getRow(); i++) {
+        for (int i = 0; i < point.getColumn() - start; i++) {
             sb.append(" ");
         }
         sb.append("^");
-        */
         return sb.toString();
     }
 }
