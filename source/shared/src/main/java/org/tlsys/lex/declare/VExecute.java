@@ -31,19 +31,27 @@ public abstract class VExecute implements Context, Member, CodeDynLoad, HavinSou
     private VClass parent;
     private transient VBlock block = null;
     private int modificators;
+    private transient ArrayList<VArgument> cachedArguments;
 
     public VExecute(SourcePoint point, VClass parent) {
         this.parent = parent;
         startPoint = point;
     }
 
+    /*
+    public ArrayList<ArgumentModificator> getMods() {
+        return mods;
+    }
+    */
+
     @Override
     public SourcePoint getStartPoint() {
         return startPoint;
     }
 
-    public ArrayList<ArgumentModificator> getMods() {
-        return mods;
+    public void addModificator(ArgumentModificator modificator) {
+        mods.add(modificator);
+        cachedArguments = null;
     }
 
     public String getRunTimeName() {
@@ -55,6 +63,9 @@ public abstract class VExecute implements Context, Member, CodeDynLoad, HavinSou
     }
 
     public List<VArgument> getArguments() {
+        if (cachedArguments != null)
+            return cachedArguments;
+
         if (mods.isEmpty())
             return arguments;
         List<VArgument> args = new ArrayList<>(arguments.size());

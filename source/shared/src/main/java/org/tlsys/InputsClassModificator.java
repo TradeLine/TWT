@@ -16,6 +16,7 @@ public class InputsClassModificator implements ClassModificator {
     private static final long serialVersionUID = -7395221822114651467L;
     private final VClass forClass;
     private final ArrayList<InputMody> blocks = new ArrayList<>();
+    private final ArrayList<VField> fields = new ArrayList<>();
 
     public InputsClassModificator(VClass forClass) {
 
@@ -33,7 +34,14 @@ public class InputsClassModificator implements ClassModificator {
         }
     }
 
-    private final ArrayList<VField> fields = new ArrayList<>();
+    public static InputsClassModificator getOrCreateInputModificator(VClass forClass) {
+        Optional<ClassModificator> op = forClass.getModificator(e -> e.getClass() == InputsClassModificator.class);
+        if (op.isPresent())
+            return (InputsClassModificator) op.get();
+        InputsClassModificator icm = new InputsClassModificator(forClass);
+        forClass.addMod(icm);
+        return icm;
+    }
 
     public ArrayList<VField> getFields() {
         return fields;
@@ -42,7 +50,7 @@ public class InputsClassModificator implements ClassModificator {
     public VField addInput(SVar var) {
         VField field = new VField(var.getRuntimeName(), var.getRuntimeName(), var.getType(), Modifier.PRIVATE | Modifier.FINAL, forClass);
         for (VConstructor c : forClass.constructors) {
-            c.getMods().add(new InputArgs(c, var, field));
+            c.addModificator(new InputArgs(c, var, field));
 
 
         }
@@ -59,15 +67,6 @@ public class InputsClassModificator implements ClassModificator {
     @Override
     public List<VMethod> getMethods(List<VMethod> methods) {
         return methods;
-    }
-
-    public static InputsClassModificator getOrCreateInputModificator(VClass forClass) {
-        Optional<ClassModificator> op = forClass.getModificator(e->e.getClass() == InputsClassModificator.class);
-        if (op.isPresent())
-            return (InputsClassModificator) op.get();
-        InputsClassModificator icm = new InputsClassModificator(forClass);
-        forClass.addMod(icm);
-        return icm;
     }
 
     public static class InputMody implements BlockModificator {

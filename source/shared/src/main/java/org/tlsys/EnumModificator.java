@@ -19,7 +19,7 @@ public class EnumModificator implements ClassModificator {
         System.out.println("Using enum to " + clazz.getRealName());
 
         for (VConstructor c : clazz.constructors) {
-            c.getMods().add(new ConsMod(c));
+            c.addModificator(new ConsMod(c));
             System.out.println("Use to " + c.getDescription());
         }
     }

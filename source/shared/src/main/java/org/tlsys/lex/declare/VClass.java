@@ -355,32 +355,43 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
     }
 
     private void getMethodForSearch(String name, Collection<VMethod> out, List<VClass> args) {
-        System.out.println("==Seach in " + getRealName() + " for " + name);
+
+        /*
+        System.out.println("==Seach in " + getRealName() + " for " + name + ". Method count=" + methods.size());
         for (VClass cl : args)
             System.out.println("=>" + cl);
 
+        */
         METHODS:
         for (VMethod v : methods) {
-            if (!name.equals(v.getRunTimeName()) && !name.equals(v.alias))
+            if (!name.equals(v.getRunTimeName()) && !name.equals(v.alias)) {
+                //System.out.println("BAD NAME! need " + name + " but have " + v);
                 continue;
+            }
 
-            if (!equalArgs(v, args))
+            if (!equalArgs(v, args)) {
+                //System.out.println("BAD ARGUMENT " + v);
                 continue;
+            }
 
-            if (out.contains(v))
+            if (out.contains(v)) {
+                //System.out.println("FUNCTION ALLREADY ADDED");
                 continue;
+            }
 
             for (VMethod m : v.getReplaced()) {
-                out.contains(out);
-                continue METHODS;
+                if (out.contains(out)) {
+                    //System.out.println("Method replaced this " + v + " allready added " + m);
+                    continue METHODS;
+                }
             }
 
 
             if (out.contains(v.getReplace())) {
-                System.out.println("remove " + v.getReplace());
+                //System.out.println("remove " + v.getReplace());
                 out.remove(v.getReplace());
             }
-            System.out.println("add " + v);
+            //System.out.println("add " + v);
             out.add(v);
         }
 
@@ -393,22 +404,23 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
 
     public VMethod getMethod(String name, List<VClass> args, SourcePoint point) throws MethodNotFoundException {
         final List<VMethod> methods = Collections.synchronizedList(new ArrayList<>());
-        System.out.println("Seach " + getRealName() + "." + name + " with args:\t\ton" + point);
+/*
+        System.out.println("Seach " + getRealName() + "." + name + " with args:\t\ton " + point + " method count=" + this.methods.size());
         for (VClass v : args) {
             System.out.println("=>" + v.getRealName());
         }
 
         System.out.println("-------------------");
-
+*/
         this.methods.parallelStream().forEach(v -> {
             if (!name.equals(v.getRunTimeName()) && !name.equals(v.alias))
                 return;
 
             if (!equalArgs(v, args)) {
-                System.out.println("BAD ARGUMENTS " + v);
+                //System.out.println("BAD ARGUMENTS " + v);
                 return;
             }
-            System.out.println("add " + v);
+            //System.out.println("add " + v);
             methods.add(v);
         });
 
@@ -432,22 +444,23 @@ public class VClass extends VLex implements Member, Using, Context, Serializable
                 if (m.getArguments().get(i).getType() != args.get(i))
                     continue METHOD;
             }
-            System.out.println("FINDED " + m);
+            //System.out.println("FINDED " + m);
             return m;
         }
 
+        //вторая фаза
         final ArrayList<VMethod> p2 = new ArrayList<>(methods);
-
         p2.removeIf(e -> e.getArguments().stream().filter(arg -> arg.var).count() > 0 && e.getArguments().size() != args.size());
-
         if (!p2.isEmpty()) {
             p2.sort((v1, v2) -> {
                 return calcCof(v1, args) - calcCof(v2, args);
             });
 
-            System.out.println("FINDED " + p2.get(0));
+            //System.out.println("FINDED " + p2.get(0));
             return p2.get(0);
         }
+
+        //TODO: третяя фаза
 
         throw new MethodNotFoundException(this, name, args, point);
 

@@ -12,6 +12,7 @@ import java.util.Optional;
 
 public class OtherClassLink implements ClassModificator {
 
+    private static final long serialVersionUID = -6601676797056580525L;
     private final VClass toClass;
     private final VField field;
 
@@ -20,7 +21,7 @@ public class OtherClassLink implements ClassModificator {
         field = new VField("c" + Integer.toString(toClass.hashCode()).replace('-', '_'), null, toClass, Modifier.PUBLIC, forClass);
 
         for (VConstructor con : forClass.constructors) {
-            con.getMods().add(new ArgumentLink(toClass, con, this));
+            con.addModificator(new ArgumentLink(toClass, con, this));
         }
     }
 

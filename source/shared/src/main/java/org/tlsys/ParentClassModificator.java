@@ -29,7 +29,7 @@ public class ParentClassModificator implements ClassModificator {
         field = new VField("this$0", "this$0", op.get(), Modifier.PRIVATE | Modifier.FINAL, forClass);
 
         for (VConstructor c : forClass.constructors) {
-            c.getMods().add(new ParentArgumentModif(c));
+            c.addModificator(new ParentArgumentModif(c));
         }
     }
 
