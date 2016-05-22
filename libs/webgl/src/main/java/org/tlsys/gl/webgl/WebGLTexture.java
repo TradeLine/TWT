@@ -2,7 +2,9 @@ package org.tlsys.gl.webgl;
 
 import org.tlsys.gl.GLTexture;
 import org.tlsys.twt.Script;
+import org.tlsys.twt.annotations.JSClass;
 
+@JSClass
 public class WebGLTexture implements GLTexture {
     private final Object t;
     private final WebGL gl;
@@ -18,12 +20,16 @@ public class WebGLTexture implements GLTexture {
     public void delete() {
         if (removed)
             throw new IllegalStateException("Texture already deleted");
-        Script.code(gl.getCtx(),".deleteTexture(",t,")");
+        Script.code(gl.getCtx(), ".deleteTexture(", t, ")");
         removed = true;
     }
 
     @Override
     public boolean isDeleted() {
         return removed;
+    }
+
+    public Object getJSObject() {
+        return t;
     }
 }

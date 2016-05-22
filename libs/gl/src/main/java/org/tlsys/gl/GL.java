@@ -678,4 +678,6 @@ public interface GL {
         texture.delete();
     }
 
+    public void bindTexture(long target, GLTexture texture);
+
 }

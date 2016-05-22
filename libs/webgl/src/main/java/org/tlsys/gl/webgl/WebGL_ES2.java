@@ -20,7 +20,7 @@ public class WebGL_ES2 extends WebGL {
 
     @Override
     public void bindBuffer(int target, GLBuffer buffer) {
-        WebGLBuffer b = (WebGLBuffer)buffer;
+        WebGLBuffer b = (WebGLBuffer) buffer;
         Script.code(getCtx(), ".bindBuffer(", CastUtil.toObject(target), ",", b.getJSObject(), ")");
     }
 
@@ -75,7 +75,7 @@ public class WebGL_ES2 extends WebGL {
     @Override
     public void clearColor(float red, float green, float blue, float alpha) {
         Script.code(getCtx(), ".clearColor(", CastUtil.toObject(red), ",", CastUtil.toObject(green), ",",
-                CastUtil.toObject(blue), ",", CastUtil.toObject(alpha),")");
+                CastUtil.toObject(blue), ",", CastUtil.toObject(alpha), ")");
     }
 
     @Override
@@ -91,20 +91,30 @@ public class WebGL_ES2 extends WebGL {
 
     @Override
     public void clear(long mask) {
-        Script.code(getCtx(),".clear(",CastUtil.toObject(mask),")");
+        Script.code(getCtx(), ".clear(", CastUtil.toObject(mask), ")");
     }
 
     @Override
     public void drawElements(long mode, long count, long type, long offset) {
-        Script.code(getCtx(),".drawElements(",CastUtil.toObject(mode),",",
-                CastUtil.toObject(count),",",
-                CastUtil.toObject(type),",",
-                CastUtil.toObject(offset),")");
+        Script.code(getCtx(), ".drawElements(", CastUtil.toObject(mode), ",",
+                CastUtil.toObject(count), ",",
+                CastUtil.toObject(type), ",",
+                CastUtil.toObject(offset), ")");
     }
 
     @Override
     public GLTexture createTexture() {
-        return new WebGLTexture(Script.code(getCtx(),".createTexture()"), this);
+        return new WebGLTexture(Script.code(getCtx(), ".createTexture()"), this);
+    }
+
+    @Override
+    public void bindTexture(long target, GLTexture texture) {
+        if (texture == null) {
+            Script.code(getCtx(), ".bindTexture(", CastUtil.toObject(target), ",null)");
+        } else {
+            WebGLTexture t = (WebGLTexture) texture;
+            Script.code(getCtx(), ".bindTexture(", CastUtil.toObject(target), ",", t.getJSObject(), ")");
+        }
     }
 
     @Override
