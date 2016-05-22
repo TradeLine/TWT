@@ -569,6 +569,50 @@ public interface GL {
      */
     public final static int NOTEQUAL = 0x0205;
 
+    //----------------Textures----------------//
+    public final static int NEAREST = 0x2600;
+    public final static int LINEAR = 0x2601;
+    public final static int NEAREST_MIPMAP_NEAREST = 0x2700;
+    public final static int LINEAR_MIPMAP_NEAREST = 0x2701;
+    public final static int NEAREST_MIPMAP_LINEAR = 0x2702;
+    public final static int LINEAR_MIPMAP_LINEAR = 0x2703;
+    public final static int TEXTURE_MAG_FILTER = 0x2800;
+    public final static int TEXTURE_MIN_FILTER = 0x2801;
+    public final static int TEXTURE_WRAP_S = 0x2802;
+    public final static int TEXTURE_WRAP_T = 0x2803;
+    public final static int TEXTURE_2D = 0x0DE1;
+    public final static int TEXTURE = 0x1702;
+    public final static int TEXTURE_CUBE_MAP = 0x8513;
+    public final static int TEXTURE_BINDING_CUBE_MAP = 0x8514;
+    public final static int TEXTURE_CUBE_MAP_POSITIVE_X = 0x8515;
+    public final static int TEXTURE_CUBE_MAP_NEGATIVE_X = 0x8516;
+    public final static int TEXTURE_CUBE_MAP_POSITIVE_Y = 0x8517;
+    public final static int TEXTURE_CUBE_MAP_NEGATIVE_Y = 0x8518;
+    public final static int TEXTURE_CUBE_MAP_POSITIVE_Z = 0x8519;
+    public final static int TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851A;
+    public final static int MAX_CUBE_MAP_TEXTURE_SIZE = 0x851C;
+
+    /**
+     * A texture unit.
+     */
+    //public final static int TEXTURE0 - 31=0x84C0 - 0x84DF;
+
+    /**
+     * The current active texture unit.
+     */
+    public final static int ACTIVE_TEXTURE = 0x84E0;
+    public final static int REPEAT = 0x2901;
+    public final static int CLAMP_TO_EDGE = 0x812F;
+    public final static int MIRRORED_REPEAT = 0x8370;
+
+    //----------------Pixel formats----------------//
+    public final static int DEPTH_COMPONENT = 0x1902;
+    public final static int ALPHA = 0x1906;
+    public final static int RGB = 0x1907;
+    public final static int RGBA = 0x1908;
+    public final static int LUMINANCE = 0x1909;
+    public final static int LUMINANCE_ALPHA = 0x190A;
+
 
     GLBuffer createBuffer();
 
@@ -627,5 +671,11 @@ public interface GL {
     public void clear(long mask);
 
     public void drawElements(long mode, long count, long type, long offset);
+
+    public GLTexture createTexture();
+
+    public default void deleteTexture(GLTexture texture) {
+        texture.delete();
+    }
 
 }

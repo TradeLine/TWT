@@ -103,6 +103,11 @@ public class WebGL_ES2 extends WebGL {
     }
 
     @Override
+    public GLTexture createTexture() {
+        return new WebGLTexture(Script.code(getCtx(),".createTexture()"), this);
+    }
+
+    @Override
     public void uniformMatrix4fv(GLUniformLocation location, boolean transpose, double[] value) {
         WebGLUniformLocation l = (WebGLUniformLocation) location;
         Script.code(getCtx(), ".uniformMatrix4fv(", l.getJs(), ",", CastUtil.toObject(transpose),
