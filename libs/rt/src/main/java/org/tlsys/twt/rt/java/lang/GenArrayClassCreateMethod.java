@@ -28,14 +28,6 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
 
         generateMethodStart(context, execute, ps);
         ps.append("{");
-        /*
-        SVar clazz = new SVar(classClass, null);
-        clazz.name="clazz";
-        DeclareVar dv = new DeclareVar(clazz);
-        NewClass nc = new NewClass(classClass.getConstructor(stringClass));
-        dv.init = nc;
-        nc.arguments.add(new VBinar(new Const("[",stringClass), new GetField(new This(classClass), classClass.getField("name")), stringClass, VBinar.BitType.PLUS));
-        */
 
         SVar clazzRecord = new SVar("clazz", classClassRecord, execute);
         DeclareVar drecord = new DeclareVar(clazzRecord, null);

@@ -1,2 +1,2 @@
 rootProject.name = 'TWT-libs'
-include "rt", "dom", "net", "json", "events", "junit4", "canvas"
+include "rt", "dom", "net", "json", "events", "junit4", "canvas", "gl", "webgl"

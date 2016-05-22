@@ -46,4 +46,11 @@ public class Script {
 
     @InvokeGen(org.tlsys.twt.ScriptInvokeGenerator.class)
     public static native long setInterval(int timeOut, TimeoutCallback callback);
+
+    @InvokeGen(org.tlsys.twt.ScriptInvokeGenerator.class)
+    public static native long requestAnimationFrame(FrameRequest callback);
+
+    public static interface FrameRequest {
+        public void onFrame(double time);
+    }
 }

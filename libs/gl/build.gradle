@@ -1,0 +1,42 @@
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath group: 'org.tlsys', name:'twt-gradle', version:'1.0'
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'org.tlsys'
+            artifactId 'twt-gl'
+            version '1.0'
+            from components.java
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies{
+    compile files("${System.properties['java.home']}/../lib/tools.jar")
+    compile name:'twt-shared', group:'org.tlsys', version:'1.0'
+    compile project(":rt")
+}
+
+apply plugin: 'twt-compile'
+
+
+build {
+    dependsOn publishToMavenLocal
+}

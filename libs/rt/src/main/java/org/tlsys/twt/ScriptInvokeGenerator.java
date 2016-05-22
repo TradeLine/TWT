@@ -1,5 +1,6 @@
 package org.tlsys.twt;
 
+import org.tlsys.CodeBuilder;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.VClass;
@@ -97,6 +98,23 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
             ps.append(";}.bind(this)");
             ps.append(",");
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
+            ps.append(")");
+            return true;
+        }
+
+        if (invoke.getMethod().alias.equals("requestAnimationFrame")) {
+            VClass scriptClass = invoke.getMethod().getParent();
+            VClass callerClass = scriptClass.getClassLoader().loadClass(Script.FrameRequest.class.getName(), invoke.getStartPoint());
+            VClass doubleClass = scriptClass.getClassLoader().loadClass(double.class.getName(), invoke.getStartPoint());
+            VMethod onFrameMethod = callerClass.getMethod("onFrame", invoke.getStartPoint(), doubleClass);
+
+            ps.append("window.requestAnimationFrame(");
+
+            ps.append("function(_t){");
+            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
+            ps.append(".");
+            ps.append(onFrameMethod.getRunTimeName()).append("(_t)");
+            ps.append(";}");
             ps.append(")");
             return true;
         }
