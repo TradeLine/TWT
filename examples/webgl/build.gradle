@@ -40,8 +40,8 @@ apply plugin: 'wildfly-app'
 redeployWildfly {
     user = 'admin'
     password = 'admin'
-    file = file("build/libs/dom-example.war")
-    application = 'dom.war'
+    file = file("build/libs/webgl.war")
+    application = 'webgl.war'
     host = 'tlsys.org'
 }
 

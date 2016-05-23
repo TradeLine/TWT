@@ -38,111 +38,17 @@ public class TestGL {
     };
 
     static GLBuffer index_buffer = null;
-
-    public static void start() {
-        Object body = Script.code(Document.get(), ".body");
-
-        /*============= Creating a canvas =================*/
-        gl = new WebGL_ES2();
-        DOM.setAttribute(gl, "width", Integer.toString(WIDTH));
-        DOM.setAttribute(gl, "height", Integer.toString(HEIGHT));
-        DOM.appendChild(body, gl);
-
-        /*============ Defining and storing the geometry =========*/
-
-
-        // Create and store data into vertex buffer
-        GLBuffer vertex_buffer = gl.createBuffer();
-
-        gl.bindBuffer(GL.ARRAY_BUFFER, vertex_buffer);
-        gl.bufferData(GL.ARRAY_BUFFER, vertices, GL.STATIC_DRAW);
-
-        // Create and store data into color buffer
-        GLBuffer color_buffer = gl.createBuffer();
-
-        gl.bindBuffer(GL.ARRAY_BUFFER, color_buffer);
-        gl.bufferData(GL.ARRAY_BUFFER, colors, GL.STATIC_DRAW);
-
-        // Create and store data into index buffer
-        index_buffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, GL.STATIC_DRAW);
-
-                 /*=================== Shaders =========================*/
-
-        String vertCode = "attribute vec3 position;" +
-                "uniform mat4 Pmatrix;" +
-                "uniform mat4 Vmatrix;" +
-                "uniform mat4 Mmatrix;" +
-                "attribute vec3 color;" +//the color of the point
-                "varying vec3 vColor;" +
-
-                "void main(void) { " +//pre-built function
-                "gl_Position = Pmatrix*Vmatrix*Mmatrix*vec4(position, 1.);" +
-                "vColor = color;" +
-                "}";
-
-        String fragCode = "precision mediump float;" +
-                "varying vec3 vColor;" +
-                "void main(void) {" +
-                "gl_FragColor = vec4(vColor, 1.);" +
-                "}";
-
-        GLShader vertShader = gl.createShader(GL.VERTEX_SHADER);
-        vertShader.setSource(vertCode);
-        vertShader.compile();
-
-        GLShader fragShader = gl.createShader(GL.FRAGMENT_SHADER);
-        fragShader.setSource(fragCode);
-        fragShader.compile();
-
-        GLProgram shaderProgram = gl.createProgram();
-        shaderProgram.attach(vertShader);
-        shaderProgram.attach(fragShader);
-        shaderProgram.link();
-
-        /* ====== Associating attributes to vertex shader =====*/
-        Pmatrix = shaderProgram.getUniformLocation("Pmatrix");
-        Vmatrix = shaderProgram.getUniformLocation("Vmatrix");
-        Mmatrix = shaderProgram.getUniformLocation("Mmatrix");
-
-        gl.bindBuffer(GL.ARRAY_BUFFER, vertex_buffer);
-        long position = shaderProgram.getAttribLocation("position");
-        gl.vertexAttribPointer(position, 3, GL.FLOAT, false, 0, 0);
-
-        // Position
-        gl.enableVertexAttribArray(position);
-        gl.bindBuffer(GL.ARRAY_BUFFER, color_buffer);
-        long color = shaderProgram.getAttribLocation("color");
-        gl.vertexAttribPointer(color, 3, GL.FLOAT, false, 0, 0);
-
-        // Color
-        gl.enableVertexAttribArray(color);
-        gl.useProgram(shaderProgram);
-
-
-        proj_matrix = get_projection(40.0, (double) (WIDTH / HEIGHT), 1.0, 100.0);
-        view_matrix = new double[]{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
-
-        // translating z
-        view_matrix[14] = view_matrix[14] - 6;//zoom
-
-        draw(0.0);
-    }
-
     static double[] proj_matrix = null;
     static double[] view_matrix = null;
-
     static GLUniformLocation Pmatrix = null;
     static GLUniformLocation Vmatrix = null;
     static GLUniformLocation Mmatrix = null;
-
+    static double[] mov_matrix = new double[]{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+    static double time_old = 0;
     static Script.FrameRequest animate = time -> {
         draw(time);
     };
 
-    static double[] mov_matrix = new double[]{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
-
     public static void start() {
         Object body = Script.code(Document.get(), ".body");
 
@@ -153,8 +59,6 @@ public class TestGL {
         DOM.appendChild(body, gl);
 
         /*============ Defining and storing the geometry =========*/
-
-
         // Create and store data into vertex buffer
         GLBuffer vertex_buffer = gl.createBuffer();
 
@@ -172,8 +76,7 @@ public class TestGL {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, GL.STATIC_DRAW);
 
-                 /*=================== Shaders =========================*/
-
+        /*=================== Shaders =========================*/
         String vertCode = "attribute vec3 position;" +
                 "uniform mat4 Pmatrix;" +
                 "uniform mat4 Vmatrix;" +
@@ -234,8 +137,7 @@ public class TestGL {
         draw(0.0);
     }
 
-    static double time_old = 0;
-
+    /*================= Drawing ===========================*/
     public static void draw(double time) {
         double dt = time - time_old;
         rotateZ(mov_matrix, dt * 0.005);//time
@@ -266,8 +168,7 @@ public class TestGL {
 
 
 
-         /*==================== MATRIX =====================*/
-
+    /*==================== MATRIX =====================*/
     public static double[] get_projection(double angle, double a, double zMin, double zMax) {
         double ang = Math.tan((angle * .5) * Math.PI / 180);//angle*.5
         return new double[]{
@@ -323,6 +224,4 @@ public class TestGL {
         m[6] = c * m[6] - s * mv4;
         m[10] = c * m[10] - s * mv8;
     }
-
-    /*================= Drawing ===========================*/
 }
