@@ -1,0 +1,71 @@
+apply plugin: 'java'
+apply plugin: 'war'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath group: 'org.tlsys', name: 'twt-gradle', version: '1.0'
+        classpath group: 'org.tlsys', name: 'wildfly', version: '1.0'
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+apply plugin: 'twt-build'
+dependencies {
+    providedCompile group: 'org.tlsys', name: 'twt-shared', version: '1.0'
+    providedCompile group: 'org.tlsys', name: 'twt-rt', version: '1.0'
+    providedCompile group: 'org.tlsys', name: 'twt-dom', version: '1.0'
+    providedCompile group: 'org.tlsys', name: 'twt-json', version: '1.0'
+    providedCompile group: 'org.tlsys', name: 'twt-events', version: '1.0'
+    providedCompile group: 'org.tlsys', name: 'twt-net', version: '1.0'
+    providedCompile group: 'org.tlsys', name: 'twt-gl', version: '1.0'
+    providedCompile group: 'org.tlsys', name: 'twt-webgl', version: '1.0'
+    providedCompile group: 'javax', name: 'javaee-api', version: '7.0'
+    compile 'com.cedarsoftware:json-io:4.3.0'
+}
+
+
+apply plugin: 'wildfly-app'
+
+redeployWildfly {
+    user = 'admin'
+    password = 'admin'
+    file = file("build/libs/dom-example.war")
+    application = 'dom.war'
+    host = 'tlsys.org'
+}
+
+buildTwt {
+    target().addClass('org.tlsys.Main')
+            .out('main.js')
+            .generator('org.tlsys.twt.Generator')
+            .main('org.tlsys.Main')
+}
+
+war {
+    from('./build/main.js') {
+        include 'main.js'
+    }
+    from('./build') {
+        include "sourcemap/"
+    }
+}
+
+build {
+    dependsOn war, redeployWildfly
+}
+
+
+wildfly
+        .remote("admin", "admin", "tlsys.org", 9990)
+        .file(file("build/libs/webgl.war"))
