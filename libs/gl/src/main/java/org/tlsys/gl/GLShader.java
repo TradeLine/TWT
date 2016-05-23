@@ -6,4 +6,6 @@ import org.tlsys.twt.annotations.JSClass;
 public interface GLShader {
     public void setSource(String source);
     public void compile();
+    public void delete();
+    public boolean isDeleted();
 }

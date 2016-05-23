@@ -8,6 +8,7 @@ import org.tlsys.twt.annotations.JSClass;
 public class WebGLShader implements GLShader {
     private final Object s;
     private final WebGL gl;
+    private boolean deleted = false;
 
     public WebGLShader(Object s, WebGL gl) {
         this.s = s;
@@ -26,5 +27,17 @@ public class WebGLShader implements GLShader {
     @Override
     public void compile() {
         Script.code(gl.getCtx(), ".compileShader(", s, ")");
+    }
+
+    @Override
+    public void delete() {
+        if (isDeleted())
+            throw new IllegalStateException("Shader already deleted");
+        Script.code(gl.getCtx(),".deleteShader(",s,")");
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return deleted;
     }
 }

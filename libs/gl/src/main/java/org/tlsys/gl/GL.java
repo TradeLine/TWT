@@ -680,4 +680,16 @@ public interface GL {
 
     public void bindTexture(long target, GLTexture texture);
 
+    public default void deleteBuffer(GLBuffer buffer) {
+        buffer.delete();
+    }
+
+    public default void deleteProgram(GLProgram program) {
+        program.delete();
+    }
+
+    public default void deleteShader(GLShader shader) {
+        shader.delete();
+    }
+
 }

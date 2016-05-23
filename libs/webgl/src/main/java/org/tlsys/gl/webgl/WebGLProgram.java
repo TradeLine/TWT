@@ -9,6 +9,7 @@ import org.tlsys.twt.annotations.JSClass;
 public class WebGLProgram implements GLProgram {
     private final Object p;
     private final WebGL gl;
+    private boolean deleted = false;
 
     WebGLProgram(WebGL gl, Object p) {
         this.gl = gl;
@@ -26,6 +27,12 @@ public class WebGLProgram implements GLProgram {
     }
 
     @Override
+    public void detach(GLShader shader) {
+        WebGLShader s = (WebGLShader)shader;
+        Script.code(gl.getCtx(),".detachShader(",p,",",s.getJSObject(),")");
+    }
+
+    @Override
     public void link() {
         Script.code(gl.getCtx(), ".linkProgram(", p, ")");
     }
@@ -38,5 +45,18 @@ public class WebGLProgram implements GLProgram {
     @Override
     public long getAttribLocation(String name) {
         return CastUtil.toLong(Script.code(gl.getCtx(), ".getAttribLocation(", p, ",", name, ")"));
+    }
+
+    @Override
+    public void delete() {
+        if (isDeleted())
+            throw new IllegalStateException("Program already was deleted");
+        Script.code(gl.getCtx(),".deleteProgram(",p,")");
+        deleted = true;
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return deleted;
     }
 }
