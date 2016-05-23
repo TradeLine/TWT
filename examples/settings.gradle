@@ -1,3 +1,4 @@
 rootProject.name = 'TWT-examples'
 include "dom-example"
 include "webgl"
+include "canvas"
