@@ -46,10 +46,9 @@ redeployWildfly {
 }
 
 buildTwt {
-    target().addClass('org.tlsys.Main')
-            .out('main.js')
+    target().out('main.js')
             .generator('org.tlsys.twt.Generator')
-            .main('org.tlsys.Main')
+            .main('org.tlsys.EntryPoint')
 }
 
 war {
