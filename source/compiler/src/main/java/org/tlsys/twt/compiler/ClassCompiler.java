@@ -4,10 +4,7 @@ import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
-import org.tlsys.EnumModificator;
-import org.tlsys.InputsClassModificator;
-import org.tlsys.OtherClassLink;
-import org.tlsys.TypeUtil;
+import org.tlsys.*;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 import org.tlsys.sourcemap.SourceFile;
@@ -198,7 +195,7 @@ public class ClassCompiler {
 
         VClass objectClass = parentClazz.getClassLoader().loadClass(Object.class.getName(), c.getFile().getPoint(e.pos));
         ac.extendsClass = objectClass;
-        VConstructor superCons = objectClass.getConstructor(c.getFile().getPoint(e.pos));
+        VConstructor superCons = MethodSelectorUtils.getConstructor(objectClass, c.getFile().getPoint(e.pos));
         VConstructor cons = new VConstructor(null, ac);
         cons.setBlock(new VBlock(cons, null, null));
         cons.parentConstructorInvoke = new Invoke(superCons, new This(ac, null));

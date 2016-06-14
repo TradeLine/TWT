@@ -4,6 +4,7 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
+import org.tlsys.MethodSelectorUtils;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.declare.*;
 import org.tlsys.sourcemap.SourceMap;
@@ -160,7 +161,7 @@ public class GenerationTask extends TWTPlugin {
                         Optional<VMethod> mainMethod = null;
                         if (gt.main() != null) {
                             VClass mainClass = app.getMainLoader().getTWTClassLoader().loadClass(gt.main(), null);
-                            mainMethod = mainClass.getMethodByName("main").stream().filter(e -> e.getParent() == mainClass).findFirst();
+                            mainMethod = MethodSelectorUtils.getMethodByName(mainClass, "main").stream().filter(e -> e.getParent() == mainClass).findFirst();
                             if (!mainMethod.isPresent()) {
                                 throw new CompileException("Can't method main in " + gt.main(), null);
                             }

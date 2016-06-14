@@ -1,5 +1,6 @@
 package org.tlsys.lex.declare;
 
+import org.tlsys.MethodSelectorUtils;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.Collect;
@@ -80,7 +81,7 @@ public class VConstructor extends VExecute {
         Object readResolve() throws Exception {
             if (getParent().constructors == null)
                 getParent().constructors = new ArrayList<>();
-            return getParent().getConstructor(getArguments(), null);
+            return MethodSelectorUtils.getConstructor(getParent(), getArguments(), null);
         }
     }
 }

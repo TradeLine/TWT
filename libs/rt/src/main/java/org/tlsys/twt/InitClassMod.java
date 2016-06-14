@@ -3,6 +3,7 @@ package org.tlsys.twt;
 import org.tlsys.BlockModificator;
 import org.tlsys.ClassModificator;
 import org.tlsys.CodeBuilder;
+import org.tlsys.MethodSelectorUtils;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
 
@@ -74,7 +75,7 @@ public class InitClassMod implements ClassModificator {
 
 
             VClass scriptClass = clazz.getClassLoader().loadClass(Script.class.getName(), null);
-            isUndefinedMethod = scriptClass.getMethod("isUndefined", null, clazz.getClassLoader().loadClass(Object.class.getName(), null));
+            isUndefinedMethod = MethodSelectorUtils.getMethod(scriptClass, "isUndefined", null, clazz.getClassLoader().loadClass(Object.class.getName(), null));
         }
 
         @Override

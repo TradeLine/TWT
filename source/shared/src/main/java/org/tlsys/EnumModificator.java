@@ -50,7 +50,7 @@ public class EnumModificator implements ClassModificator {
             Objects.requireNonNull(parent);
             Objects.requireNonNull(parent.getParent());
             Objects.requireNonNull(parent.getParent().extendsClass);
-            VConstructor parentInit = parent.getParent().extendsClass.getConstructor(null, stringClass, intClass);
+            VConstructor parentInit = MethodSelectorUtils.getConstructor(parent.getParent().extendsClass, null, stringClass, intClass);
             parentInvoke = new Invoke(parentInit, new This(parent.getParent())).addArg(nameArg).addArg(ordinalArg);
             parent.parentConstructorInvoke = parentInvoke;
         }

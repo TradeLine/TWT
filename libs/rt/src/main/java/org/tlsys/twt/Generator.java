@@ -1,6 +1,7 @@
 package org.tlsys.twt;
 
 import org.tlsys.CodeBuilder;
+import org.tlsys.MethodSelectorUtils;
 import org.tlsys.NullClass;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
@@ -51,11 +52,11 @@ public class Generator implements MainGenerator {
         VClass objectClass = cl.loadClass(Object.class.getName(), null);
 
         VClass classClassRecord = cl.loadClass(ClassRecord.class.getName(), null);
-        VMethod addStaticMethod = classClassRecord.getMethod("addStatic", null, objectClass);
+        VMethod addStaticMethod = MethodSelectorUtils.getMethod(classClassRecord, "addStatic", null, objectClass);
 
 
         VClass scriptClass = cl.loadClass(Script.class.getName(), null);
-        VMethod codeMethod = scriptClass.getMethodByName("code").get(0);
+        VMethod codeMethod = MethodSelectorUtils.getMethodByName(scriptClass, "code").get(0);
 
         VClass classBoolean = cl.loadClass("boolean", null);
         VClass classInt = cl.loadClass("int", null);
@@ -64,15 +65,15 @@ public class Generator implements MainGenerator {
         VClass classTypeProvider = cl.loadClass(TypeProvider.class.getName(), null);
         VClass classArgumentRecord = cl.loadClass(ArgumentRecord.class.getName(), null);
 
-        VMethod methodAddArg = classMethodRecord.getMethod("addArg", null, classArgumentRecord);
-        VMethod classAddMethod = classClassRecord.getMethod("addMethod", null, classMethodRecord);
-        VMethod methodSetSuper = classClassRecord.getMethod("setSuper", null, classTypeProvider);
-        VMethod methodAddImplement = classClassRecord.getMethod("addImplement", null, classTypeProvider);
-        VConstructor methodConstructor = classMethodRecord.getConstructor(null, classString, classString, objectClass, classBoolean);//получаем конструктор MethodRecord
-        VMethod addFieldMethod = classClassRecord.getMethod("addField", null, classString, classString, classTypeProvider, classString, classInt);
-        VMethod setDomNodeMethod = classClassRecord.getMethod("setDomNode", null, classString);
+        VMethod methodAddArg = MethodSelectorUtils.getMethod(classMethodRecord, "addArg", null, classArgumentRecord);
+        VMethod classAddMethod = MethodSelectorUtils.getMethod(classClassRecord, "addMethod", null, classMethodRecord);
+        VMethod methodSetSuper = MethodSelectorUtils.getMethod(classClassRecord, "setSuper", null, classTypeProvider);
+        VMethod methodAddImplement = MethodSelectorUtils.getMethod(classClassRecord, "addImplement", null, classTypeProvider);
+        VConstructor methodConstructor = MethodSelectorUtils.getConstructor(classMethodRecord, null, classString, classString, objectClass, classBoolean);//получаем конструктор MethodRecord
+        VMethod addFieldMethod = MethodSelectorUtils.getMethod(classClassRecord, "addField", null, classString, classString, classTypeProvider, classString, classInt);
+        VMethod setDomNodeMethod = MethodSelectorUtils.getMethod(classClassRecord, "setDomNode", null, classString);
 
-        VConstructor argumentConstructor = classArgumentRecord.getConstructor(null, classString, classBoolean, classTypeProvider);
+        VConstructor argumentConstructor = MethodSelectorUtils.getConstructor(classArgumentRecord, null, classString, classBoolean, classTypeProvider);
 
 
         ICodeGenerator hc2 = gc.getGenerator(vClass);
@@ -249,7 +250,7 @@ public class Generator implements MainGenerator {
 
         gc = new MainGenerationContext(classClassRecord, compileModuls);
         icg = gc.getGenerator(classClassRecord);
-        VMethod storageAddMethod = classClassStorage.getMethod("add", null, classClassRecord);//получаем метод add класса ClassRecord
+        VMethod storageAddMethod = MethodSelectorUtils.getMethod(classClassStorage, "add", null, classClassRecord);//получаем метод add класса ClassRecord
 
 
         for (CompileModuls.ClassRecord cr : others) {

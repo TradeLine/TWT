@@ -57,6 +57,7 @@ public class ArrayClass extends VClass {
             throw new IllegalStateException("Array type already inited");
 
         parentContext = component.getParentContext();
+        cashRealname = null;
         //VClass classClass;
         extendsClass = intType.getClassLoader().loadClass(Object.class.getName(), null);
         lengthField = new VField(LENGTH, "length", intType, Modifier.PUBLIC, this);

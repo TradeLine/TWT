@@ -1,6 +1,7 @@
 package org.tlsys.twt.events;
 
 import org.tlsys.CodeBuilder;
+import org.tlsys.MethodSelectorUtils;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.Const;
 import org.tlsys.lex.Invoke;
@@ -21,7 +22,7 @@ public class EventCodeGenerator extends DefaultGenerator {
         VClass objectClass = context.getCurrentClass().getClassLoader().loadClass(Object.class.getName(), execute.getStartPoint());
         VClass objectsClass = context.getCurrentClass().getClassLoader().loadClass(Objects.class.getName(), execute.getStartPoint());
         VClass stringClass = context.getCurrentClass().getClassLoader().loadClass(String.class.getName(), execute.getStartPoint());
-        VMethod onEventMethod = eventListenerClass.getMethod("onEvent", execute.getStartPoint(), objectClass, objectClass);
+        VMethod onEventMethod = MethodSelectorUtils.getMethod(eventListenerClass, "onEvent", execute.getStartPoint(), objectClass, objectClass);
         if (execute.alias.equals("addEventListener")) {
             ps.append("{");
             Invoke inv = CodeBuilder.scopeStatic(objectsClass).method("requireNonNull").arg(objectClass).arg(stringClass).invoke().arg(execute.getArguments().get(0)).arg(new Const("Argument listener is NULL", stringClass)).build();

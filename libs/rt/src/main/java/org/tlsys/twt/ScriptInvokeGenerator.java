@@ -1,6 +1,6 @@
 package org.tlsys.twt;
 
-import org.tlsys.CodeBuilder;
+import org.tlsys.MethodSelectorUtils;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.VClass;
@@ -39,7 +39,7 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
                     new VBinar(invoke.arguments.get(0), new Const(null, cl.loadClass(Object.class.getName(), invoke.getStartPoint())), cl.loadClass("boolean", invoke.getStartPoint()), VBinar.BitType.EQ, null),//первый агрумент == null
                     new VBinar(invoke.arguments.get(1), new Const(null, cl.loadClass(Object.class.getName(), invoke.getStartPoint())), cl.loadClass("boolean", invoke.getStartPoint()), VBinar.BitType.EQ, null),//первый агрумент == null
                     cl.loadClass("boolean", invoke.getStartPoint()), VBinar.BitType.OR, null);//если один или оба аргумента == null
-            VMethod codeMethod = invoke.getMethod().getParent().getMethod("code", invoke.getStartPoint());
+            VMethod codeMethod = MethodSelectorUtils.getMethod(invoke.getMethod().getParent(), "code", invoke.getStartPoint());
             Invoke codeInvoke = new Invoke(codeMethod, new StaticRef(codeMethod.getParent()));
 
             NewArrayItems array = new NewArrayItems(cl.loadClass(Object.class.getName(), invoke.getStartPoint()).getArrayClass(), invoke.getStartPoint());
@@ -82,7 +82,7 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
             ps.append("setTimeout(");
             VClass callerClass = invoke.getMethod().getParent().getClassLoader().loadClass(Script.TimeoutCallback.class.getName(), invoke.getStartPoint());
             ps.append("function(){");
-            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, new Invoke(callerClass.getMethod("onTimeout", invoke.getStartPoint()), invoke.arguments.get(1)), ps);
+            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, new Invoke(MethodSelectorUtils.getMethod(callerClass, "onTimeout", invoke.getStartPoint()), invoke.arguments.get(1)), ps);
             ps.append(";}.bind(this)");
             ps.append(",");
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
@@ -94,7 +94,7 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
             ps.append("setInterval(");
             VClass callerClass = invoke.getMethod().getParent().getClassLoader().loadClass(Script.TimeoutCallback.class.getName(), invoke.getStartPoint());
             ps.append("function(){");
-            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, new Invoke(callerClass.getMethod("onTimeout", invoke.getStartPoint()), invoke.arguments.get(1)), ps);
+            ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, new Invoke(MethodSelectorUtils.getMethod(callerClass, "onTimeout", invoke.getStartPoint()), invoke.arguments.get(1)), ps);
             ps.append(";}.bind(this)");
             ps.append(",");
             ctx.getGenerator(invoke.getMethod().getParent()).operation(ctx, invoke.arguments.get(0), ps);
@@ -106,7 +106,7 @@ public class ScriptInvokeGenerator implements InvokeGenerator {
             VClass scriptClass = invoke.getMethod().getParent();
             VClass callerClass = scriptClass.getClassLoader().loadClass(Script.FrameRequest.class.getName(), invoke.getStartPoint());
             VClass doubleClass = scriptClass.getClassLoader().loadClass(double.class.getName(), invoke.getStartPoint());
-            VMethod onFrameMethod = callerClass.getMethod("onFrame", invoke.getStartPoint(), doubleClass);
+            VMethod onFrameMethod = MethodSelectorUtils.getMethod(callerClass, "onFrame", invoke.getStartPoint(), doubleClass);
 
             ps.append("window.requestAnimationFrame(");
 

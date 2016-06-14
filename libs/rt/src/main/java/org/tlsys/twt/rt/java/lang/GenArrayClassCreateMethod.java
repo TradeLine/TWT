@@ -1,6 +1,7 @@
 package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.CodeBuilder;
+import org.tlsys.MethodSelectorUtils;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
@@ -39,7 +40,7 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
         ac.constructor.generator = ArrayBodyGenerator.class.getName();
         ac.get.generator = ArrayBodyGenerator.class.getName();
 
-        VConstructor constructorClassRecord = classClassRecord.getConstructor(execute.getStartPoint(), stringClass, stringClass);
+        VConstructor constructorClassRecord = MethodSelectorUtils.getConstructor(classClassRecord, execute.getStartPoint(), stringClass, stringClass);
         drecord.init = Generator.genClassRecord(context, ac, execute1 -> true, () -> new NewClass(constructorClassRecord, null)
                 .addArg(new VBinar(new Const("$", stringClass), new GetField(new This(classClass), jsNameField, null), stringClass, VBinar.BitType.PLUS, null))
                 .addArg(new VBinar(new Const("[", stringClass), new GetField(new This(classClass), nameField, null), stringClass, VBinar.BitType.PLUS, null)

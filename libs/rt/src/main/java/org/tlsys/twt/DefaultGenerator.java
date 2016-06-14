@@ -1,6 +1,7 @@
 package org.tlsys.twt;
 
 import org.tlsys.CodeBuilder;
+import org.tlsys.MethodSelectorUtils;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
@@ -544,7 +545,7 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(ArrayGet.class, (c, o, p, g) -> {
-            VMethod getMethod = o.getValue().getType().getMethod("get", null, o.getType().getClassLoader().loadClass("int", null));
+            VMethod getMethod = MethodSelectorUtils.getMethod(o.getValue().getType(), "get", null, o.getType().getClassLoader().loadClass("int", null));
             return g.operation(c, CodeBuilder.scope(o.getValue()).invoke(getMethod, null, null).arg(o.getIndex()).build(), p);
             /*
             Invoke inv = new Invoke(getMethod, o.getValue());
@@ -555,7 +556,7 @@ public class DefaultGenerator implements ICodeGenerator {
         });
 
         addGen(ArrayAssign.class, (c, o, p, g) -> {
-            VMethod getMethod = o.getVar().getType().getMethod("set", null,
+            VMethod getMethod = MethodSelectorUtils.getMethod(o.getVar().getType(), "set", null,
                     o.getType().getClassLoader().loadClass("int", null),
                     o.getType());
             Invoke inv = new Invoke(getMethod, o.getVar());
@@ -583,7 +584,7 @@ public class DefaultGenerator implements ICodeGenerator {
             VClass classClass = cl.loadClass(Class.class.getName(), null);
             VClass stringClass = cl.loadClass(String.class.getName(), null);
             VClass objectClass = cl.loadClass(Object.class.getName(), null);
-            VMethod getLambdaMethod = classClass.getMethod("getLambda", null, stringClass, stringClass, objectClass, objectClass);
+            VMethod getLambdaMethod = MethodSelectorUtils.getMethod(classClass, "getLambda", null, stringClass, stringClass, objectClass, objectClass);
             g.operation(c, new StaticRef(o.getMethod().getParent(), null), p);
             p.append(".").append(getLambdaMethod.getRunTimeName()).append("(");
             g.operation(c, new Const(Integer.toString(o.hashCode()), stringClass), p);
@@ -664,7 +665,7 @@ public class DefaultGenerator implements ICodeGenerator {
 
         addGen(NewArrayItems.class, (c, o, p, g) -> {
             VClass classArrayBuilder = o.getType().getClassLoader().loadClass(ArrayBuilder.class.getName(), o.getStartPoint());
-            VMethod methodGet = classArrayBuilder.getMethodByName("create").get(0);
+            VMethod methodGet = MethodSelectorUtils.getMethodByName(classArrayBuilder, "create").get(0);
 
             return g.operation(c, CodeBuilder.scopeStatic((classArrayBuilder)).invoke(methodGet, null, o.getStartPoint()).arg(
                     new ClassRecordRef(o.getType(), null)
@@ -686,7 +687,7 @@ public class DefaultGenerator implements ICodeGenerator {
                 VClass errorClass = c.getCurrentClass().getClassLoader().loadClass(Throwable.class.getName(), o.getStartPoint());
                 VClass objectClass = c.getCurrentClass().getClassLoader().loadClass(Object.class.getName(), o.getStartPoint());
 
-                VMethod convertMethod = errorClass.getMethod("jsErrorConvert", o.getStartPoint(), objectClass);
+                VMethod convertMethod = MethodSelectorUtils.getMethod(errorClass, "jsErrorConvert", o.getStartPoint(), objectClass);
 
                 SVar evar = new SVar(c.genLocalName(), errorClass, o.block);
                 String lab = c.genLocalName();

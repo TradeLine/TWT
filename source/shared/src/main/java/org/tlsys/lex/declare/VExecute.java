@@ -38,6 +38,10 @@ public abstract class VExecute implements Context, Member, CodeDynLoad, HavinSou
         startPoint = point;
     }
 
+    public ArrayList<VArgument> getSimpleArguments() {
+        return arguments;
+    }
+
     /*
     public ArrayList<ArgumentModificator> getMods() {
         return mods;

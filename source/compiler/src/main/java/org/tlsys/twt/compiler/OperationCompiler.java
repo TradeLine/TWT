@@ -3,6 +3,7 @@ package org.tlsys.twt.compiler;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.InputsClassModificator;
+import org.tlsys.MethodSelectorUtils;
 import org.tlsys.OtherClassLink;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
@@ -36,7 +37,7 @@ class OperationCompiler {
 
 
             if (classIns.isParent(enumClass)) {
-                VConstructor con = classIns.getConstructor(c.getFile().getPoint(e.pos), classIns.getClassLoader().loadClass(String.class.getName(), c.getFile().getPoint(e.pos)), classIns.getClassLoader().loadClass("int", c.getFile().getPoint(e.pos)));
+                VConstructor con = MethodSelectorUtils.getConstructor(classIns, c.getFile().getPoint(e.pos), classIns.getClassLoader().loadClass(String.class.getName(), c.getFile().getPoint(e.pos)), classIns.getClassLoader().loadClass("int", c.getFile().getPoint(e.pos)));
                 NewClass nc = new NewClass(con, c.getFile().getPoint(e.pos));
                 return nc;
             }
@@ -49,7 +50,7 @@ class OperationCompiler {
 
             VConstructor con;
             try {
-                con = classIns.getConstructor(argsParamClasses, c.getFile().getPoint(e.pos));
+                con = MethodSelectorUtils.getConstructor(classIns, argsParamClasses, c.getFile().getPoint(e.pos));
             } catch (CompileException ex) {
                 throw ex;
             }
@@ -173,7 +174,7 @@ class OperationCompiler {
             AnnonimusClass ac = ClassCompiler.createLambda(c, e, o);
             List<VClass> addedArgs = buildConstructorInvokeTypes(ac);
             try {
-                VConstructor con = ac.getConstructor(addedArgs, c.getFile().getPoint(e.pos));
+                VConstructor con = MethodSelectorUtils.getConstructor(ac, addedArgs, c.getFile().getPoint(e.pos));
                 NewClass nc = new NewClass(con, c.getFile().getPoint(e.pos));
 
                 for (VArgument arg : con.getArguments()) {
@@ -243,7 +244,7 @@ class OperationCompiler {
                         break;
                     }
                 Value scope = c.op(e.expr, o);
-                VMethod method = scope.getType().getMethod((Symbol.MethodSymbol) e.sym, c.getFile().getPoint(e.pos));
+                VMethod method = MethodSelectorUtils.getMethod(scope.getType(), (Symbol.MethodSymbol) e.sym, c.getFile().getPoint(e.pos));
                 return new FunctionRef(replaceMethod, method);
             }
 
@@ -258,7 +259,7 @@ class OperationCompiler {
                 self = Objects.requireNonNull(c.op(f.selected, o));
                 try {
                     VClass selectedCalss = c.loadClass(f.selected.type, c.getFile().getPoint(e.pos));
-                    method = selectedCalss.getMethod((Symbol.MethodSymbol) f.sym, c.getFile().getPoint(e.pos));
+                    method = MethodSelectorUtils.getMethod(selectedCalss, (Symbol.MethodSymbol) f.sym, c.getFile().getPoint(e.pos));
                 } catch (MethodNotFoundException ee) {
                     throw ee;
                 }
@@ -286,7 +287,7 @@ class OperationCompiler {
                     }
 
                     try {
-                        method = cc.getConstructor(args, c.getFile().getPoint(e.pos));
+                        method = MethodSelectorUtils.getConstructor(cc, args, c.getFile().getPoint(e.pos));
                     } catch (CompileException eee) {
                         throw eee;
                     }
@@ -297,7 +298,7 @@ class OperationCompiler {
                         args.add(TypeUtil.loadClass(c.getClassLoader(), ee.type, c.getFile().getPoint(e.pos)));
                     }
                     try {
-                        method = self.getType().getMethod(in.name.toString(), args, c.getFile().getPoint(e.pos));
+                        method = MethodSelectorUtils.getMethod(self.getType(), in.name.toString(), args, c.getFile().getPoint(e.pos));
                     } catch (CompileException ex) {
                         throw ex;
                     }

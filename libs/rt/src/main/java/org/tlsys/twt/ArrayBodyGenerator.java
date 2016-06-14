@@ -1,5 +1,6 @@
 package org.tlsys.twt;
 
+import org.tlsys.MethodSelectorUtils;
 import org.tlsys.Outbuffer;
 import org.tlsys.lex.Assign;
 import org.tlsys.lex.Invoke;
@@ -14,7 +15,7 @@ public class ArrayBodyGenerator extends DefaultGenerator {
         ICodeGenerator defaultCG = ctx.getGenerator(execute.getParent());
         ArrayClass ac = (ArrayClass) execute.getParent();
         if (execute == ac.constructor) {
-            defaultCG.operation(ctx, new Invoke(execute.getParent().extendsClass.getConstructor(execute.getStartPoint()), new This(execute.getParent())), ps);
+            defaultCG.operation(ctx, new Invoke(MethodSelectorUtils.getConstructor(execute.getParent().extendsClass, execute.getStartPoint()), new This(execute.getParent())), ps);
             ps.append(";");
 
             ps.append("this.").append(ac.jsArray.getRuntimeName()).append("=new Array(").append(execute.getArguments().get(0).getRuntimeName()).append(");");

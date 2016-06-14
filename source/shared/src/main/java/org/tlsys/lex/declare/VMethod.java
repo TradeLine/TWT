@@ -1,5 +1,6 @@
 package org.tlsys.lex.declare;
 
+import org.tlsys.MethodSelectorUtils;
 import org.tlsys.lex.Collect;
 import org.tlsys.sourcemap.SourcePoint;
 
@@ -146,7 +147,7 @@ public class VMethod extends VExecute {
         }
 
         Object readResolve() throws Exception {
-            return getParent().getMethod(getAlias(), getArguments(), null);
+            return MethodSelectorUtils.getMethod(getParent(), getAlias(), getArguments(), null);
         }
     }
 }

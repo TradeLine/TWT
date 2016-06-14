@@ -146,7 +146,7 @@ public final class CodeBuilder {
         @Override
         public VConstructor find(SourcePoint point) {
             try {
-                return scope.getType().getConstructor(args, point);
+                return MethodSelectorUtils.getConstructor(scope.getType(), args, point);
             } catch (MethodNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -280,7 +280,7 @@ public final class CodeBuilder {
         @Override
         public VMethod find(SourcePoint point) {
             try {
-                return scope.getType().getMethod(name, args, point);
+                return MethodSelectorUtils.getMethod(scope.getType(), name, args, point);
             } catch (MethodNotFoundException e) {
                 throw new RuntimeException(e);
             }

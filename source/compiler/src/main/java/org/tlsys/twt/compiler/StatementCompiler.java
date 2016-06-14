@@ -2,6 +2,7 @@ package org.tlsys.twt.compiler;
 
 import com.sun.tools.javac.tree.JCTree;
 import org.tlsys.CodeBuilder;
+import org.tlsys.MethodSelectorUtils;
 import org.tlsys.TypeUtil;
 import org.tlsys.lex.*;
 import org.tlsys.lex.declare.*;
@@ -140,7 +141,7 @@ class StatementCompiler {
 
                 SVar var = new SVar(e.var.name.toString(), TypeUtil.loadClass(c.getCurrentClass().getClassLoader(), e.var.type, c.getFile().getPoint(e.pos)), block);
                 DeclareVar dv = new DeclareVar(var, c.getFile().getPoint(e.var.pos));
-                dv.init = new Invoke(classIterator.getMethod("next", c.getFile().getPoint(e.pos)), it.getVar());
+                dv.init = new Invoke(MethodSelectorUtils.getMethod(classIterator, "next", c.getFile().getPoint(e.pos)), it.getVar());
                 wl.block.add(dv);
                 wl.block.add(c.st(e.body, wl.block));
                 return block;

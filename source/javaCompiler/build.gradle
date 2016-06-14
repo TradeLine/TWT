@@ -21,6 +21,7 @@ buildscript {
 dependencies {
     compile project(':common')
     compile name: 'javaparser-core', group: 'com.github.javaparser', version: '2.3.0'
+    compile group: 'org.ow2.asm', name: 'asm', version: '5.1'
 }
 
 

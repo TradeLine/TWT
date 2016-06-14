@@ -1,6 +1,7 @@
 package org.tlsys.twt.rt.java.lang;
 
 import org.tlsys.CodeBuilder;
+import org.tlsys.MethodSelectorUtils;
 import org.tlsys.lex.Invoke;
 import org.tlsys.lex.NewClass;
 import org.tlsys.lex.StaticRef;
@@ -95,23 +96,23 @@ public class BoxingCast extends DefaultCast {
 
         if (char.class.getName().equals(value.getType().alias)) {
             if (Character.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
+                return new NewClass(MethodSelectorUtils.getConstructor(vClass, point, value.getType()), null).addArg(value);
             }
         }
 
         if (byte.class.getName().equals(value.getType().alias)) {
             if (Byte.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
+                return new NewClass(MethodSelectorUtils.getConstructor(vClass, point, value.getType()), null).addArg(value);
             }
         }
 
         if (short.class.getName().equals(value.getType().alias)) {
             if (Short.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
+                return new NewClass(MethodSelectorUtils.getConstructor(vClass, point, value.getType()), null).addArg(value);
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
-                return new Invoke(vClass.getMethod("fromShort", point, value.getType()), new StaticRef(vClass)).addArg(value);
+                return new Invoke(MethodSelectorUtils.getMethod(vClass, "fromShort", point, value.getType()), new StaticRef(vClass)).addArg(value);
             }
 
             if (int.class.getName().equals(vClass.alias)) {
@@ -133,7 +134,7 @@ public class BoxingCast extends DefaultCast {
 
         if (boolean.class.getName().equals(value.getType().alias)) {
             if (Boolean.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
+                return new NewClass(MethodSelectorUtils.getConstructor(vClass, point, value.getType()), null).addArg(value);
             }
 
             throw new CompileException("Can't convert boolean to " + vClass, point);
@@ -141,7 +142,7 @@ public class BoxingCast extends DefaultCast {
 
         if (int.class.getName().equals(value.getType().alias)) {
             if (Integer.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
+                return new NewClass(MethodSelectorUtils.getConstructor(vClass, point, value.getType()), null).addArg(value);
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
@@ -163,24 +164,24 @@ public class BoxingCast extends DefaultCast {
 
         if (long.class.getName().equals(value.getType().alias)) {
             if (Long.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
+                return new NewClass(MethodSelectorUtils.getConstructor(vClass, point, value.getType()), null).addArg(value);
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
-                return new Invoke(vClass.getMethod("fromLong", point, value.getType()), new StaticRef(vClass)).addArg(value);
+                return new Invoke(MethodSelectorUtils.getMethod(vClass, "fromLong", point, value.getType()), new StaticRef(vClass)).addArg(value);
             }
 
         }
 
         if (float.class.getName().equals(value.getType().alias)) {
             if (Float.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
+                return new NewClass(MethodSelectorUtils.getConstructor(vClass, point, value.getType()), null).addArg(value);
             }
         }
 
         if (double.class.getName().equals(value.getType().alias)) {
             if (Double.class.getName().equals(vClass.alias)) {
-                return new NewClass(vClass.getConstructor(point, value.getType()), null).addArg(value);
+                return new NewClass(MethodSelectorUtils.getConstructor(vClass, point, value.getType()), null).addArg(value);
             }
         }
 
@@ -189,27 +190,27 @@ public class BoxingCast extends DefaultCast {
 
         if (value.getType().isParent(numberClass)) {
             if (int.class.getName().equals(vClass.alias)) {
-                return new Invoke(value.getType().getMethod("intValue", point), value);
+                return new Invoke(MethodSelectorUtils.getMethod(value.getType(), "intValue", point), value);
             }
 
             if (long.class.getName().equals(vClass.alias)) {
-                return new Invoke(value.getType().getMethod("longValue", point), value);
+                return new Invoke(MethodSelectorUtils.getMethod(value.getType(), "longValue", point), value);
             }
 
             if (float.class.getName().equals(vClass.alias)) {
-                return new Invoke(value.getType().getMethod("floatValue", point), value);
+                return new Invoke(MethodSelectorUtils.getMethod(value.getType(), "floatValue", point), value);
             }
 
             if (double.class.getName().equals(vClass.alias)) {
-                return new Invoke(value.getType().getMethod("doubleValue", point), value);
+                return new Invoke(MethodSelectorUtils.getMethod(value.getType(), "doubleValue", point), value);
             }
 
             if (byte.class.getName().equals(vClass.alias)) {
-                return new Invoke(value.getType().getMethod("byteValue", point), value);
+                return new Invoke(MethodSelectorUtils.getMethod(value.getType(), "byteValue", point), value);
             }
 
             if (short.class.getName().equals(vClass.alias)) {
-                return new Invoke(value.getType().getMethod("shortValue", point), value);
+                return new Invoke(MethodSelectorUtils.getMethod(value.getType(), "shortValue", point), value);
             }
         }
         return super.cast(value, vClass, point);
