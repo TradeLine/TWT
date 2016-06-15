@@ -22,6 +22,8 @@ dependencies {
     compile project(':common')
     compile name: 'javaparser-core', group: 'com.github.javaparser', version: '2.3.0'
     compile group: 'org.ow2.asm', name: 'asm', version: '5.1'
+    compile group: 'org.ow2.asm', name: 'asm-tree', version: '5.1'
+    compile group: 'org.jboss.windup.decompiler.fernflower', name: 'fernflower', version: '2.5.0.Final'
 }
 
 
