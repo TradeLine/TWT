@@ -2,6 +2,10 @@ package org;
 
 public class TestClass {
 
+    static{
+        System.out.println("!!!!!!!");
+    }
+
     int hh = 99;
 
     {
