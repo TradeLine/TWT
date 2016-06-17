@@ -1,12 +1,8 @@
 package org;
 
-import jdk.nashorn.internal.ir.*;
-import jdk.nashorn.internal.ir.Assignment;
-import org.tlsys.ast.*;
-import org.tlsys.ast.Block;
-import org.tlsys.generators.NodeVisiter;
-
-import java.lang.reflect.Modifier;
+import org.tlsys.compiler.ast.*;
+import org.tlsys.compiler.graph.*;
+import org.tlsys.compiler.generators.NodeVisiter;
 
 public class MyVisiter implements NodeVisiter {
     @Override

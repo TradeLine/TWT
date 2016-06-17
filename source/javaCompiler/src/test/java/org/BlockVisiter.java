@@ -1,8 +1,8 @@
 package org;
 
-import org.tlsys.ast.*;
-import org.tlsys.ast.Block;
-import org.tlsys.generators.NodeVisiter;
+import org.tlsys.compiler.ast.*;
+import org.tlsys.compiler.ast.Block;
+import org.tlsys.compiler.generators.NodeVisiter;
 
 public class BlockVisiter implements NodeVisiter {
     private final int level;
@@ -56,23 +56,21 @@ public class BlockVisiter implements NodeVisiter {
 
     @Override
     public void visit(MethodInvocation node) {
-        /*
-        if (node.isSpecial)
-            System.out.print("SPECIAL ");
-        else */{
             if (node.getExpression() == null) {
                 //System.out.print("STATIC ");
                 System.out.print(node.getMethodBinding().getDeclaringClass().getClassName()+".");
             } //else
                 //System.out.print("VIRTUAL ");
-        }
         if (node.getExpression() != null) {
-            System.out.print(" ");
             node.getExpression().visit(this);
             System.out.print(".");
         }
 
-        System.out.print(node.getMethodBinding().getName()+"(");
+        System.out.print(node.getMethodBinding().getName());
+        if (node.isSpecial) {
+            System.out.print(":"+node.getMethodBinding().getDeclaringClass().getClassName());
+        }
+        System.out.print("(");
         boolean first = true;
         for (ASTNode n : node.getArguments()) {
             if (!first) {
@@ -113,7 +111,7 @@ public class BlockVisiter implements NodeVisiter {
 
     @Override
     public void visit(ThisExpression node) {
-        System.out.print("this[" + node.getType().getSignature()+"]");
+        System.out.print("this");
     }
 
     @Override
@@ -180,7 +178,7 @@ public class BlockVisiter implements NodeVisiter {
 
     @Override
     public void visit(ClassLiteral node) {
-        System.out.print("visit(ClassLiteral node)");
+        System.out.print(node.getSignature().className()+".class");
     }
 
     @Override

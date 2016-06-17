@@ -1,17 +1,12 @@
 package org;
 
-import org.apache.bcel.classfile.ClassParser;
-import org.apache.bcel.classfile.JavaClass;
 import org.junit.Test;
-import org.tlsys.Compile;
-import org.tlsys.Pass1;
-import org.tlsys.ast.TypeDeclaration;
-import org.tlsys.parser.Parser;
-import org.tlsys.utils.ClassUnit;
+import org.tlsys.compiler.Compile;
+import org.tlsys.compiler.ast.TypeDeclaration;
+import org.tlsys.compiler.parser.Parser;
+import org.tlsys.compiler.utils.ClassUnit;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.function.Supplier;
 
 /**
  * Created by Субочев Антон on 16.06.2016.

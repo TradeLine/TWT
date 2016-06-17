@@ -1,7 +1,7 @@
 package org;
 
-import org.tlsys.ast.ASTNode;
-import org.tlsys.generators.NodeVisiter;
+import org.tlsys.compiler.ast.ASTNode;
+import org.tlsys.compiler.generators.NodeVisiter;
 
 public class CodeVisiter implements NodeVisiter {
     @Override

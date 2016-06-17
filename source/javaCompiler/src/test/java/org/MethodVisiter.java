@@ -1,10 +1,9 @@
 package org;
 
-import jdk.nashorn.internal.ir.Assignment;
-import org.tlsys.ast.*;
-import org.tlsys.generators.NodeVisiter;
-import org.tlsys.parser.LineNumberCursor;
-
+import org.tlsys.compiler.generators.NodeVisiter;
+import org.tlsys.compiler.parser.LineNumberCursor;
+import org.tlsys.compiler.ast.*;
+import org.tlsys.compiler.graph.*;
 import java.lang.reflect.Modifier;
 
 public class MethodVisiter implements NodeVisiter {
