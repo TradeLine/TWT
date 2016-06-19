@@ -8,6 +8,9 @@ repositories {
     mavenCentral()
     mavenLocal()
     jcenter()
+    maven {
+        url "http://repository.apache.org/snapshots/"
+    }
 }
 
 buildscript {

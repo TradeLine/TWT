@@ -23,10 +23,9 @@ dependencies {
     compile name: 'maven-model', group:'org.apache.maven', version:'3.0.3'
     compile name: 'asm', group:'org.ow2.asm', version:'5.0.2'
     compile name: 'asm-tree', group:'org.ow2.asm', version:'5.0.2'
+    compile group: 'org.perf4j', name: 'perf4j', version: '0.9.16'
 }
 
-
-System.out.println("hello $group")
 
 publishing {
     publications {
