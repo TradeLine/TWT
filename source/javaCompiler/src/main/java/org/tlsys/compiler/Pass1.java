@@ -245,7 +245,7 @@ public class Pass1 {
             */
         } catch (Error e) {
             //DragomeJsCompiler.errorCount++;
-                LOG.severe("In Expression Optimizer:\n " + e);
+            LOG.severe("In Expression Optimizer:\n " + e);
             throw e;
         }
 

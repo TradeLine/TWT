@@ -19,7 +19,7 @@ public abstract class Transformation {
 
         for (int i= 0; i < transformations.length; i++)
         {
-            Transformation t= fetch(i);
+            Transformation t= get(i);
             if (t.applies(node))
             {
                 return t;
@@ -29,7 +29,7 @@ public abstract class Transformation {
         return null;
     }
 
-    static Transformation fetch(int index)
+    static Transformation get(int index)
     {
         Transformation t= null;
         try
