@@ -7,9 +7,6 @@ import org.tlsys.compiler.BytecodeTransformer;
 import java.lang.reflect.Modifier;
 import java.util.Stack;
 
-/**
- * Created by Субочев Антон on 16.06.2016.
- */
 public class InvokeDynamicBackporter implements BytecodeTransformer {
     public static byte[] transform(byte[] bytecode) {
         ClassNode classNode = new ClassNode(Opcodes.ASM5);

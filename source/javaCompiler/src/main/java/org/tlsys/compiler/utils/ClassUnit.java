@@ -3,11 +3,13 @@ package org.tlsys.compiler.utils;
 import org.apache.commons.io.output.StringBuilderWriter;
 import org.tlsys.compiler.Compile;
 import org.tlsys.compiler.classpath.ClasspathFile;
+import org.tlsys.compiler.classpath.StreamClasspathFile;
 import org.tlsys.compiler.generators.DragomeJavaScriptGenerator;
 import org.tlsys.compiler.type.Signature;
 import org.tlsys.compiler.type.TypeCollector;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.util.*;
@@ -19,12 +21,13 @@ import java.util.logging.Logger;
 public class ClassUnit extends Unit
 {
     private static final Logger LOG = Logger.getLogger(ClassUnit.class.getName());
-    public static final String STATIC_MEMBER= "#static-member#";
+    //public static final String STATIC_MEMBER= "#static-member#";
 
     static final long serialVersionUID= 1;
 
     private long lastCompiled;
 
+    /*
     public long getLastModified()
     {
         return getClassFile().getLastModified();
@@ -34,7 +37,7 @@ public class ClassUnit extends Unit
     {
         return getClassFile().getCRC();
     }
-
+    */
     private Map<String, MemberUnit> declaredMembers;
 
     private ClassUnit superUnit;
@@ -57,9 +60,11 @@ public class ClassUnit extends Unit
 
     private List<ClassUnit> implementors= new ArrayList<ClassUnit>();
 
+    /*
     private transient boolean written= false;
 
     private String generatedJs;
+
 
     private long lastCRC;
 
@@ -75,13 +80,14 @@ public class ClassUnit extends Unit
         this.implementors= implementors;
     }
 
+    */
     public static List<MemberUnit> stringInits= new ArrayList<MemberUnit>();
 
     public ClassUnit()
     {
     }
 
-    public ClassUnit(Compile theProject, Signature theSignature)
+    public ClassUnit(Compile theProject, Signature theSignature, InputStream stream, String className)
     {
         project= theProject;
 
@@ -90,21 +96,27 @@ public class ClassUnit extends Unit
         subUnits= new LinkedHashSet<ClassUnit>();
         lastCompiled= -1;
         setSignature(theSignature);
+
+        classFile = new StreamClasspathFile(stream, className);
     }
 
+    /*
     public void clear()
     {
         lastCompiled= -1;
         removeInterfaces();
         setSuperUnit(null);
         declaredMembers.clear();
-        generatedJs= null;
+        //generatedJs= null;
     }
+    */
 
+    /*
     public boolean isUpToDate()
     {
         return lastCRC == getCRC();
     }
+    */
 
     public Collection<ClassUnit> getInterfaces()
     {
@@ -212,6 +224,7 @@ public class ClassUnit extends Unit
         }
     }
 
+    /*
     public void write(int depth, Writer writer2) throws IOException
     {
         if (!isTainted() || !isResolved() || isWritten())
@@ -247,7 +260,9 @@ public class ClassUnit extends Unit
 
         taintRelated(depth, writer2);
     }
+    */
 
+    /*
     private String generateJsCode(int depth, Writer writer) throws IOException
     {
         LOG.info(getIndent(depth) + this);
@@ -392,7 +407,9 @@ public class ClassUnit extends Unit
 
         return writer.toString();
     }
+    */
 
+    /*
     private void writeClinit(int depth, Writer writer, MemberUnit clinitMethod, List<MemberUnit> staticMethods) throws IOException
     {
         String superStaticFields= createSuperStaticFieldsReferences(depth, clinitMethod, staticMethods);
@@ -417,6 +434,7 @@ public class ClassUnit extends Unit
             writer.write(replace);
         }
     }
+
 
     private String createSuperStaticFieldsReferences(int depth, MemberUnit clinitMethod, List<MemberUnit> staticMethods) throws IOException
     {
@@ -455,6 +473,7 @@ public class ClassUnit extends Unit
         return result.toString();
     }
 
+
     private void addAnnotationsAsStaticMember(Writer writer, boolean first) throws IOException
     {
         if (!first)
@@ -471,6 +490,7 @@ public class ClassUnit extends Unit
         writer.write("}\n");
     }
 
+
     private Set<MemberUnit> getNotImplementedMethods()
     {
         Set<MemberUnit> interfacesMembers= new HashSet<MemberUnit>();
@@ -485,6 +505,7 @@ public class ClassUnit extends Unit
 
         return interfacesMembers;
     }
+    */
 
     private boolean isImplementing(Class<InvocationHandler> class1)
     {
@@ -544,6 +565,7 @@ public class ClassUnit extends Unit
         return member.getSignature().toString().equals("<clinit>()void");
     }
 
+    /*
     private boolean addSuperStaticMethods(Writer writer, boolean first, List<MemberUnit> staticMethods) throws IOException
     {
         if (superUnit != null)
@@ -574,6 +596,7 @@ public class ClassUnit extends Unit
 
         return first;
     }
+    */
     private boolean containsSignature(Signature signature, List<MemberUnit> staticMethods)
     {
         for (MemberUnit memberUnit : staticMethods)
@@ -585,6 +608,7 @@ public class ClassUnit extends Unit
         return false;
     }
 
+    /*
     private void writeMethodAlternative(int depth, Writer writer, MemberUnit member) throws IOException
     {
         if (member instanceof MethodUnit)
@@ -604,17 +628,20 @@ public class ClassUnit extends Unit
             member.write(depth + 1, writer);
     }
 
+
     private String extractMethodDefinition(String compiledCode, String nameAndSignature)
     {
         int startIndex= compiledCode.indexOf("start of " + nameAndSignature);
         int endIndex= compiledCode.indexOf("end of " + nameAndSignature);
 
         String part= compiledCode.substring(startIndex, endIndex);
-        String result= part.substring(part.indexOf("*/"), part.lastIndexOf("}") + 1);
+        String result= part.substring(part.indexOf("* /"), part.lastIndexOf("}") + 1);
         result= result.substring(result.indexOf("$"));
         return result;
     }
+        */
 
+    /*
     private void taintRelated(int depth, Writer writer) throws IOException
     {
         if (!"java.lang.Object".equals(toString()))
@@ -622,7 +649,6 @@ public class ClassUnit extends Unit
             {
                 ClassUnit dependencyClassUnit= project.getOrCreateClassUnit(dependency);
                 dependencyClassUnit.setTainted();
-                //		dependencyClassUnit.write(depth, writer);
             }
 
         for (ClassUnit child : getSubUnits())
@@ -638,10 +664,12 @@ public class ClassUnit extends Unit
         }
     }
 
+
     private boolean isWritten()
     {
         return written;
     }
+    */
 
     void setSignature(Signature theSignature)
     {
@@ -650,13 +678,16 @@ public class ClassUnit extends Unit
 
     public ClasspathFile getClassFile()
     {
+        /*
         if (classFile == null)
         {
             classFile= Compile.getInstance().getInputClassFile(getSignature().toString().replaceAll("\\.", "/") + ".class");
         }
+        */
         return classFile;
     }
 
+    /*
     public void setClassFile(ClasspathFile classFile)
     {
         this.classFile= classFile;
@@ -666,12 +697,14 @@ public class ClassUnit extends Unit
     {
         lastCompiled= theLastCompiled;
     }
+    */
 
     public boolean isResolved()
     {
         return isResolved;
     }
 
+    /*
     public void setSuperTainted()
     {
         ClassUnit clazz= this;
@@ -688,33 +721,39 @@ public class ClassUnit extends Unit
         }
     }
 
+
     public void setResolved(boolean theIsResolved)
     {
         isResolved= theIsResolved;
     }
+    */
 
     public String getName()
     {
         return getSignature().className();
     }
 
+    /*
     public Compile getProject()
     {
         return project;
     }
+    */
 
     private List<String> dependencies= new ArrayList<String>();
 
     private byte[] bytecode;
 
+    /*
     public byte[] getBytecode()
     {
         return bytecode;
     }
+    */
 
     private List<String> notReversibleMethods= new ArrayList<String>();
 
-    private String alternativeCompilation;
+    //private String alternativeCompilation;
 
     public boolean isAbstract= false;
 
@@ -725,8 +764,8 @@ public class ClassUnit extends Unit
         return notReversibleMethods;
     }
 
-    public void addDependency(String dependency)
-    {
+    public void addDependency(String dependency) {
+        System.out.println("DEPENDENCY " + dependency);
         dependencies.add(dependency);
     }
 
@@ -740,19 +779,23 @@ public class ClassUnit extends Unit
         notReversibleMethods.add(methodNameSignature);
     }
 
+    /*
     public void setAlternativeCompilation(String alternativeCompilation)
     {
         this.alternativeCompilation= alternativeCompilation;
     }
+    */
 
     public void setAnnotations(Map<String, String> annotationsValues)
     {
         this.annotationsValues= annotationsValues;
     }
 
+    /*
     public void setLastCRC(long crc)
     {
         lastCRC= crc;
     }
+    */
 
 }

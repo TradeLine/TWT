@@ -1,20 +1,19 @@
 package org.tlsys.compiler.ast;
 
-import org.tlsys.compiler.generators.AbstractVisitor;
 import org.tlsys.compiler.generators.NodeVisiter;
 import org.tlsys.compiler.type.Signature;
+import org.tlsys.twt.nodes.ClassReferance;
 
-/**
- * Created by Субочев Антон on 15.06.2016.
- */
 public class ClassLiteral extends Expression
 {
 
     private Signature signature;
+    private final ClassReferance referance;
 
-    public ClassLiteral(Signature theSignature)
+    public ClassLiteral(Signature theSignature, ClassReferance referance)
     {
         signature= theSignature;
+        this.referance = referance;
     }
 
     @Override
@@ -28,4 +27,7 @@ public class ClassLiteral extends Expression
         return signature;
     }
 
+    public ClassReferance getReferance() {
+        return referance;
+    }
 }

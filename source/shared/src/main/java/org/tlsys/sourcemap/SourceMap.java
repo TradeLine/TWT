@@ -59,23 +59,14 @@ public class SourceMap {
         State state = new State();
         state.map = this;
         for (FileRecord fr : files.values()) {
-            //System.out.println("========FILE " + fr.file.getName() + "===========");
-            /*
-            state.column = 0;
-            state.name = 0;
-            state.name = 0;
-            state.file = 0;
-            */
             for (Record r : fr.records) {
-                //System.out.println("\t" + r.getStartPoint().getRow() + " : " + r.getStartPoint().getColumn() + " => " + r.column);
                 if (!first)
                     sb.append(",");
                 r.write(sb, state);
                 first = false;
             }
-
-            //System.out.println("========FILE " + fr.file.getName() + "===========\n\n");
         }
+
         //Вставляем разметку
         sb.append("\",\n");
         sb.append("\"sources\":[");

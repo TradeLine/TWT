@@ -5,9 +5,6 @@ import org.tlsys.compiler.generators.NodeVisiter;
 
 import java.util.LinkedHashMap;
 
-/**
- * Created by Субочев Антон on 15.06.2016.
- */
 public class Assignment extends Expression {
 
     static public class Operator {

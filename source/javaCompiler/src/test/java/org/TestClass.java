@@ -32,8 +32,13 @@ public class TestClass {
         ComTest.tempMethod();
         TestClass gg = new TestClass();
         ComTest.getLambda((g,v)->{
-            return a+b + hh + (int)j;
+            return a + hh + (int)j;
         });
+
+        while (b > 10) {
+            b--;
+            System.out.println("123");
+        }
 
     }
 

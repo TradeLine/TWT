@@ -2,7 +2,7 @@ package org
 
 open class MyClass {
     public fun test(value: Int) {
-        println("Hello!" + 123)
+        println("Hello!" + 123 + value)
         println("SSSS" + MyClass());
         System.out.println("123"+444);
     }

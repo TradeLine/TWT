@@ -18,7 +18,7 @@ public class FieldAccess extends Expression {
     }
 
     public void initialize(MethodDeclaration methodDecl) {
-        Compile.getInstance().addReference(methodDecl, this);
+        //Compile.getInstance().addReference(methodDecl, this);
     }
 
     @Override
@@ -71,5 +71,7 @@ public class FieldAccess extends Expression {
             throw new RuntimeException("Type is already set");
         type = theType;
     }
+
+
 
 }

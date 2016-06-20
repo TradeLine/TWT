@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Субочев Антон on 15.06.2016.
- */
 public class TypeDeclaration extends ASTNode {
 
     private ObjectType type;
@@ -91,7 +88,7 @@ public class TypeDeclaration extends ASTNode {
 
     public void addField(VariableDeclaration field) {
         fields.add(field);
-        Compile.getInstance().getOrCreateFieldUnit(type, field.getName());
+        //Compile.getInstance().getOrCreateFieldUnit(type, field.getName());
     }
 
     public ObjectType getSuperType() {

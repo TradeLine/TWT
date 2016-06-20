@@ -10,6 +10,10 @@ public class Expression extends Block implements Cloneable {
 
     Type type = Type.UNKNOWN;
 
+    public Type getType() {
+        return type;
+    }
+
     public Expression() {
         super();
     }

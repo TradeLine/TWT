@@ -21,7 +21,7 @@ public class ArrayCreation extends Expression {
         for (ASTNode dimension : dimensions) {
             this.widen(dimension);
         }
-        Compile.getInstance().addReference(methodDecl, this);
+        //Compile.getInstance().addReference(methodDecl, this);
     }
 
     @Override

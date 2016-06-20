@@ -20,7 +20,7 @@ public class ControlFlowGraph extends Graph
 
     private List tryStatements;
 
-    public static int problemCounter= 0;
+    //public static int problemCounter= 0;
 
     public ControlFlowGraph(List theTryStatements)
     {

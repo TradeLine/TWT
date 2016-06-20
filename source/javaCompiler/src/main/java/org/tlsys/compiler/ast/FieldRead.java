@@ -11,9 +11,4 @@ public class FieldRead extends FieldAccess {
     public FieldRead() {
     }
 
-    @Override
-    public void visit(NodeVisiter visitor) {
-        visitor.visit(this);
-    }
-
 }

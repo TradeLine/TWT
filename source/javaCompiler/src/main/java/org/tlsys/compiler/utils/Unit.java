@@ -23,7 +23,7 @@ public abstract class Unit implements Serializable {
     {
     }
 
-    public abstract void write(int depth, Writer writer) throws IOException;
+    //public abstract void write(int depth, Writer writer) throws IOException;
 
     String getIndent(int depth)
     {

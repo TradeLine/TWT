@@ -9,6 +9,7 @@ import org.tlsys.compiler.type.Signature;
 import org.tlsys.compiler.type.TypeVisitor;
 import org.tlsys.compiler.utils.*;
 
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -101,14 +102,14 @@ public class Compile {
 
     private ClassUnit javaLangObject;
 
-    public ClassUnit getOrCreateClassUnit(String className)
+    public ClassUnit getOrCreateClassUnit(String className, InputStream inputStream)
     {
         ClassUnit classUnit= classesByName.get(className);
         if (classUnit != null)
             return classUnit;
 
         Signature signature= getSignature(className);
-        classUnit= new ClassUnit(this, signature);
+        classUnit= new ClassUnit(this, signature, inputStream, className);
         classesByName.put(className, classUnit);
 
         if (className.equals("java.lang.Object"))
@@ -135,6 +136,7 @@ public class Compile {
         }
     }
 
+    /*
     public int currentGeneratedMethods = 0;
 
     public ClasspathFile getInputClassFile(String name) {
@@ -143,6 +145,8 @@ public class Compile {
 
     public List<String> writtenSignatures= new ArrayList<String>();
     private List<String> clinits= new ArrayList<String>();
+
+
     public List<String> getClinits()
     {
         return clinits;
@@ -156,6 +160,7 @@ public class Compile {
         return writtenSignatures;
     }
 
+
     private MemberUnit getMemberUnitOrNull(String className, Signature signature)
     {
         ClassUnit classUnit= getOrCreateClassUnit(className);
@@ -163,7 +168,9 @@ public class Compile {
             return null;
         return classUnit.getDeclaredMember(signature.toString());
     }
+    */
 
+    /*
     private MemberUnit getOrCreateMemberUnit(String className, Signature signature, String nameAndSignature)
     {
         MemberUnit member= getMemberUnitOrNull(className, signature);
@@ -189,6 +196,7 @@ public class Compile {
         return member;
     }
 
+
     public Signature getArraySignature(Type type)
     {
         String signatureString= type.getSignature();
@@ -201,6 +209,7 @@ public class Compile {
         return getSignature(signatureString);
     }
 
+
     public void addReference(MethodDeclaration decl, ArrayCreation ac)
     {
         ProcedureUnit source= getOrCreateProcedureUnit(decl.getMethodBinding());
@@ -212,12 +221,14 @@ public class Compile {
         }
     }
 
+
     public ProcedureUnit getOrCreateProcedureUnit(MethodBinding methodBinding)
     {
         Signature signature= getSignature(methodBinding.getRelativeSignature());
         String className= methodBinding.getDeclaringClass().getClassName();
         return (ProcedureUnit) getOrCreateMemberUnit(className, signature, Pass1.extractMethodNameSignature(methodBinding));
     }
+
 
     public void addReference(MethodDeclaration decl, FieldAccess fa)
     {
@@ -235,6 +246,7 @@ public class Compile {
     {
         return (FieldUnit) getOrCreateMemberUnit(type.getClassName(), getSignature(name), "");
     }
+    */
 
     public BytecodeTransformer bytecodeTransformer;
 

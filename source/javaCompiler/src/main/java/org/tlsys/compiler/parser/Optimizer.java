@@ -14,49 +14,47 @@ public class Optimizer {
 
     private List tempDecls;
 
-    public Optimizer(MethodDeclaration theMethodDecl, List theTempDecls)
-    {
-        methodDecl= theMethodDecl;
-        tempDecls= theTempDecls;
+    public static void optimize(MethodDeclaration theMethodDecl, List theTempDecls) {
+        Optimizer op = new Optimizer(theMethodDecl, theTempDecls);
+        op.optimize();
     }
 
-    public static Expression negate(Expression expr)
-    {
-        PrefixExpression pe= new PrefixExpression();
+    private Optimizer(MethodDeclaration theMethodDecl, List theTempDecls) {
+        methodDecl = theMethodDecl;
+        tempDecls = theTempDecls;
+    }
+
+    public static Expression negate(Expression expr) {
+        PrefixExpression pe = new PrefixExpression();
         pe.setOperator(PrefixExpression.NOT);
         pe.setOperand(expr);
         return pe;
     }
 
-    public static Expression simplifyBooleanExpression(Expression expr, boolean negate)
-    {
-        if (expr instanceof PrefixExpression)
-        {
-            PrefixExpression pe= (PrefixExpression) expr;
+    public static Expression simplifyBooleanExpression(Expression expr, boolean negate) {
+        if (expr instanceof PrefixExpression) {
+            PrefixExpression pe = (PrefixExpression) expr;
             if (pe.getOperator() != PrefixExpression.NOT)
                 return expr;
             return simplifyBooleanExpression((Expression) pe.getOperand(), !negate);
         }
 
-        if (expr instanceof InfixExpression && expr.getTypeBinding() == Type.BOOLEAN)
-        {
-            InfixExpression in= (InfixExpression) expr;
-            InfixExpression.Operator op= in.getOperator();
-            if (negate)
-            {
-                op= op.getComplement();
+        if (expr instanceof InfixExpression && expr.getTypeBinding() == Type.BOOLEAN) {
+            InfixExpression in = (InfixExpression) expr;
+            InfixExpression.Operator op = in.getOperator();
+            if (negate) {
+                op = op.getComplement();
                 if (op != InfixExpression.Operator.CONDITIONAL_AND && op != InfixExpression.Operator.CONDITIONAL_OR)
-                    negate= false;
+                    negate = false;
             }
-            InfixExpression out= new InfixExpression(op);
+            InfixExpression out = new InfixExpression(op);
             out.widen(in);
             out.setOperands(simplifyBooleanExpression(in.getLeftOperand(), negate), simplifyBooleanExpression(in.getRightOperand(), negate));
             return out;
         }
 
-        if (negate)
-        {
-            PrefixExpression pe= new PrefixExpression();
+        if (negate) {
+            PrefixExpression pe = new PrefixExpression();
             pe.setOperator(PrefixExpression.NOT);
             pe.setOperand(expr);
             return pe;
@@ -65,119 +63,95 @@ public class Optimizer {
         return expr;
     }
 
-    private boolean representSameAssignables(Assignable a, Assignable b)
-    {
+    private boolean representSameAssignables(Assignable a, Assignable b) {
         if (!(a instanceof FieldAccess && b instanceof FieldAccess))
             return false;
-        FieldAccess faa= (FieldAccess) a;
-        FieldAccess fab= (FieldAccess) b;
+        FieldAccess faa = (FieldAccess) a;
+        FieldAccess fab = (FieldAccess) b;
         if (!faa.getName().equals(fab.getName()))
             return false;
-        if (faa.getExpression() instanceof VariableBinding && fab.getExpression() instanceof VariableBinding)
-        {
-            VariableBinding vba= (VariableBinding) faa.getExpression();
-            VariableBinding vbb= (VariableBinding) fab.getExpression();
+        if (faa.getExpression() instanceof VariableBinding && fab.getExpression() instanceof VariableBinding) {
+            VariableBinding vba = (VariableBinding) faa.getExpression();
+            VariableBinding vbb = (VariableBinding) fab.getExpression();
             return vba.getVariableDeclaration() == vbb.getVariableDeclaration();
         }
         return false;
     }
 
-    private VariableBinding fetchVariableBinding(Expression expr, VariableDeclaration decl)
-    {
-        ASTNode child= expr.getFirstChild();
-        while (child != null)
-        {
+    private VariableBinding fetchVariableBinding(Expression expr, VariableDeclaration decl) {
+        ASTNode child = expr.getFirstChild();
+        while (child != null) {
             if (child instanceof VariableBinding && ((VariableBinding) child).getVariableDeclaration() == decl)
                 return (VariableBinding) child;
-            VariableBinding vb= fetchVariableBinding((Expression) child, decl);
+            VariableBinding vb = fetchVariableBinding((Expression) child, decl);
             if (vb != null)
                 return vb;
-            child= child.getNextSibling();
+            child = child.getNextSibling();
         }
         return null;
     }
 
-    private PStarExpression.Operator getOp(InfixExpression expr)
-    {
+    private PStarExpression.Operator getOp(InfixExpression expr) {
         NumberLiteral nl;
-        if (expr.getRightOperand() instanceof NumberLiteral)
-        {
-            nl= (NumberLiteral) expr.getRightOperand();
-        }
-        else
+        if (expr.getRightOperand() instanceof NumberLiteral) {
+            nl = (NumberLiteral) expr.getRightOperand();
+        } else
             return null;
 
         PStarExpression.Operator op;
-        if (expr.getOperator() == InfixExpression.Operator.PLUS)
-        {
-            op= PStarExpression.INCREMENT;
-        }
-        else if (expr.getOperator() == InfixExpression.Operator.MINUS)
-        {
-            op= PStarExpression.DECREMENT;
-        }
-        else
-        {
+        if (expr.getOperator() == InfixExpression.Operator.PLUS) {
+            op = PStarExpression.INCREMENT;
+        } else if (expr.getOperator() == InfixExpression.Operator.MINUS) {
+            op = PStarExpression.DECREMENT;
+        } else {
             return null;
         }
 
-        if (NumberLiteral.isOne(nl))
-        {
+        if (NumberLiteral.isOne(nl)) {
 
-        }
-        else if (NumberLiteral.isMinusOne(nl))
-        {
-            op= op.complement();
-        }
-        else
-        {
+        } else if (NumberLiteral.isMinusOne(nl)) {
+            op = op.complement();
+        } else {
             return null;
         }
         return op;
     }
 
-    private boolean reduceXCrement(VariableDeclaration decl)
-    {
-        Assignment a1= null;
-        Assignment a2= null;
-        VariableBinding vb1= null;
-        VariableBinding vb2= null;
+    private boolean reduceXCrement(VariableDeclaration decl) {
+        Assignment a1 = null;
+        Assignment a2 = null;
+        VariableBinding vb1 = null;
+        VariableBinding vb2 = null;
 
-        Assignable fa1= null;
-        Assignable fa2= null;
+        Assignable fa1 = null;
+        Assignable fa2 = null;
 
-        InfixExpression sum= null;
+        InfixExpression sum = null;
 
-        Iterator iter= decl.vbs.iterator();
+        Iterator iter = decl.vbs.iterator();
 
-        while (iter.hasNext())
-        {
-            VariableBinding vb= (VariableBinding) iter.next();
+        while (iter.hasNext()) {
+            VariableBinding vb = (VariableBinding) iter.next();
 
-            if (vb.getParentNode() instanceof Assignment)
-            {
-                Assignment a= (Assignment) vb.getParentNode();
-                if (a.getLeftHandSide() == vb && a.getRightHandSide() instanceof Assignable)
-                {
-                    vb1= vb;
-                    a1= a;
-                    fa1= (Assignable) a.getRightHandSide();
+            if (vb.getParentNode() instanceof Assignment) {
+                Assignment a = (Assignment) vb.getParentNode();
+                if (a.getLeftHandSide() == vb && a.getRightHandSide() instanceof Assignable) {
+                    vb1 = vb;
+                    a1 = a;
+                    fa1 = (Assignable) a.getRightHandSide();
                     continue;
                 }
             }
 
-            if (vb.getParentNode() instanceof InfixExpression)
-            {
-                InfixExpression infix= (InfixExpression) vb.getParentNode();
-                if (infix.getParentNode() instanceof Assignment)
-                {
-                    Assignment a= (Assignment) infix.getParentNode();
-                    if (a.getLeftHandSide() instanceof Assignable)
-                    {
-                        vb2= vb;
-                        fa2= (Assignable) a.getLeftHandSide();
-                        a2= a;
-                        sum= infix;
+            if (vb.getParentNode() instanceof InfixExpression) {
+                InfixExpression infix = (InfixExpression) vb.getParentNode();
+                if (infix.getParentNode() instanceof Assignment) {
+                    Assignment a = (Assignment) infix.getParentNode();
+                    if (a.getLeftHandSide() instanceof Assignable) {
+                        vb2 = vb;
+                        fa2 = (Assignable) a.getLeftHandSide();
+                        a2 = a;
+                        sum = infix;
                         continue;
                     }
                 }
@@ -189,64 +163,60 @@ public class Optimizer {
         if (!fa1.isSame(fa2))
             return false;
 
-        PStarExpression.Operator operator= getOp(sum);
+        PStarExpression.Operator operator = getOp(sum);
         if (operator == null)
             return false;
 
-        PStarExpression p= new PostfixExpression();
+        PStarExpression p = new PostfixExpression();
         p.setOperand((Expression) fa1);
         p.setOperator(operator);
 
         decl.vbs.remove(vb1);
         decl.vbs.remove(vb2);
-        VariableBinding vb= decl.vbs.get(0);
+        VariableBinding vb = decl.vbs.get(0);
         vb.getParentBlock().replaceChild(p, vb);
 
-        Block b= a1.getParentBlock();
+        Block b = a1.getParentBlock();
         b.removeChild(a1);
         b.removeChild(a2);
         return true;
     }
 
-    private boolean reduceYCrement(VariableDeclaration decl)
-    {
-        Assignment a1= null;
-        Assignment a2= null;
-        VariableBinding vb1= null;
-        VariableBinding vb2= null;
+    private boolean reduceYCrement(VariableDeclaration decl) {
+        Assignment a1 = null;
+        Assignment a2 = null;
+        VariableBinding vb1 = null;
+        VariableBinding vb2 = null;
 
-        Assignable fa1= null;
-        Assignable fa2= null;
+        Assignable fa1 = null;
+        Assignable fa2 = null;
 
-        InfixExpression infixExpr= null;
+        InfixExpression infixExpr = null;
 
-        Iterator iter= decl.vbs.iterator();
+        Iterator iter = decl.vbs.iterator();
 
-        while (iter.hasNext())
-        {
-            VariableBinding vb= (VariableBinding) iter.next();
+        while (iter.hasNext()) {
+            VariableBinding vb = (VariableBinding) iter.next();
 
             if (!(vb.getParentNode() instanceof Assignment))
                 continue;
 
-            Assignment a= (Assignment) vb.getParentNode();
-            if (a.getRightHandSide() == vb && a.getLeftHandSide() instanceof Assignable)
-            {
-                vb2= vb;
-                a2= a;
-                fa2= (Assignable) a.getLeftHandSide();
+            Assignment a = (Assignment) vb.getParentNode();
+            if (a.getRightHandSide() == vb && a.getLeftHandSide() instanceof Assignable) {
+                vb2 = vb;
+                a2 = a;
+                fa2 = (Assignable) a.getLeftHandSide();
                 continue;
             }
 
-            if (a.getLeftHandSide() == vb && a.getRightHandSide() instanceof InfixExpression)
-            {
-                InfixExpression infix= (InfixExpression) a.getRightHandSide();
+            if (a.getLeftHandSide() == vb && a.getRightHandSide() instanceof InfixExpression) {
+                InfixExpression infix = (InfixExpression) a.getRightHandSide();
                 if (!(infix.getLeftOperand() instanceof Assignable))
                     continue;
-                vb1= vb;
-                a1= a;
-                fa1= (Assignable) infix.getLeftOperand();
-                infixExpr= infix;
+                vb1 = vb;
+                a1 = a;
+                fa1 = (Assignable) infix.getLeftOperand();
+                infixExpr = infix;
                 continue;
             }
         }
@@ -258,54 +228,45 @@ public class Optimizer {
 
         decl.vbs.remove(vb1);
         decl.vbs.remove(vb2);
-        VariableBinding vb= decl.vbs.get(0);
-        Expression replacement= null;
+        VariableBinding vb = decl.vbs.get(0);
+        Expression replacement = null;
 
-        PStarExpression.Operator operator= getOp(infixExpr);
-        if (operator != null)
-        {
-            PrefixExpression p= new PrefixExpression();
+        PStarExpression.Operator operator = getOp(infixExpr);
+        if (operator != null) {
+            PrefixExpression p = new PrefixExpression();
             p.setOperand((Expression) fa1);
             p.setOperator(operator);
-            replacement= p;
-        }
-        else
-        {
-            InfixExpression.Operator op= infixExpr.getOperator();
-            Assignment.Operator opp= Assignment.Operator.lookup(op.toString() + '=');
-            Assignment a= new Assignment(opp);
+            replacement = p;
+        } else {
+            InfixExpression.Operator op = infixExpr.getOperator();
+            Assignment.Operator opp = Assignment.Operator.lookup(op.toString() + '=');
+            Assignment a = new Assignment(opp);
             a.setLeftHandSide((Expression) fa2);
             a.setRightHandSide(infixExpr.getRightOperand());
-            replacement= a;
+            replacement = a;
         }
 
         vb.getParentBlock().replaceChild(replacement, vb);
 
-        Block b= a1.getParentBlock();
+        Block b = a1.getParentBlock();
         b.removeChild(a1);
         b.removeChild(a2);
         return true;
     }
 
-    public void optimize()
-    {
+    private void optimize() {
         if (false)
             return;
 
-        Iterator iter= tempDecls.iterator();
-        while (iter.hasNext())
-        {
-            VariableDeclaration decl= (VariableDeclaration) iter.next();
-            int count= decl.vbs.size();
-            if (count == 3)
-            {
-                if (reduceXCrement(decl))
-                {
+        Iterator iter = tempDecls.iterator();
+        while (iter.hasNext()) {
+            VariableDeclaration decl = (VariableDeclaration) iter.next();
+            int count = decl.vbs.size();
+            if (count == 3) {
+                if (reduceXCrement(decl)) {
                     iter.remove();
                     methodDecl.removeLocalVariable(decl.getName());
-                }
-                else if (reduceYCrement(decl))
-                {
+                } else if (reduceYCrement(decl)) {
                     iter.remove();
                     methodDecl.removeLocalVariable(decl.getName());
                 }

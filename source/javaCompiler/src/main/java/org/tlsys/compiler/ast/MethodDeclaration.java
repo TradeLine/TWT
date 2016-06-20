@@ -45,7 +45,7 @@ public class MethodDeclaration extends ASTNode {
         code = theCode;
         this.annotationsValues = annotationsValues;
         lineNumberCursor = new LineNumberCursor(code);
-        Compile.getInstance().getOrCreateProcedureUnit(methodBinding);
+        //Compile.getInstance().getOrCreateProcedureUnit(methodBinding);
     }
 
     public int getAccess() {

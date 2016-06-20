@@ -42,6 +42,7 @@ import org.tlsys.compiler.utils.ClassUnit;
 import org.tlsys.compiler.utils.Utils;
 import org.tlsys.compiler.ast.*;
 import org.tlsys.compiler.graph.*;
+import org.tlsys.twt.nodes.SimpleClassReferance;
 
 
 public class Pass1 {
@@ -237,8 +238,11 @@ public class Pass1 {
         parseStatement();
 
         try {
-            Optimizer optimizer = new Optimizer(methodDecl, tempDecls);
+            Optimizer.optimize(methodDecl, tempDecls);
+            /*
+            optimizer = new Optimizer(methodDecl, tempDecls);
             optimizer.optimize();
+            */
         } catch (Error e) {
             //DragomeJsCompiler.errorCount++;
                 LOG.severe("In Expression Optimizer:\n " + e);
@@ -1698,8 +1702,9 @@ public class Pass1 {
                     constant = constantPool.getConstant(k, Constants.CONSTANT_Utf8);
                     instruction = new StringLiteral(((ConstantUtf8) constant).getBytes());
                 } else if (constant.getTag() == Constants.CONSTANT_Class) {
-                    Signature signature = Compile.getInstance().getSignature(((ConstantClass) constant).getBytes(constantPool));
-                    instruction = new ClassLiteral(signature);
+                    String s = ((ConstantClass) constant).getBytes(constantPool);
+                    Signature signature = Compile.getInstance().getSignature(s);
+                    instruction = new ClassLiteral(signature, new SimpleClassReferance(s));
                 } else {
                     throw new RuntimeException("Cannot handle constant tag: " + constant.getTag());
                 }
@@ -1872,6 +1877,7 @@ public class Pass1 {
     public static void setClassNotReversible(MethodDeclaration methodDeclaration) {
         ObjectType declaringClass = methodDeclaration.getMethodBinding().getDeclaringClass();
         LOG.info("Not reversible method: " + methodDeclaration.getMethodBinding().getName() + " in: " + declaringClass);
+
         ClassUnit classUnit = Compile.getInstance().getClassUnit(declaringClass.getClassName());
         classUnit.addNotReversibleMethod(extractMethodNameSignature(methodDeclaration.getMethodBinding()));
         //	classUnit.setReversible(false);

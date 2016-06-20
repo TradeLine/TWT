@@ -99,6 +99,6 @@ public class MethodInvocation extends Expression {
 
     public void setMethodBinding(MethodBinding theMethodBinding) {
         methodBinding = theMethodBinding;
-        Compile.getInstance().addReference(methodDecl, this);
+        //Compile.getInstance().addReference(methodDecl, this);
     }
 }

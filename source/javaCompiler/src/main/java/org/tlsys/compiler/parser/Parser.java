@@ -42,8 +42,7 @@ import org.tlsys.compiler.type.Signature;
 import org.tlsys.compiler.utils.ClassUnit;
 import org.tlsys.compiler.utils.Utils;
 
-public class Parser
-{
+public class Parser {
 
     public static String getResourcePath(String name)
     {
@@ -152,15 +151,15 @@ public class Parser
 
             ObjectType superType= new ObjectType(jc.getSuperclassName());
             typeDecl.setSuperType(superType);
-            ClassUnit superUnit= Compile.getInstance().getOrCreateClassUnit(superType.getClassName());
-            fileUnit.setSuperUnit(superUnit);
+            //ClassUnit superUnit= Compile.getInstance().getOrCreateClassUnit(superType.getClassName());
+            //fileUnit.setSuperUnit(superUnit);
 
             String[] interfaceNames= jc.getInterfaceNames();
             for (int i= 0; i < interfaceNames.length; i++)
             {
                 ObjectType interfaceType= new ObjectType(interfaceNames[i]);
-                ClassUnit interfaceUnit= Compile.getInstance().getOrCreateClassUnit(interfaceType.getClassName());
-                fileUnit.addInterface(interfaceUnit);
+                //ClassUnit interfaceUnit= Compile.getInstance().getOrCreateClassUnit(interfaceType.getClassName());
+                //fileUnit.addInterface(interfaceUnit);
             }
         }
 
@@ -360,6 +359,7 @@ public class Parser
         }
         catch (Throwable ex)
         {
+            ex.printStackTrace();
             if (ex instanceof UnhandledCompilerProblemException)
             {
                 Pass1.setClassNotReversible(methodDecl);
