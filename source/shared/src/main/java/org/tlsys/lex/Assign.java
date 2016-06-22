@@ -5,6 +5,7 @@ import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VField;
+import org.tlsys.twt.CompileException;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -73,5 +74,10 @@ public class Assign extends Value {
         MINUS,
         MUL,
         DIV
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

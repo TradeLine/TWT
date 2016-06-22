@@ -1,6 +1,7 @@
 package org.tlsys.lex;
 
 import com.sun.tools.javac.code.Symbol;
+import org.tlsys.twt.CompileException;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -28,5 +29,10 @@ public class Label extends Operation {
 
     @Override
     public void getUsing(Collect c) {
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

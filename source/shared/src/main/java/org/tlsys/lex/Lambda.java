@@ -28,6 +28,7 @@ public class Lambda extends Value implements Context {
     }
 
     public Lambda() {
+        //throw new RuntimeException("Lambda creation!");
     }
 
     public Context getParentContext() {
@@ -41,6 +42,7 @@ public class Lambda extends Value implements Context {
     public Lambda(VMethod method, Context parentContext) {
         this.method = method;
         this.parentContext = parentContext;
+        //throw new RuntimeException("Lambda creation!");
     }
 
     @Override

@@ -24,6 +24,7 @@ public class ClassRecord {
     private Object prototype;
     private ClassRecord arrayClassRecord;
     private TClass clazz;
+
     public ClassRecord(String jsName, String name) {
         this.jsName = jsName;
         this.name = name;
@@ -160,7 +161,7 @@ public class ClassRecord {
                 continue;
             }
             Object tempProto = prototype;
-            Script.code(tempProto, "[", fr.getJsName(), "]=eval(",fr.getInitValue(),")");
+            Script.code(tempProto, "[", fr.getJsName(), "]=eval(", fr.getInitValue(), ")");
         }
 
         for (int i = 0; i < statics.length(); i++) {

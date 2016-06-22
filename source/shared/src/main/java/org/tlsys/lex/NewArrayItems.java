@@ -6,6 +6,7 @@ import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.ArrayClass;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -62,5 +63,10 @@ public class NewArrayItems extends Value implements HavinSourceStart {
     @Override
     public SourcePoint getStartPoint() {
         return point;
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

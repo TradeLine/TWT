@@ -8,9 +8,6 @@ import org.tlsys.twt.CompileException;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-/**
- * Created by Субочев Антон on 15.01.2016.
- */
 public class This extends Value implements HavinSourceStart {
 
     private static final long serialVersionUID = 5355624178287843307L;
@@ -56,5 +53,10 @@ public class This extends Value implements HavinSourceStart {
     @Override
     public String toString() {
         return "[This " + self + "]";
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

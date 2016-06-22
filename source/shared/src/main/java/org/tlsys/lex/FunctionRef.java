@@ -4,6 +4,7 @@ import com.sun.tools.javac.code.Symbol;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VExecute;
 import org.tlsys.lex.declare.VMethod;
+import org.tlsys.twt.CompileException;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -35,5 +36,10 @@ public class FunctionRef extends Value {
     @Override
     public void getUsing(Collect c) {
         c.add(replaceMethod, newMethod);
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

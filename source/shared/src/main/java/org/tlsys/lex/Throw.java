@@ -4,6 +4,7 @@ import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -48,5 +49,10 @@ public class Throw extends Operation implements HavinSourceStart {
     @Override
     public void visit(ReplaceVisiter replaceControl) {
         ReplaceHelper.replace(value, replaceControl).ifPresent(e->value = e);
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

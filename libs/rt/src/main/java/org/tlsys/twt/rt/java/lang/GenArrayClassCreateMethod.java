@@ -20,8 +20,9 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
     @Override
     public void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
         VClass classClass = execute.getParent();
+
         VClass classClassStorage = classClass.getClassLoader().loadClass(ClassStorage.class.getName(), execute.getStartPoint());
-        VClass classClassRecord = classClass.getClassLoader().loadClass(ClassRecord.class.getName(), execute.getStartPoint());
+        VClass classClassRecord = classClass;
         VClass classMethodRecord = classClass.getClassLoader().loadClass(MethodRecord.class.getName(), execute.getStartPoint());
         VClass classFieldRecord = classClass.getClassLoader().loadClass(FieldRecord.class.getName(), execute.getStartPoint());
         VClass stringClass = classClass.getClassLoader().loadClass(String.class.getName(), execute.getStartPoint());
@@ -32,9 +33,9 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
 
         SVar clazzRecord = new SVar("clazz", classClassRecord, execute);
         DeclareVar drecord = new DeclareVar(clazzRecord, null);
-        VField jsNameField = classClass.getField("jsName", execute.getStartPoint());
-        VField nameField = classClass.getField("name", execute.getStartPoint());
-        ArrayClass ac = classClass.getArrayClass();
+        VField jsNameField = classClassRecord.getField("jsName", execute.getStartPoint());
+        VField nameField = classClassRecord.getField("name", execute.getStartPoint());
+        ArrayClass ac = classClassRecord.getArrayClass();
 
         ac.set.generator = ArrayBodyGenerator.class.getName();
         ac.constructor.generator = ArrayBodyGenerator.class.getName();
@@ -42,8 +43,8 @@ public class GenArrayClassCreateMethod extends NativeCodeGenerator {
 
         VConstructor constructorClassRecord = MethodSelectorUtils.getConstructor(classClassRecord, execute.getStartPoint(), stringClass, stringClass);
         drecord.init = Generator.genClassRecord(context, ac, execute1 -> true, () -> new NewClass(constructorClassRecord, null)
-                .addArg(new VBinar(new Const("$", stringClass), new GetField(new This(classClass), jsNameField, null), stringClass, VBinar.BitType.PLUS, null))
-                .addArg(new VBinar(new Const("[", stringClass), new GetField(new This(classClass), nameField, null), stringClass, VBinar.BitType.PLUS, null)
+                .addArg(new VBinar(new Const("$", stringClass), new GetField(new This(classClassRecord), jsNameField, null), stringClass, VBinar.BitType.PLUS, null))
+                .addArg(new VBinar(new Const("[", stringClass), new GetField(new This(classClassRecord), nameField, null), stringClass, VBinar.BitType.PLUS, null)
                 ), moduls);
 
         drecord.init = CodeBuilder.scope((Value) drecord.init).method("setComponentType").arg(classClassRecord).invoke().arg(

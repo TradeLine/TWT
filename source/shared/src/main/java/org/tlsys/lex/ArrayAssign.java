@@ -4,6 +4,7 @@ import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.ArrayClass;
 import org.tlsys.lex.declare.VClass;
+import org.tlsys.twt.CompileException;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -59,5 +60,10 @@ public class ArrayAssign extends Value {
         ReplaceHelper.replace(value, replaceControl).ifPresent(o -> value = o);
         ReplaceHelper.replace(var, replaceControl).ifPresent(o -> var = o);
         ReplaceHelper.replace(indexs, replaceControl).ifPresent(o -> indexs = o);
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

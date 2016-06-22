@@ -5,6 +5,7 @@ import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.ArrayClass;
 import org.tlsys.lex.declare.VClass;
+import org.tlsys.twt.CompileException;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -48,5 +49,10 @@ public class NewArrayLen extends Value {
             if (op.isPresent())
                 sizes.set(i, op.get());
         }
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

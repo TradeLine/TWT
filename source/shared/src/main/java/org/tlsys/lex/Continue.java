@@ -2,6 +2,7 @@ package org.tlsys.lex;
 
 import org.tlsys.HavinSourceStart;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -36,5 +37,10 @@ public class Continue extends Operation implements HavinSourceStart {
 
     @Override
     public void getUsing(Collect c) {
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

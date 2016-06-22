@@ -6,6 +6,7 @@ import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VField;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -91,5 +92,10 @@ public class SetField extends Value implements HavinSourceStart, HavingScope {
     @Override
     public void getUsing(Collect c) {
         c.add(scope, field, value);
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

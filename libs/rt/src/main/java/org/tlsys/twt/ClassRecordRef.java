@@ -53,4 +53,5 @@ public class ClassRecordRef extends Value implements HavinSourceStart {
     public SourcePoint getStartPoint() {
         return point;
     }
+
 }

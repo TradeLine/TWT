@@ -5,6 +5,7 @@ import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -48,5 +49,10 @@ public class GetValue extends Value implements HavinSourceStart {
     public void visit(ReplaceVisiter replaceControl) {
         super.visit(replaceControl);
         ReplaceHelper.replace(value, replaceControl).ifPresent(e -> value = e);
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

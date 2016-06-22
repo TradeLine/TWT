@@ -4,6 +4,7 @@ import org.tlsys.HavinSourceStart;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.lex.declare.VClassNotFoundException;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -44,5 +45,10 @@ public class ClassRef extends Value implements HavinSourceStart {
     @Override
     public Optional<Context> find(String name, Predicate<Context> searchIn) {
         return type.find(name, searchIn);
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

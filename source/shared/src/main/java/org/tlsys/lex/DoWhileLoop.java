@@ -5,6 +5,7 @@ import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -57,5 +58,10 @@ public class DoWhileLoop extends Operation implements HavinSourceStart {
         super.visit(replaceControl);
         ReplaceHelper.replace(value, replaceControl).ifPresent(e->value = e);
         ReplaceHelper.replace(block, replaceControl).ifPresent(e->block = e);
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

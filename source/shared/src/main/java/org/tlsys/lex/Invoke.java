@@ -5,8 +5,11 @@ import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VClass;
+import org.tlsys.lex.declare.VConstructor;
 import org.tlsys.lex.declare.VExecute;
+import org.tlsys.lex.declare.VMethod;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -90,5 +93,10 @@ public class Invoke extends Value implements HavinSourceStart, HavinSourceEnd, H
     @Override
     public SourcePoint getEndPoint() {
         return endPoint;
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

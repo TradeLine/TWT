@@ -3,6 +3,7 @@ package org.tlsys.lex;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -49,5 +50,10 @@ public class Line extends Operation {
     public void visit(ReplaceVisiter replaceControl) {
         super.visit(replaceControl);
         ReplaceHelper.replace(operation, replaceControl).ifPresent(e -> operation = e);
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

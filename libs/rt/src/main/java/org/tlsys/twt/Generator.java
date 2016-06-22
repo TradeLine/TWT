@@ -78,11 +78,6 @@ public class Generator implements MainGenerator {
 
         ICodeGenerator hc2 = gc.getGenerator(vClass);
         GenerationContext gc2 = new MainGenerationContext(vClass, null);
-        /*
-        NewClass nc = new NewClass(classClassRecord.constructors.get(0))
-                .addArg(new Const(vClass.fullName, cl.loadClass(String.class.getName())))
-                .addArg(new Const(vClass.alias, cl.loadClass(String.class.getName())));
-*/
         Value lastScope = newClass.get();
 
         if (vClass.domNode != null) {

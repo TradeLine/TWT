@@ -108,7 +108,6 @@ public class AppCompiller {
     public static void closeLoaded(DLoader loader) {
         for (TWTModule cl : loader.getLoaders()) {
             try {
-                System.out.println("Closing " + cl.getName());
                 cl.getJavaClassLoader().clearAssertionStatus();
                 cl.getJavaClassLoader().close();
             } catch (IOException io) {

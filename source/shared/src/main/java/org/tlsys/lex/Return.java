@@ -4,6 +4,7 @@ import org.tlsys.HavinSourceStart;
 import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -54,5 +55,10 @@ public class Return extends Operation implements HavinSourceStart {
     @Override
     public String toString() {
         return "[RETURN " + value + "]";
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

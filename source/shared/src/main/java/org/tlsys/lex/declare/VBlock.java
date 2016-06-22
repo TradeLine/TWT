@@ -5,6 +5,7 @@ import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.*;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,5 +107,10 @@ public class VBlock extends Operation implements Using, CanUse, Context {
             if (op.isPresent())
                 operations.set(i, op.get());
         }
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

@@ -31,11 +31,6 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
 
             Value arrayClassRecord = CodeBuilder.scope(
                     execute.getArguments().get(0)
-            /*
-                    CodeBuilder.scope(execute.getArguments().get(0))
-                    .method("getRecord")
-                    .invoke(execute.getPoint()).build()
-                    */
             )
                     .method("getArrayClassRecord")
                     .invoke().build();
@@ -53,28 +48,6 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
             ps.append("};");
             return;
         }
-        /*
-        if (execute.alias.equals("len")) {
-            ps.append("if (").append(execute.arguments.get(0).name).append(".length<=0) return null;");
-            ps.append("this.").append(array.name).append("=");
-            cg.operation(context, new Invoke(getArrayClassMethod, new GetField(new This(arrayBuilderClass), component)), ps);
-            ps.append(".n").append(ArrayClass.CONSTRUCTOR).append("(").append(execute.arguments.get(0).name).append("[0]);");
-
-            ps.append("if (").append(execute.arguments.get(0).name).append(".length>1){");
-            ps.append("var t = ").append(execute.arguments.get(0).name).append("slice(1);");
-            ps.append("var g = ").append(arrayBuilderClass.fullName).append(".n").append(arrayBuilderClass.getConstructor(intClass).name).append("(");
-            cg.operation(context, new Invoke(getArrayClassMethod, new GetField(new This(arrayBuilderClass), component)), ps);
-            ps.append(");");
-
-            ps.append("for (var i = 1; i < ").append(execute.arguments.get(0).name).append("[0]; i++){");
-            ps.append("this.").append(array.name).append("[i]=g.").append(arrayBuilderClass.getMethod("len", intClass.getArrayClass()).name).append("(t);");
-            ps.append("}");
-
-            ps.append("}");
-
-            super.generateMethodEnd(context, execute, ps);
-        }
-        */
 
         throw new RuntimeException("Unknown method " + execute.alias);
     }
@@ -89,7 +62,7 @@ public class ArrayBuilderBodyGenerator extends NativeCodeGenerator implements In
             ps.append(",");
             ps.append("[");
             if (invoke.arguments.get(1) instanceof NewArrayItems) {
-                NewArrayItems nai = (NewArrayItems)invoke.arguments.get(1);
+                NewArrayItems nai = (NewArrayItems) invoke.arguments.get(1);
                 boolean first = true;
                 for (Value v : nai.elements) {
                     if (!first)

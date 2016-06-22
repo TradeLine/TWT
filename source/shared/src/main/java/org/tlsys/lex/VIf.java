@@ -4,6 +4,7 @@ import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -65,5 +66,10 @@ public class VIf extends Operation {
 
         if (elseBlock != null)
             ReplaceHelper.replace(elseBlock, replaceControl).ifPresent(e->elseBlock = e);
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

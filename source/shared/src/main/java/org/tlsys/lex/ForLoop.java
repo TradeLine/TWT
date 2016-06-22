@@ -5,6 +5,7 @@ import org.tlsys.ReplaceHelper;
 import org.tlsys.ReplaceVisiter;
 import org.tlsys.lex.declare.VBlock;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -71,5 +72,10 @@ public class ForLoop extends Operation implements HavinSourceStart {
         ReplaceHelper.replace(value, replaceControl).ifPresent(e->value = e);
         ReplaceHelper.replace(update, replaceControl).ifPresent(e->update = e);
         ReplaceHelper.replace(block, replaceControl).ifPresent(e->block = e);
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

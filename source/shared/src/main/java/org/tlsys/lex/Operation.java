@@ -1,6 +1,7 @@
 package org.tlsys.lex;
 
 import org.tlsys.ReplaceVisiter;
+import org.tlsys.twt.CompileException;
 
 import java.io.Serializable;
 
@@ -9,5 +10,9 @@ public abstract class Operation implements Using, Context, Serializable {
 
     public void visit(ReplaceVisiter replaceControl) {
         //
+    }
+
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }

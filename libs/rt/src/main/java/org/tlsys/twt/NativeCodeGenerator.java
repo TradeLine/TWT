@@ -25,15 +25,15 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         }
 
         ps.append("};");
-        
-        
+
+
         for (VField f : clazz.getLocalFields()) {
             if (!f.isStatic())
                 continue;
-            ps.append(clazz.fullName+".").append(f.getRuntimeName());
+            ps.append(clazz.fullName + ".").append(f.getRuntimeName());
             ps.append("=");
             if (f.init != null) {
-                
+
                 operation(ctx, f.init, ps);
             } else ps.append("null");
             ps.append(";");
@@ -67,7 +67,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
             ps.append(meth.alias);
         else
         */
-            ps.append(meth.getRunTimeName());
+        ps.append(meth.getRunTimeName());
         ps.append("=function(");
         boolean first = true;
         for (VArgument ar : meth.getArguments()) {
@@ -89,12 +89,7 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         ps.append(meth.getParent().fullName).append(".");
         if (!meth.isStatic())
             ps.append("prototype.");
-        /*
-        if (meth.alias != null)
-            ps.append(meth.alias);
-        else
-        */
-            ps.append(meth.getRunTimeName());
+        ps.append(meth.getRunTimeName());
         ps.append("=null;");
     }
 
@@ -108,112 +103,76 @@ public class NativeCodeGenerator extends DefaultGenerator implements ICodeGenera
         ps.append("{");
         for (Operation o : meth.getBlock().getOperations()) {
             if (operation(ctx, o, ps)) ;
-                ps.append(";");
+            ps.append(";");
         }
         ps.append("}");
         generateMethodEnd(ctx, meth, ps);
     }
 
+    private boolean generateLambda(Lambda l, Outbuffer ps, GenerationContext ctx) throws CompileException {
+        ps.append("{").append(l.getMethod().getRunTimeName()).append(":");
+        ps.append("function(");
+        boolean first = true;
+        for (VArgument a : l.getMethod().getArguments()) {
+            if (!first)
+                ps.append(",");
+            ps.append(a.getRuntimeName());
+            first = false;
+        }
+        ps.append(")");
+        if (l.getBlock() == null) {
+            ps.append("{}");
+        } else
+            operation(ctx, l.getBlock(), ps);
+        ps.append("}");
+        return true;
+    }
+
     @Override
-    public boolean operation(GenerationContext ctx, Operation op, Outbuffer ps) throws CompileException {
-        if (op instanceof Invoke) {
-            Invoke inv = (Invoke) op;
+    public boolean visit(Value node) throws CompileException {
+        if (node instanceof Lambda) {
+            Lambda l = (Lambda) node;
+            return generateLambda(l, p, c);
+        }
+        return super.visit(node);
+    }
 
-            InvokeGenerator icg = ctx.getInvokeGenerator(((Invoke) op).getMethod());
-            if (icg != null && icg != this)
-                return icg.generate(ctx, inv, ps);
+    @Override
+    public boolean visit(ClassRef sr) throws CompileException {
+        ICodeGenerator icg = c.getGenerator(sr.refTo);
+        if (icg != this)
+            return icg.operation(c, sr, p);
+        p.append(sr.refTo.fullName);
+        p.append("/*FROM NATIVE 111*/");
+        return true;
+    }
 
-            ICodeGenerator icg2 = ctx.getGenerator(inv.getMethod());
-            if (icg2 != null && icg2 != this)
-                return icg2.operation(ctx, inv, ps);
+    @Override
+    public boolean visit(StaticRef sr) throws CompileException {
+        ICodeGenerator icg = c.getGenerator(sr.getType());
+        if (icg != this)
+            return icg.operation(c, sr, p);
+        p.append(sr.getType().fullName);
+        p.append("/*FROM NATIVE 222*/");
+        return true;
+    }
 
-            if (inv.getMethod() instanceof VConstructor) {//если происходит вызов конструктра, то игнорируем!
-                ps.append("/*IGNORED!*/");
-                return false;
-            }
+    @Override
+    public boolean visit(Invoke inv) throws CompileException {
 
-            /*
-            if(inv.getScope() instanceof Lambda) {
-                operation(ctx, inv.getScope(), ps);
-                ps.append(".call(this");
-                for (Value v : inv.arguments) {
-                    ps.append(",");
-                    operation(ctx, v, ps);
-                }
-                ps.append(")");
-                return true;
-            }
-            */
+        InvokeGenerator icg = c.getInvokeGenerator(inv.getMethod());
+        if (icg != null && icg != this)
+            return icg.generate(c, inv, p);
+
+        ICodeGenerator icg2 = c.getGenerator(inv.getMethod());
+        if (icg2 != null && icg2 != this)
+            return icg2.operation(c, inv, p);
+
+        if (inv.getMethod() instanceof VConstructor) {//если происходит вызов конструктра, то игнорируем!
+            p.append("/*IGNORED!*/");
+            return false;
         }
 
-        if (op instanceof StaticRef) {
-            StaticRef sr = (StaticRef) op;
-            ICodeGenerator icg = ctx.getGenerator(sr.getType());
-            if (icg != this)
-                return icg.operation(ctx, op, ps);
-            ps.append(sr.getType().fullName);
-            ps.append("/*FROM NATIVE 222*/");
-            return true;
-        }
-
-        if (op instanceof ClassRef) {
-            ClassRef sr = (ClassRef) op;
-            ICodeGenerator icg = ctx.getGenerator(sr.refTo);
-            if (icg != this)
-                return icg.operation(ctx, op, ps);
-            ps.append(sr.refTo.fullName);
-            ps.append("/*FROM NATIVE 111*/");
-            return true;
-        }
-/*
-        if (op instanceof NewClass) {
-            NewClass nc = (NewClass) op;
-            //if (nc.constructor.getParent()==ctx.getCurrentClass()) {
-            ps.append(nc.constructor.getParent().fullName).append(".n").append(nc.constructor.name).append("(");
-            boolean first = true;
-            for (Value v : nc.arguments) {
-                if (!first)
-                    ps.append(",");
-                operation(ctx, v, ps);
-                first = false;
-            }
-            ps.append(")");
-            //}
-            return true;
-        }
-        */
-
-        if (op instanceof Lambda) {
-            Lambda l = (Lambda)op;
-            ps.append("{").append(l.getMethod().getRunTimeName()).append(":");
-            ps.append("function(");
-            boolean first = true;
-            for(VArgument a : l.getMethod().getArguments()) {
-                if(!first)
-                    ps.append(",");
-                ps.append(a.getRuntimeName());
-                first = false;
-            }
-            ps.append(")");
-            if (l.getBlock() == null) {
-                ps.append("{}");
-            } else
-                operation(ctx, l.getBlock(), ps);
-            ps.append("}");
-            return true;
-        }
-
-        /*
-        if (op instanceof DeclareClass) {
-            DeclareClass dc = (DeclareClass)op;
-            ICodeGenerator gen = ctx.getGenerator(dc.getType());
-            if (gen == this)
-                return false;
-
-            return gen.member(ctx, dc.getType(), ps);
-        }
-        */
-
-        return super.operation(ctx, op, ps);
+        return super.visit(inv);
     }
 }

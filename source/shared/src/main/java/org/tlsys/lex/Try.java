@@ -7,6 +7,7 @@ import org.tlsys.lex.declare.DeclareVar;
 import org.tlsys.lex.declare.VBlock;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -115,5 +116,8 @@ public class Try extends Operation implements HavinSourceStart {
         }
     }
 
-
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
+    }
 }

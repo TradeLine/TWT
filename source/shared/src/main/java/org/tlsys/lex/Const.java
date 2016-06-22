@@ -3,6 +3,7 @@ package org.tlsys.lex;
 import org.tlsys.HavinSourceStart;
 import org.tlsys.lex.declare.VClass;
 import org.tlsys.sourcemap.SourcePoint;
+import org.tlsys.twt.CompileException;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -54,5 +55,10 @@ public class Const extends Value implements HavinSourceStart {
     @Override
     public String toString() {
         return "[CONST " + value + "]";
+    }
+
+    @Override
+    public boolean accept(OperationVisiter visiter) throws CompileException {
+        return visiter.visit(this);
     }
 }
