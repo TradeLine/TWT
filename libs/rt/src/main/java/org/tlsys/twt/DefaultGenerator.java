@@ -18,23 +18,6 @@ public class DefaultGenerator implements ICodeGenerator, OperationVisiter {
 
 
     private static final HashSet<VClass> generatedClasses = new HashSet<>();
-/*
-    static {
-
-
-
-
-
-
-
-
-
-
-
-
-
-    }
-    */
 
     protected void generateMethodStart(GenerationContext ctx, VExecute execute, Outbuffer ps) {
         throw new RuntimeException("Not supported");
@@ -86,13 +69,6 @@ public class DefaultGenerator implements ICodeGenerator, OperationVisiter {
         return generatedClasses.contains(clazz);
     }
 
-    /*
-    @Override
-    public boolean member(GenerationContext ctx, Member op, PrintStream ps) throws CompileException {
-        throw new RuntimeException("Not supported yet " + op.getClass().getName());
-    }
-    */
-
     @Override
     public void generateClass(GenerationContext context, CompileModuls.ClassRecord record, Outbuffer ps) throws CompileException {
         throw new RuntimeException("Not supported yet");
@@ -111,13 +87,6 @@ public class DefaultGenerator implements ICodeGenerator, OperationVisiter {
         boolean res = op.accept(this);
         c = cc;
         return res;
-        /*
-        Gen g = generators.get(op.getClass());
-        if (g != null) {
-            return g.gen(context, op, out, this);
-        }
-        throw new RuntimeException("Not supported yet " + op.getClass().getName());
-        */
     }
 
     @Override
