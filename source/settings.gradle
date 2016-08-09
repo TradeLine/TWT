@@ -4,8 +4,8 @@ include "twt-gradle"
 include "shared"
 
 //--NEW TWT--///
+include "js-codegen"
 /*
 include "common"
-include "js-codegen"
 include "javaCompiler"
 */
