@@ -59,7 +59,7 @@ class MainTest {
             println("Steck:")
             val l = b.steck.toList()
             for (i in 0..l.size - 1)
-                println("${i + 1}. ${l[i]}")
+                println("${i + 1}. ${l[i].value}, isNew=${!l[i].marged}")
             println()
         }
 
@@ -216,6 +216,34 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             return
         }
 
+        if (opcode == Opcodes.IF_ICMPGT) {
+
+            val value1 = currentBlock.steck.pop()
+            val value2 = currentBlock.steck.pop()
+
+            val forJump = blockForLabel(label!!)
+            val nextBlock = program.createBlock("Next after if")
+
+            val exp = ConditionExp(value1, value2, ConditionType.IFGT)
+            //val not_exp = ConditionNot(currentBlock, exp)
+
+            val if_yes = ConditionEdge(currentBlock, forJump, exp)
+            val if_no = ElseConditionEdge(if_yes, nextBlock)
+
+            currentBlock.outEdge += if_yes
+            forJump.inEdge += if_yes
+            forJump.steck.marge(if_yes.from!!.steck)
+
+            currentBlock.outEdge += if_no
+            nextBlock.inEdge += if_no
+            forJump.steck.marge(if_no.fromEdge.from!!.steck)
+
+            currentBlock = nextBlock
+
+            return
+        }
+
+
         if (opcode == Opcodes.GOTO) {
             val forJump = blockForLabel(label!!)
             val e = SimpleEdge(currentBlock, forJump)
@@ -331,8 +359,8 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
 
     override fun visitInsn(opcode: Int) {
         fun pushInt(i: Int) {
-            val p = PushInt(0)
-            currentBlock += p
+            val p = IntValue(i)
+            currentBlock.steck.push(p)
         }
         if (opcode >= Opcodes.ICONST_M1 && opcode <= Opcodes.ICONST_5) {
             pushInt(opcode - Opcodes.ICONST_0)

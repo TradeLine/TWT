@@ -17,8 +17,8 @@ object Optimazer {
         val pairs = findTernar(block)
         if (pairs.isNotEmpty()) {
             for (p in pairs) {
-                val left = p.if_edge.to!!.steck.getOne()
-                val right = p.else_edge.to!!.steck.getOne()
+                val left = p.if_edge.to!!.steck.getOne{!it.marged}
+                val right = p.else_edge.to!!.steck.getOne{!it.marged}
                 if (left.usingVariants.size != right.usingVariants.size)
                     throw TODO("Не совпадает количество использований значений тренарного оператора")
 
@@ -85,7 +85,7 @@ object Optimazer {
                 continue
             if (g.to!!.operationCount != 0)
                 continue
-            if (g.to!!.steck.size != 1)
+            if (g.to!!.steck.addedSize != 1)
                 continue
             if (true) {
                 val e = block.outEdge.find {
@@ -94,7 +94,7 @@ object Optimazer {
                     if (it.fromEdge !== g)
                         return@find false
 
-                    return@find it.to!!.operationCount == 0 && (it.to!!.steck.size == 1/* || it.to.outEdge.filter { findTernar(it.to).isNotEmpty() } != null*/)
+                    return@find it.to!!.operationCount == 0 && (it.to!!.steck.addedSize == 1/* || it.to.outEdge.filter { findTernar(it.to).isNotEmpty() } != null*/)
                 }
                 if (e != null)
                     pairs += EdigPair(g, e as ElseConditionEdge)
