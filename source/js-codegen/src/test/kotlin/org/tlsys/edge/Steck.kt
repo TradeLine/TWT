@@ -122,13 +122,13 @@ class VarValue(val index: Int) : Expression() {
 
 class IntValue(val value: Int) : Expression() {
     override fun toString(): String {
-        return "($value from ${block?.ID})"
+        return "$value"
     }
 }
 
 class LdcValue(val value: Any?) : Expression() {
     override fun toString(): String {
-        return "LdcValue(value=$value)"
+        return "\"$value\""
     }
 }
 
@@ -146,7 +146,7 @@ class VarianValue(vararg values: Expression) : Expression() {
     }
 
     override fun toString(): String {
-        return "VarianValue(list=$list)"
+        return "[$list]"
     }
 
     operator fun plusAssign(v: Expression) {
