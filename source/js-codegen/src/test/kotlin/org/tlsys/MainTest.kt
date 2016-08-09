@@ -165,8 +165,9 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
 
         if (opcode == Opcodes.IF_ICMPGE) {
 
-            val value1 = currentBlock.steck.pop()
             val value2 = currentBlock.steck.pop()
+            val value1 = currentBlock.steck.pop()
+
 
             val forJump = blockForLabel(label!!)
             val nextBlock = program.createBlock("Next after if")
@@ -191,8 +192,9 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         }
         if (opcode == Opcodes.IF_ICMPLE) {
 
-            val value1 = currentBlock.steck.pop()
             val value2 = currentBlock.steck.pop()
+            val value1 = currentBlock.steck.pop()
+
 
             val forJump = blockForLabel(label!!)
             val nextBlock = program.createBlock("Next after if")
@@ -218,8 +220,8 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
 
         if (opcode == Opcodes.IF_ICMPGT) {
 
-            val value1 = currentBlock.steck.pop()
             val value2 = currentBlock.steck.pop()
+            val value1 = currentBlock.steck.pop()
 
             val forJump = blockForLabel(label!!)
             val nextBlock = program.createBlock("Next after if")
@@ -372,7 +374,9 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         }
 
         if (BinarMathOp.Types.isBinarOp(opcode)) {
-            currentBlock.steck.push(BinarMathOp(currentBlock.steck.pop(), currentBlock.steck.pop(), BinarMathOp.Types.fromCode(opcode)))
+            val v2 = currentBlock.steck.pop()
+            val v1 = currentBlock.steck.pop()
+            currentBlock.steck.push(BinarMathOp(v1, v2, BinarMathOp.Types.fromCode(opcode)))
             return
         }
         TODO("$opcode")
