@@ -34,7 +34,7 @@ class Primitive private constructor(val text: String, sinature: String) : TypeID
 
         fun get(signature: Char) = created[signature]
 
-        fun getByOpcode(opcode: Int): Primitive? {
+        fun getByOpcode(opcode: Int): Primitive {
             return when (opcode) {
                 Opcodes.IADD,
                 Opcodes.IMUL,
@@ -46,8 +46,32 @@ class Primitive private constructor(val text: String, sinature: String) : TypeID
                 Opcodes.ICONST_3,
                 Opcodes.ICONST_4,
                 Opcodes.ICONST_5,
-                Opcodes.ISUB-> get('I')
-                else -> TODO()
+                Opcodes.F2I,
+                Opcodes.D2I,
+                Opcodes.L2I,
+                Opcodes.ISUB -> get('I')!!
+
+                Opcodes.FADD,
+                Opcodes.FMUL,
+                Opcodes.FDIV,
+                Opcodes.FCONST_0,
+                Opcodes.FCONST_1,
+                Opcodes.FCONST_2,
+                Opcodes.D2F,
+                Opcodes.I2F,
+                Opcodes.L2F -> get('F')!!
+
+                Opcodes.F2D,
+                Opcodes.I2D,
+                Opcodes.L2D,
+                Opcodes.DADD,
+                Opcodes.DMUL,
+                Opcodes.DDIV,
+                Opcodes.DSUB,
+                Opcodes.DCONST_0,
+                Opcodes.DCONST_1 -> get('D')!!
+
+                else -> throw IllegalArgumentException("Unknown opcode $opcode. Can't get value type")
             }
         }
     }
