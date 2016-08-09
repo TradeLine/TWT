@@ -1,12 +1,11 @@
 package org.tlsys.node
 
 import org.objectweb.asm.Opcodes
-import org.tlsys.BaseBlock
 import org.tlsys.Expression
 
 class BinarMathOp(var left: Expression, var right: Expression, var type: Types) : Expression() {
     override fun toString(): String {
-        return "(${left}${type.text}${right})"
+        return "(${left} ${type.text} ${right})"
     }
 
     enum class Types(val text: String) {
