@@ -6,7 +6,7 @@ import org.tlsys.node.LabelNode
 import org.tlsys.node.Node
 import java.util.*
 
-abstract open class EdgeContener : Iterable<Edge> {
+abstract open class EdgeContener(val parent:BaseBlock) : Iterable<Edge> {
     override fun iterator(): Iterator<Edge> = list.iterator()
 
     protected val list = HashSet<Edge>()
@@ -24,7 +24,7 @@ abstract open class EdgeContener : Iterable<Edge> {
     }
 
     operator fun contains(e: Edge) = e in list
-    fun find(f: (Edge) -> Boolean): Edge? = list.find(f)
+    //fun find(f: (Edge) -> Boolean): Edge? = list.find(f)
     val size: Int get()=list.size
     fun isEmpty() = list.isEmpty()
     fun isNotEmpty() = list.isNotEmpty()
@@ -42,7 +42,7 @@ abstract open class EdgeContener : Iterable<Edge> {
     abstract fun clear()
 }
 
-class InEdgeContener : EdgeContener() {
+class InEdgeContener (parent:BaseBlock): EdgeContener(parent) {
     override fun clear() {
         for (g in toList().toTypedArray())
             g.from = null
@@ -52,7 +52,7 @@ class InEdgeContener : EdgeContener() {
         val v = e in list
         super.plusAssign(e)
         if (v)
-            e.to = null
+            e.to = parent
     }
 
     override fun minusAssign(e: Edge) {
@@ -63,7 +63,7 @@ class InEdgeContener : EdgeContener() {
     }
 }
 
-class OutEdgeContener : EdgeContener() {
+class OutEdgeContener (parent:BaseBlock): EdgeContener(parent) {
 
     override fun clear() {
         for (g in toList().toTypedArray())
@@ -74,7 +74,7 @@ class OutEdgeContener : EdgeContener() {
         val v = e in list
         super.plusAssign(e)
         if (v)
-            e.from = null
+            e.from = parent
     }
 
     override fun minusAssign(e: Edge) {
@@ -93,8 +93,8 @@ class BaseBlock(val program: Program, val rigen: String = "") {
     val ID = ITERATOR++
     private val operations = ArrayList<Node>()
 
-    val inEdge = InEdgeContener()
-    val outEdge = OutEdgeContener()
+    val inEdge = InEdgeContener(this)
+    val outEdge = OutEdgeContener(this)
 
     fun isEmpty() = operations.isEmpty()
     fun isNotEmpty() = operations.isNotEmpty()
@@ -116,7 +116,7 @@ class BaseBlock(val program: Program, val rigen: String = "") {
         operationChanges = true
     }
 
-    var operationChanges: Boolean = false
+    private var operationChanges: Boolean = false
 
     operator fun minusAssign(node: Node) {
         if (node !in operations)

@@ -17,7 +17,9 @@ enum class ConditionType(var text: String) {
     IFLE("<="),
 
     IFGT(">"),
-    IFGE(">=");
+    IFGE(">="),
+    AND("&&"),
+    OR("||");
 
     operator fun not(): ConditionType {
         return when (this) {
@@ -29,11 +31,12 @@ enum class ConditionType(var text: String) {
 
             IFLE -> IFGT
             IFGT -> IFLE
+            else -> TODO()
         }
     }
 
     companion object {
-        fun fromOpcode(opcode: Int):ConditionType {
+        fun fromOpcode(opcode: Int): ConditionType {
             return when (opcode) {
                 Opcodes.IFLE, Opcodes.IF_ICMPLE -> IFLE
                 Opcodes.IFGE, Opcodes.IF_ICMPGE -> IFGE
@@ -44,11 +47,11 @@ enum class ConditionType(var text: String) {
             }
         }
 
-        fun isCondition(opcode:Int):Boolean{
+        fun isCondition(opcode: Int): Boolean {
             try {
                 fromOpcode(opcode)
                 return true
-            } catch (e:Throwable) {
+            } catch (e: Throwable) {
                 return false
             }
         }
@@ -70,6 +73,12 @@ enum class ConditionType(var text: String) {
 
 class ConditionNot(var value: Expression) : Expression() {
     override fun toString(): String {
-        return "!$value"
+        return "!($value)"
     }
+}
+
+fun Expression.not():Expression {
+    if (this is ConditionNot)
+        return this.value
+    return ConditionNot(this)
 }

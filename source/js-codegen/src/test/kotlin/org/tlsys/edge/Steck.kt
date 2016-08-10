@@ -162,10 +162,14 @@ class VarianValue(vararg values: Expression) : Expression() {
 }
 
 fun marge1(block: BaseBlock, v1: Expression, v2: Expression): VarianValue {
+    if (v1 === v2 && v1 is VarianValue)
+        return v1
     if (v1 is VarianValue)
     //if (v1.block == block)
     {
         if (v2 is VarianValue) {
+            for (v in v2.list)
+                v1 += v
         } else
             v1 += v2
         return v1

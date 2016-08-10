@@ -196,7 +196,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             val value1 = currentBlock.steck.pop()
 
 
-            val forJump = blockForLabel(label!!)
+            val forJump = blockForLabel(label)
             val nextBlock = program.createBlock("Next after if")
 
             val exp = ConditionExp(value1, value2, ConditionType.IFLE)
@@ -205,12 +205,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             val if_yes = ConditionEdge(currentBlock, forJump, exp)
             val if_no = ElseConditionEdge(if_yes, nextBlock)
 
-            currentBlock.outEdge += if_yes
-            forJump.inEdge += if_yes
             forJump.steck.marge(if_yes.from!!.steck)
-
-            currentBlock.outEdge += if_no
-            nextBlock.inEdge += if_no
             forJump.steck.marge(if_no.fromEdge.from!!.steck)
 
             currentBlock = nextBlock
@@ -223,7 +218,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             val value2 = currentBlock.steck.pop()
             val value1 = currentBlock.steck.pop()
 
-            val forJump = blockForLabel(label!!)
+            val forJump = blockForLabel(label)
             val nextBlock = program.createBlock("Next after if")
 
             val exp = ConditionExp(value1, value2, ConditionType.IFGT)
@@ -337,7 +332,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             val v = StaticInvoke(owner!!, name!!, desc, args.toTypedArray())
 
             if (params.ret == Primitive.get('V')) {
-                currentBlock+=v
+                currentBlock += v
             } else {
                 currentBlock.steck.push(v)
             }
@@ -348,7 +343,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             val v = StaticSpecial(currentBlock.steck.pop(), owner!!, name!!, desc, args.toTypedArray())
 
             if (params.ret == Primitive.get('V')) {
-                currentBlock+=v
+                currentBlock += v
             } else {
                 currentBlock.steck.push(v)
             }
