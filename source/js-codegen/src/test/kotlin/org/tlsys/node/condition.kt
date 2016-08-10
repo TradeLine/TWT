@@ -7,6 +7,23 @@ class ConditionExp(var left: Expression, var right: Expression, var type: Condit
     override fun toString(): String {
         return "($left ${type.text} $right)"
     }
+
+    init {
+        left.use(this)
+        right.use(this)
+    }
+
+    override fun freeUsingValues() {
+        left.unuse(this)
+        right.unuse(this)
+    }
+
+    override fun replaceUsingValue(old: Expression, new: Expression) {
+        if (old === left)
+            left == new
+        if (old === right)
+            right = new
+    }
 }
 
 enum class ConditionType(var text: String) {
@@ -75,9 +92,22 @@ class ConditionNot(var value: Expression) : Expression() {
     override fun toString(): String {
         return "!($value)"
     }
+
+    init {
+        value.use(this)
+    }
+
+    override fun freeUsingValues() {
+        value.unuse(this)
+    }
+
+    override fun replaceUsingValue(old: Expression, new: Expression) {
+        if (old === value)
+            value = new
+    }
 }
 
-fun Expression.not():Expression {
+fun Expression.not(): Expression {
     if (this is ConditionNot)
         return this.value
     return ConditionNot(this)

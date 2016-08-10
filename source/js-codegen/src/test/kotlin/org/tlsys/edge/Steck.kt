@@ -74,6 +74,10 @@ class ValueSteck {
         return g.value
     }
 
+    fun peek(): Expression {
+        return steck.peek().value
+    }
+
     val size: Int get() = steck.size
     operator fun contains(e: Expression) = steck.contains { it.value == e }
 
@@ -112,13 +116,26 @@ class ValueSteck {
 
         return steck.first.value
     }
+
+    fun replace(expression: Expression, new: Expression) {
+        val i = steck.listIterator()
+        while (i.hasNext()) {
+            val g = i.next()
+            if (g.value === expression) {
+                new.steck(block)
+                i.set(StackRecord(new, g.marged))
+                g.value.unsteck(block)
+            }
+        }
+    }
 }
 
+/*
 class VarValue(val index: Int) : Expression() {
     override fun toString(): String {
         return "V$index"
     }
-}
+}*/
 
 class IntValue(val value: Int) : Expression() {
     override fun toString(): String {

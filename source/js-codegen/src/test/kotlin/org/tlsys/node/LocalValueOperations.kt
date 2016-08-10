@@ -1,19 +1,30 @@
 package org.tlsys.node
 
-import org.tlsys.BaseBlock
 import org.tlsys.Expression
+import org.tlsys.Operation
 
-open class VarOp():Node()
-
-class GetVar(val index:Int):VarOp() {
-    override fun toString(): String{
+class GetVar(val index: Int) : Expression() {
+    override fun toString(): String {
         return "PUSH_Var(index=$index)"
     }
 }
 
-class SetVar(val index:Int,var value: Expression):VarOp() {
-    override fun toString(): String{
+class SetVar(val index: Int, var value: Expression) : Operation() {
+    override fun toString(): String {
         return "V$index=$value"
+    }
+
+    init {
+        value.use(this)
+    }
+
+    override fun freeUsingValues() {
+        value.unuse(this)
+    }
+
+    override fun replaceUsingValue(old: Expression, new: Expression) {
+        if (old === value)
+            value = new
     }
 }
 

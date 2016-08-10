@@ -113,7 +113,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         if (opcode == Opcodes.ALOAD || opcode == Opcodes.ILOAD) {
             //val o = GetVar(currentBlock, index)
             //currentBlock += o
-            currentBlock.steck.push(VarValue(index))
+            currentBlock.steck.push(GetVar(index))
             return
         }
 
@@ -277,9 +277,13 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         TODO("$opcode")
     }
 
-    override fun visitTypeInsn(opcode: Int, type: String?) {
+    override fun visitTypeInsn(opcode: Int, type: String) {
         if (opcode == Opcodes.CHECKCAST)
             return
+        if (opcode == Opcodes.NEW) {
+            currentBlock.steck.push(New(ClassRef.get(type)))
+            return
+        }
         TODO()
     }
 
@@ -372,6 +376,28 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             val v2 = currentBlock.steck.pop()
             val v1 = currentBlock.steck.pop()
             currentBlock.steck.push(BinarMathOp(v1, v2, BinarMathOp.Types.fromCode(opcode)))
+            return
+        }
+        if (opcode == Opcodes.DUP) {
+            val g = currentBlock.steck.peek()
+
+            if (g is New) {
+                TODO("Доработать этот участок. Необходимо найти все записи о том, где использовалась эта переменная, что бы подменить на присваивание временной переменной, что бы потом использовать это значение")
+                val i = currentBlock.program.getTempId()
+                val setVar = SetVar(i, g)
+                g.replace(setVar)
+                val getVar = GetVar(i)
+
+            } else
+                currentBlock.steck.push(g)
+
+
+
+            return
+            //TODO переделать эту функцию, что бы в случае дубля значения записывались во временную переменную и в стек ложилась переменная, а не само значение
+        }
+        if (opcode == Opcodes.ATHROW) {
+            currentBlock += Throw(currentBlock.steck.pop())
             return
         }
         TODO("$opcode")

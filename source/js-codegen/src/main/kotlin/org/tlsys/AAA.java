@@ -13,6 +13,7 @@ public class AAA {
         else
             b = 500;
         b = a;
+        throw new RuntimeException();
 
         //int b = (a > 10-c ? (a>13?200:300) : 100) - (a > 20-c ? (a>17?500:600) : 700);
         //int b = (a>10 && c>50) ? 99:100;
