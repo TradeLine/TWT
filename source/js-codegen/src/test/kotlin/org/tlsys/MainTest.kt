@@ -281,7 +281,9 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         if (opcode == Opcodes.CHECKCAST)
             return
         if (opcode == Opcodes.NEW) {
-            currentBlock.steck.push(New(ClassRef.get(type)))
+            val id = currentBlock.program.getTempId()
+            currentBlock += SetVar(id, New(ClassRef.get(type)))
+            currentBlock.steck.push(GetVar(id))
             return
         }
         TODO()
@@ -338,13 +340,16 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             if (params.ret == Primitive.get('V')) {
                 currentBlock += v
             } else {
-                currentBlock.steck.push(v)
+                val id = currentBlock.program.getTempId()
+                currentBlock+=SetVar(id, v)
+
+                currentBlock.steck.push(GetVar(id))
             }
             return
         }
 
         if (opcode == Opcodes.INVOKESPECIAL) {
-            val v = StaticSpecial(currentBlock.steck.pop(), owner!!, name!!, desc, args.toTypedArray())
+            val v = StaticSpecial(currentBlock.steck.pop(), ClassRef.get(owner!!), name!!, desc, args.toTypedArray())
 
             if (params.ret == Primitive.get('V')) {
                 currentBlock += v
@@ -380,21 +385,12 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         }
         if (opcode == Opcodes.DUP) {
             val g = currentBlock.steck.peek()
-
-            if (g is New) {
-                TODO("Доработать этот участок. Необходимо найти все записи о том, где использовалась эта переменная, что бы подменить на присваивание временной переменной, что бы потом использовать это значение")
-                val i = currentBlock.program.getTempId()
-                val setVar = SetVar(i, g)
-                g.replace(setVar)
-                val getVar = GetVar(i)
-
-            } else
-                currentBlock.steck.push(g)
-
-
-
+            currentBlock.steck.push(g)
             return
-            //TODO переделать эту функцию, что бы в случае дубля значения записывались во временную переменную и в стек ложилась переменная, а не само значение
+        }
+        if (opcode == Opcodes.POP) {
+            currentBlock.steck.pop()
+            return
         }
         if (opcode == Opcodes.ATHROW) {
             currentBlock += Throw(currentBlock.steck.pop())

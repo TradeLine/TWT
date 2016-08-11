@@ -19,8 +19,6 @@ open abstract class Edge(from: BaseBlock, to: BaseBlock) {
             if (_from != null)
                 _from!!.outEdge -= this
 
-            if (it == null)
-                println("123")
             _from = it
 
             if (it != null && this !in it.outEdge)

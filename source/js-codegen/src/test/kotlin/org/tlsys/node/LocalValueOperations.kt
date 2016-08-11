@@ -5,7 +5,7 @@ import org.tlsys.Operation
 
 class GetVar(val index: Int) : Expression() {
     override fun toString(): String {
-        return "PUSH_Var(index=$index)"
+        return "V$index"
     }
 }
 

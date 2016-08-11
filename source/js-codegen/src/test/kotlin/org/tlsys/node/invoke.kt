@@ -21,8 +21,38 @@ open abstract class Invoke:Expression {
     }
 }
 
-class StaticInvoke(val ownClass:String, methodName:String, signature: String, args:Array<Expression>):Invoke(methodName,signature,args)
-class StaticSpecial(val own:Expression, ownClass:String, methodName:String, signature: String, args:Array<Expression>):Invoke(methodName,signature,args)
+class StaticInvoke(val ownClass:String, methodName:String, signature: String, args:Array<Expression>):Invoke(methodName,signature,args) {
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("$ownClass].$methodName(")
+        var first = true
+        for (g in args) {
+            if (!first) {
+                sb.append(", ")
+            } else
+                first = false
+            sb.append(g)
+        }
+        sb.append(")")
+        return sb.toString()
+    }
+}
+class StaticSpecial(val own:Expression, val ownClass:ClassRef, methodName:String, signature: String, args:Array<Expression>):Invoke(methodName,signature,args) {
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("$own[${ownClass.sinature}].$methodName(")
+        var first = true
+        for (g in args) {
+            if (!first) {
+                sb.append(", ")
+            } else
+                first = false
+            sb.append(g)
+        }
+        sb.append(")")
+        return sb.toString()
+    }
+}
 
 class SReader : SignatureVisitor {
     constructor() : super(Opcodes.ASM5) {

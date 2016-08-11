@@ -4,6 +4,7 @@ import org.tlsys.edge.Edge
 import org.tlsys.edge.ValueSteck
 import org.tlsys.node.LabelNode
 import org.tlsys.node.Node
+import org.tlsys.node.SetVar
 import java.util.*
 
 abstract open class EdgeContener(val parent:BaseBlock) : Iterable<Edge> {
