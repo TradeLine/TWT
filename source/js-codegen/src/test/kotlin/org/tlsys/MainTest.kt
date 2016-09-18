@@ -74,9 +74,15 @@ class MainTest {
 
 class ClassV : ClassVisitor(Opcodes.ASM5) {
     val program = ArrayList<Program>()
-    override fun visitMethod(access: Int, name: String?, desc: String?, signature: String?, exceptions: Array<out String>?): MethodVisitor? {
+    override fun visitMethod(access: Int, name: String?, desc: String, signature: String?, exceptions: Array<out String>?): MethodVisitor? {
         val m = MethodV()
         program += m.program
+        if (access and Opcodes.ACC_STATIC == 0)
+            m.program.createNamedVar(0).set(ThisRef(), m.program.entryBlock!!)
+
+        val g = SReader.parse(desc)
+        for (i in 1..g.params.size)
+            m.program.createNamedVar(i).set(ThisRef(), m.program.entryBlock!!)
         return m
     }
 }
@@ -93,7 +99,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
     fun blockForLabel(l: Label): BaseBlock {
         val g = labelBlock[l]
         if (g != null)
-            return g;
+            return g
 
         var h = BaseBlock(program, "for label ${l.id}");
         program.blocks += h
@@ -113,12 +119,12 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         if (opcode == Opcodes.ALOAD || opcode == Opcodes.ILOAD) {
             //val o = GetVar(currentBlock, index)
             //currentBlock += o
-            currentBlock.steck.push(GetVar(index))
+            currentBlock.steck.push(program.getVar(index).getValueForBlock(currentBlock).get())
             return
         }
 
         if (opcode == Opcodes.ISTORE) {
-            val o = SetVar(index, currentBlock.steck.pop())
+            val o = program.getVar(index).set(currentBlock.steck.pop(), currentBlock)
             currentBlock += o
             return
         }
@@ -263,8 +269,10 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
     }
 
     override fun visitLdcInsn(cst: Any?) {
-        currentBlock.steck.push(LdcValue(cst))
-        currentBlock += PushLdc(cst!!)
+        val t = program.createTempVar()
+        val s = t.set(LdcValue(cst), currentBlock)
+        currentBlock += s
+        currentBlock.steck.push(s.item.get())
     }
 
     override fun visitIntInsn(opcode: Int, operand: Int) {
@@ -281,9 +289,11 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         if (opcode == Opcodes.CHECKCAST)
             return
         if (opcode == Opcodes.NEW) {
-            val id = currentBlock.program.getTempId()
-            currentBlock += SetVar(id, New(ClassRef.get(type)))
-            currentBlock.steck.push(GetVar(id))
+            val t = currentBlock.program.createTempVar()
+            //val id = currentBlock.program.getTempId()
+            val op = t.set(New(ClassRef.get(type)), currentBlock)
+            currentBlock += op
+            currentBlock.steck.push(op.item.get())
             return
         }
         TODO()
@@ -316,8 +326,8 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             }
         }
 
-        val l = LabelNode(label!!)
-        labelRef.put(label!!, l)
+        val l = LabelNode(label)
+        labelRef.put(label, l)
         currentBlock += l
     }
 
@@ -340,10 +350,11 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             if (params.ret == Primitive.get('V')) {
                 currentBlock += v
             } else {
-                val id = currentBlock.program.getTempId()
-                currentBlock+=SetVar(id, v)
+                val id = currentBlock.program.createTempVar()
+                val op = id.set(v, currentBlock)
+                currentBlock += op
 
-                currentBlock.steck.push(GetVar(id))
+                currentBlock.steck.push(op.item.get())
             }
             return
         }
@@ -385,7 +396,10 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         }
         if (opcode == Opcodes.DUP) {
             val g = currentBlock.steck.peek()
-            currentBlock.steck.push(g)
+            val t = currentBlock.program.createTempVar()
+            val op = t.set(g, currentBlock)
+            currentBlock += op
+            currentBlock.steck.push(op.item.get())
             return
         }
         if (opcode == Opcodes.POP) {
@@ -415,8 +429,9 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         TODO()
     }
 
-    override fun visitLocalVariable(name: String?, desc: String?, signature: String?, start: Label?, end: Label?, index: Int) {
-        super.visitLocalVariable(name, desc, signature, start, end, index)
+    override fun visitLocalVariable(name: String, desc: String, signature: String?, start: Label?, end: Label?, index: Int) {
+        program.getVar(index).name = name
+        //super.visitLocalVariable(name, desc, signature, start, end, index)
     }
 
     override fun visitParameter(name: String?, access: Int) {

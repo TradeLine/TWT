@@ -13,6 +13,10 @@ open class Operation : Node() {
     }
 }
 
+class ThisRef : Expression() {
+    override fun toString(): String = "this"
+}
+
 open class Expression : Operation() {
     private val _usingVariants = HashSet<VarianValue>()
     private val _usingOperation = HashSet<Operation>()
@@ -47,6 +51,16 @@ open class Expression : Operation() {
 
     fun unuse(e: Operation) {
         _usingOperation -= e
+    }
+
+    val varValue = HashSet<Var.VarVariantValue>()
+
+    fun use(e: Var.VarVariantValue) {
+        varValue += e
+    }
+
+    fun unuse(e: Var.VarVariantValue) {
+        varValue -= e
     }
 
     fun ref(v: VarianValue) {

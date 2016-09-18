@@ -1,19 +1,33 @@
 package org.tlsys.level2
 
 import org.tlsys.BaseBlock
+import org.tlsys.Var
 import org.tlsys.edge.ConditionEdge
 import org.tlsys.edge.ElseConditionEdge
 import org.tlsys.edge.PairedEdge
 import org.tlsys.edge.SimpleEdge
-import org.tlsys.node.ConditionExp
-import org.tlsys.node.ConditionType
-import org.tlsys.node.not
+import org.tlsys.node.*
 import java.util.*
 
 object Optimazer {
     fun optimaze(block: BaseBlock) {
+        optimazeEmptyVars(block)
         optimazeAnd(block)
         optimazeTernar(block)
+    }
+
+    private fun optimazeEmptyVars(block: BaseBlock) {
+        val it = block.operationIterator()
+        while (it.hasNext()) {
+            val n = it.next()
+            if (n is Var.SetVar) {
+                if (n.item.using.isEmpty() && n.item.vars.isEmpty())
+                    it.set(n.item.value)
+                continue
+            }
+        }
+        for (g in block.outEdge)
+            optimazeEmptyVars(g.to!!)
     }
 
     //работает стабильно и хорошо
