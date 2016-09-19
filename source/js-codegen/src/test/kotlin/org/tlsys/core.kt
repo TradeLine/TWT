@@ -21,6 +21,9 @@ open class Expression : Operation() {
     private val _usingVariants = HashSet<VarianValue>()
     private val _usingOperation = HashSet<Operation>()
 
+    open val constValue: Boolean
+        get() = false
+
 
     fun replace(new: Expression) {
         for (o in usingOperation.toList().toTypedArray()) {

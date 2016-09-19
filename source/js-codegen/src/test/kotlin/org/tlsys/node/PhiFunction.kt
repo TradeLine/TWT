@@ -11,7 +11,7 @@ class ExpValList<T, P>(val parent: P, val onAdd: T.(P) -> Unit, val onRemove: T.
         private val it = parent.list.iterator()
         override fun hasNext(): Boolean = it.hasNext()
 
-        private var last:T? = null
+        private var last: T? = null
         override fun next(): T {
             last = it.next()
             return last as T
@@ -40,6 +40,15 @@ class ExpValList<T, P>(val parent: P, val onAdd: T.(P) -> Unit, val onRemove: T.
 
     override fun toString(): String = list.toString()
 
+    fun replace(old: T, new: T) {
+        val p = list.indexOf(old)
+        if (p >= 0) {
+            list[p]!!.onRemove(parent)
+            list[p] = new
+            new.onAdd(parent)
+        }
+    }
+
 }
 
 class PhiFunction(list: List<Var.VarVariantValue>) : Expression() {
@@ -53,5 +62,10 @@ class PhiFunction(list: List<Var.VarVariantValue>) : Expression() {
     override fun toString(): String {
 
         return "OneOf{${list.joinToString("  ,  ")}}"
+    }
+
+    override fun replaceUsingValue(old: Expression, new: Expression) {
+        super.replaceUsingValue(old, new)
+        list.replace(old, new)
     }
 }

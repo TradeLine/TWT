@@ -91,10 +91,43 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
 
     val program = Program()
 
-    var currentBlock = program.createBlock("entry block")
+    var _currentBlock = program.createBlock("entry block")
+    val currentBlock: BaseBlock
+        get() = _currentBlock
+
+    fun changeCurrentBlock(block: BaseBlock) {
+        val g = onClose[_currentBlock]
+        if (g !== null) {
+            g(ChangeBlock(from = _currentBlock, to = block))
+            onClose.remove(_currentBlock)
+        }
+        val old = _currentBlock
+        _currentBlock = block
+
+        val h = onStart[block]
+        if (h !== null) {
+            h(ChangeBlock(from = old, to = block))
+            onStart.remove(block)
+        }
+
+        println("Change from ${old.rigen} => ${block.rigen}")
+    }
 
     val labelRef = hashMapOf<Label, LabelNode>()
     val labelBlock = hashMapOf<Label, BaseBlock>()
+
+    class ChangeBlock(val from: BaseBlock, val to: BaseBlock)
+
+    val onClose = HashMap<BaseBlock, (ChangeBlock) -> Unit>()
+    val onStart = HashMap<BaseBlock, (ChangeBlock) -> Unit>()
+
+    fun BaseBlock.end(l: (ChangeBlock) -> Unit) {
+        onClose.put(this, l)
+    }
+
+    fun BaseBlock.start(l: (ChangeBlock) -> Unit) {
+        onStart.put(this, l)
+    }
 
     fun blockForLabel(l: Label): BaseBlock {
         val g = labelBlock[l]
@@ -120,7 +153,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             //val o = GetVar(currentBlock, index)
             //currentBlock += o
             val _var = program.getVar(index)
-            if (_var.name=="V4")
+            if (_var.name == "V4")
                 println("123")
             currentBlock.steck.push(_var.getValueForBlock(currentBlock).get())
             return
@@ -143,8 +176,40 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         TODO()
     }
 
+    val margeAfterBlock = HashMap<BaseBlock, BaseBlock>()
+
     override fun visitJumpInsn(opcode: Int, label: Label?) {
         label!!.id
+
+        fun buildIf(type:ConditionType) {
+            val value2 = currentBlock.steck.pop()
+            val value1 = currentBlock.steck.pop()
+
+
+            val forJump = blockForLabel(label)
+            val nextBlock = program.createBlock("Next after if")
+
+            val exp = ConditionExp(value1, value2, type)
+
+            val if_yes = ConditionEdge(currentBlock, forJump, exp)
+            val if_no = ElseConditionEdge(if_yes, nextBlock)
+
+
+            var vars: Array<Var>? = null
+            if_no.to!!.end {
+                vars = it.from.steck.convertToVar()
+            }
+
+            if_yes.to!!.end {
+                if (vars === null)
+                    println("Vars not ready!")
+                it.from.steck.convertToVar(vars!!)
+            }
+
+
+            changeCurrentBlock(nextBlock)
+        }
+        /*
         if (opcode == Opcodes.IFLE) {
 
             val value = currentBlock.steck.pop()
@@ -166,7 +231,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             nextBlock.inEdge += if_no
             forJump.steck.marge(if_no.from!!.steck)
 
-            currentBlock = nextBlock
+            changeCurrentBlock(nextBlock)
 
             return
         }
@@ -195,33 +260,20 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             nextBlock.inEdge += if_no
             forJump.steck.marge(if_no.from!!.steck)
 
-            currentBlock = nextBlock
+            changeCurrentBlock(nextBlock)
 
             return
         }
+        */
         if (opcode == Opcodes.IF_ICMPLE) {
-
-            val value2 = currentBlock.steck.pop()
-            val value1 = currentBlock.steck.pop()
-
-
-            val forJump = blockForLabel(label)
-            val nextBlock = program.createBlock("Next after if")
-
-            val exp = ConditionExp(value1, value2, ConditionType.IFLE)
-            //val not_exp = ConditionNot(currentBlock, exp)
-
-            val if_yes = ConditionEdge(currentBlock, forJump, exp)
-            val if_no = ElseConditionEdge(if_yes, nextBlock)
-
-            forJump.steck.marge(if_yes.from!!.steck)
-            forJump.steck.marge(if_no.fromEdge.from!!.steck)
-
-            currentBlock = nextBlock
-
+            buildIf(ConditionType.IFLE)
             return
         }
-
+        if (opcode == Opcodes.IF_ICMPGT) {
+            buildIf(ConditionType.IFGT)
+            return
+        }
+/*
         if (opcode == Opcodes.IF_ICMPGT) {
 
             val value2 = currentBlock.steck.pop()
@@ -248,23 +300,18 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
 
             return
         }
-
+*/
 
         if (opcode == Opcodes.GOTO) {
             val forJump = blockForLabel(label!!)
             val e = SimpleEdge(currentBlock, forJump)
             currentBlock.outEdge += e
             forJump.inEdge += e
-            forJump.steck.marge(currentBlock.steck)
+            //forJump.steck.marge(currentBlock.steck)
 
             val next = program.createBlock("next after jump $e")
-            next.steck.marge(currentBlock.steck)
-            currentBlock = next
-/*
-            waitLabel {l,it->
-                println("NEXT ${l.id}")
-            }
-            */
+            //next.steck.copyFrom(currentBlock.steck)
+            changeCurrentBlock(next)
             return
         }
 
@@ -319,13 +366,24 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
                 currentBlock.giveEdgeTo(b)
                 program.blocks -= currentBlock
                 //b.steck.marge(currentBlock.steck)
-                currentBlock = b
+                changeCurrentBlock(b)
             } else {
                 val h = SimpleEdge(currentBlock, b)
                 currentBlock.outEdge += h
                 b.inEdge += h
-                b.steck.marge(currentBlock.steck)
-                currentBlock = b
+                changeCurrentBlock(b)
+                //b.steck.marge(currentBlock.steck)
+                if (b.inEdge.size > 1) {
+                    val itt = b.inEdge.iterator()
+                    val values = ValueSteck.getMarged(*Array(b.inEdge.size) {
+                        itt.next().from!!.steck
+                    })
+                    if (values.isNotEmpty())
+                    for (i in values.size-1..0) {
+                        b.steck.push(values[i])
+                    }
+                }
+
             }
         }
 

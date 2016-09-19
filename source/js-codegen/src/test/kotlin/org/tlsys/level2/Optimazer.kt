@@ -11,26 +11,48 @@ import org.tlsys.node.*
 import java.util.*
 
 object Optimazer {
-    fun optimaze(block: BaseBlock) {
-        //optimazeEmptyVars(block)
+    fun optimaze(block: BaseBlock, toBlock:BaseBlock?=null) {
+        optimazeEmptyVars(block)
+        replaceConst(block)
         //optimazeAnd(block)
         //optimazeTernar(block)
     }
 
-    private fun optimazeEmptyVars(block: BaseBlock) {
+    private fun replaceConst(block: BaseBlock, toBlock:BaseBlock?=null) {
+        if (block === toBlock)
+            return
         val it = block.operationIterator()
         while (it.hasNext()) {
             val n = it.next()
             if (n is Var.SetVar) {
-                var flag = false
-                if (n.item.parent is NamedVar && (n.item.parent as NamedVar).name == "b") {
-                    flag = true
+                if (n.item.value.constValue) {
                     println("123")
+                    for (g in n.item.getters) {
+                        for (op in g.usingOperation.toTypedArray()) {
+                            op.replaceUsingValue(g, n.item.value)
+                        }
+                        for (op in g.usingSteck.toTypedArray()) {
+                            op.steck.replace(g, n.item.value)
+                        }
+                    }
+
+                    it.remove()
                 }
+            }
+        }
+
+        for (g in block.outEdge)
+            replaceConst(g.to!!)
+    }
+
+    private fun optimazeEmptyVars(block: BaseBlock, toBlock:BaseBlock?=null) {
+        if (block === toBlock)
+            return
+        val it = block.operationIterator()
+        while (it.hasNext()) {
+            val n = it.next()
+            if (n is Var.SetVar) {
                 if (n.item.using.isEmpty() && n.item.vars.isEmpty()) {
-                    if (flag)
-                        println("123")
-                    println("Replace $n => ${n.item.value}")
                     it.set(n.item.value)
                 }
                 continue
@@ -41,7 +63,9 @@ object Optimazer {
     }
 
     //работает стабильно и хорошо
-    private fun optimazeAnd(block: BaseBlock) {
+    private fun optimazeAnd(block: BaseBlock, toBlock:BaseBlock?=null) {
+        if (block === toBlock)
+            return
         for (e in block.outEdge)
             optimazeAnd(e.to!!)
 
@@ -88,7 +112,9 @@ object Optimazer {
     }
 
     //отбирает "хлеб" у функции оптимизации "И"
-    private fun optimazeTernar(block: BaseBlock) {
+    private fun optimazeTernar(block: BaseBlock, toBlock:BaseBlock?=null) {
+        if (block === toBlock)
+            return
         for (e in block.outEdge.toList().toTypedArray()) {
             if (e in block.outEdge)
                 optimazeTernar(e.to!!)

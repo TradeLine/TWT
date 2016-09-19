@@ -3,6 +3,7 @@ package org.tlsys.edge
 import org.tlsys.BaseBlock
 import org.tlsys.Expression
 import org.tlsys.Var
+import org.tlsys.node.PhiFunction
 import java.util.*
 
 fun <T> List<T>.indexOf(f: (T) -> Boolean): Int {
@@ -52,7 +53,64 @@ class ValueSteck {
 
     val block: BaseBlock
 
+    fun convertToVar(list: Array<Var>) {
+        val it = iterator()
+        val itList = list.iterator()
+        while (it.hasNext()) {
+            val g = it.next()
+            val t = itList.next()
+            g.value.unsteck(block)
+            val s = t.set(g.value, block)
+            val get = s.item.get()
+            it.set(StackRecord(get, g.marged))
+            get.steck(block)
+            block += s
+        }
+    }
+
+    fun convertToVar(): Array<Var> {
+        val it = iterator()
+        val values = ArrayList<Var>()
+        while (it.hasNext()) {
+            val g = it.next()
+            val t = block.program.createTempVar()
+            val s = t.set(g.value, block)
+            val get = s.item.get()
+            g.value.unsteck(block)
+
+            it.set(StackRecord(get, g.marged))
+            get.steck(block)
+            block += s
+            values += t
+        }
+        return values.toTypedArray()
+    }
+
     companion object {
+
+        fun getMarged(vararg list: ValueSteck): Array<PhiFunction> {
+            if (list.size < 2)
+                throw RuntimeException("Bad stack marge! Bad size! ${list.size}")
+            val l = list[0].size
+            list.forEach {
+                if (it.size != l)
+                    throw RuntimeException("Difirent stack!")
+            }
+
+            val itList = ArrayList<MutableListIterator<StackRecord>>()
+
+            for (g in list)
+                itList += g.iterator()
+
+            return Array(l){
+                val ll = ArrayList<Var.VarVariantValue>(l)
+                for (g in itList) {
+                    ll+=(g.next().value as Var.GetVar).item
+                }
+                PhiFunction(ll)
+            }
+        }
+
         fun marge(vararg other: ValueSteck): Array<Var.GetVar> {
             if (other.isEmpty())
                 return arrayOf()
@@ -62,6 +120,8 @@ class ValueSteck {
                 if (it.size != g)
                     throw RuntimeException("Bad Stack Size!")
             }
+
+
 
 
             val itList = ArrayList<MutableListIterator<StackRecord>>()
@@ -84,6 +144,13 @@ class ValueSteck {
                 }
             }
             return out.toTypedArray()
+        }
+    }
+
+    fun copyFrom(steck: ValueSteck) {
+        val it = steck.iterator()
+        while (it.hasNext()) {
+            this.steck.addLast(StackRecord(it.next().value, true))
         }
     }
 
@@ -173,8 +240,8 @@ class ValueSteck {
         while (i.hasNext()) {
             val g = i.next()
             if (g.value === expression) {
-                new.steck(block)
                 i.set(StackRecord(new, g.marged))
+                new.steck(block)
                 g.value.unsteck(block)
             }
         }
@@ -192,12 +259,18 @@ class IntValue(val value: Int) : Expression() {
     override fun toString(): String {
         return "$value"
     }
+
+    override val constValue: Boolean
+        get() = true
 }
 
 class LdcValue(val value: Any?) : Expression() {
     override fun toString(): String {
         return "\"$value\""
     }
+
+    override val constValue: Boolean
+        get() = true
 }
 
 class VarianValue(vararg values: Expression) : Expression() {

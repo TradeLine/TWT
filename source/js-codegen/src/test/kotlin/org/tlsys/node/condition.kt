@@ -18,6 +18,9 @@ class ConditionExp(var left: Expression, var right: Expression, var type: Condit
         right.unuse(this)
     }
 
+    override val constValue: Boolean
+        get() = left.constValue && right.constValue
+
     override fun replaceUsingValue(old: Expression, new: Expression) {
         if (old === left)
             left == new
