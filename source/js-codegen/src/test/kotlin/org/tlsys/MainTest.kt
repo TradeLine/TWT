@@ -119,7 +119,10 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         if (opcode == Opcodes.ALOAD || opcode == Opcodes.ILOAD) {
             //val o = GetVar(currentBlock, index)
             //currentBlock += o
-            currentBlock.steck.push(program.getVar(index).getValueForBlock(currentBlock).get())
+            val _var = program.getVar(index)
+            if (_var.name=="V4")
+                println("123")
+            currentBlock.steck.push(_var.getValueForBlock(currentBlock).get())
             return
         }
 

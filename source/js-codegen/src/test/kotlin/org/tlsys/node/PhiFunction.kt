@@ -51,6 +51,7 @@ class PhiFunction(list: List<Var.VarVariantValue>) : Expression() {
     }
 
     override fun toString(): String {
-        return "OneOf($list)"
+
+        return "OneOf{${list.joinToString("  ,  ")}}"
     }
 }

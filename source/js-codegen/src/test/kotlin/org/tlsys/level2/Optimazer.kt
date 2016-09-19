@@ -1,6 +1,7 @@
 package org.tlsys.level2
 
 import org.tlsys.BaseBlock
+import org.tlsys.NamedVar
 import org.tlsys.Var
 import org.tlsys.edge.ConditionEdge
 import org.tlsys.edge.ElseConditionEdge
@@ -11,9 +12,9 @@ import java.util.*
 
 object Optimazer {
     fun optimaze(block: BaseBlock) {
-        optimazeEmptyVars(block)
-        optimazeAnd(block)
-        optimazeTernar(block)
+        //optimazeEmptyVars(block)
+        //optimazeAnd(block)
+        //optimazeTernar(block)
     }
 
     private fun optimazeEmptyVars(block: BaseBlock) {
@@ -21,8 +22,17 @@ object Optimazer {
         while (it.hasNext()) {
             val n = it.next()
             if (n is Var.SetVar) {
-                if (n.item.using.isEmpty() && n.item.vars.isEmpty())
+                var flag = false
+                if (n.item.parent is NamedVar && (n.item.parent as NamedVar).name == "b") {
+                    flag = true
+                    println("123")
+                }
+                if (n.item.using.isEmpty() && n.item.vars.isEmpty()) {
+                    if (flag)
+                        println("123")
+                    println("Replace $n => ${n.item.value}")
                     it.set(n.item.value)
+                }
                 continue
             }
         }

@@ -14,7 +14,7 @@ abstract open class Var {
 
     class SetVar internal constructor(val item: VarVariantValue) : Operation() {
         override fun toString(): String {
-            return "${item.parent}=${item.value}"
+            return "${item.parent}[${item.index}]=${item.value}"
         }
 
         init {
@@ -96,7 +96,7 @@ abstract open class Var {
         }
 
         if (cleared.size == 1)
-            return pathes.keys.iterator().next()
+            return cleared.keys.iterator().next()
 
 
         val dominator = Path.findDominator(cleared.values.toTypedArray())!!

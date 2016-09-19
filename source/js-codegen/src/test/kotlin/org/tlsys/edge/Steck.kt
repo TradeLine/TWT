@@ -2,6 +2,7 @@ package org.tlsys.edge
 
 import org.tlsys.BaseBlock
 import org.tlsys.Expression
+import org.tlsys.Var
 import java.util.*
 
 fun <T> List<T>.indexOf(f: (T) -> Boolean): Int {
@@ -35,6 +36,9 @@ fun <T> MutableList<T>.removeIf(f: (T) -> Boolean) {
 
 class ValueSteck {
 
+
+    fun iterator() = steck.listIterator()
+
     class StackRecord(val value: Expression, val marged: Boolean)
 
     private val steck = LinkedList<StackRecord>()
@@ -42,11 +46,56 @@ class ValueSteck {
         steck.push(StackRecord(value, false))
         value.steck(block)
         println("PUSH $value")
+
+        steck.listIterator()
     }
 
     val block: BaseBlock
 
+    companion object {
+        fun marge(vararg other: ValueSteck): Array<Var.GetVar> {
+            if (other.isEmpty())
+                return arrayOf()
+
+            val g = other[0].size
+            other.forEach {
+                if (it.size != g)
+                    throw RuntimeException("Bad Stack Size!")
+            }
+
+
+            val itList = ArrayList<MutableListIterator<StackRecord>>()
+
+            for (g in other)
+                itList += g.iterator()
+
+            val out = ArrayList<Var.GetVar>(other.size)
+
+            for (i in 0..other[0].size - 1) {
+                val v = other[0].block.program.createTempVar()
+
+                for (g in 0..other.size - 1) {
+                    val value = itList[g].next()
+                    val setOp = v.set(value.value, other[g].block)
+                    other[g].block += setOp
+                    val getOp = setOp.item.get()
+                    out += getOp
+                    itList[g].set(StackRecord(getOp, value.marged))
+                }
+            }
+            return out.toTypedArray()
+        }
+    }
+
+
     fun marge(vararg other: ValueSteck) {
+        val values = Companion.marge(*other)
+
+        values.forEach {
+            steck.addFirst(StackRecord(it, true))
+        }
+
+        /*
         for (l in other) {
             println("MARGE STECK ${block.ID} with ${l.block.ID}")
             val i1 = steck.listIterator()
@@ -61,7 +110,9 @@ class ValueSteck {
                 }
             }
         }
+        */
     }
+
 
     constructor(baseBlock: BaseBlock) {
         this.block = baseBlock

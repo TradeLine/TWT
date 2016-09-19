@@ -10,7 +10,7 @@ class AAA(a: Int, c: Int, d: Int) {
         else
             b = 500
         b = if (b>20) 30 else 40
-        testAAA(a,c,d)
+        testAAA(a,c,b)
         throw RuntimeException("HELLO!!!")
 
         //int b = (a > 10-c ? (a>13?200:300) : 100) - (a > 20-c ? (a>17?500:600) : 700);
