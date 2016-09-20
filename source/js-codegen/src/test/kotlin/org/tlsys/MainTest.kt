@@ -4,6 +4,7 @@ import org.junit.Test
 import org.objectweb.asm.*
 import org.tlsys.edge.*
 import org.tlsys.level2.Optimazer
+import org.tlsys.level2.TernarOp
 import org.tlsys.node.*
 import java.util.*
 
@@ -121,6 +122,14 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
     val onClose = HashMap<BaseBlock, (ChangeBlock) -> Unit>()
     val onStart = HashMap<BaseBlock, (ChangeBlock) -> Unit>()
 
+    class ConnectRecord(val b1: BaseBlock, val b2: BaseBlock)
+
+    val onConnect = HashMap<ConnectRecord, BaseBlock.(BaseBlock) -> Unit>()
+
+    fun BaseBlock.connect(blocK: BaseBlock, l: BaseBlock.(BaseBlock) -> Unit) {
+        onConnect.put(ConnectRecord(this, blocK), l)
+    }
+
     fun BaseBlock.end(l: (ChangeBlock) -> Unit) {
         onClose.put(this, l)
     }
@@ -181,7 +190,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
     override fun visitJumpInsn(opcode: Int, label: Label?) {
         label!!.id
 
-        fun buildIf(type:ConditionType) {
+        fun buildIf(type: ConditionType) {
             val value2 = currentBlock.steck.pop()
             val value1 = currentBlock.steck.pop()
 
@@ -204,6 +213,51 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
                 if (vars === null)
                     println("Vars not ready!")
                 it.from.steck.convertToVar(vars!!)
+            }
+
+            if_no.to!!.connect(if_yes.to!!) {
+                Optimazer.replaceConstInBlock(this)
+                Optimazer.replaceConstInBlock(it)
+
+                if (it.steck.size == 1) {
+                    if (this.operationCount == 0 && it.operationCount == 0//у обоих нет операций в блоке
+                            && this.inEdge.size == 1 && it.inEdge.size == 1//у обоих только один блок входит в них
+                            && this.inEdge.iterator().next() === it.inEdge.iterator().next()//входящий в них обоих блок один и тот же
+                            && this.outEdge.size == 1 && it.outEdge.size == 1//у обоих только один блок входит в них
+                            && this.outEdge.iterator().next() === it.outEdge.iterator().next()//входящий в них обоих блок один и тот же
+                            && this.steck.addedSize == 1 && it.steck.addedSize == 1) {//оба блока добавили только одно значение в стек
+
+                        val left = this.steck.getOne { !it.marged }
+                        val right = it.steck.getOne { !it.marged }
+
+                        val newBlock = BaseBlock(program, "Marged trenar operator")
+                        program.blocks+=newBlock
+                        val it1 = it.steck.iterator()
+                        while (it1.hasNext()) {
+                            val g = it1.next()
+                            if (g.marged)
+                                newBlock.steck.push(g.value)
+                            g.value.unsteck(it)
+                            it1.remove()
+                        }
+                        this.steck.clear()
+                        val t = TernarOp((this.inEdge.iterator().next() as ConditionEdge).value, left, right)
+
+
+
+                        val goto = SimpleEdge(this.inEdge.iterator().next().from!!, this.outEdge.iterator().next().to!!)
+
+                        this.inEdge.iterator().next().free()
+                        this.outEdge.iterator().next().free()
+
+                        it.inEdge.iterator().next().free()
+                        it.outEdge.iterator().next().free()
+                        this.program-=this
+                        this.program-=it
+
+                    }
+                }
+                println("123")
             }
 
 
@@ -373,15 +427,49 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
                 b.inEdge += h
                 changeCurrentBlock(b)
                 //b.steck.marge(currentBlock.steck)
+
+                if (b.inEdge.size == 2) {
+                    val it = b.inEdge.iterator()
+                    val b1 = it.next().from!!
+                    val b2 = it.next().from!!
+                    for (g in onConnect.entries) {
+                        if (g.key.b1 === b1) {
+                            g.value.invoke(b1, b2)
+                            onConnect.remove(g.key)
+                            break
+                        }
+                        if (g.key.b1 === b2) {
+                            g.value.invoke(b2, b1)
+                            onConnect.remove(g.key)
+                            break
+                        }
+                    }
+
+                }
+
                 if (b.inEdge.size > 1) {
+
+
+                    Optimazer.optimaze(program.entryBlock!!, b)
+
+                    /*
+                    val itt1 = b.inEdge.iterator()
+
+                    val pathes = Array(b.inEdge.size) {
+                        itt1.next().from!!.getPathLengthTo_UP(program.entryBlock!!)!! as Path
+                    }
+                    val startBranch = Path.findDominator_end_start(pathes)
+                    println("start = $startBranch")
+                    */
+
                     val itt = b.inEdge.iterator()
                     val values = ValueSteck.getMarged(*Array(b.inEdge.size) {
                         itt.next().from!!.steck
                     })
                     if (values.isNotEmpty())
-                    for (i in values.size-1..0) {
-                        b.steck.push(values[i])
-                    }
+                        for (i in values.size - 1..0) {
+                            b.steck.push(values[i])
+                        }
                 }
 
             }

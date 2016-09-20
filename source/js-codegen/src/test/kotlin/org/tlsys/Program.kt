@@ -99,7 +99,7 @@ abstract open class Var {
             return cleared.keys.iterator().next()
 
 
-        val dominator = Path.findDominator(cleared.values.toTypedArray())!!
+        val dominator = Path.findDominator_start_end(cleared.values.toTypedArray())!!
 
         dominator as OneBlock
         val t = dominator.block.program.createTempVar()

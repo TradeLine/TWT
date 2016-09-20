@@ -36,8 +36,6 @@ fun <T> MutableList<T>.removeIf(f: (T) -> Boolean) {
 }
 
 class ValueSteck {
-
-
     fun iterator() = steck.listIterator()
 
     class StackRecord(val value: Expression, val marged: Boolean)
@@ -244,6 +242,15 @@ class ValueSteck {
                 new.steck(block)
                 g.value.unsteck(block)
             }
+        }
+    }
+
+    fun clear() {
+        val it = iterator()
+        while (it.hasNext()) {
+            val g = it.next()
+            it.remove()
+            g.value.unsteck(block)
         }
     }
 }

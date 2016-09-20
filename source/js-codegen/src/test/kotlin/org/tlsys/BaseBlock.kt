@@ -160,6 +160,7 @@ class BaseBlock(val program: Program, val rigen: String = "") {
         return _operationCount
     }
 
+
     fun getPathLengthTo_UP(block: BaseBlock, from: Path? = null): OneBlock? {
         if (block === this)
             return OneBlock(from, this)
@@ -201,7 +202,7 @@ open abstract class Path(val parent: Path?) {
     abstract fun blockEqual(path: Path): Boolean
 
     companion object {
-        fun findDominator(list: Array<Path>): Path? {
+        fun findDominator_start_end(list: Array<Path>): Path? {
             var doms = Array(list.size, { list[it] })
 
             var dom: Path? = null
@@ -224,6 +225,33 @@ open abstract class Path(val parent: Path?) {
                 }
                 dom = doms[0]
                 doms = Array(doms.size, { doms[it].next() })
+            }
+            return dom
+        }
+
+        fun findDominator_end_start(list: Array<Path>): Path? {
+            var doms = Array(list.size, { list[it] })
+
+            var dom: Path? = null
+
+            CYCL@while (true) {
+                for (c1 in doms) {
+                    for (c2 in doms) {
+                        if (!c1.blockEqual(c2))
+                            break@CYCL
+                    }
+                }
+
+                val ends = doms.filter { !it.hasPrevious() }
+                if (ends.size == doms.size) {
+                    //дошли до самого конца, и все ветви сошлись. значит пути одинаковы
+                    return doms[0]
+                }
+                if (ends.isNotEmpty()) {
+                    break@CYCL
+                }
+                dom = doms[0]
+                doms = Array(doms.size, { doms[it].previous() })
             }
             return dom
         }

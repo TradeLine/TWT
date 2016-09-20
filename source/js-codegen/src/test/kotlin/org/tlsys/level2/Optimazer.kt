@@ -12,15 +12,13 @@ import java.util.*
 
 object Optimazer {
     fun optimaze(block: BaseBlock, toBlock:BaseBlock?=null) {
-        optimazeEmptyVars(block)
-        replaceConst(block)
-        //optimazeAnd(block)
-        //optimazeTernar(block)
+        //optimazeEmptyVars(block, toBlock)
+        //replaceConst(block, toBlock)
+        //optimazeAnd(block, toBlock)
+        //optimazeTernar(block, toBlock)
     }
 
-    private fun replaceConst(block: BaseBlock, toBlock:BaseBlock?=null) {
-        if (block === toBlock)
-            return
+    public fun replaceConstInBlock(block: BaseBlock) {
         val it = block.operationIterator()
         while (it.hasNext()) {
             val n = it.next()
@@ -40,6 +38,12 @@ object Optimazer {
                 }
             }
         }
+    }
+
+    private fun replaceConst(block: BaseBlock, toBlock:BaseBlock?=null) {
+        if (block === toBlock)
+            return
+        replaceConstInBlock(block)
 
         for (g in block.outEdge)
             replaceConst(g.to!!)

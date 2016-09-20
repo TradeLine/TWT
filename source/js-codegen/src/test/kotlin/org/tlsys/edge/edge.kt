@@ -40,6 +40,11 @@ open abstract class Edge(from: BaseBlock, to: BaseBlock) {
 
         }
 
+    fun free() {
+        from = null
+        to = null
+    }
+
     init {
         this.from = from
         this.to = to
