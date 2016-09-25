@@ -24,7 +24,7 @@ val Label.id: Int get() {
 class MainTest {
     @Test
     fun test() {
-        val cr = ClassReader(AAA::class.java.name)
+        val cr = ClassReader(BBB::class.java.name)
         val v = ClassV()
         cr.accept(v, 0)
         for (p in v.program) {
@@ -162,8 +162,6 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             //val o = GetVar(currentBlock, index)
             //currentBlock += o
             val _var = program.getVar(index)
-            if (_var.name == "V4")
-                println("123")
             currentBlock.steck.push(_var.getValueForBlock(currentBlock).get())
             return
         }
@@ -197,6 +195,8 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
 
             val forJump = blockForLabel(label)
             val nextBlock = program.createBlock("Next after if")
+            nextBlock.steck.copyFrom(currentBlock.steck)
+            forJump.steck.copyFrom(currentBlock.steck)
 
             val exp = ConditionExp(value1, value2, type)
 
@@ -212,26 +212,35 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             if_yes.to!!.end {
                 if (vars === null)
                     println("Vars not ready!")
-                it.from.steck.convertToVar(vars!!)
+                if (if_no.to == it.to)//if-else
+                    it.from.steck.convertToVar(vars!!)
             }
 
             if_no.to!!.connect(if_yes.to!!) {
                 Optimazer.replaceConstInBlock(this)
                 Optimazer.replaceConstInBlock(it)
 
-                if (it.steck.size == 1) {
+
+                if (it.steck.addedSize == 1) {
+                    println("pass1=${this.operationCount == 0 && it.operationCount == 0}")//у обоих нет операций в блоке
+                    println("pass2=${this.inEdge.size == 1 && it.inEdge.size == 1}")//у обоих только один блок входит в них
+                    println("pass3=${this.inEdge.iterator().next().from === it.inEdge.iterator().next().from}")//входящий в них обоих блок один и тот же
+                    println("pass4=${this.outEdge.size == 1 && it.outEdge.size == 1}")//у обоих только один блок входит в них
+                    println("pass5=${this.outEdge.iterator().next().to === it.outEdge.iterator().next().to}")//входящий в них обоих блок один и тот же
+                    println("pass6=${this.steck.addedSize == 1 && it.steck.addedSize == 1}")
                     if (this.operationCount == 0 && it.operationCount == 0//у обоих нет операций в блоке
                             && this.inEdge.size == 1 && it.inEdge.size == 1//у обоих только один блок входит в них
-                            && this.inEdge.iterator().next() === it.inEdge.iterator().next()//входящий в них обоих блок один и тот же
+                            && this.inEdge.iterator().next().from === it.inEdge.iterator().next().from//входящий в них обоих блок один и тот же
                             && this.outEdge.size == 1 && it.outEdge.size == 1//у обоих только один блок входит в них
-                            && this.outEdge.iterator().next() === it.outEdge.iterator().next()//входящий в них обоих блок один и тот же
-                            && this.steck.addedSize == 1 && it.steck.addedSize == 1) {//оба блока добавили только одно значение в стек
+                            && this.outEdge.iterator().next().to === it.outEdge.iterator().next().to//входящий в них обоих блок один и тот же
+                            && this.steck.addedSize == 1 && it.steck.addedSize == 1//оба блока добавили только одно значение в стек
+                            && this.operationCount == 0 && it.operationCount == 0) {//в блоках нет операций
 
                         val left = this.steck.getOne { !it.marged }
                         val right = it.steck.getOne { !it.marged }
 
                         val newBlock = BaseBlock(program, "Marged trenar operator")
-                        program.blocks+=newBlock
+                        program.blocks += newBlock
                         val it1 = it.steck.iterator()
                         while (it1.hasNext()) {
                             val g = it1.next()
@@ -241,19 +250,19 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
                             it1.remove()
                         }
                         this.steck.clear()
-                        val t = TernarOp((this.inEdge.iterator().next() as ConditionEdge).value, left, right)
+                        val t = if (this.inEdge.iterator().next() is ConditionEdge) TernarOp((this.inEdge.iterator().next() as ConditionEdge).value, left, right) else TernarOp((it.inEdge.iterator().next() as ConditionEdge).value, left, right)
 
 
-
-                        val goto = SimpleEdge(this.inEdge.iterator().next().from!!, this.outEdge.iterator().next().to!!)
-
+                        SimpleEdge(this.inEdge.iterator().next().from!!, newBlock)
+                        SimpleEdge(newBlock, this.outEdge.iterator().next().to!!)
+                        newBlock.steck.push(t)
                         this.inEdge.iterator().next().free()
                         this.outEdge.iterator().next().free()
 
                         it.inEdge.iterator().next().free()
                         it.outEdge.iterator().next().free()
-                        this.program-=this
-                        this.program-=it
+                        this.program -= this
+                        this.program -= it
 
                     }
                 }
@@ -448,9 +457,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
                 }
 
                 if (b.inEdge.size > 1) {
-
-
-                    Optimazer.optimaze(program.entryBlock!!, b)
+                    //Optimazer.optimaze(program.entryBlock!!, b)
 
                     /*
                     val itt1 = b.inEdge.iterator()
@@ -470,6 +477,8 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
                         for (i in values.size - 1..0) {
                             b.steck.push(values[i])
                         }
+                } else {
+                    currentBlock.steck.copyFrom(currentBlock.inEdge.iterator().next().from!!.steck)
                 }
 
             }

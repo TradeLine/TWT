@@ -56,6 +56,8 @@ class ValueSteck {
         val itList = list.iterator()
         while (it.hasNext()) {
             val g = it.next()
+            if (g.marged)
+                continue
             val t = itList.next()
             g.value.unsteck(block)
             val s = t.set(g.value, block)
@@ -71,6 +73,8 @@ class ValueSteck {
         val values = ArrayList<Var>()
         while (it.hasNext()) {
             val g = it.next()
+            if (g.marged)
+                continue
             val t = block.program.createTempVar()
             val s = t.set(g.value, block)
             val get = s.item.get()
@@ -86,7 +90,20 @@ class ValueSteck {
 
     companion object {
 
-        fun getMarged(vararg list: ValueSteck): Array<PhiFunction> {
+        fun isEqualValues(vararg list: ListIterator<StackRecord>): Boolean {
+            val vals = Array(list.size, { list[it].next() })
+            var out = true
+            for (i in 1..vals.size - 1) {
+                if (vals[i - 1] != vals[i]) {
+                    out = false
+                    break
+                }
+            }
+            list.forEach { it.previous() }
+            return out
+        }
+
+        fun getMarged(vararg list: ValueSteck): Array<Expression> {
             if (list.size < 2)
                 throw RuntimeException("Bad stack marge! Bad size! ${list.size}")
             val l = list[0].size
@@ -99,13 +116,23 @@ class ValueSteck {
 
             for (g in list)
                 itList += g.iterator()
+            val itArray = itList.toTypedArray()
 
-            return Array(l){
-                val ll = ArrayList<Var.VarVariantValue>(l)
-                for (g in itList) {
-                    ll+=(g.next().value as Var.GetVar).item
+            return Array(l) {
+                if (isEqualValues(*itArray)) {
+                    var value: Expression? = null
+                    for (g in itList) {
+                        value = g.next().value
+                    }
+                    value!!
+                } else {
+                    val ll = ArrayList<Var.VarVariantValue>(l)
+                    for (g in itList) {
+                        val value = g.next().value
+                        ll += (value as Var.GetVar).item
+                    }
+                    PhiFunction(ll)
                 }
-                PhiFunction(ll)
             }
         }
 
@@ -118,8 +145,6 @@ class ValueSteck {
                 if (it.size != g)
                     throw RuntimeException("Bad Stack Size!")
             }
-
-
 
 
             val itList = ArrayList<MutableListIterator<StackRecord>>()
@@ -185,6 +210,8 @@ class ValueSteck {
 
 
     fun pop(): Expression {
+        if (steck.isEmpty())
+            TODO("Стек пуст!")
         val g = steck.pop()
         g.value.unsteck(block)
         return g.value
