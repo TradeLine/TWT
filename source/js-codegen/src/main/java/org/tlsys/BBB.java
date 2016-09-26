@@ -5,8 +5,11 @@ package org.tlsys;
  */
 public class BBB {
     public BBB(int a, int c, int d) {
-        if (d > 10)
-            AAAKt.doit("123");
+        while (a>10) {
+            a=a-1;
+            if (c > 20)
+            break;
+        }
         AAAKt.testAAA(a, c, d);
     }
 }

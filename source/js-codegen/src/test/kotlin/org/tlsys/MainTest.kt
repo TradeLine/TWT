@@ -96,6 +96,8 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
     val currentBlock: BaseBlock
         get() = _currentBlock
 
+    val lavelBlocks = HashMap<Label, BaseBlock>()
+
     fun changeCurrentBlock(block: BaseBlock) {
         val g = onClose[_currentBlock]
         if (g !== null) {
@@ -139,6 +141,15 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
     }
 
     fun blockForLabel(l: Label): BaseBlock {
+
+        if (lavelBlocks.containsKey(l)) {
+            val block = lavelBlocks[l]!!
+            val firstOp = block.operationIterator().next()
+            if (firstOp is LabelNode && firstOp.point===l)
+                return block
+
+        }
+
         val g = labelBlock[l]
         if (g != null)
             return g
@@ -487,6 +498,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         val l = LabelNode(label)
         labelRef.put(label, l)
         currentBlock += l
+        lavelBlocks.put(label, currentBlock)
     }
 
     override fun visitTryCatchAnnotation(typeRef: Int, typePath: TypePath?, desc: String?, visible: Boolean): AnnotationVisitor? {

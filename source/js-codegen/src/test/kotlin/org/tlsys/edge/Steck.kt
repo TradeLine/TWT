@@ -170,6 +170,20 @@ class ValueSteck {
         }
     }
 
+    fun moveTo(steck: ValueSteck) {
+        val it = steck.iterator()
+        while (it.hasNext()) {
+            val v = it.next()
+            if (!v.marged) {
+                it.remove()
+                v.value.unsteck(block)
+                v.value.block = steck.block
+                v.value.steck(steck.block)
+            }
+            this.steck.addLast(StackRecord(v.value, v.marged))
+        }
+    }
+
     fun copyFrom(steck: ValueSteck) {
         val it = steck.iterator()
         while (it.hasNext()) {

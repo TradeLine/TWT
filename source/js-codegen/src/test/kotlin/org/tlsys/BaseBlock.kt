@@ -1,6 +1,7 @@
 package org.tlsys
 
 import org.tlsys.edge.Edge
+import org.tlsys.edge.SimpleEdge
 import org.tlsys.edge.ValueSteck
 import org.tlsys.node.LabelNode
 import org.tlsys.node.Node
@@ -89,6 +90,37 @@ class OutEdgeContener(parent: BaseBlock) : EdgeContener(parent) {
 class BaseBlock(val program: Program, val rigen: String = "") {
     private companion object {
         var ITERATOR: Int = 0
+    }
+
+    fun split(op: Operation): Pair<BaseBlock, BaseBlock> {
+        val index = operations.indexOf(op)
+        if (index < 0)
+            TODO("Операция $op не найдена в этом блоке")
+
+        val s1 = BaseBlock(program, "$rigen, split-1")
+        val s2 = BaseBlock(program, "$rigen, split-2")
+        SimpleEdge(s1, s2)
+
+        for (i in 0..index - 1) {
+            s1.operations += operations[i]
+            operations[i].block = s1
+        }
+
+        for (i in index..operations.size - 1) {
+            s2.operations += operations[i]
+            operations[i].block = s2
+        }
+
+        if (!steck.isEmpty()) {
+            val it = steck.iterator()
+            while (it.hasNext()) {
+                val g = it.next()
+            }
+        }
+
+        steck.moveTo(s2.steck)
+
+        return Pair(s1, s2)
     }
 
     val ID = ITERATOR++
