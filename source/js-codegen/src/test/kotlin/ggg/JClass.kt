@@ -1,0 +1,5 @@
+package ggg
+
+class JClass {
+
+}

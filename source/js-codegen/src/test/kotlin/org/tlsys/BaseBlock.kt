@@ -92,7 +92,14 @@ class BaseBlock(val program: Program, val rigen: String = "") {
         var ITERATOR: Int = 0
     }
 
-    fun split(op: Operation): Pair<BaseBlock, BaseBlock> {
+    fun split(op: org.objectweb.asm.Label): Pair<BaseBlock, BaseBlock> {
+        val o = operations.find { it is LabelNode && it.point === op }
+        if (o === null)
+            TODO("Label not found")
+        return split(o)
+    }
+
+    fun split(op: Node): Pair<BaseBlock, BaseBlock> {
         val index = operations.indexOf(op)
         if (index < 0)
             TODO("Операция $op не найдена в этом блоке")
@@ -100,6 +107,14 @@ class BaseBlock(val program: Program, val rigen: String = "") {
         val s1 = BaseBlock(program, "$rigen, split-1")
         val s2 = BaseBlock(program, "$rigen, split-2")
         SimpleEdge(s1, s2)
+
+        for (e in inEdge.toList()) {
+            e.to = s1
+        }
+
+        for (e in outEdge.toList()) {
+            e.from = s2
+        }
 
         for (i in 0..index - 1) {
             s1.operations += operations[i]
@@ -193,7 +208,10 @@ class BaseBlock(val program: Program, val rigen: String = "") {
     }
 
 
-    fun getPathLengthTo_UP(block: BaseBlock, from: Path? = null): OneBlock? {
+    fun getPathLengthTo_UP(block: BaseBlock, from: Path? = null, excludes: LinkedList<BaseBlock> = LinkedList<BaseBlock>()): OneBlock? {
+        if (block in excludes)
+            return null
+        excludes += block
         if (block === this)
             return OneBlock(from, this)
 
@@ -202,7 +220,7 @@ class BaseBlock(val program: Program, val rigen: String = "") {
 
         val o = OneBlock(from, this)
         if (inEdge.size == 1) {
-            o.next = inEdge.iterator().next().from!!.getPathLengthTo_UP(block, o)
+            o.next = inEdge.iterator().next().from!!.getPathLengthTo_UP(block, o, excludes)
             if (o.next === null)
                 return null
             return o
@@ -211,7 +229,7 @@ class BaseBlock(val program: Program, val rigen: String = "") {
         val branch = ArrayList<OneBlock>(inEdge.size)
 
         for (g in inEdge) {
-            branch += g.from!!.getPathLengthTo_UP(block, o) ?: continue
+            branch += g.from!!.getPathLengthTo_UP(block, o, excludes) ?: continue
         }
 
         if (branch.isEmpty())

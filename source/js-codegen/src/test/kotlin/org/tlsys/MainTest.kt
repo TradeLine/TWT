@@ -147,6 +147,10 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
             val firstOp = block.operationIterator().next()
             if (firstOp is LabelNode && firstOp.point===l)
                 return block
+            else {
+                val blocks = block.split(l)
+                return blocks.second
+            }
 
         }
 

@@ -32,7 +32,7 @@ class Primitive private constructor(val text: String, sinature: String) : TypeID
             created['D'] = Primitive("double", "D")
         }
 
-        fun get(signature: Char) = created[signature]
+        fun get(signature: Char) = created[signature]!!
 
         fun getByOpcode(opcode: Int): Primitive {
             return when (opcode) {
@@ -49,7 +49,7 @@ class Primitive private constructor(val text: String, sinature: String) : TypeID
                 Opcodes.F2I,
                 Opcodes.D2I,
                 Opcodes.L2I,
-                Opcodes.ISUB -> get('I')!!
+                Opcodes.ISUB -> get('I')
 
                 Opcodes.FADD,
                 Opcodes.FMUL,
@@ -59,7 +59,7 @@ class Primitive private constructor(val text: String, sinature: String) : TypeID
                 Opcodes.FCONST_2,
                 Opcodes.D2F,
                 Opcodes.I2F,
-                Opcodes.L2F -> get('F')!!
+                Opcodes.L2F -> get('F')
 
                 Opcodes.F2D,
                 Opcodes.I2D,
@@ -69,7 +69,7 @@ class Primitive private constructor(val text: String, sinature: String) : TypeID
                 Opcodes.DDIV,
                 Opcodes.DSUB,
                 Opcodes.DCONST_0,
-                Opcodes.DCONST_1 -> get('D')!!
+                Opcodes.DCONST_1 -> get('D')
 
                 else -> throw IllegalArgumentException("Unknown opcode $opcode. Can't get value type")
             }
@@ -80,6 +80,7 @@ class Primitive private constructor(val text: String, sinature: String) : TypeID
 class ClassRef private constructor(sinature: String) : TypeID(sinature) {
     companion object {
         private val created = HashMap<String, ClassRef>()
+
         fun get(signature: String): ClassRef {
             val g = created[signature]
             if (g != null)

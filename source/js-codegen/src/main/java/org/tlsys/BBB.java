@@ -5,6 +5,7 @@ package org.tlsys;
  */
 public class BBB {
     public BBB(int a, int c, int d) {
+        AAAKt.testAAA(a, c, d);
         while (a>10) {
             a=a-1;
             if (c > 20)
