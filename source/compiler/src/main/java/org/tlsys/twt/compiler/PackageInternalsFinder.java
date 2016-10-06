@@ -107,12 +107,14 @@ public class PackageInternalsFinder {
         } catch (IllegalStateException e) {
             throw new RuntimeException("Can't read URL " + packageFolderURL, e);
         } finally {
+            /*
             if (urlConnection != null)
                 try {
                     urlConnection.getInputStream().close();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            */
         }
 
         return result;
