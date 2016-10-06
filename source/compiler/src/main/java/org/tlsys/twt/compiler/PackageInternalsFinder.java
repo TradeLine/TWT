@@ -64,7 +64,7 @@ public class PackageInternalsFinder {
         System.out.println("packageName=" + packageName);
 
         //if (directory.isDirectory()) { // browse local .class files - useful for local execution
-        if (packageFolderURL.getFile().endsWith("!/" + packageName.replace('.', '/'))) {
+        if (!packageFolderURL.getFile().endsWith("!/" + packageName.replace('.', '/'))) {
             File directory = null;
             try {
                 directory = new File(packageFolderURL.toURI());
