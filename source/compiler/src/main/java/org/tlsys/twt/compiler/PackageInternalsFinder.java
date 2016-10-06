@@ -67,7 +67,7 @@ public class PackageInternalsFinder {
 
     private List<JavaFileObject> processJar(URL packageFolderURL, boolean recursive) {
 
-        System.out.println("Load JAR " + packageFolderURL);
+        System.out.print("Load JAR " + packageFolderURL+"...");
 
         //System.out.println("PROCESS JAR " + packageFolderURL + ", " + packageFolderURL.getClass());
         List<JavaFileObject> result = new ArrayList<JavaFileObject>();
@@ -77,10 +77,11 @@ public class PackageInternalsFinder {
 
             urlConnection = packageFolderURL.openConnection();
             if (!(urlConnection instanceof JarURLConnection)) {
-
+                System.out.println("BAD CONNECTION TYPE!!! " + urlConnection.getClass().getName());
                 urlConnection.getInputStream().close();
                 return Collections.emptyList();
             }
+            System.out.println();
             JarURLConnection jarConnection = (JarURLConnection) urlConnection;
 
             String jarUri = packageFolderURL.toExternalForm().split("!")[0];
