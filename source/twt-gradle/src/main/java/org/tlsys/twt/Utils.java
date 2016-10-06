@@ -38,14 +38,18 @@ final class Utils {
     private static final Logger LOG = Logger.getLogger(Utils.class.getName());
 
     public static Collection<TWTModule> loadClass(ArtifactRecolver artifactRecolver, DLoader loader, Dependency dependency) throws IOException {
-
+        System.out.println("Attache dependency");
         if (dependency instanceof ProjectDependency) {
             ProjectDependency pd = (ProjectDependency)dependency;
+            System.out.println("Project: " + pd.getName()+"...");
             String name = Utils.getDClassLoaderName(pd.getDependencyProject());
             Optional<TWTModule> p = loader.getByName(name);
+            System.out.println("b 1");
             if (p.isPresent()) {
+                System.out.println("b 2");
                 return Arrays.asList(p.get());
             }
+            System.out.println("b 3");
             GradleProjectTWTModule mod = new GradleProjectTWTModule(pd.getDependencyProject(), artifactRecolver, loader);
             loader.add(name, mod);
             return Arrays.asList(mod);
