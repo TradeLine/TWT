@@ -47,12 +47,13 @@ public class PackageInternalsFinder {
     private Collection<JavaFileObject> listUnder(String packageName, URL packageFolderURL, boolean recursive) {
         File directory = null;
         try {
-            directory = new File(packageFolderURL.toURI());
-        } catch (URISyntaxException e) {
             System.out.println("URL=" + packageFolderURL);
             System.out.println("URL.file=" + packageFolderURL.getFile());
             System.out.println("URL.ref=" + packageFolderURL.getRef());
             System.out.println("URL.query=" + packageFolderURL.getQuery());
+
+            directory = new File(packageFolderURL.toURI());
+        } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
         System.out.println("directory=" + directory + ", directory.isDirectory()=" + directory.isDirectory() + ", directory.isFile()=" + directory.isFile());
