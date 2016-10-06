@@ -45,22 +45,35 @@ public class PackageInternalsFinder {
     }
 
     private Collection<JavaFileObject> listUnder(String packageName, URL packageFolderURL, boolean recursive) {
+        /*
         File directory = null;
         try {
-            System.out.println("URL=" + packageFolderURL);
-            System.out.println("URL.file=" + packageFolderURL.getFile());
-            System.out.println("URL.ref=" + packageFolderURL.getRef());
-            System.out.println("URL.query=" + packageFolderURL.getQuery());
+
 
             directory = new File(packageFolderURL.toURI());
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
         System.out.println("directory=" + directory + ", directory.isDirectory()=" + directory.isDirectory() + ", directory.isFile()=" + directory.isFile());
-        if (directory.isDirectory()) { // browse local .class files - useful for local execution
+        */
+
+        System.out.println("URL=" + packageFolderURL);
+        System.out.println("URL.file=" + packageFolderURL.getFile());
+        System.out.println("URL.ref=" + packageFolderURL.getRef());
+        System.out.println("URL.query=" + packageFolderURL.getQuery());
+        System.out.println("packageName=" + packageName);
+
+        //if (directory.isDirectory()) { // browse local .class files - useful for local execution
+        if (packageFolderURL.getFile().endsWith("!/" + packageName.replace('.', '/'))) {
+            File directory = null;
+            try {
+                directory = new File(packageFolderURL.toURI());
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
             return processDir(packageName, directory, recursive);
         } else { // browse a jar file
-            return processJar(packageFolderURL, directory, recursive);
+            return processJar(packageFolderURL, null, recursive);
         } // maybe there can be something else for more involved class loaders
     }
 
