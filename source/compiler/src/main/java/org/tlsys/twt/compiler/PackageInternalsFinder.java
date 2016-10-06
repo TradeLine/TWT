@@ -1,12 +1,11 @@
 package org.tlsys.twt.compiler;
 
+import sun.net.www.protocol.file.FileURLConnection;
+
 import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.IOException;
-import java.net.JarURLConnection;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -46,11 +45,17 @@ public class PackageInternalsFinder {
     }
 
     private Collection<JavaFileObject> listUnder(String packageName, URL packageFolderURL, boolean recursive) {
-        File directory = new File(packageFolderURL.getFile());
+        File directory = null;
+        try {
+            directory = new File(packageFolderURL.toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("directory=" + directory + ", directory.isDirectory()=" + directory.isDirectory() + ", directory.isFile()=" + directory.isFile());
         if (directory.isDirectory()) { // browse local .class files - useful for local execution
             return processDir(packageName, directory, recursive);
         } else { // browse a jar file
-            return processJar(packageFolderURL, recursive);
+            return processJar(packageFolderURL, directory, recursive);
         } // maybe there can be something else for more involved class loaders
     }
 
@@ -65,9 +70,9 @@ public class PackageInternalsFinder {
         }
     }
 
-    private List<JavaFileObject> processJar(URL packageFolderURL, boolean recursive) {
+    private List<JavaFileObject> processJar(URL packageFolderURL, File directory, boolean recursive) {
 
-        System.out.print("Load JAR " + packageFolderURL+"...");
+        System.out.print("Load JAR " + packageFolderURL + "...");
 
         //System.out.println("PROCESS JAR " + packageFolderURL + ", " + packageFolderURL.getClass());
         List<JavaFileObject> result = new ArrayList<JavaFileObject>();
@@ -76,6 +81,16 @@ public class PackageInternalsFinder {
         try {
 
             urlConnection = packageFolderURL.openConnection();
+
+            if (urlConnection instanceof FileURLConnection) {
+                try {
+                    File file = new File(packageFolderURL.toURI());
+
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
             if (!(urlConnection instanceof JarURLConnection)) {
                 System.out.println("BAD CONNECTION TYPE!!! " + urlConnection.getClass().getName());
                 urlConnection.getInputStream().close();
