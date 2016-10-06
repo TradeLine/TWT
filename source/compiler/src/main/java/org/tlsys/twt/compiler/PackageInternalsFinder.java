@@ -77,6 +77,7 @@ public class PackageInternalsFinder {
 
             urlConnection = packageFolderURL.openConnection();
             if (!(urlConnection instanceof JarURLConnection)) {
+
                 urlConnection.getInputStream().close();
                 return Collections.emptyList();
             }
@@ -88,11 +89,16 @@ public class PackageInternalsFinder {
             int rootEnd = rootEntryName.length() + 1;
             try (JarFile file = jarConn.getJarFile()) {
                 Enumeration<JarEntry> entryEnum = file.entries();
+                System.out.println("try read... " + packageFolderURL);
+                int g = 0;
                 while (entryEnum.hasMoreElements()) {
+                    g++;
                     JarEntry jarEntry = entryEnum.nextElement();
                     String name = jarEntry.getName();
                     addFileObject(jarUri, name, rootEntryName, rootEnd, result, recursive);
                 }
+                System.out.println("Readed! " + g);
+
             }
 
         } catch (IOException e) {
@@ -100,6 +106,13 @@ public class PackageInternalsFinder {
             throw new RuntimeException("Wasn't able to open " + packageFolderURL + " as a jar file", e);
         } catch (IllegalStateException e) {
             throw new RuntimeException("Can't read URL " + packageFolderURL, e);
+        } finally {
+            if (urlConnection != null)
+                try {
+                    urlConnection.getInputStream().close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
         }
 
         return result;
