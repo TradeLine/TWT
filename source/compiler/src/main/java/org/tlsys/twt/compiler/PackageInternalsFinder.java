@@ -22,10 +22,12 @@ public class PackageInternalsFinder {
     }
 
     public List<JavaFileObject> find(String packageName, boolean recursive) throws IOException {
+        System.out.println("Search package " + packageName + "...");
         String javaPackageName = packageName.replaceAll("\\.", "/");
 
         List<JavaFileObject> result = cachePackageEntries.get(javaPackageName);
         if (result != null) {
+            System.out.println("Result " + result);
             return result;
         }
 
@@ -38,6 +40,7 @@ public class PackageInternalsFinder {
             result.addAll(listUnder(packageName, packageFolderURL, recursive));
         }
 
+        System.out.println("Result " + result);
         return result;
     }
 
@@ -62,6 +65,9 @@ public class PackageInternalsFinder {
     }
 
     private List<JavaFileObject> processJar(URL packageFolderURL, boolean recursive) {
+
+        System.out.println("Load JAR " + packageFolderURL);
+
         //System.out.println("PROCESS JAR " + packageFolderURL + ", " + packageFolderURL.getClass());
         List<JavaFileObject> result = new ArrayList<JavaFileObject>();
 
@@ -86,7 +92,7 @@ public class PackageInternalsFinder {
                 addFileObject(jarUri, name, rootEntryName, rootEnd, result, recursive);
             }
             //jarConn.getJarFile().close();
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Wasn't able to open " + packageFolderURL + " as a jar file", e);
         } catch (IllegalStateException e) {
