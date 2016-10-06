@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 
 public class PackageInternalsFinder {
@@ -79,19 +80,21 @@ public class PackageInternalsFinder {
                 urlConnection.getInputStream().close();
                 return Collections.emptyList();
             }
+            JarURLConnection jarConnection = (JarURLConnection) urlConnection;
+
             String jarUri = packageFolderURL.toExternalForm().split("!")[0];
             JarURLConnection jarConn = (JarURLConnection) urlConnection;
             String rootEntryName = jarConn.getEntryName();
             int rootEnd = rootEntryName.length() + 1;
-            jarConn.getJarFile();
-
-            Enumeration<JarEntry> entryEnum = jarConn.getJarFile().entries();
-            while (entryEnum.hasMoreElements()) {
-                JarEntry jarEntry = entryEnum.nextElement();
-                String name = jarEntry.getName();
-                addFileObject(jarUri, name, rootEntryName, rootEnd, result, recursive);
+            try (JarFile file = jarConn.getJarFile()) {
+                Enumeration<JarEntry> entryEnum = file.entries();
+                while (entryEnum.hasMoreElements()) {
+                    JarEntry jarEntry = entryEnum.nextElement();
+                    String name = jarEntry.getName();
+                    addFileObject(jarUri, name, rootEntryName, rootEnd, result, recursive);
+                }
             }
-            //jarConn.getJarFile().close();
+
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Wasn't able to open " + packageFolderURL + " as a jar file", e);
