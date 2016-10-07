@@ -54,6 +54,8 @@ public class CompileModuls {
      * @return запись о компилируемых методах класса
      */
     public ClassRecord add(VClass clazz) {
+        printInfo();
+        System.out.println("ADD CLASS " + clazz.getRealName() + " " + classes.size());
         ClassRecord cr = classes.get(clazz);
         if (cr == null) {
             cr = new ClassRecord(clazz);
@@ -111,6 +113,37 @@ public class CompileModuls {
         }
     }
 
+    private static String convToSize(long size) {
+        float g = size;
+        String t = "b";
+        if (g > 1024) {
+            g /= 1024;
+            t = "kb";
+        }
+
+        if (g > 1024) {
+            g /= 1024;
+            t = "mb";
+        }
+
+        if (g > 1024) {
+            g /= 1024;
+            t = "gb";
+        }
+
+        if (g > 1024) {
+            g /= 1024;
+            t = "tb";
+        }
+
+        return Math.round(g * 100) / 100.0f + " " + t;
+
+    }
+
+    private static void printInfo() {
+        System.out.println("FREE=" + convToSize(Runtime.getRuntime().freeMemory()) + " / " + convToSize(Runtime.getRuntime().maxMemory()));
+    }
+
     /**
      * Добовляет в компиляцию метод
      *
@@ -118,11 +151,14 @@ public class CompileModuls {
      * @return запись о компилируемых методах класса
      */
     public ClassRecord add(VExecute exe) {
+        printInfo();
+        System.out.println("ADD EXE " + exe.getDescription() + " " + classes.size());
         ClassRecord cr = add(exe.getParent());
         if (cr.getExe().contains(exe)) {
             return cr;
         }
         cr.getExe().add(exe);
+        System.out.println("EXE SIZE=" + cr.getExe().size());
         Collect c = Collect.create();
         exe.getUsing(c);
         add(c);
