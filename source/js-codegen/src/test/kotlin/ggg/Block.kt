@@ -29,6 +29,17 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
 
     fun isEmpty(): Boolean = first === null
 
+    fun <T : Statement> find(f: (Statement) -> Boolean): T? {
+        var o = first
+        while (o !== null) {
+            if (f(o))
+                return o as T?
+            o = o.next
+        }
+
+        return null
+    }
+
     companion object {
         val LEVEL_PARENT_MIN: Block.() -> Int = {
             if (inEdge.isEmpty())

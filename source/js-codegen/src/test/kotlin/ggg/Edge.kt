@@ -171,6 +171,14 @@ class OutEdgeContener(parent: Block) : EdgeContener(parent) {
             e.from = parent
     }
 
+    fun copyFrom(con:OutEdgeContener) {
+        for (g in con) {
+            if (g is SimpleEdge) {
+                SimpleEdge(from = parent, to = g.to!!)
+            }
+        }
+    }
+
     override fun minusAssign(e: Edge) {
         val v = e in list
         super.minusAssign(e)

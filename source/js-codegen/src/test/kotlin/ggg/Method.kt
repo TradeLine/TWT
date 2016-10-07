@@ -10,12 +10,16 @@ import org.tlsys.ClassV
 import org.tlsys.node.SReader
 import java.util.*
 
-open class Var(val type: TypeID) {
+private var VAR_COUNTER = 0
 
+open class Var(val type: TypeID) {
+    val ID = VAR_COUNTER++
     private var _first: VarState? = null
 
     private val first: VarState
         get() = _first!!
+
+    override fun toString(): String = "TEMP_$ID"
 
     fun first(value: Expression): VarState {
         if (_first !== null)
@@ -31,10 +35,11 @@ open class Var(val type: TypeID) {
 
 class NamedVar(val index: Int, type: TypeID) : Var(type) {
     var name: String = "V$index"
+    override fun toString(): String = "$name(${type.sinature})"
 }
 
 class JMethod() {
-    val entryBlock = Block(this, {0})
+    val entryBlock = Block(this, { 0 })
     val namedVar = HashMap<Int, NamedVar>()
     val tempVar = ArrayList<Var>()
 

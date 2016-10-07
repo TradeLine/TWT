@@ -27,8 +27,10 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
     fun blockOnLabel(label: Label, f: (Block) -> Unit): Block {
         val g = visitedLabels[label]
         if (g !== null) {
-            f(g.block!!)
-            return g.block!!
+            val l = g.block!!.find<LabelSt> { it is LabelSt && it.label === label } ?: TODO()
+            val newBlock = l.split()
+            f(newBlock)
+            return newBlock
         } else {
             val b = Block(method, Block.LEVEL_PARENT_MIN)
             blockForLabel.put(label, BlockForLabel(b, f))
@@ -40,8 +42,29 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         super.visitMultiANewArrayInsn(p0, p1)
     }
 
-    override fun visitFrame(p0: Int, p1: Int, p2: Array<out Any>?, p3: Int, p4: Array<out Any>?) {
-        super.visitFrame(p0, p1, p2, p3, p4)
+
+    override fun visitFrame(type: Int, nLocal: Int, local: Array<out Any>?, nStack: Int, stack: Array<out Any>?) {
+
+        fun toFrameType(type: Int) =
+                when (type) {
+                    Opcodes.F_NEW -> "NEW"
+                    Opcodes.F_FULL -> "FULL"
+                    Opcodes.F_APPEND -> "APPEND"
+                    Opcodes.F_CHOP -> "CHOP"
+                    Opcodes.F_SAME -> "SAME"
+                    Opcodes.F_SAME1 -> "SAME1"
+                    else -> TODO()
+                }
+
+
+        //super.visitFrame(p0, p1, p2, p3, p4)
+
+        val newBlck = Block(method, Block.LEVEL_PARENT_MIN)
+        SimpleEdge(current, newBlck)
+        current = newBlck
+
+
+        current += StringValue("FRAME ${toFrameType(type)}, nLocal=$nLocal, local={${local?.joinToString(",")?:"NULL"}}, nStack=$nStack, stack={${stack?.joinToString(",")?:"NULL"}}")
     }
 
     override fun visitVarInsn(opcode: Int, index: Int) {
@@ -85,6 +108,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
                 val yesBlock = blockOnLabel(label) {
                     if (it.isEmpty())
                         current = it
+                    it.outEdge.copyFrom(noBlock.outEdge)
                 }
                 val yesEdge = ConditionEdge(from = oldBlock, to = yesBlock, value = GetVar(state))
                 val noEdge = ElseConditionEdge(origenal = yesEdge, to = noBlock)
@@ -105,6 +129,13 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
     }
 
     override fun visitLdcInsn(p0: Any?) {
+        if (p0 is Int) {
+            val exp = IntValue(p0)
+            val v = method.createTemp(exp.type).first(exp)
+            current += SetVar(v)
+            current += GetVar(v)
+            return
+        }
         super.visitLdcInsn(p0)
     }
 
@@ -112,6 +143,9 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
         val exp = when (opcode) {
             Opcodes.BIPUSH -> {
+                IntValue(operand)
+            }
+            Opcodes.SIPUSH -> {
                 IntValue(operand)
             }
             else -> TODO()
@@ -226,7 +260,12 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
                 current += GetVar(state)
                 return
             }
+            Opcodes.RETURN -> {
+                current += Return()
+                return
+            }
         }
+
 
         super.visitInsn(opcode)
     }
@@ -256,6 +295,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
     }
 
     override fun visitEnd() {
+        ImageDraw.draw(method.entryBlock)
         super.visitEnd()
     }
 

@@ -2,6 +2,7 @@ package ggg
 
 import org.objectweb.asm.Label
 import org.objectweb.asm.tree.LabelNode
+import org.tlsys.ClassRef
 import org.tlsys.Primitive
 import org.tlsys.TypeID
 import org.tlsys.node.ConditionType
@@ -33,38 +34,60 @@ open class Statement() {
 interface StackOperation
 interface PopStack : StackOperation
 
-class SkipOne : PopStack, Statement()
+class SkipOne : PopStack, Statement() {
+    override fun toString(): String = "POP"
+}
 
 interface PushStack : StackOperation
 
 class InitValue(private var initType: TypeID) : Expression() {
     override val type: TypeID
         get() = initType
+
+    override fun toString(): String = "P:INIT (${initType.sinature})"
 }
 
 abstract open class Expression() : Statement() {
     abstract val type: TypeID
 }
 
-class Return() : Statement()
+class Return() : Statement() {
+    override fun toString(): String = "RETURN"
+}
 
 class LabelSt(val label: Label) : Statement()
+
+class StringValue(val value: String) : Expression() {
+    override val type: TypeID
+        get() = ClassRef.get("STRING")
+
+    override fun toString(): String = "P:$value"
+}
 
 class IntValue(val value: Int) : Expression() {
     override val type: TypeID
         get() = Primitive.get('I')
 
+    override fun toString(): String = "P:$value"
 }
 
 class GetVar(val state: Var.VarState) : Expression(), PushStack {
     override val type: TypeID
         get() = state.parent.type
+
+    override fun toString(): String = "P:VAR ${state.parent}[${state.parent.type.sinature}]"
 }
 
-class SetVar(val state: Var.VarState) : Statement()
+class SetVar(val state: Var.VarState) : Statement() {
+    override fun toString(): String = "O:SET VAR ${state.parent}  =  {${state.value}}"
+}
 
 fun Statement.split(): Block {
     val newBlock = Block(block!!.method, Block.LEVEL_PARENT_MIN)
+
+    for (e in block!!.inEdge.toList()) {
+        e.from = newBlock
+    }
 
     SimpleEdge(block!!, newBlock)
 
@@ -75,13 +98,14 @@ fun Statement.split(): Block {
         block!!.last = null
         block!!.first = null
     }
+    previous = null
     var cur: Statement? = this
     newBlock.first = this
     while (cur != null) {
         cur.block = newBlock
-        newBlock.last = cur
         cur = cur.next
     }
+    newBlock.last = cur
 
     return newBlock
 }
@@ -112,14 +136,16 @@ fun Statement.findValueOfVar(v: Var): Var.VarState {
     }
 }
 
-class PopOne(override val type: TypeID) : Expression(), PopStack
+class PopOne(override val type: TypeID) : Expression(), PopStack {
+    override fun toString(): String = "ST"
+}
 
 open class Invoke(val methodName: String, val arguments: Array<Expression>, override var type: TypeID) : Expression(), PopStack {
 
 }
 
 class InvokeStatic(methodName: String, arguments: Array<Expression>, type: TypeID) : Invoke(methodName, arguments, type) {
-
+    override fun toString(): String = "P:INV_STATIC $methodName(${arguments.joinToString(",")}):${type.sinature}"
 }
 
 class InvokeSpecial(val self: Expression, methodName: String, arguments: Array<Expression>, type: TypeID) : Invoke(methodName, arguments, type) {
@@ -130,10 +156,14 @@ class ConditionExp(var left: Expression, var right: Expression, var conType: Con
     override val type: TypeID
         get() = Primitive.get('Z')
 
+    override fun toString(): String = "P:$left ${conType.text} $right"
+
 }
 
 class Math(var left: Expression, var right: Expression, var mathType: MathOp, override val type: TypeID) : Expression() {
-    enum class MathOp {
-        SUB
+    enum class MathOp(val txt: String) {
+        SUB("-")
     }
+
+    override fun toString(): String = "$left $mathType $right (${type.sinature})"
 }
