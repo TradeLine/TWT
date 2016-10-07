@@ -143,8 +143,9 @@ public class GenerationTask extends TWTPlugin {
                 System.out.println("Compile " + (System.currentTimeMillis() - startCompile));
                 long startRename = System.currentTimeMillis();
                 renaming(app.getMainLoader().getTWTClassLoader());
-                System.out.println("Rename " + (System.currentTimeMillis() - startRename));
+                System.out.println("Rename " + (System.currentTimeMillis() - startRename) + ", targets:" + getTargets().size());
                 for (GenerationTarget gt : getTargets()) {
+                    System.out.println("Target: MAIN" + gt.main() + " out=" + gt.out());
                     File sourceMap = new File(getProject().getBuildDir(), "sourcemap");
                     File mapFile = new File(sourceMap, gt.out() + ".map");
                     File outFile = new File(getProject().getBuildDir(), gt.out());
@@ -154,11 +155,13 @@ public class GenerationTask extends TWTPlugin {
 
                     if (!sourceMap.exists())
                         sourceMap.mkdirs();
+                    System.out.println("1:");
                     try (PrintStream ps1 = new PrintStream(new FileOutputStream(outFile), false, "UTF-8")) {
                         long startSeachUsing = System.currentTimeMillis();
                         Outbuffer ps = new Outbuffer(ps1);
                         CompileModuls cm = new CompileModuls();
                         Optional<VMethod> mainMethod = null;
+                        System.out.println("2:");
                         if (gt.main() != null) {
                             VClass mainClass = app.getMainLoader().getTWTClassLoader().loadClass(gt.main(), null);
                             mainMethod = MethodSelectorUtils.getMethodByName(mainClass, "main").stream().filter(e -> e.getParent() == mainClass).findFirst();
@@ -168,16 +171,17 @@ public class GenerationTask extends TWTPlugin {
                             cm.add(mainMethod.get());
                         }
 
+                        System.out.println("3:");
                         for (String c : gt.getClasses()) {
                             cm.add(app.getMainLoader().getTWTClassLoader().loadClass(c, null));
                         }
                         cm.addForced(app.getMainLoader().getTWTClassLoader());
                         System.out.println("Seach usin " + (System.currentTimeMillis() - startSeachUsing) + ", classes " + cm.getRecords().size());
 
-
                         long startGeneration = System.currentTimeMillis();
                         Class cl = app.getMainLoader().getJavaClassLoader().loadClass(gt.generator());
                         MainGenerator mg = (MainGenerator) cl.newInstance();
+                        System.out.println("Generation...");
                         mg.generate(nameMap, app.getMainLoader().getTWTClassLoader(), cm, ps);
 
                         if (mainMethod != null) {
@@ -216,7 +220,6 @@ public class GenerationTask extends TWTPlugin {
                         System.out.println("SourceMap " + (System.currentTimeMillis() - startSourceMapGeneration));
 
                         //includeSource(sourceMap);
-
 
 
                     }
