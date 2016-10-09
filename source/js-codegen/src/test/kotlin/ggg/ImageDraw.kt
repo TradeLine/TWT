@@ -27,7 +27,7 @@ object ImageDraw {
     }
 
     fun draw(b: Block) {
-        val i = BufferedImage(1000, 1300, BufferedImage.TYPE_INT_RGB)
+        val i = BufferedImage(1200, 1300, BufferedImage.TYPE_INT_RGB)
         val g = i.createGraphics()!!
         g.color = Color.RED
 

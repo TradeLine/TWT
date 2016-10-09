@@ -179,6 +179,12 @@ class OutEdgeContener(parent: Block) : EdgeContener(parent) {
         }
     }
 
+    fun moveTo(con:OutEdgeContener) {
+        for (g in toList()) {
+            g.from = con.parent
+        }
+    }
+
     override fun minusAssign(e: Edge) {
         val v = e in list
         super.minusAssign(e)

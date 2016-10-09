@@ -60,8 +60,11 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         //super.visitFrame(p0, p1, p2, p3, p4)
 
         val newBlck = Block(method, Block.LEVEL_PARENT_MIN)
+        current.outEdge.moveTo(newBlck.outEdge)
         SimpleEdge(current, newBlck)
         current = newBlck
+
+
 
 
         current += StringValue("FRAME ${toFrameType(type)}, nLocal=$nLocal, local={${local?.joinToString(",")?:"NULL"}}, nStack=$nStack, stack={${stack?.joinToString(",")?:"NULL"}}")
@@ -296,6 +299,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
     override fun visitEnd() {
         ImageDraw.draw(method.entryBlock)
+        Viwer.show()
         super.visitEnd()
     }
 
