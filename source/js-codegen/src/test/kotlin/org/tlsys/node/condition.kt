@@ -60,10 +60,10 @@ enum class ConditionType(var text: String) {
             return when (opcode) {
                 Opcodes.IFLE, Opcodes.IF_ICMPLE -> IFLE
                 Opcodes.IFGE, Opcodes.IF_ICMPGE -> IFGE
-                Opcodes.IFGT -> IFGT
+                Opcodes.IFGT,Opcodes.IF_ICMPGT -> IFGT
                 Opcodes.IFLE -> IFLE
                 Opcodes.IFLT -> IFLT
-                else -> TODO()
+                else -> TODO("Unknown opcode $opcode")
             }
         }
 

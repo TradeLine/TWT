@@ -96,20 +96,6 @@ fun Block.draw(g: Graphics2D, x: Double, drowed: HashMap<Block, ImageDraw.Vec2D>
     var paddingX = x + 50
 
     val it2 = inEdge.iterator()
-    /*
-    while (it2.hasNext()) {
-        val e = it2.next()
-        val block = e.from!!
-        g.color = Color.GREEN
-        g.setStroke(BasicStroke(2f));
-        val oldPos = drowed[block]
-        if (oldPos !== null) {
-            g.drawLine(x, startY, oldPos.X, oldPos.Y)
-        } else {
-            TODO()
-        }
-    }
-    */
 
     while (it.hasNext()) {
         val e = it.next()
@@ -135,9 +121,6 @@ fun Block.draw(g: Graphics2D, x: Double, drowed: HashMap<Block, ImageDraw.Vec2D>
         g.color = Color.YELLOW
         g.drawString(e.toString(), center.X, center.Y)
     }
-
-
-
     return true
 }
 

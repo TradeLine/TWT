@@ -1,5 +1,6 @@
 package ggg
 
+import org.junit.Assert
 import org.objectweb.asm.*
 import org.tlsys.BaseBlock
 import org.tlsys.ClassRef
@@ -28,8 +29,10 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         val g = visitedLabels[label]
         if (g !== null) {
             val l = g.block!!.find<LabelSt> { it is LabelSt && it.label === label } ?: TODO()
+            Viwer.show("Before split", method.entryBlock)
             val newBlock = l.split()
             f(newBlock)
+            Viwer.show("After split", method.entryBlock)
             return newBlock
         } else {
             val b = Block(method, Block.LEVEL_PARENT_MIN)
@@ -61,13 +64,10 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
         val newBlck = Block(method, Block.LEVEL_PARENT_MIN)
         current.outEdge.moveTo(newBlck.outEdge)
-        SimpleEdge(current, newBlck)
+        SimpleEdge(current, newBlck, "FRAME")
         current = newBlck
 
-
-
-
-        current += StringValue("FRAME ${toFrameType(type)}, nLocal=$nLocal, local={${local?.joinToString(",")?:"NULL"}}, nStack=$nStack, stack={${stack?.joinToString(",")?:"NULL"}}")
+        current += StringValue("FRAME ${toFrameType(type)}, nLocal=$nLocal, local={${local?.joinToString(",") ?: "NULL"}}, nStack=$nStack, stack={${stack?.joinToString(",") ?: "NULL"}}")
     }
 
     override fun visitVarInsn(opcode: Int, index: Int) {
@@ -78,7 +78,12 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             Opcodes.ALOAD -> {
                 val v = method.getVar(index) ?:
                         TODO("Var $index not set")
-                current += GetVar(current.last!!.findValueOfVar(v))
+                try {
+                    current += GetVar(current.findValueOfVar(v))
+                } catch (e:Throwable) {
+                    Viwer.show("ERROR: Can't find value ${v.name} in block ${current.ID}", method.entryBlock)
+                    Assert.fail()
+                }
                 return
             }
 
@@ -102,20 +107,28 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
     }
 
     override fun visitJumpInsn(opcode: Int, label: Label) {
+        fun buildIf() {
+            val state = method.createTemp(Primitive.get('Z')).first(ConditionExp(left = PopOne(Primitive.get('I')), right = PopOne(Primitive.get('I')), conType = ConditionType.fromOpcode(opcode)))
+            current += SetVar(state)
+            val oldBlock = current
+            val noBlock = Block(method, Block.LEVEL_PARENT_MIN)//next block
+            val yesBlock = blockOnLabel(label) {
+                if (it.isEmpty()) {
+                    current = it
+                }
+
+            }
+            val yesEdge = ConditionEdge(from = oldBlock, to = yesBlock, value = GetVar(state), regin = "yes")
+            val noEdge = ElseConditionEdge(origenal = yesEdge, to = noBlock, regin = "no")
+            current = noBlock
+        }
         when (opcode) {
             Opcodes.IF_ICMPLE -> {
-                val state = method.createTemp(Primitive.get('Z')).first(ConditionExp(left = PopOne(Primitive.get('I')), right = PopOne(Primitive.get('I')), conType = ConditionType.fromOpcode(opcode)))
-                current += SetVar(state)
-                val oldBlock = current
-                val noBlock = Block(method, Block.LEVEL_PARENT_MIN)//next block
-                val yesBlock = blockOnLabel(label) {
-                    if (it.isEmpty())
-                        current = it
-                    it.outEdge.copyFrom(noBlock.outEdge)
-                }
-                val yesEdge = ConditionEdge(from = oldBlock, to = yesBlock, value = GetVar(state))
-                val noEdge = ElseConditionEdge(origenal = yesEdge, to = noBlock)
-                current = noBlock
+                buildIf()
+                return
+            }
+            Opcodes.IF_ICMPGT->{
+                buildIf()
                 return
             }
             Opcodes.GOTO -> {
@@ -123,8 +136,9 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
                     if (it.isEmpty())
                         current = it
                 }
-                SimpleEdge(current, afterJump)
-                current = Block(method, Block.LEVEL_PARENT_MIN)
+                SimpleEdge(current, afterJump, "goto")
+                val newBlock = Block(method, Block.LEVEL_PARENT_MIN)
+                current = newBlock
                 return
             }
         }
@@ -156,8 +170,9 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         val v = method.createTemp(exp.type).first(exp)
         current += SetVar(v)
         current += GetVar(v)
+        return
 
-        //super.visitIntInsn(opcode, operand)
+        super.visitIntInsn(opcode, operand)
     }
 
     override fun visitTypeInsn(p0: Int, p1: String?) {
@@ -185,6 +200,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
     }
 
     override fun visitLabel(label: Label) {
+        val cur = current
         val f = enterLabel[label]
         if (f !== null) {
             f()
@@ -199,6 +215,12 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         val l = LabelSt(label)
         visitedLabels.put(label, l)
         current += l
+
+        if (cur !== current) {
+            Viwer.show("BEFORE: Current was changed on label! old=${cur.ID}, new = ${current.ID}", method.entryBlock)
+            SimpleEdge(cur, current, "CHANGE!")
+            Viwer.show("AFTER: Current was changed on label! old=${cur.ID}, new = ${current.ID}", method.entryBlock)
+        }
     }
 
     override fun visitTryCatchAnnotation(p0: Int, p1: TypePath?, p2: String?, p3: Boolean): AnnotationVisitor {
@@ -298,8 +320,8 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
     }
 
     override fun visitEnd() {
-        ImageDraw.draw(method.entryBlock)
-        Viwer.show()
+        //ImageDraw.draw(method.entryBlock)
+        Viwer.show("END", method.entryBlock)
         super.visitEnd()
     }
 

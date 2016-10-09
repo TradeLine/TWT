@@ -53,9 +53,9 @@ open abstract class Edge(from: Block, to: Block) {
     }
 }
 
-class SimpleEdge(from: Block, to: Block) : Edge(from, to) {
+class SimpleEdge(from: Block, to: Block, val resion: String) : Edge(from, to) {
     override fun toString(): String {
-        return "SimpleEdge(from=${from?.ID} to ${to?.ID})"
+        return "simple(${from?.ID}=>${to?.ID}): $resion"
     }
 
     override fun _from() = "${from?.ID}"
@@ -73,28 +73,24 @@ open class PairedEdge(from: Block, to: Block) : Edge(from, to) {
 
 }
 
-open class ConditionEdge(from: Block, to: Block, val value: Expression) : PairedEdge(from, to) {
+open class ConditionEdge(from: Block, to: Block, val value: Expression, val regin: String) : PairedEdge(from, to) {
     val pair: PairedEdge?
         get() {
-            if (from == null)
-                println("123")
             val h = from!!.outEdge.find { it is ElseConditionEdge && it.origenal == this }
-            if (h === null)
-                println("123")
             return h as ElseConditionEdge
         }
 
     override fun toString(): String {
-        return "ConditionEdge(from=${from?.ID} to ${to?.ID}, value=$value)"
+        return "if(${from?.ID}=>${to?.ID} {$value}):$regin"
     }
 
     override fun _from() = "${from?.ID} value=$value"
     override fun _to() = "${to?.ID} value=$value"
 }
 
-class ElseConditionEdge(var origenal: ConditionEdge, to: Block) : PairedEdge(from = origenal.from!!, to = to) {
+class ElseConditionEdge(var origenal: ConditionEdge, to: Block, val regin: String) : PairedEdge(from = origenal.from!!, to = to) {
     override fun toString(): String {
-        return "ElseConditionEdge(from=${from?.ID} to ${to?.ID}, value=${origenal.value})"
+        return "else(${from?.ID}=>${to?.ID} {${origenal.value}}):$regin"
     }
 }
 
@@ -171,15 +167,15 @@ class OutEdgeContener(parent: Block) : EdgeContener(parent) {
             e.from = parent
     }
 
-    fun copyFrom(con:OutEdgeContener) {
+    fun copyFrom(con: OutEdgeContener) {
         for (g in con) {
             if (g is SimpleEdge) {
-                SimpleEdge(from = parent, to = g.to!!)
+                SimpleEdge(from = parent, to = g.to!!, resion = "COPY: ${g.resion}")
             }
         }
     }
 
-    fun moveTo(con:OutEdgeContener) {
+    fun moveTo(con: OutEdgeContener) {
         for (g in toList()) {
             g.from = con.parent
         }

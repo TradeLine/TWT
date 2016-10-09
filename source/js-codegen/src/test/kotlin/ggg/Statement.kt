@@ -85,11 +85,11 @@ class SetVar(val state: Var.VarState) : Statement() {
 fun Statement.split(): Block {
     val newBlock = Block(block!!.method, Block.LEVEL_PARENT_MIN)
 
-    for (e in block!!.inEdge.toList()) {
+    for (e in block!!.outEdge.toList()) {
         e.from = newBlock
     }
 
-    SimpleEdge(block!!, newBlock)
+    SimpleEdge(block!!, newBlock, "SPLIT")
 
     if (previous !== null) {
         block!!.last = previous!!
@@ -110,6 +110,17 @@ fun Statement.split(): Block {
     return newBlock
 }
 
+fun Block.findValueOfVar(v: Var): Var.VarState {
+    if (last !== null)
+        return last!!.findValueOfVar(v)
+    if (inEdge.size == 1) {
+        val e = inEdge.iterator().next()
+        if (e is SimpleEdge)
+            return e.from!!.findValueOfVar(v)
+    }
+    TODO()
+}
+
 fun Statement.findValueOfVar(v: Var): Var.VarState {
     if (this is SetVar && state.parent === v)
         return state
@@ -118,7 +129,7 @@ fun Statement.findValueOfVar(v: Var): Var.VarState {
         if (block!!.inEdge.size == 1) {
             val e = block!!.inEdge.iterator().next()
             if (e is SimpleEdge)
-                return e.from!!.last!!.findValueOfVar(v)
+                return e.from!!.findValueOfVar(v)
         }
         val findedValues = ArrayList<Var.VarState>()
         for (g in block!!.inEdge) {
