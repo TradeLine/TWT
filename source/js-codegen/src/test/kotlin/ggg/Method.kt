@@ -28,6 +28,10 @@ open class Var(val type: TypeID) {
         return _first!!
     }
 
+    fun unkownState() = VarState(this, null, UnknownVarValue(this))
+
+    fun unkownState(value: Expression) = VarState(this, null, value)
+
     class VarState(val parent: Var, val from: VarState?, val value: Expression) {
         fun set(exp: Expression) = VarState(parent, this, exp)
     }

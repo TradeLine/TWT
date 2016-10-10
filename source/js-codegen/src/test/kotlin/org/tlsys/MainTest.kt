@@ -174,7 +174,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
 
     override fun visitVarInsn(opcode: Int, index: Int) {
         if (opcode == Opcodes.ALOAD || opcode == Opcodes.ILOAD) {
-            //val o = GetVar(currentBlock, index)
+            //val o = PushVar(currentBlock, index)
             //currentBlock += o
             val _var = program.getVar(index)
             currentBlock.steck.push(_var.getValueForBlock(currentBlock).get())

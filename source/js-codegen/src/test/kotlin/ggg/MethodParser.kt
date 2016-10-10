@@ -1,5 +1,7 @@
 package ggg
 
+import ggg.pass.SimpleBlockOptimizator
+import ggg.pass.StackValueOptimazer
 import org.junit.Assert
 import org.objectweb.asm.*
 import org.tlsys.BaseBlock
@@ -29,10 +31,8 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         val g = visitedLabels[label]
         if (g !== null) {
             val l = g.block!!.find<LabelSt> { it is LabelSt && it.label === label } ?: TODO()
-            Viwer.show("Before split", method.entryBlock)
             val newBlock = l.split()
             f(newBlock)
-            Viwer.show("After split", method.entryBlock)
             return newBlock
         } else {
             val b = Block(method, Block.LEVEL_PARENT_MIN)
@@ -67,7 +67,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         SimpleEdge(current, newBlck, "FRAME")
         current = newBlck
 
-        current += StringValue("FRAME ${toFrameType(type)}, nLocal=$nLocal, local={${local?.joinToString(",") ?: "NULL"}}, nStack=$nStack, stack={${stack?.joinToString(",") ?: "NULL"}}")
+        //current += StringValue("FRAME ${toFrameType(type)}, nLocal=$nLocal, local={${local?.joinToString(",") ?: "NULL"}}, nStack=$nStack, stack={${stack?.joinToString(",") ?: "NULL"}}")
     }
 
     override fun visitVarInsn(opcode: Int, index: Int) {
@@ -79,8 +79,10 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
                 val v = method.getVar(index) ?:
                         TODO("Var $index not set")
                 try {
-                    current += GetVar(current.findValueOfVar(v))
-                } catch (e:Throwable) {
+                    val state = /*current.findValueOfVar(v) ?:*/ v.unkownState();
+                    current += PushVar(state)
+                } catch (e: Throwable) {
+                    e.printStackTrace()
                     Viwer.show("ERROR: Can't find value ${v.name} in block ${current.ID}", method.entryBlock)
                     Assert.fail()
                 }
@@ -90,7 +92,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             Opcodes.ISTORE -> {
                 val v = method.getVar(index) ?:
                         TODO("Var $index not set")
-                val state = current.last!!.findValueOfVar(v).set(PopOne(v.type))
+                val state = /*current.last!!.findValueOfVar(v)?.set(PopVar(v.type)) ?: */v.unkownState(PopVar(v.type))
                 current += SetVar(state)
                 return
             }
@@ -108,7 +110,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
     override fun visitJumpInsn(opcode: Int, label: Label) {
         fun buildIf() {
-            val state = method.createTemp(Primitive.get('Z')).first(ConditionExp(left = PopOne(Primitive.get('I')), right = PopOne(Primitive.get('I')), conType = ConditionType.fromOpcode(opcode)))
+            val state = method.createTemp(Primitive.get('Z')).first(ConditionExp(left = PopVar(Primitive.get('I')), right = PopVar(Primitive.get('I')), conType = ConditionType.fromOpcode(opcode)))
             current += SetVar(state)
             val oldBlock = current
             val noBlock = Block(method, Block.LEVEL_PARENT_MIN)//next block
@@ -127,7 +129,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
                 buildIf()
                 return
             }
-            Opcodes.IF_ICMPGT->{
+            Opcodes.IF_ICMPGT -> {
                 buildIf()
                 return
             }
@@ -141,8 +143,8 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
                 current = newBlock
                 return
             }
+            else -> TODO()
         }
-        super.visitJumpInsn(opcode, label)
     }
 
     override fun visitLdcInsn(p0: Any?) {
@@ -150,7 +152,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             val exp = IntValue(p0)
             val v = method.createTemp(exp.type).first(exp)
             current += SetVar(v)
-            current += GetVar(v)
+            current += PushVar(v)
             return
         }
         super.visitLdcInsn(p0)
@@ -169,7 +171,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         }
         val v = method.createTemp(exp.type).first(exp)
         current += SetVar(v)
-        current += GetVar(v)
+        current += PushVar(v)
         return
 
         super.visitIntInsn(opcode, operand)
@@ -217,9 +219,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         current += l
 
         if (cur !== current) {
-            Viwer.show("BEFORE: Current was changed on label! old=${cur.ID}, new = ${current.ID}", method.entryBlock)
             SimpleEdge(cur, current, "CHANGE!")
-            Viwer.show("AFTER: Current was changed on label! old=${cur.ID}, new = ${current.ID}", method.entryBlock)
         }
     }
 
@@ -234,12 +234,12 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         val args = LinkedList<Expression>()
 
         for (i in 0..params.params.size - 1) {
-            args.addFirst(PopOne(params.params[i]))
+            args.addFirst(PopVar(params.params[i]))
         }
 
         val inv = when (opcode) {
             Opcodes.INVOKESPECIAL -> {
-                InvokeSpecial(self = PopOne(ClassRef.get(owner!!)), type = params.ret, methodName = name!!, arguments = args.toTypedArray())
+                InvokeSpecial(self = PopVar(ClassRef.get(owner!!)), type = params.ret, methodName = name!!, arguments = args.toTypedArray())
             }
 
             Opcodes.INVOKESTATIC -> {
@@ -252,10 +252,10 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         if (inv.type !== Primitive.get('V')) {
             val state = method.createTemp(inv.type).first(inv)
             current += SetVar(state)
-            current += GetVar(state)
+            current += PushVar(state)
             return
         } else {
-            current += inv
+            current += ExeInvoke(inv)
             return
         }
 
@@ -267,7 +267,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         if (opcode >= Opcodes.ICONST_M1 && opcode <= Opcodes.ICONST_5) {
             val state = method.createTemp(Primitive.get('I')).first(IntValue(opcode - Opcodes.ICONST_0))
             current += SetVar(state)
-            current += GetVar(state)
+            current += PushVar(state)
             return
         }
 
@@ -279,10 +279,10 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
             Opcodes.ISUB -> {
                 val state = method.createTemp(Primitive.get('I')).first(
-                        Math(left = PopOne(Primitive.get('I')), right = PopOne(Primitive.get('I')), mathType = Math.MathOp.SUB, type = Primitive.get('I'))
+                        Math(left = PopVar(Primitive.get('I')), right = PopVar(Primitive.get('I')), mathType = Math.MathOp.SUB, type = Primitive.get('I'))
                 )
                 current += SetVar(state)
-                current += GetVar(state)
+                current += PushVar(state)
                 return
             }
             Opcodes.RETURN -> {
@@ -321,7 +321,10 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
     override fun visitEnd() {
         //ImageDraw.draw(method.entryBlock)
-        Viwer.show("END", method.entryBlock)
+        //Viwer.show("END. Before optimaze", method.entryBlock)
+        SimpleBlockOptimizator.optimazeRecursive(method.entryBlock, HashSet())
+        StackValueOptimazer.optimazeRecursive(method.entryBlock, HashSet())
+        Viwer.show("END. After optimaze", method.entryBlock)
         super.visitEnd()
     }
 
