@@ -14,7 +14,26 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
     val inEdge = InEdgeContener(this)
     val outEdge = OutEdgeContener(this)
 
+    fun testValid() {
+        if ((first == null && last != null) || (first != null && last == null))
+            TODO()
+
+        var o = first
+        var h = o
+        while (o != null) {
+            if (o.block !== this)
+                TODO()
+            if (o.next !== null)
+                h = o.next
+            o = o.next
+        }
+
+        if (h !== last)
+            TODO()
+    }
+
     infix operator fun plusAssign(statement: Statement) {
+        testValid()
         if (first === null && last === null) {
             first = statement
             last = statement
@@ -22,9 +41,12 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
             if (first === null || last === null)
                 TODO()
             last!!.next = statement
+            statement.previous = last!!
             last = statement
         }
         statement.block = this
+
+        testValid()
     }
 
     fun isEmpty(): Boolean = first === null

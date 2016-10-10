@@ -1,6 +1,6 @@
 package ggg
 
-import ggg.pass.SimpleBlockOptimizator
+import ggg.pass.BlockOptimazer
 import ggg.pass.StackValueOptimazer
 import org.junit.Assert
 import org.objectweb.asm.*
@@ -321,9 +321,9 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
     override fun visitEnd() {
         //ImageDraw.draw(method.entryBlock)
-        //Viwer.show("END. Before optimaze", method.entryBlock)
-        SimpleBlockOptimizator.optimazeRecursive(method.entryBlock, HashSet())
-        StackValueOptimazer.optimazeRecursive(method.entryBlock, HashSet())
+        Viwer.show("END. Before optimaze", method.entryBlock)
+        BlockOptimazer.optimaze(method.entryBlock, HashSet())
+        //StackValueOptimazer.optimazeRecursive(method.entryBlock, HashSet())
         Viwer.show("END. After optimaze", method.entryBlock)
         super.visitEnd()
     }

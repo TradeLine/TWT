@@ -10,8 +10,10 @@ import org.tlsys.node.Push
 import java.util.*
 
 open class Statement() {
-    private var _previous: Statement? = null
+    var previous: Statement? = null
+    var next: Statement? = null
     var block: Block? = null
+    /*
     var previous: Statement?
         get() = _previous
         set(it) {
@@ -34,7 +36,7 @@ open class Statement() {
                 it.next = this
             }
         }
-    private var _next: Statement? = null
+
     var next: Statement?
         get() = _next
         set(it) {
@@ -58,14 +60,32 @@ open class Statement() {
                 it.previous = this
             }
         }
+    */
 
     fun remove() {
         val p = previous
         val n = next
+        if (block != null && block!!.first === this) {
+            if (n !== null)
+                block!!.first = n
+            else
+                block!!.first = null
+        }
+
+        if (block != null && block!!.last === this) {
+            if (p !== null)
+                block!!.last = p
+            else
+                block!!.last = null
+        }
+
+        block = null
         if (n !== null)
             n.previous = p
         if (p !== null)
             p.next = n
+        previous = null
+        next = null
     }
 
     open val stackOut: Expression? = null
@@ -73,15 +93,9 @@ open class Statement() {
     open fun push(value: Expression): Boolean = false
 
     fun moveToLast(block: Block) {
-        if (block.last === null) {
-            this.block = block
-            block.first = this
-            block.last = this
-            previous = null
-            next = null
-        } else {
-            TODO()
-        }
+        remove()
+        block += this
+        block.testValid()
     }
 }
 
@@ -179,6 +193,7 @@ class SetVar(val state: Var.VarState) : Statement() {
 }
 
 fun Statement.split(): Block {
+    val b = block
     val newBlock = Block(block!!.method, Block.LEVEL_PARENT_MIN)
 
     for (e in block!!.outEdge.toList()) {
@@ -199,10 +214,14 @@ fun Statement.split(): Block {
     newBlock.first = this
     while (cur != null) {
         cur.block = newBlock
+        newBlock.last = cur
         cur = cur.next
     }
-    newBlock.last = cur
 
+
+    if (b !== null)
+        b.testValid()
+    newBlock.testValid()
     return newBlock
 }
 
