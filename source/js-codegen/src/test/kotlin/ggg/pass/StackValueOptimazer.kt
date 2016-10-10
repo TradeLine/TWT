@@ -9,9 +9,13 @@ object StackValueOptimazer {
         println("OPTIMAZED ${entry.ID}")
         optimazed += entry
 
-        var o = entry.last
+        var cur = entry.last
 
         fun resolveStack(st: Statement): Boolean {
+            if (st is SetVar) {
+                if (st.state.value is InvokeStatic)
+                    println("123")
+            }
             println("resolve $st")
             var o = st.previous
 
@@ -22,34 +26,42 @@ object StackValueOptimazer {
                     val out = o!!.stackOut
                     val oldPr = o!!.previous
                     if (out !== null) {
+                        cur = o.previous
                         st.push(out)
                         o!!.remove()
+                        if (st is SkipOne) {
+                            st.remove()
+                            return true
+                        }
                     }
 
-                    if (st is SkipOne) {
-                        st.remove()
+
+
+                    if (st.stackNeed === null) {
                         return true
                     }
 
-                    if (st.stackNeed===null)
-                        return true
-
-                    if (oldPr === null)
+                    if (oldPr === null) {
+                        cur = o.previous
                         return false
+                    }
 
                     o = if (o !== oldPr) oldPr else oldPr
-                    if (o === null)
+                    if (o === null) {
+                        cur = o.previous
                         return false
+                    }
                 }
             }
+            cur = st.previous
 
             return true
         }
-
-        while (o !== null) {
-            if (!resolveStack(o!!))
+        if (entry.ID == 4)
+            println("123")
+        while (cur !== null) {
+            if (!resolveStack(cur!!))
                 TODO()
-            o = o!!.previous
         }
 
         for (g in entry.outEdge) {
