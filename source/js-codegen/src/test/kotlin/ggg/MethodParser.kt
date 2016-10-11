@@ -77,7 +77,8 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             Opcodes.LLOAD,
             Opcodes.ALOAD -> {
                 val v = method.getVar(index) ?:
-                        TODO("Var $index not set")
+                        method.createVar(index = index, type = ClassRef.get("UNKNOWN"))
+                        //TODO("Var $index not set")
                 try {
                     val state = /*current.findValueOfVar(v) ?:*/ v.unkownState();
                     current += PushVar(state)
@@ -100,8 +101,24 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         super.visitVarInsn(opcode, index)
     }
 
-    override fun visitTryCatchBlock(p0: Label?, p1: Label?, p2: Label?, p3: String?) {
-        super.visitTryCatchBlock(p0, p1, p2, p3)
+    override fun visitTryCatchBlock(startBlock: Label, endLabel: Label, startHandleBlock: Label, throubleClassSignature: String?) {
+        if (throubleClassSignature === null)
+            return
+        blockOnLabel(startBlock) {
+            current = it
+            it += SetVar(method.createTemp(ClassRef.get("java/lang/String")).first(StringValue("START TRY")))
+        }
+        val endBlock = blockOnLabel(endLabel) {
+            current = it
+            it += SetVar(method.createTemp(ClassRef.get("java/lang/String")).first(StringValue("END TRY")))
+        }
+        blockOnLabel(startHandleBlock) {
+            CatchEdge(endBlock, it, ClassRef.get(throubleClassSignature?:"UNKNOWN"))
+            current = it
+            it += SetVar(method.createTemp(ClassRef.get("java/lang/String")).first(StringValue("HADLER TRY")))
+        }
+
+        super.visitTryCatchBlock(startBlock, endLabel, startHandleBlock, throubleClassSignature)
     }
 
     override fun visitLookupSwitchInsn(p0: Label?, p1: IntArray?, p2: Array<out Label>?) {

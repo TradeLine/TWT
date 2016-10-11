@@ -1,6 +1,7 @@
 package ggg
 
 import org.tlsys.BaseBlock
+import org.tlsys.TypeID
 import java.util.*
 
 open abstract class Edge(from: Block, to: Block) {
@@ -53,10 +54,14 @@ open abstract class Edge(from: Block, to: Block) {
     }
 }
 
+class CatchEdge(from: Block, to: Block, val type: TypeID) : Edge(from, to){
+    override fun _from() = "${from?.ID}"
+    override fun _to() = "${to?.ID}"
+    override fun toString(): String = "CATCH (${from?.ID}=>${to?.ID}): ${type.sinature}"
+}
+
 class SimpleEdge(from: Block, to: Block, val resion: String) : Edge(from, to) {
-    override fun toString(): String {
-        return "simple(${from?.ID}=>${to?.ID}): $resion"
-    }
+    override fun toString(): String = "simple(${from?.ID}=>${to?.ID}): $resion"
 
     override fun _from() = "${from?.ID}"
     override fun _to() = "${to?.ID}"
