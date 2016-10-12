@@ -57,7 +57,7 @@ object StackValueOptimazer {
 
             return true
         }
-        if (entry.ID == 4)
+        if (entry.ID == 1)
             println("123")
         while (cur !== null) {
             if (!resolveStack(cur!!))

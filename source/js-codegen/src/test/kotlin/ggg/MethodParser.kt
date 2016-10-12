@@ -92,7 +92,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
             Opcodes.ISTORE -> {
                 val v = method.getVar(index) ?:
-                        TODO("Var $index not set")
+                        method.createVar(index = index, type = Primitive.get('I'))
                 val state = /*current.last!!.findValueOfVar(v)?.set(PopVar(v.type)) ?: */v.unkownState(PopVar(v.type))
                 current += SetVar(state)
                 return
@@ -194,8 +194,17 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         super.visitIntInsn(opcode, operand)
     }
 
-    override fun visitTypeInsn(p0: Int, p1: String?) {
-        super.visitTypeInsn(p0, p1)
+    override fun visitTypeInsn(opcode: Int, classSignature: String) {
+        when (opcode) {
+            Opcodes.NEW->{
+                val type = ClassRef.get(classSignature)
+                val state = method.createTemp(type).first(New(type))
+                current += SetVar(state)
+                current += PushVar(state)
+                return
+            }
+        }
+        super.visitTypeInsn(opcode, classSignature)
     }
 
     override fun visitAnnotationDefault(): AnnotationVisitor {
@@ -306,6 +315,13 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
                 current += Return()
                 return
             }
+            Opcodes.DUP->{
+                val state = method.createTemp(Primitive.get('V')).first(PopVar(Primitive.get('V')))
+                current += SetVar(state)
+                current += PushVar(state)
+                current += PushVar(state)
+                return
+            }
         }
 
 
@@ -338,8 +354,8 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
     override fun visitEnd() {
         //ImageDraw.draw(method.entryBlock)
-        //Viwer.show("END. Before optimaze", method.entryBlock)
         BlockOptimazer.optimaze(method.entryBlock, HashSet())
+        Viwer.show("END. Before optimaze", method.entryBlock)
         StackValueOptimazer.optimazeRecursive(method.entryBlock, HashSet())
         Viwer.show("END. After optimaze", method.entryBlock)
         super.visitEnd()

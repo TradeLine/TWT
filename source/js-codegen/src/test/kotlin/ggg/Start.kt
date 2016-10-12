@@ -51,7 +51,7 @@ class ClassV : ClassVisitor(Opcodes.ASM5) {
         super.visitEnd()
     }
 
-    override fun visitAnnotation(p0: String?, p1: Boolean): AnnotationVisitor {
+    override fun visitAnnotation(p0: String?, p1: Boolean): AnnotationVisitor? {
         return super.visitAnnotation(p0, p1)
     }
 

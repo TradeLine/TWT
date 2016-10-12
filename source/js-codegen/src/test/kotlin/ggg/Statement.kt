@@ -13,54 +13,6 @@ open class Statement() {
     var previous: Statement? = null
     var next: Statement? = null
     var block: Block? = null
-    /*
-    var previous: Statement?
-        get() = _previous
-        set(it) {
-            _previous = it
-
-            /*
-            val oldNext = _next
-            val oldPre = _previous
-            if (oldNext !== null)
-                oldNext.previous = oldPre
-            if (oldPre === null && block !== null) {
-                block!!.first = oldNext
-            }
-            */
-
-            if (it !== null)
-                this.block = it.block
-
-            if (it !== null && it.next !== this) {
-                it.next = this
-            }
-        }
-
-    var next: Statement?
-        get() = _next
-        set(it) {
-            if (it === _next)
-                return
-
-            /*
-            val oldNext = _next
-            val oldPre = _previous
-            if (oldNext !== null)
-                oldNext.previous = oldPre
-            if (oldPre === null && block !== null) {
-                block!!.first = oldNext
-            }
-            */
-
-            _next = it
-            if (it !== null)
-                this.block = it.block
-            if (it !== null && it.previous !== this) {
-                it.previous = this
-            }
-        }
-    */
 
     fun remove() {
         val p = previous
@@ -122,14 +74,14 @@ class SkipOne : Statement() {
         return false
     }
 
-    override fun toString(): String = "POP${if (value === null) "" else " VAL:$value"}"
+    override fun toString(): String = "SKIP${if (value === null) "" else " VAL:$value"}"
 }
 
 class InitValue(private var initType: TypeID) : Expression() {
     override val type: TypeID
         get() = initType
 
-    override fun toString(): String = "P:INIT (${initType.sinature})"
+    override fun toString(): String = "INIT (${initType.sinature})"
 }
 
 class UnknownVarValue(val parent: Var) : Expression() {
@@ -155,34 +107,37 @@ class StringValue(val value: String) : Expression() {
     override val type: TypeID
         get() = ClassRef.get("STRING")
 
-    override fun toString(): String = "P:$value"
+    override fun toString(): String = "\"$value\""
 }
 
 class IntValue(val value: Int) : Expression() {
     override val type: TypeID
         get() = Primitive.get('I')
 
-    override fun toString(): String = "P:$value"
+    override fun toString(): String = "$value"
 }
 
 class ExeInvoke(val invoke: Invoke) : Statement() {
+
     override val stackNeed: TypeID?
         get() = invoke.stackTypeNeed
 
     override fun push(value: Expression): Boolean {
         return invoke.push(value)
     }
+
+    override fun toString(): String = "EXE $invoke"
 }
 
 class PushVar(val state: Var.VarState) : Statement() {
     override val stackOut: Expression?
         get() = GetVar(state)
 
-    override fun toString(): String = "P:VAR ${state.parent}[${state.parent.type.sinature}]"
+    override fun toString(): String = "PUSH VAR ${state.parent}[${state.parent.type.sinature}]"
 }
 
 class SetVar(val state: Var.VarState) : Statement() {
-    override fun toString(): String = "O:SET VAR ${state.parent}  =  {${state.value}}"
+    override fun toString(): String = "SET VAR ${state.parent}  =  {${state.value}}"
 
     override val stackNeed: TypeID?
         get() = state.value.stackTypeNeed
@@ -264,7 +219,7 @@ fun Statement.findValueOfVar(v: Var): Var.VarState? {
 
 
 class PopVar(override val type: TypeID) : Expression() {
-    override fun toString(): String = "ST"
+    override fun toString(): String = "POP"
 }
 
 open class Invoke(val methodName: String, val arguments: Array<Expression>, override var type: TypeID) : Expression() {
@@ -302,7 +257,7 @@ open class Invoke(val methodName: String, val arguments: Array<Expression>, over
 }
 
 class InvokeStatic(methodName: String, arguments: Array<Expression>, type: TypeID) : Invoke(methodName, arguments, type) {
-    override fun toString(): String = "P:INV_STATIC $methodName(${arguments.joinToString(",")}):${type.sinature}"
+    override fun toString(): String = "INV_STATIC $methodName(${arguments.joinToString(",")}):${type.sinature}"
 }
 
 class InvokeSpecial(var self: Expression, methodName: String, arguments: Array<Expression>, type: TypeID) : Invoke(methodName, arguments, type) {
@@ -325,6 +280,8 @@ class InvokeSpecial(var self: Expression, methodName: String, arguments: Array<E
         }
         return false
     }
+
+    override fun toString(): String = "SPECIAL $self.$methodName(${arguments.joinToString(",")}):${type.sinature}"
 }
 
 class ConditionExp(var left: Expression, var right: Expression, var conType: ConditionType) : Expression() {
@@ -353,8 +310,11 @@ class ConditionExp(var left: Expression, var right: Expression, var conType: Con
     override val type: TypeID
         get() = Primitive.get('Z')
 
-    override fun toString(): String = "P:$left ${conType.text} $right"
+    override fun toString(): String = "$left ${conType.text} $right"
+}
 
+class New(override val type: TypeID) : Expression() {
+    override fun toString(): String = "NEW ${type.sinature}"
 }
 
 class Math(var left: Expression, var right: Expression, var mathType: MathOp, override val type: TypeID) : Expression() {
