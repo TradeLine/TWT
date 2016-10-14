@@ -67,7 +67,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         SimpleEdge(current, newBlck, "FRAME")
         current = newBlck
 
-        //current += StringValue("FRAME ${toFrameType(type)}, nLocal=$nLocal, local={${local?.joinToString(",") ?: "NULL"}}, nStack=$nStack, stack={${stack?.joinToString(",") ?: "NULL"}}")
+        //cursor += StringValue("FRAME ${toFrameType(type)}, nLocal=$nLocal, local={${local?.joinToString(",") ?: "NULL"}}, nStack=$nStack, stack={${stack?.joinToString(",") ?: "NULL"}}")
     }
 
     override fun visitVarInsn(opcode: Int, index: Int) {
@@ -80,7 +80,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
                         method.createVar(index = index, type = ClassRef.get("UNKNOWN"))
                         //TODO("Var $index not set")
                 try {
-                    val state = /*current.findValueOfVar(v) ?:*/ v.unkownState();
+                    val state = /*cursor.findValueOfVar(v) ?:*/ v.unkownState();
                     current += PushVar(state)
                 } catch (e: Throwable) {
                     e.printStackTrace()
@@ -93,7 +93,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             Opcodes.ISTORE -> {
                 val v = method.getVar(index) ?:
                         method.createVar(index = index, type = Primitive.get('I'))
-                val state = /*current.last!!.findValueOfVar(v)?.set(PopVar(v.type)) ?: */v.unkownState(PopVar(v.type))
+                val state = /*cursor.last!!.findValueOfVar(v)?.set(PopVar(v.type)) ?: */v.unkownState(PopVar(v.type))
                 current += SetVar(state)
                 return
             }
