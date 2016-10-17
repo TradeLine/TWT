@@ -10,15 +10,93 @@ import org.tlsys.node.Push
 import java.util.*
 
 open class Statement() {
+    abstract class StatementIterator(startStatement: Statement) : MutableIterator<Statement> {
+        protected var cursor: Statement? = startStatement
+        val current: Statement?
+            get() = cursor
+
+        abstract fun changeCurrentAfterRemove(): Statement?
+
+        override fun remove() {
+            val newCursor = changeCurrentAfterRemove()
+            cursor!!.remove()
+            cursor = newCursor
+            /*
+            if (block.first !== block.last) {
+                if (block.first === null) {//если в блоке нет элементов
+                    TODO()
+                } else {//если в блоке один элемент
+                    cursor = null
+                    block.first = null
+                    block.last = null
+                }
+            } else {//много элементов в блоке
+                if (block.first === c) {//текущий - первый элемент
+                    val n = changeCurrentAfterRemove()
+                    c.next!!.previous = null
+                    block.first = c.next
+                    cursor = n
+                } else if (block.last === c) {//текущий - последний элемент
+                    val n = changeCurrentAfterRemove()
+                    c.previous!!.next = null
+                    block.last = c.previous
+                    cursor = n
+                } else {//текущий -  где-то в центре
+                    val n = changeCurrentAfterRemove()
+                    c.previous!!.next = c.next
+                    c.next!!.previous = c.previous
+                    cursor = n
+                }
+            }
+            */
+        }
+    }
+
+    class NextIterator(startStatement: Statement) : StatementIterator(startStatement) {
+
+        override fun changeCurrentAfterRemove(): Statement? = cursor!!.previous
+
+        override fun hasNext(): Boolean {
+            return (cursor !== null) && (cursor!!.next !== null)
+        }
+
+        override fun next(): Statement {
+            cursor = cursor!!.next
+            return cursor!!
+        }
+    }
+
+    class PreviousIterator(startStatement: Statement) : StatementIterator(startStatement) {
+
+        override fun changeCurrentAfterRemove(): Statement? {
+            var n = cursor!!.next
+            if (n === null) {
+                n = Statement()
+                n!!.previous = cursor!!.previous
+            }
+            return n
+        }
+
+        override fun hasNext(): Boolean {
+            val o = (cursor !== null) && (cursor!!.previous !== null)
+            return o
+        }
+
+        override fun next(): Statement {
+            cursor = cursor!!.previous
+            return cursor!!
+        }
+    }
+
     var previous: Statement? = null
     var next: Statement? = null
     var block: Block? = null
 
-    val nextIterator: Block.NextIterator
-        get() = Block.NextIterator(block!!, this)
+    val nextIterator: NextIterator
+        get() = NextIterator(this)
 
-    val previousIterator: Block.PreviousIterator
-        get() = Block.PreviousIterator(block!!, this)
+    val previousIterator: PreviousIterator
+        get() = PreviousIterator(this)
 
     fun remove() {
         val p = previous
@@ -142,13 +220,21 @@ class PushVar(val state: Var.VarState) : Statement() {
     override fun toString(): String = "PUSH VAR ${state.parent}[${state.parent.type.sinature}]"
 }
 
-class SetVar(val state: Var.VarState) : Statement() {
+class SetVar(var state: Var.VarState) : Statement() {
     override fun toString(): String = "SET VAR ${state.parent}  =  {${state.value}}"
 
     override val stackNeed: TypeID?
-        get() = state.value.stackTypeNeed
+        get() {
+            if (state.value is PopVar)
+                return state.parent.type
+            return state.value.stackTypeNeed
+        }
 
     override fun push(value: Expression): Boolean {
+        if (state.value is PopVar) {
+            state = state.parent.unkownState(value)
+            return true
+        }
         return state.value.push(value)
     }
 }

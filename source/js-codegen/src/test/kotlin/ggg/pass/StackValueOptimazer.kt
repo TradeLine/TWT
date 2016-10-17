@@ -5,63 +5,47 @@ import java.util.*
 
 object StackValueOptimazer {
 
+    private fun resolveStack(current: Statement): Boolean {
+        if (current is SetVar)
+            println(123)
+        while (current.stackNeed !== null) {//пока нужно значение из стека
+            val it = current.previousIterator
+            while (it.hasNext()) {
+                var v = it.next()
+                if (v.stackNeed !== null){
+                    if (resolveStack(v)) {
+                        it.remove()
+                    }
+                    break
+                }
+                if (v.stackOut !== null) {
+                    current.push(v.stackOut!!)
+                    it.remove()
+
+                    if (current is SkipOne) {
+                        return true
+                    }
+                    break
+                }
+            }
+        }
+        return false
+    }
+
     fun optimazeRecursive(entry: Block, optimazed: HashSet<Block>) {
         println("OPTIMAZED ${entry.ID}")
         optimazed += entry
 
-        var cur = entry.last
-
-        fun resolveStack(st: Statement): Boolean {
-            if (st is SetVar) {
-                if (st.state.value is InvokeStatic)
-                    println("123")
-            }
-            println("resolve $st")
-            var o = st.previous
-
-            while (st.stackNeed !== null) {
-                while (o !== null) {
-                    if (o!!.stackNeed !== null)
-                        resolveStack(o!!)
-                    val out = o!!.stackOut
-                    val oldPr = o!!.previous
-                    if (out !== null) {
-                        cur = o.previous
-                        st.push(out)
-                        o!!.remove()
-                        if (st is SkipOne) {
-                            st.remove()
-                            return true
-                        }
-                    }
+        val cur = entry.previousIterator
 
 
 
-                    if (st.stackNeed === null) {
-                        return true
-                    }
 
-                    if (oldPr === null) {
-                        cur = o.previous
-                        return false
-                    }
-
-                    o = if (o !== oldPr) oldPr else oldPr
-                    if (o === null) {
-                        cur = o.previous
-                        return false
-                    }
-                }
-            }
-            cur = st.previous
-
-            return true
-        }
         if (entry.ID == 1)
             println("123")
-        while (cur !== null) {
-            if (!resolveStack(cur!!))
-                TODO()
+        while (cur.hasNext()) {
+            if (resolveStack(cur.next()))
+                cur.remove()
         }
 
         for (g in entry.outEdge) {

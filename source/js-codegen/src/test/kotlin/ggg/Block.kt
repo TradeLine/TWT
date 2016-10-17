@@ -3,14 +3,19 @@ package ggg
 private var iterator: Int = 0
 
 class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
+    private class EmptyStatement(): Statement()
 
+    /*
     abstract class StatementIterator(val block: Block, startStatement: Statement?) : MutableIterator<Statement> {
         protected var cursor: Statement? = startStatement
+        val current: Statement?
+            get() = cursor
 
         abstract fun changeCurrentAfterRemove(): Statement?
 
         override fun remove() {
             val c = cursor!!
+            c.block!!.testValid()
             if (block.first !== block.last) {
                 if (block.first === null) {//если в блоке нет элементов
                     TODO()
@@ -79,14 +84,15 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
                     return true
                 return block.last !== null
             } else {
-                return (cursor === null) && (cursor!!.previous !== null)
+                val o = (cursor !== null) && (cursor!!.previous !== null)
+                return o
             }
         }
 
         override fun next(): Statement {
             if (first) {
                 if (cursor === null)
-                    cursor = block.first
+                    cursor = block.last
                 first = false
                 return cursor!!
             } else {
@@ -98,9 +104,13 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
 
     val nextIterator: NextIterator
         get() = NextIterator(this, null)
-
-    val previousIterator: PreviousIterator
-        get() = PreviousIterator(this, null)
+*/
+    val previousIterator: Statement.PreviousIterator
+        get(){
+            val e = EmptyStatement()
+            e.previous = last
+            return e.previousIterator
+        }
 
     val level: Int
         get() = levelProvider()
