@@ -14,6 +14,12 @@ open class Statement() {
     var next: Statement? = null
     var block: Block? = null
 
+    val nextIterator: Block.NextIterator
+        get() = Block.NextIterator(block!!, this)
+
+    val previousIterator: Block.PreviousIterator
+        get() = Block.PreviousIterator(block!!, this)
+
     fun remove() {
         val p = previous
         val n = next

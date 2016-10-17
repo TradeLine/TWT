@@ -4,8 +4,8 @@ private var iterator: Int = 0
 
 class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
 
-    abstract class StatementIterator(val block: Block) : MutableIterator<Statement> {
-        protected var cursor: Statement? = null
+    abstract class StatementIterator(val block: Block, startStatement: Statement?) : MutableIterator<Statement> {
+        protected var cursor: Statement? = startStatement
 
         abstract fun changeCurrentAfterRemove(): Statement?
 
@@ -40,13 +40,15 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
         }
     }
 
-    class NextIterator(block: Block) : StatementIterator(block) {
+    class NextIterator(block: Block, startStatement: Statement?) : StatementIterator(block, startStatement) {
         private var first = true
 
         override fun changeCurrentAfterRemove(): Statement? = cursor!!.previous
 
         override fun hasNext(): Boolean {
             if (first) {
+                if (cursor !== null)
+                    return true
                 return block.first !== null
             } else {
                 return (cursor === null) && (cursor!!.next !== null)
@@ -55,7 +57,8 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
 
         override fun next(): Statement {
             if (first) {
-                cursor = block.first
+                if (cursor === null)
+                    cursor = block.first
                 first = false
                 return cursor!!
             } else {
@@ -65,13 +68,15 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
         }
     }
 
-    class PreviousIterator(block: Block) : StatementIterator(block) {
+    class PreviousIterator(block: Block, startStatement: Statement?) : StatementIterator(block, startStatement) {
         private var first = true
 
         override fun changeCurrentAfterRemove(): Statement? = cursor!!.next
 
         override fun hasNext(): Boolean {
             if (first) {
+                if (cursor != null)
+                    return true
                 return block.last !== null
             } else {
                 return (cursor === null) && (cursor!!.previous !== null)
@@ -80,7 +85,8 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
 
         override fun next(): Statement {
             if (first) {
-                cursor = block.first
+                if (cursor === null)
+                    cursor = block.first
                 first = false
                 return cursor!!
             } else {
@@ -91,10 +97,10 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
     }
 
     val nextIterator: NextIterator
-        get() = NextIterator(this)
+        get() = NextIterator(this, null)
 
     val previousIterator: PreviousIterator
-        get() = PreviousIterator(this)
+        get() = PreviousIterator(this, null)
 
     val level: Int
         get() = levelProvider()
