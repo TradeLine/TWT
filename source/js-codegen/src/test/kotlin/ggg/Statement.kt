@@ -54,7 +54,16 @@ open class Statement() {
 
     class NextIterator(startStatement: Statement) : StatementIterator(startStatement) {
 
-        override fun changeCurrentAfterRemove(): Statement? = cursor!!.previous
+        override fun changeCurrentAfterRemove(): Statement? {
+            cursor!!.previous
+
+            var n = cursor!!.previous
+            if (n === null) {
+                n = Statement()
+                n.next = cursor!!.next
+            }
+            return n
+        }
 
         override fun hasNext(): Boolean {
             return (cursor !== null) && (cursor!!.next !== null)
@@ -72,7 +81,7 @@ open class Statement() {
             var n = cursor!!.next
             if (n === null) {
                 n = Statement()
-                n!!.previous = cursor!!.previous
+                n.previous = cursor!!.previous
             }
             return n
         }

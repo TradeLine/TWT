@@ -3,7 +3,7 @@ package ggg
 private var iterator: Int = 0
 
 class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
-    private class EmptyStatement(): Statement()
+    private class EmptyStatement() : Statement()
 
     /*
     abstract class StatementIterator(val block: Block, startStatement: Statement?) : MutableIterator<Statement> {
@@ -101,13 +101,17 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
             }
         }
     }
-
-    val nextIterator: NextIterator
-        get() = NextIterator(this, null)
 */
+    val nextIterator: Statement.NextIterator
+        get() {
+            val e = Statement()
+            e.next = first
+            return e.nextIterator
+        }
+
     val previousIterator: Statement.PreviousIterator
-        get(){
-            val e = EmptyStatement()
+        get() {
+            val e = Statement()
             e.previous = last
             return e.previousIterator
         }
