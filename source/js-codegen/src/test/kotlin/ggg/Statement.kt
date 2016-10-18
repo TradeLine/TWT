@@ -1,12 +1,10 @@
 package ggg
 
 import org.objectweb.asm.Label
-import org.objectweb.asm.tree.LabelNode
 import org.tlsys.ClassRef
 import org.tlsys.Primitive
 import org.tlsys.TypeID
 import org.tlsys.node.ConditionType
-import org.tlsys.node.Push
 import java.util.*
 
 open class Statement() {
@@ -353,7 +351,7 @@ open class Invoke(val methodName: String, val arguments: Array<Expression>, over
             }
         }
 
-        return false;
+        return false
     }
 }
 

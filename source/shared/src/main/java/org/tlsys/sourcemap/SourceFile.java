@@ -93,11 +93,11 @@ public class SourceFile implements Serializable {
     }
 
     public interface PositionProvider {
-        public int getLine(int pos);
+        int getLine(int pos);
 
-        public int getColumn(int pos);
+        int getColumn(int pos);
 
-        public int getIndex(int row, int column);
+        int getIndex(int row, int column);
     }
 
     public static class LineMapper implements PositionProvider {

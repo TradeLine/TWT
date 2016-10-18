@@ -12,7 +12,7 @@ open class TypeID(val sinature: String) {
     }
 }
 
-val UNKNOWN_TYPE = TypeID("UNKNOWN");
+val UNKNOWN_TYPE = TypeID("UNKNOWN")
 
 class ArrayOf(type: TypeID) : TypeID(type.sinature)
 

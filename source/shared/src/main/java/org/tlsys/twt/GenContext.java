@@ -15,9 +15,9 @@ import java.util.Objects;
 import java.util.Set;
 
 public interface GenContext {
-    public ClassAliaseProvider getClassAliaseProvider();
+    ClassAliaseProvider getClassAliaseProvider();
 
-    public default Executable getMethod(Class clazz, Symbol.MethodSymbol methodSymbol) throws ClassNotFoundException, NoSuchMethodException {
+    default Executable getMethod(Class clazz, Symbol.MethodSymbol methodSymbol) throws ClassNotFoundException, NoSuchMethodException {
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(methodSymbol);
         Objects.requireNonNull(methodSymbol.name);
@@ -73,12 +73,12 @@ public interface GenContext {
         return e;
     }
 
-    public default Executable getMethod(Symbol.MethodSymbol methodSymbol) throws ClassNotFoundException, NoSuchMethodException {
-        Class<?> cl = getClassAliaseProvider().getReplacedClass(getClass(((Symbol.ClassSymbol) methodSymbol.owner).flatName().toString()));
+    default Executable getMethod(Symbol.MethodSymbol methodSymbol) throws ClassNotFoundException, NoSuchMethodException {
+        Class<?> cl = getClassAliaseProvider().getReplacedClass(getClass(methodSymbol.owner.flatName().toString()));
         return getMethod(cl, methodSymbol);
     }
 
-    public default Executable getMethod(Class clazz, ExeDesc exeDesc) throws ClassNotFoundException, NoSuchMethodException {
+    default Executable getMethod(Class clazz, ExeDesc exeDesc) throws ClassNotFoundException, NoSuchMethodException {
         Class[] arguments = new Class[exeDesc.getArguments().length];
         int c = 0;
         for (ArgumentDesc a : exeDesc.getArguments()) {
@@ -101,7 +101,7 @@ public interface GenContext {
         throw new RuntimeException("Unsupported type " + exeDesc.getClass().getName());
     }
 
-    public default Class getClass(TypeDesc type) throws ClassNotFoundException {
+    default Class getClass(TypeDesc type) throws ClassNotFoundException {
         Class cl = getClass(type.getType());
         int a = type.getArray();
         while (a > 0) {
@@ -111,7 +111,7 @@ public interface GenContext {
         return cl;
     }
 
-    public default Class getClass(Type type) throws ClassNotFoundException {
+    default Class getClass(Type type) throws ClassNotFoundException {
         if (type instanceof Type.ClassType) {
             Type.ClassType t = (Type.ClassType) type;
             String name = t.tsym.flatName().toString();
@@ -153,7 +153,7 @@ public interface GenContext {
         throw new RuntimeException("Unknown type " + type);
     }
 
-    public default Class<?> getClass(String name) throws ClassNotFoundException {
+    default Class<?> getClass(String name) throws ClassNotFoundException {
         if (name == null || name.isEmpty())
             throw new RuntimeException("Class name not set");
         if ("boolean".equals(name))
@@ -181,13 +181,13 @@ public interface GenContext {
         }
     }
 
-    public ClassLoader getAppClassLoader();
+    ClassLoader getAppClassLoader();
 
-    public default Class getClass(JCTree clazz) throws ClassNotFoundException {
+    default Class getClass(JCTree clazz) throws ClassNotFoundException {
         return getClass(clazz.type);
     }
 
-    public default Class getClass(Symbol c) throws ClassNotFoundException {
+    default Class getClass(Symbol c) throws ClassNotFoundException {
         return getClass(c.type);
     }
 }

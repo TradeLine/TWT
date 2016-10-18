@@ -4,10 +4,8 @@ import ggg.pass.BlockOptimazer
 import ggg.pass.StackValueOptimazer
 import org.junit.Assert
 import org.objectweb.asm.*
-import org.tlsys.BaseBlock
 import org.tlsys.ClassRef
 import org.tlsys.Primitive
-import org.tlsys.Var
 import org.tlsys.node.ConditionType
 import org.tlsys.node.SReader
 import java.util.*
@@ -80,7 +78,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
                         method.createVar(index = index, type = ClassRef.get("UNKNOWN"))
                         //TODO("Var $index not set")
                 try {
-                    val state = /*cursor.findValueOfVar(v) ?:*/ v.unkownState();
+                    val state = /*cursor.findValueOfVar(v) ?:*/ v.unkownState()
                     current += PushVar(state)
                 } catch (e: Throwable) {
                     e.printStackTrace()
@@ -113,7 +111,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             it += SetVar(method.createTemp(ClassRef.get("java/lang/String")).first(StringValue("END TRY")))
         }
         blockOnLabel(startHandleBlock) {
-            CatchEdge(endBlock, it, ClassRef.get(throubleClassSignature?:"UNKNOWN"))
+            CatchEdge(endBlock, it, ClassRef.get(throubleClassSignature))
             current = it
             it += SetVar(method.createTemp(ClassRef.get("java/lang/String")).first(StringValue("HADLER TRY")))
         }
@@ -357,7 +355,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         BlockOptimazer.optimaze(method.entryBlock, HashSet())
         //Viwer.show("END. Before optimaze", method.entryBlock)
         StackValueOptimazer.optimazeRecursive(method.entryBlock, HashSet())
-        Viwer.show("END. After optimaze", method.entryBlock)
+        //Viwer.show("END. After optimaze", method.entryBlock)
         super.visitEnd()
     }
 

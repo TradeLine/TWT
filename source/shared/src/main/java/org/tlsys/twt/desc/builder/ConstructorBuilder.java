@@ -38,7 +38,7 @@ public class ConstructorBuilder<PARENT> extends ExeBuilder<ConstructorDesc, PARE
         return new ConstructorDesc(jsName, staticFlag, arguments.stream().toArray(ArgumentDesc[]::new), superArgs.stream().toArray(ArgumentDesc[]::new), body);
     }
 
-    public static interface Reciver<PARENT> {
-        public PARENT addConstructor(ConstructorDesc desc);
+    public interface Reciver<PARENT> {
+        PARENT addConstructor(ConstructorDesc desc);
     }
 }

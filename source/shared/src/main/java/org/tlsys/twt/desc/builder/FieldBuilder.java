@@ -52,7 +52,7 @@ public class FieldBuilder<PARENT> extends MemberBuilder<FieldDesc, PARENT, Field
     }
 
     @FunctionalInterface
-    public static interface Reciver<PARENT> {
-        public PARENT addField(FieldDesc desc);
+    public interface Reciver<PARENT> {
+        PARENT addField(FieldDesc desc);
     }
 }

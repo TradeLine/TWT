@@ -11,5 +11,5 @@ import java.util.List;
 
 @FunctionalInterface
 public interface InvokeGenerator {
-    public boolean generate(GenerationContext ctx, Invoke invoke, Outbuffer ps) throws CompileException;
+    boolean generate(GenerationContext ctx, Invoke invoke, Outbuffer ps) throws CompileException;
 }

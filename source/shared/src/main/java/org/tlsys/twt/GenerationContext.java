@@ -8,6 +8,6 @@ public interface GenerationContext {
     ICodeGenerator getGenerator(VClass clazz);
     ICodeGenerator getGenerator(VExecute execute);
     InvokeGenerator getInvokeGenerator(VExecute execute);
-    public CompileModuls getCompileModuls();
-    public String genLocalName();
+    CompileModuls getCompileModuls();
+    String genLocalName();
 }

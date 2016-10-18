@@ -95,7 +95,7 @@ class SReader : SignatureVisitor {
             override fun visitBaseType(descriptor: Char) {
                 var t: TypeID? = Primitive.get(descriptor)
                 if (t == null)
-                    throw RuntimeException("Type $descriptor not found");
+                    throw RuntimeException("Type $descriptor not found")
                 while (arr > 0) {
                     arr--
                     t = t!!.asArray()
@@ -127,7 +127,7 @@ class SReader : SignatureVisitor {
             override fun visitBaseType(descriptor: Char) {
                 var t: TypeID? = Primitive.get(descriptor)
                 if (t == null)
-                    throw RuntimeException("Type $descriptor not found");
+                    throw RuntimeException("Type $descriptor not found")
                 while (arr > 0) {
                     arr--
                     t = t!!.asArray()

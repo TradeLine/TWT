@@ -6,8 +6,8 @@ import java.io.*;
 import java.util.Optional;
 
 public interface Compiller {
-    public void add(String name, String data);
-    public default void add(String name, InputStream stream) throws IOException {
+    void add(String name, String data);
+    default void add(String name, InputStream stream) throws IOException {
         ByteArrayOutputStream b = new ByteArrayOutputStream();
         int len;
         byte[] buffer = new byte[512];
@@ -18,7 +18,7 @@ public interface Compiller {
 
         add(name, new String(b.toByteArray()));
     }
-    public default void add(File file) throws IOException {
+    default void add(File file) throws IOException {
         try (FileInputStream f = new FileInputStream(file)) {
             add(file.getAbsolutePath(), f);
         }

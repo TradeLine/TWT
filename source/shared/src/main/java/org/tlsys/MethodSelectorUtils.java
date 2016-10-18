@@ -62,7 +62,6 @@ public final class MethodSelectorUtils {
                 if (!concateMethodWithArgs(methods, e.getSimpleArguments()))
                     methods.add(e);
             });
-            ;
         }
 
         return methods;

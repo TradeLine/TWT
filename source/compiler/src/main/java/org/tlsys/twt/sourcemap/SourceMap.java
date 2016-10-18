@@ -8,12 +8,12 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class SourceMap {
-    public static interface SourceFile {
-        public String getName();
+    public interface SourceFile {
+        String getName();
 
-        public String getSource();
+        String getSource();
 
-        public void writeLines(LineWriter writer);
+        void writeLines(LineWriter writer);
     }
 
     private static class State {
@@ -72,8 +72,8 @@ public class SourceMap {
         }
     }
 
-    public static interface SourceWriter {
-        public OutputStream write(SourceFile file);
+    public interface SourceWriter {
+        OutputStream write(SourceFile file);
     }
 
     /**

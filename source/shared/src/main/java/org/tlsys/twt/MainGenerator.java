@@ -9,6 +9,6 @@ import org.tlsys.twt.name.NameMap;
 import java.io.PrintStream;
 
 public interface MainGenerator {
-    public void generate(NameMap nameMap, VClassLoader projectClassLoader, CompileModuls compileModuls, Outbuffer ps) throws CompileException;
-    public void generateInvoke(NameMap nameMap, VMethod method, Outbuffer out, Value ... arguments) throws CompileException;
+    void generate(NameMap nameMap, VClassLoader projectClassLoader, CompileModuls compileModuls, Outbuffer ps) throws CompileException;
+    void generateInvoke(NameMap nameMap, VMethod method, Outbuffer out, Value... arguments) throws CompileException;
 }

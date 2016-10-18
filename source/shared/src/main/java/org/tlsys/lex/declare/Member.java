@@ -7,15 +7,15 @@ import java.io.Serializable;
 import java.lang.reflect.Modifier;
 
 public interface Member extends CanUse, Using,Serializable {
-    public int getModificators();
-    public boolean isThis(String name);
-    public VClass getParent();
+    int getModificators();
+    boolean isThis(String name);
+    VClass getParent();
 
-    public default boolean isStatic() {
+    default boolean isStatic() {
         return Modifier.isStatic(getModificators());
     }
 
-    public default boolean isInterface() {
+    default boolean isInterface() {
         return Modifier.isInterface(getModificators());
     }
 }

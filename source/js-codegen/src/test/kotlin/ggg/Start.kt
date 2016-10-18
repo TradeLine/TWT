@@ -5,7 +5,6 @@ import org.objectweb.asm.*
 import org.tlsys.BBB
 import org.tlsys.ClassRef
 import org.tlsys.Program
-import org.tlsys.ThisRef
 import org.tlsys.node.SReader
 import java.util.*
 
@@ -13,6 +12,7 @@ class Start {
 
     @Test
     fun start() {
+
         val cr = ClassReader(BBB::class.java.name)
         val v = ClassV()
         cr.accept(v, 0)

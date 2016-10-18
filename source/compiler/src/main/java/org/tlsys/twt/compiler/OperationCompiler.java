@@ -722,7 +722,7 @@ class OperationCompiler {
     }
     */
 
-    private static interface ProcEx<V extends JCTree.JCExpression> {
+    private interface ProcEx<V extends JCTree.JCExpression> {
         Operation proc(TreeCompiler compiller, V e, Context context) throws CompileException;
     }
 }

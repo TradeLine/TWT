@@ -6,12 +6,10 @@ import java.util.*
 object StackValueOptimazer {
 
     private fun resolveStack(current: Statement): Boolean {
-        if (current is SetVar)
-            println(123)
         while (current.stackNeed !== null) {//пока нужно значение из стека
             val it = current.previousIterator
             while (it.hasNext()) {
-                var v = it.next()
+                val v = it.next()
                 if (v.stackNeed !== null){
                     if (resolveStack(v)) {
                         it.remove()
@@ -33,7 +31,6 @@ object StackValueOptimazer {
     }
 
     fun optimazeRecursive(entry: Block, optimazed: HashSet<Block>) {
-        println("OPTIMAZED ${entry.ID}")
         optimazed += entry
 
         val cur = entry.previousIterator
@@ -41,8 +38,6 @@ object StackValueOptimazer {
 
 
 
-        if (entry.ID == 1)
-            println("123")
         while (cur.hasNext()) {
             if (resolveStack(cur.next()))
                 cur.remove()

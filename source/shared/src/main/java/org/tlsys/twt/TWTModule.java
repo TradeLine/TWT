@@ -15,12 +15,12 @@ import org.tlsys.lex.declare.VClassLoader;
  */
 public interface TWTModule {
     
-    public static final String FILE="twt_data.bin";
+    String FILE="twt_data.bin";
 
-    public String getName();
+    String getName();
 
-    public TWTClassLoader getJavaClassLoader();
+    TWTClassLoader getJavaClassLoader();
 
-    public VClassLoader getTWTClassLoader();
-    public Collection<TWTModule> getParents();
+    VClassLoader getTWTClassLoader();
+    Collection<TWTModule> getParents();
 }

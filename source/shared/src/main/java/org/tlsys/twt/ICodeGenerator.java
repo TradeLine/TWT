@@ -10,9 +10,9 @@ import org.tlsys.lex.declare.VExecute;
 import java.io.PrintStream;
 
 public interface ICodeGenerator {
-    public void generateClass(GenerationContext context, CompileModuls.ClassRecord record, Outbuffer ps) throws CompileException;
-    public boolean operation(GenerationContext context, Operation operation, Outbuffer out) throws CompileException;
-    public default void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
+    void generateClass(GenerationContext context, CompileModuls.ClassRecord record, Outbuffer ps) throws CompileException;
+    boolean operation(GenerationContext context, Operation operation, Outbuffer out) throws CompileException;
+    default void generateExecute(GenerationContext context, VExecute execute, Outbuffer ps, CompileModuls moduls) throws CompileException {
         throw new RuntimeException("Not supported");
     }
 }

@@ -11,7 +11,7 @@ public class RefUtilsTest {
 
     @FunctionalInterface
     public interface T0 {
-        public void doit(int a, float b);
+        void doit(int a, float b);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class RefUtilsTest {
 
     }
 
-    public static interface I2 {
+    public interface I2 {
 
     }
 }

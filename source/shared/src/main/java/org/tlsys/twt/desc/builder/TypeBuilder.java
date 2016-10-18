@@ -35,7 +35,7 @@ public class TypeBuilder<PARENT> implements Builder<TypeDesc, PARENT> {
     }
 
     @FunctionalInterface
-    public static interface TypeReciver<T> {
+    public interface TypeReciver<T> {
         T setType(TypeDesc typeDesc);
     }
 }

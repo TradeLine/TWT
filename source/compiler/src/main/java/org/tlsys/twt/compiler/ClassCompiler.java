@@ -48,9 +48,7 @@ public class ClassCompiler {
 
                 SVar s = (SVar) r.get();
                 Optional<Context> ctx = TypeUtil.findParentContext(s, c -> {
-                    if (c == as.getParent())
-                        return true;
-                    return false;
+                    return c == as.getParent();
                 });
 
                 if (!ctx.isPresent()) {
@@ -634,7 +632,7 @@ public class ClassCompiler {
     }
 
     public interface ClassItemListener {
-        public void doneClass(VClass vClass);
+        void doneClass(VClass vClass);
     }
 
     public static class LambdaClazz extends VBlock {

@@ -169,8 +169,8 @@ public class ExampleClass {
 		return 2;
 	}
 	
-	static interface Interface {
-		public void interfaceCallTarget();
+	interface Interface {
+		void interfaceCallTarget();
 	}
 	
 	static class Implementation implements Interface {

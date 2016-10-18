@@ -18,7 +18,7 @@ import org.objectweb.asm.tree.ClassNode;
 public class SourceFinder {
 
     public interface SourceProvider {
-        public Optional<File> getSourceForClass(String className);
+        Optional<File> getSourceForClass(String className);
     }
 
     public static Set<File> getCompileClasses(File file, SourceProvider sourceProvider) throws IOException {

@@ -3,11 +3,9 @@ package ggg
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
-import java.awt.Stroke
 import java.awt.geom.Rectangle2D
 import java.awt.image.BufferedImage
 import java.io.File
-import java.io.FileOutputStream
 import java.util.*
 import javax.imageio.ImageIO
 
@@ -34,10 +32,10 @@ object ImageDraw {
         g.drawLine(0, 0, 300, 300)
 
         val drawedBlocks = HashMap<Block, Vec2D>()
-        val cursor = Cursor(20.0);
+        val cursor = Cursor(20.0)
 
         b.draw(g, 20.0, drawedBlocks, cursor, null)
-        ImageIO.write(i, "jpg", File("Test.jpg"));
+        ImageIO.write(i, "jpg", File("Test.jpg"))
     }
 }
 
@@ -72,13 +70,13 @@ fun Block.draw(g: Graphics2D, x: Double, drowed: HashMap<Block, ImageDraw.Vec2D>
         return false
     }
     drowed.put(this, ImageDraw.Vec2D(x, cur.Y))
-    g.setStroke(BasicStroke(1f));
+    g.stroke = BasicStroke(1f)
     val startY = cur.Y
     g.color = Color.WHITE
     g.fillRect(x, cur.Y, size.width, size.height)
     g.color = Color.BLACK
     cur += ID.toString().size(g).height
-    g.drawString(ID.toString(), x + (size.width / 2.0 - ID.toString().size(g).width / 2.0), cur.Y);
+    g.drawString(ID.toString(), x + (size.width / 2.0 - ID.toString().size(g).width / 2.0), cur.Y)
 
     var o = first
     while (o != null) {
@@ -113,7 +111,7 @@ fun Block.draw(g: Graphics2D, x: Double, drowed: HashMap<Block, ImageDraw.Vec2D>
             block.draw(g = g, x = paddingX, cur = cur, drowed = drowed, edge = e)
             paddingX += block.size(g).width + 50.0
         }
-        g.setStroke(BasicStroke(1f));
+        g.stroke = BasicStroke(1f)
         g.color = Color.RED
         g.drawLine(from, to)
 

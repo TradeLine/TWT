@@ -45,7 +45,7 @@ public class MethodBuilder<PARENT> extends ExeBuilder<MethodDesc, PARENT, Method
         return new MethodDesc(name, jsName, staticFlag, result, arguments.stream().toArray(ArgumentDesc[]::new), body);
     }
 
-    public static interface Reciver<PARENT> {
-        public PARENT addMethod(MethodDesc methodDesc);
+    public interface Reciver<PARENT> {
+        PARENT addMethod(MethodDesc methodDesc);
     }
 }

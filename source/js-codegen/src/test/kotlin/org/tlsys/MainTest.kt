@@ -158,7 +158,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
         if (g != null)
             return g
 
-        var h = BaseBlock(program, "for label ${l.id}");
+        var h = BaseBlock(program, "for label ${l.id}")
         program.blocks += h
         labelBlock.put(l, h)
         return h
@@ -381,7 +381,7 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
 */
 
         if (opcode == Opcodes.GOTO) {
-            val forJump = blockForLabel(label!!)
+            val forJump = blockForLabel(label)
             val e = SimpleEdge(currentBlock, forJump)
             currentBlock.outEdge += e
             forJump.inEdge += e

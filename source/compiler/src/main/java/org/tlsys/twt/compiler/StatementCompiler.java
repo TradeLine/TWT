@@ -75,7 +75,7 @@ class StatementCompiler {
         addProcSt(JCTree.JCIf.class, (c, e, o) -> {
             VBlock thenBlock = null;
             VBlock elseBlock = null;
-            VIf i = new VIf((Value) c.op(e.cond, o), o);
+            VIf i = new VIf(c.op(e.cond, o), o);
             if (e.thenpart != null) {
                 Operation oo = c.st(e.thenpart, i);
                 if (oo instanceof VBlock) {
@@ -103,7 +103,7 @@ class StatementCompiler {
         });
 
         addProcSt(JCTree.JCThrow.class, (c, e, o) -> {
-            return new Throw((Value) c.op(e.expr, o), c.getFile().getPoint(e.pos));
+            return new Throw(c.op(e.expr, o), c.getFile().getPoint(e.pos));
         });
 
         addProcSt(JCTree.JCVariableDecl.class, (c, e, o) -> {
@@ -338,7 +338,7 @@ class StatementCompiler {
         return rep;
     }
 
-    private static interface ProcSt<V extends JCTree.JCStatement> {
+    private interface ProcSt<V extends JCTree.JCStatement> {
         Operation proc(TreeCompiler compiller, V e, Context context) throws CompileException;
     }
 

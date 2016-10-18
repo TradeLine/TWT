@@ -12,9 +12,9 @@ import java.util.List;
  * Предобработчик результата для класса, на который "повесили" модификатор
  */
 public interface ClassModificator extends Serializable{
-    public List<VField> getFields(List<VField> fields);
-    public List<VMethod> getMethods(List<VMethod> methods);
+    List<VField> getFields(List<VField> fields);
+    List<VMethod> getMethods(List<VMethod> methods);
 
-    public default void onAdd(VClass clazz){}
-    public default void onRemove(VClass clazz){}
+    default void onAdd(VClass clazz){}
+    default void onRemove(VClass clazz){}
 }

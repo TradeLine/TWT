@@ -52,8 +52,8 @@ public class ArgumentBuilder<PARENT> implements Builder<ArgumentDesc, PARENT> {
     }
 
     @FunctionalInterface
-    public static interface ArgumentReciver<T> {
-        public T addArgument(ArgumentDesc argument);
+    public interface ArgumentReciver<T> {
+        T addArgument(ArgumentDesc argument);
     }
 
 }

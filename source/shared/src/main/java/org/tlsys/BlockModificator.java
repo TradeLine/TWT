@@ -10,7 +10,7 @@ import java.util.List;
  * Класс модификатор в блоке кода
  */
 public interface BlockModificator extends Serializable {
-    public default void onAdd(VBlock block){}
-    public default void onRemove(VBlock block){}
-    public List<Operation> getOperations(List<Operation> operations);
+    default void onAdd(VBlock block){}
+    default void onRemove(VBlock block){}
+    List<Operation> getOperations(List<Operation> operations);
 }

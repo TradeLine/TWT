@@ -50,7 +50,7 @@ public class CompilePlugin implements org.gradle.api.Plugin<Project> {
 
     public static void configPlugin(Project project, TWTPlugin task) {
         task.setGroup(CompilePlugin.TWT_GROUP);
-        task.classpath(new Object[] {new Callable() {
+        task.classpath(new Callable() {
             public Object call() throws Exception {
                 FileCollection runtimeClasspath = project.getConvention().getPlugin(JavaPluginConvention.class)
                         .getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME).getRuntimeClasspath();
@@ -59,7 +59,7 @@ public class CompilePlugin implements org.gradle.api.Plugin<Project> {
                 return providedRuntime;
                 //return runtimeClasspath.minus(providedRuntime);
             }
-        }});
+        });
     }
 
     public static Configuration configConfiguration(Project target) {

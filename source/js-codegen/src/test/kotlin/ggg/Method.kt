@@ -1,13 +1,6 @@
 package ggg
 
-import org.junit.Test
-import org.objectweb.asm.ClassReader
-import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.MethodVisitor
-import org.objectweb.asm.Opcodes
-import org.tlsys.*
-import org.tlsys.ClassV
-import org.tlsys.node.SReader
+import org.tlsys.TypeID
 import java.util.*
 
 private var VAR_COUNTER = 0

@@ -56,7 +56,7 @@ object Viwer {
 
     private fun buildWindow(title: String, entry: Block) {
         val frame = Window(title, entry)
-        frame.setVisible(true)
+        frame.isVisible = true
     }
 
 
@@ -129,7 +129,7 @@ object Viwer {
 
         fun drawEdigs(g: Graphics2D) {
             val x = pos.X + stage.pos.X
-            var y = pos.Y + stage.pos.Y
+            val y = pos.Y + stage.pos.Y
 
             val it = block.outEdge.iterator()
             while (it.hasNext()) {
@@ -160,7 +160,7 @@ object Viwer {
             g.fillRect(x, y, size.width, size.height)
             g.color = Color.BLACK
             y += block.ID.toString().size(g).height
-            g.drawString(block.ID.toString(), x + (size.width / 2.0 - block.ID.toString().size(g).width / 2.0), y);
+            g.drawString(block.ID.toString(), x + (size.width / 2.0 - block.ID.toString().size(g).width / 2.0), y)
 
             var o = block.first
             while (o != null) {

@@ -1,13 +1,14 @@
 package org.tlsys.level2
 
 import org.tlsys.BaseBlock
-import org.tlsys.NamedVar
 import org.tlsys.Var
 import org.tlsys.edge.ConditionEdge
 import org.tlsys.edge.ElseConditionEdge
 import org.tlsys.edge.PairedEdge
 import org.tlsys.edge.SimpleEdge
-import org.tlsys.node.*
+import org.tlsys.node.ConditionExp
+import org.tlsys.node.ConditionType
+import org.tlsys.node.not
 import java.util.*
 
 object Optimazer {
@@ -18,7 +19,7 @@ object Optimazer {
         //optimazeTernar(block, toBlock)
     }
 
-    public fun replaceConstInBlock(block: BaseBlock) {
+    fun replaceConstInBlock(block: BaseBlock) {
         val it = block.operationIterator()
         while (it.hasNext()) {
             val n = it.next()
