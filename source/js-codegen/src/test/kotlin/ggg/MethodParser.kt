@@ -21,10 +21,10 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         enterLabel.put(label, f)
     }
 
+
     data class BlockForLabel(val block: Block, val f: (Block) -> Unit)
 
     val blockForLabel = HashMap<Label, BlockForLabel>()
-
     fun blockOnLabel(label: Label, f: (Block) -> Unit): Block {
         val g = visitedLabels[label]
         if (g !== null) {
@@ -76,7 +76,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             Opcodes.ALOAD -> {
                 val v = method.getVar(index) ?:
                         method.createVar(index = index, type = ClassRef.get("UNKNOWN"))
-                        //TODO("Var $index not set")
+                //TODO("Var $index not set")
                 try {
                     val state = /*cursor.findValueOfVar(v) ?:*/ v.unkownState()
                     current += PushVar(state)
@@ -130,6 +130,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             val oldBlock = current
             val noBlock = Block(method, Block.LEVEL_PARENT_MIN)//next block
             val yesBlock = blockOnLabel(label) {
+                println("123 ${current.ID}")
                 if (it.isEmpty()) {
                     current = it
                 }
@@ -194,7 +195,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
     override fun visitTypeInsn(opcode: Int, classSignature: String) {
         when (opcode) {
-            Opcodes.NEW->{
+            Opcodes.NEW -> {
                 val type = ClassRef.get(classSignature)
                 val state = method.createTemp(type).first(New(type))
                 current += SetVar(state)
@@ -313,7 +314,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
                 current += Return()
                 return
             }
-            Opcodes.DUP->{
+            Opcodes.DUP -> {
                 val state = method.createTemp(Primitive.get('V')).first(PopVar(Primitive.get('V')))
                 current += SetVar(state)
                 current += PushVar(state)
@@ -352,10 +353,11 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
     override fun visitEnd() {
         //ImageDraw.draw(method.entryBlock)
-        BlockOptimazer.optimaze(method.entryBlock, HashSet())
         //Viwer.show("END. Before optimaze", method.entryBlock)
+        BlockOptimazer.optimaze(method.entryBlock, HashSet())
+
         StackValueOptimazer.optimazeRecursive(method.entryBlock, HashSet())
-        //Viwer.show("END. After optimaze", method.entryBlock)
+        Viwer.show("END. After optimaze", method.entryBlock)
         super.visitEnd()
     }
 
