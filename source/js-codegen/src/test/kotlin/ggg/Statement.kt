@@ -1,6 +1,7 @@
 package ggg
 
 import org.objectweb.asm.Label
+import org.objectweb.asm.Type
 import org.tlsys.ClassRef
 import org.tlsys.Primitive
 import org.tlsys.TypeID
@@ -355,8 +356,8 @@ open class Invoke(val methodName: String, val arguments: Array<Expression>, over
     }
 }
 
-class InvokeStatic(methodName: String, arguments: Array<Expression>, type: TypeID) : Invoke(methodName, arguments, type) {
-    override fun toString(): String = "INV_STATIC $methodName(${arguments.joinToString(",")}):${type.sinature}"
+class InvokeStatic(val parentClass: TypeID, methodName: String, arguments: Array<Expression>, type: TypeID) : Invoke(methodName, arguments, type) {
+    override fun toString(): String = "INV_STATIC ${parentClass.sinature}.$methodName(${arguments.joinToString(",")}):${type.sinature}"
 }
 
 class InvokeSpecial(var self: Expression, methodName: String, arguments: Array<Expression>, type: TypeID) : Invoke(methodName, arguments, type) {

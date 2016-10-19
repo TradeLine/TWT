@@ -21,10 +21,10 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
         enterLabel.put(label, f)
     }
 
-
     data class BlockForLabel(val block: Block, val f: (Block) -> Unit)
 
     val blockForLabel = HashMap<Label, BlockForLabel>()
+
     fun blockOnLabel(label: Label, f: (Block) -> Unit): Block {
         val g = visitedLabels[label]
         if (g !== null) {
@@ -76,7 +76,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             Opcodes.ALOAD -> {
                 val v = method.getVar(index) ?:
                         method.createVar(index = index, type = ClassRef.get("UNKNOWN"))
-                //TODO("Var $index not set")
+                        //TODO("Var $index not set")
                 try {
                     val state = /*cursor.findValueOfVar(v) ?:*/ v.unkownState()
                     current += PushVar(state)
@@ -130,7 +130,6 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             val oldBlock = current
             val noBlock = Block(method, Block.LEVEL_PARENT_MIN)//next block
             val yesBlock = blockOnLabel(label) {
-                println("123 ${current.ID}")
                 if (it.isEmpty()) {
                     current = it
                 }
@@ -268,7 +267,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             }
 
             Opcodes.INVOKESTATIC -> {
-                InvokeStatic(type = params.ret, methodName = name!!, arguments = args.toTypedArray())
+                InvokeStatic(type = params.ret, methodName = name!!, arguments = args.toTypedArray(), parentClass = ClassRef.get(owner!!))
             }
 
             else -> TODO()
@@ -353,16 +352,19 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
     override fun visitEnd() {
         //ImageDraw.draw(method.entryBlock)
-        //Viwer.show("END. Before optimaze", method.entryBlock)
         BlockOptimazer.optimaze(method.entryBlock, HashSet())
-
+        //Viwer.show("END. Before optimaze", method.entryBlock)
         StackValueOptimazer.optimazeRecursive(method.entryBlock, HashSet())
         Viwer.show("END. After optimaze", method.entryBlock)
+        val sb = StringBuilder()
+        MethodBodyGenerator.generate(method, sb)
+        println("===================\n${sb}\n===================")
         super.visitEnd()
     }
 
-    override fun visitLocalVariable(p0: String?, p1: String?, p2: String?, p3: Label?, p4: Label?, p5: Int) {
-        super.visitLocalVariable(p0, p1, p2, p3, p4, p5)
+    override fun visitLocalVariable(name: String?, signature: String?, p2: String?, p3: Label?, p4: Label?, index: Int) {
+        method.getVar(index)!!.name = name!!
+        super.visitLocalVariable(name, signature, p2, p3, p4, index)
     }
 
     override fun visitParameter(p0: String?, p1: Int) {
