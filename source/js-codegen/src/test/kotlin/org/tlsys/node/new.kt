@@ -1,6 +1,6 @@
 package org.tlsys.node
 
-import org.tlsys.ClassRef
+import org.tlsys.twt.ClassRef
 import org.tlsys.Expression
 import org.tlsys.Operation
 

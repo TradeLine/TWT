@@ -1,6 +1,6 @@
-package org.tlsys
+package org.tlsys.twt
 
-import org.tlsys.node.Block
+import org.tlsys.twt.node.Block
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics

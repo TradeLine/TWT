@@ -1,7 +1,7 @@
-package org.tlsys
+package org.tlsys.twt
 
-import org.tlsys.node.Block
-import org.tlsys.node.Edge
+import org.tlsys.twt.node.Block
+import org.tlsys.twt.node.Edge
 import org.tlsys.twt.statement.Statement
 import java.awt.BasicStroke
 import java.awt.Color

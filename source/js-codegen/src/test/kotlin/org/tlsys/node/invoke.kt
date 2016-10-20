@@ -4,6 +4,9 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.signature.SignatureReader
 import org.objectweb.asm.signature.SignatureVisitor
 import org.tlsys.*
+import org.tlsys.twt.ClassRef
+import org.tlsys.twt.SReader
+import org.tlsys.twt.TypeID
 import java.util.*
 
 open abstract class Invoke:Expression {

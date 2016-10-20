@@ -1,6 +1,6 @@
-package org.tlsys.node
+package org.tlsys.twt.node
 
-import org.tlsys.JMethod
+import org.tlsys.twt.JMethod
 import org.tlsys.twt.statement.Statement
 
 private var iterator: Int = 0

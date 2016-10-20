@@ -1,7 +1,7 @@
-package org.tlsys.pass
+package org.tlsys.twt.pass
 
-import org.tlsys.node.Block
-import org.tlsys.node.SimpleEdge
+import org.tlsys.twt.node.Block
+import org.tlsys.twt.node.SimpleEdge
 import java.util.*
 
 object BlockOptimazer {
@@ -30,7 +30,7 @@ object BlockOptimazer {
         for (g in entry.outEdge) {
             if (g.to in optimazed)
                 continue
-            optimaze(g.to!!, optimazed)
+            BlockOptimazer.optimaze(g.to!!, optimazed)
         }
     }
 }

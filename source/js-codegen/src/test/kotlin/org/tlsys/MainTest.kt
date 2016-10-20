@@ -9,6 +9,9 @@ import org.tlsys.edge.SimpleEdge
 import org.tlsys.level2.Optimazer
 import org.tlsys.level2.TernarOp
 import org.tlsys.node.*
+import org.tlsys.twt.ClassRef
+import org.tlsys.twt.Primitive
+import org.tlsys.twt.SReader
 import org.tlsys.twt.statement.ConditionType
 import java.util.*
 

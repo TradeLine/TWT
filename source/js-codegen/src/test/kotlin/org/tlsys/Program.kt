@@ -5,14 +5,14 @@ import java.util.*
 
 abstract open class Var {
     val variants = ArrayList<VarVariantValue>()
-    fun set(value: Expression, block: BaseBlock): SetVar {
+    fun set(value: Expression, block: BaseBlock): SetVar1 {
         val index = variants.size
         val v = VarVariantValue(this, index, value, block)
         variants += v
-        return SetVar(v)
+        return SetVar1(v)
     }
 
-    class SetVar internal constructor(val item: VarVariantValue) : Operation() {
+    class SetVar1 internal constructor(val item: VarVariantValue) : Operation() {
         override fun toString(): String {
             return "${item.parent}[${item.index}]=${item.value}"
         }

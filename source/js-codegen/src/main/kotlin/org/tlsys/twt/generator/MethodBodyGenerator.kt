@@ -1,19 +1,19 @@
-package org.tlsys.generator
+package org.tlsys.twt.generator
 
-import org.tlsys.JMethod
-import org.tlsys.NamedVar
-import org.tlsys.node.*
+import org.tlsys.twt.JMethod
+import org.tlsys.twt.NamedVar
+import org.tlsys.twt.node.Block
+import org.tlsys.twt.node.ConditionEdge
+import org.tlsys.twt.node.ElseConditionEdge
+import org.tlsys.twt.node.SimpleEdge
 import org.tlsys.twt.statement.*
 import org.tlsys.twt.statement.ConditionExp
 import org.tlsys.twt.statement.New
 import org.tlsys.twt.statement.Return
-import java.io.PrintStream
-import java.io.PrintWriter
-import java.lang.reflect.Method
 
 object MethodBodyGenerator {
     fun generate(method: JMethod, writer: Appendable) {
-        generateBlock(method.entryBlock, writer)
+        MethodBodyGenerator.generateBlock(method.entryBlock, writer)
 
     }
 
@@ -28,15 +28,15 @@ object MethodBodyGenerator {
                 }
             }
             writer.append("${++lines}.\t")
-            generateStatement(s, writer)
+            MethodBodyGenerator.generateStatement(s, writer)
             writer.append("\n")
         }
     }
 
     fun generateBlock(block: Block, writer: Appendable) {
-        simpleGenerateBlock(block, writer)
+        MethodBodyGenerator.simpleGenerateBlock(block, writer)
         if (block.outEdge.size == 1 && block.outEdge.iterator().next() is SimpleEdge) {
-            generateBlock(block.outEdge.iterator().next().to!!, writer)
+            MethodBodyGenerator.generateBlock(block.outEdge.iterator().next().to!!, writer)
             return
         }
 
@@ -56,11 +56,11 @@ object MethodBodyGenerator {
                 }
 
                 writer.append("if (!(")
-                generateExpression(yes.value, writer)
+                MethodBodyGenerator.generateExpression(yes.value, writer)
                 writer.append(")){\n")
-                simpleGenerateBlock(no.to!!, writer)
+                MethodBodyGenerator.simpleGenerateBlock(no.to!!, writer)
                 writer.append("}else{\n")
-                simpleGenerateBlock(yes.to!!, writer)
+                MethodBodyGenerator.simpleGenerateBlock(yes.to!!, writer)
                 writer.append("}")
 
             }
@@ -82,7 +82,7 @@ object MethodBodyGenerator {
                     writer.append(s.state.parent.toString())
                 }
                 writer.append("=")
-                generateExpression(s.state.value, writer)
+                MethodBodyGenerator.generateExpression(s.state.value, writer)
                 return
             }
             is LabelSt -> {
@@ -90,7 +90,7 @@ object MethodBodyGenerator {
                 return
             }
             is ExeInvoke -> {
-                generateExpression(s.invoke, writer)
+                MethodBodyGenerator.generateExpression(s.invoke, writer)
                 return
             }
             is Return ->{
@@ -108,7 +108,7 @@ object MethodBodyGenerator {
             for (arg in list) {
                 if (!first)
                     writer.append(", ")
-                generateExpression(arg, writer)
+                MethodBodyGenerator.generateExpression(arg, writer)
                 first = false
             }
         }
@@ -125,7 +125,7 @@ object MethodBodyGenerator {
                 return
             }
             is InvokeSpecial -> {
-                generateExpression(e.self, writer)
+                MethodBodyGenerator.generateExpression(e.self, writer)
                 writer.append(".${e.methodName}(")
                 writeArgs(e.arguments)
                 writer.append(")")
@@ -136,15 +136,15 @@ object MethodBodyGenerator {
                 return
             }
             is Math -> {
-                generateExpression(e.left, writer)
+                MethodBodyGenerator.generateExpression(e.left, writer)
                 writer.append(when (e.mathType) {
                     Math.MathOp.SUB -> "-"
                 })
-                generateExpression(e.right, writer)
+                MethodBodyGenerator.generateExpression(e.right, writer)
                 return
             }
             is ConditionExp -> {
-                generateExpression(e.left, writer)
+                MethodBodyGenerator.generateExpression(e.left, writer)
                 writer.append(when (e.conType) {
                     ConditionType.IFEQ -> "=="
                     ConditionType.IFNE -> "!="
@@ -157,7 +157,7 @@ object MethodBodyGenerator {
                     ConditionType.AND -> "&&"
                     ConditionType.OR -> "||"
                 })
-                generateExpression(e.right, writer)
+                MethodBodyGenerator.generateExpression(e.right, writer)
                 return
             }
             is GetVar -> {

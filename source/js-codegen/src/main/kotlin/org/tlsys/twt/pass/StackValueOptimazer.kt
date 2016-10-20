@@ -1,6 +1,6 @@
-package org.tlsys.pass
+package org.tlsys.twt.pass
 
-import org.tlsys.node.Block
+import org.tlsys.twt.node.Block
 import org.tlsys.twt.statement.SkipOne
 import org.tlsys.twt.statement.Statement
 import java.util.*
@@ -13,7 +13,7 @@ object StackValueOptimazer {
             while (it.hasNext()) {
                 val v = it.next()
                 if (v.stackNeed !== null){
-                    if (resolveStack(v)) {
+                    if (StackValueOptimazer.resolveStack(v)) {
                         it.remove()
                     }
                     break
@@ -41,14 +41,14 @@ object StackValueOptimazer {
 
 
         while (cur.hasNext()) {
-            if (resolveStack(cur.next()))
+            if (StackValueOptimazer.resolveStack(cur.next()))
                 cur.remove()
         }
 
         for (g in entry.outEdge) {
             if (g.to in optimazed)
                 continue
-            optimazeRecursive(g.to!!, optimazed)
+            StackValueOptimazer.optimazeRecursive(g.to!!, optimazed)
         }
     }
 }

@@ -1,4 +1,4 @@
-package org.tlsys
+package org.tlsys.twt
 
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.signature.SignatureReader

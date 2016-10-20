@@ -3,7 +3,8 @@ package ggg
 import org.junit.Test
 import org.objectweb.asm.*
 import org.tlsys.*
-import org.tlsys.parser.MethodParser
+import org.tlsys.twt.parser.MethodParser
+import org.tlsys.twt.*
 import org.tlsys.twt.statement.InitValue
 import org.tlsys.twt.statement.SetVar
 import java.util.*

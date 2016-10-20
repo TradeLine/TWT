@@ -23,7 +23,7 @@ object Optimazer {
         val it = block.operationIterator()
         while (it.hasNext()) {
             val n = it.next()
-            if (n is Var.SetVar) {
+            if (n is Var.SetVar1) {
                 if (n.item.value.constValue) {
                     println("123")
                     for (g in n.item.getters) {
@@ -56,7 +56,7 @@ object Optimazer {
         val it = block.operationIterator()
         while (it.hasNext()) {
             val n = it.next()
-            if (n is Var.SetVar) {
+            if (n is Var.SetVar1) {
                 if (n.item.using.isEmpty() && n.item.vars.isEmpty()) {
                     it.set(n.item.value)
                 }
