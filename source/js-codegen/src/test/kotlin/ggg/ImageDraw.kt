@@ -48,9 +48,16 @@ fun Statement.draw(g: Graphics2D, x: Double, y: Double) {
     g.drawString(toString(), x.toInt(), y.toInt())
 }
 
+val Block.title: String
+    get() {
+        if (dominator === null)
+            return "$ID"
+        return "$ID, ${dominator!!.ID}"
+    }
+
 fun Block.size(g: Graphics2D): Rectangle2D {
-    var widthMax = ID.toString().size(g).width + 20
-    var height = ID.toString().size(g).height
+    var widthMax = title.size(g).width + 20
+    var height = title.toString().size(g).height
     var o = first
     while (o != null) {
         val f = o.toString().size(g)
@@ -77,7 +84,7 @@ fun Block.draw(g: Graphics2D, x: Double, drowed: HashMap<Block, ImageDraw.Vec2D>
     g.color = Color.WHITE
     g.fillRect(x, cur.Y, size.width, size.height)
     g.color = Color.BLACK
-    cur += ID.toString().size(g).height
+    cur += title.size(g).height
     g.drawString(ID.toString(), x + (size.width / 2.0 - ID.toString().size(g).width / 2.0), cur.Y);
 
     var o = first

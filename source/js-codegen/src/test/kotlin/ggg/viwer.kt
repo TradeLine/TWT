@@ -159,8 +159,8 @@ object Viwer {
             g.color = Color.WHITE
             g.fillRect(x, y, size.width, size.height)
             g.color = Color.BLACK
-            y += block.ID.toString().size(g).height
-            g.drawString(block.ID.toString(), x + (size.width / 2.0 - block.ID.toString().size(g).width / 2.0), y)
+            y += block.title.size(g).height
+            g.drawString(block.title, x + (size.width / 2.0 - block.title.size(g).width / 2.0), y)
 
             var o = block.first
             while (o != null) {

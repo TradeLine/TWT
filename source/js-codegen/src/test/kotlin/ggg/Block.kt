@@ -4,6 +4,7 @@ private var iterator: Int = 0
 
 class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
     private class EmptyStatement() : Statement()
+    var description:String = ""
 
     /*
     abstract class StatementIterator(val block: Block, startStatement: Statement?) : MutableIterator<Statement> {
@@ -122,6 +123,8 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
     val ID: Int = ++iterator
     var first: Statement? = null
     var last: Statement? = null
+
+    var dominator:Block?=null
 
     val inEdge = InEdgeContener(this)
     val outEdge = OutEdgeContener(this)

@@ -1,5 +1,6 @@
 package ggg
 
+import ggg.generator.MethodBodyGenerator
 import ggg.pass.BlockOptimazer
 import ggg.pass.StackValueOptimazer
 import org.junit.Assert
