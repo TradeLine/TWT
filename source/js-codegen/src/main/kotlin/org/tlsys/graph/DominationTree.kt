@@ -1,7 +1,7 @@
-package ggg.graph
+package org.tlsys.graph
 
-import ggg.*
-import org.junit.Test
+import org.tlsys.node.Block
+import org.tlsys.node.Edge
 import java.util.*
 
 /*
@@ -39,15 +39,7 @@ var Block.mark: Boolean
             marks -= this
     }
 */
-val marks2 = HashSet<Edge>()
-var Edge.mark: Boolean
-    get() = this in marks2
-    set(it) {
-        if (it)
-            marks2 += this
-        else
-            marks2 -= this
-    }
+
 
 
 fun buildDominationTree(entry: Block) {
@@ -57,6 +49,17 @@ fun buildDominationTree(entry: Block) {
 
     fun Block.id(index: Int) {
         sidoms_id.put(this, index)
+    }
+
+    val marks2 = HashSet<Edge>()
+
+    fun Edge.mark(): Boolean = this in marks2
+
+    fun Edge.mark(it: Boolean) {
+        if (it)
+            marks2 += this
+        else
+            marks2 -= this
     }
 
     fun doNumirate(block: Block) {
@@ -109,7 +112,7 @@ fun buildDominationTree(entry: Block) {
         if (from === to) return true; // вершины совпали, значит весь путь найден
 
         for (l in from.outEdge)
-            if (l.mark && FindDomi(l.to!!, to)) {
+            if (l.mark() && FindDomi(l.to!!, to)) {
                 // если путь был найден коректируем семидоминатор
                 res = true;
                 if (l.to!!.dominator!!.id() < to.dominator!!.id())
@@ -136,6 +139,7 @@ fun buildDominationTree(entry: Block) {
     }
 }
 
+/*
 class DominationTest {
     @Test
     fun show() {
@@ -181,3 +185,4 @@ class DominationTest {
         Viwer.show("Domination tree", R)
     }
 }
+*/

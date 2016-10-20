@@ -9,7 +9,7 @@ import java.util.*
 open abstract class Invoke:Expression {
 
     val params:Array<TypeID>
-    val out:TypeID
+    val out: TypeID
     //val args:Array<Expression>
     val args = ExpValList<Expression, Invoke>(this, {use(it)}, {unuse(it)})
     val methodName:String
@@ -38,7 +38,7 @@ class StaticInvoke(val ownClass:String, methodName:String, signature: String, ar
         return sb.toString()
     }
 }
-class StaticSpecial(private val _own:Expression, val ownClass:ClassRef, methodName:String, signature: String, args:Array<Expression>):Invoke(methodName,signature,args) {
+class StaticSpecial(private val _own:Expression, val ownClass: ClassRef, methodName:String, signature: String, args:Array<Expression>):Invoke(methodName,signature,args) {
     init {
         _own.use(this)
     }
@@ -60,80 +60,3 @@ class StaticSpecial(private val _own:Expression, val ownClass:ClassRef, methodNa
     }
 }
 
-class SReader : SignatureVisitor {
-    constructor() : super(Opcodes.ASM5) {
-    }
-
-    companion object {
-        fun parse(signature: String): SReader {
-            val r = SReader()
-            SignatureReader(signature).accept(r)
-            return r
-        }
-    }
-
-    val params = ArrayList<TypeID>()
-    var ret: TypeID = UNKNOWN_TYPE
-
-    override fun visitReturnType(): SignatureVisitor {
-        return object : SignatureVisitor(Opcodes.ASM5) {
-            var arr: Int = 0
-            override fun visitArrayType(): SignatureVisitor {
-                arr++
-                return super.visitArrayType()
-            }
-
-            override fun visitClassType(name: String?) {
-                var t: TypeID = ClassRef.get(name!!)
-                while (arr > 0) {
-                    arr--
-                    t = t.asArray()
-                }
-                ret = t
-            }
-
-            override fun visitBaseType(descriptor: Char) {
-                var t: TypeID? = Primitive.get(descriptor)
-                if (t == null)
-                    throw RuntimeException("Type $descriptor not found")
-                while (arr > 0) {
-                    arr--
-                    t = t!!.asArray()
-                }
-                ret = t!!
-            }
-        }
-    }
-
-    override fun visitParameterType(): SignatureVisitor {
-        val g = params.size
-        params.add(UNKNOWN_TYPE)
-        return object : SignatureVisitor(Opcodes.ASM5) {
-            var arr: Int = 0
-            override fun visitArrayType(): SignatureVisitor {
-                arr++
-                return super.visitArrayType()
-            }
-
-            override fun visitClassType(name: String?) {
-                var t: TypeID = ClassRef.get(name!!)
-                while (arr > 0) {
-                    arr--
-                    t = t.asArray()
-                }
-                params[g] = t
-            }
-
-            override fun visitBaseType(descriptor: Char) {
-                var t: TypeID? = Primitive.get(descriptor)
-                if (t == null)
-                    throw RuntimeException("Type $descriptor not found")
-                while (arr > 0) {
-                    arr--
-                    t = t!!.asArray()
-                }
-                params[g] = t!!
-            }
-        }
-    }
-}

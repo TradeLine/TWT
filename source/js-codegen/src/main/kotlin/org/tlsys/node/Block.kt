@@ -1,4 +1,7 @@
-package ggg
+package org.tlsys.node
+
+import org.tlsys.JMethod
+import org.tlsys.twt.statement.Statement
 
 private var iterator: Int = 0
 
@@ -124,7 +127,7 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
     var first: Statement? = null
     var last: Statement? = null
 
-    var dominator:Block?=null
+    var dominator: Block?=null
 
     val inEdge = InEdgeContener(this)
     val outEdge = OutEdgeContener(this)

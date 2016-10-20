@@ -7,8 +7,8 @@ import org.tlsys.edge.ElseConditionEdge
 import org.tlsys.edge.PairedEdge
 import org.tlsys.edge.SimpleEdge
 import org.tlsys.node.ConditionExp
-import org.tlsys.node.ConditionType
 import org.tlsys.node.not
+import org.tlsys.twt.statement.ConditionType
 import java.util.*
 
 object Optimazer {

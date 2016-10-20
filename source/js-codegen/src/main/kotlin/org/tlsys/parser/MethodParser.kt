@@ -1,17 +1,19 @@
-package ggg
+package org.tlsys.parser
 
-import ggg.generator.MethodBodyGenerator
-import ggg.pass.BlockOptimazer
-import ggg.pass.StackValueOptimazer
-import org.junit.Assert
+import org.tlsys.generator.MethodBodyGenerator
+import org.tlsys.pass.BlockOptimazer
+import org.tlsys.pass.StackValueOptimazer
 import org.objectweb.asm.*
-import org.tlsys.ClassRef
-import org.tlsys.Primitive
-import org.tlsys.node.ConditionType
-import org.tlsys.node.SReader
+import org.tlsys.*
+import org.tlsys.graph.buildDominationTree
+import org.tlsys.node.*
+import org.tlsys.twt.statement.*
+import org.tlsys.twt.statement.ConditionExp
+import org.tlsys.twt.statement.New
+import org.tlsys.twt.statement.Return
 import java.util.*
 
-class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
+class MethodParser(val method: JMethod) : MethodVisitor(Opcodes.ASM5) {
 
     var current: Block = method.entryBlock
 
@@ -34,7 +36,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             f(newBlock)
             return newBlock
         } else {
-            val b = Block(method, Block.LEVEL_PARENT_MIN)
+            val b = Block(method, Block.Companion.LEVEL_PARENT_MIN)
             blockForLabel.put(label, BlockForLabel(b, f))
             return b
         }
@@ -61,7 +63,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
         //super.visitFrame(p0, p1, p2, p3, p4)
 
-        val newBlck = Block(method, Block.LEVEL_PARENT_MIN)
+        val newBlck = Block(method, Block.Companion.LEVEL_PARENT_MIN)
         current.outEdge.moveTo(newBlck.outEdge)
         SimpleEdge(current, newBlck, "FRAME")
         current = newBlck
@@ -77,14 +79,14 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             Opcodes.ALOAD -> {
                 val v = method.getVar(index) ?:
                         method.createVar(index = index, type = ClassRef.get("UNKNOWN"))
-                        //TODO("Var $index not set")
+                //TODO("Var $index not set")
                 try {
                     val state = /*cursor.findValueOfVar(v) ?:*/ v.unkownState()
                     current += PushVar(state)
                 } catch (e: Throwable) {
                     e.printStackTrace()
                     Viwer.show("ERROR: Can't find value ${v.name} in block ${current.ID}", method.entryBlock)
-                    Assert.fail()
+                    TODO()
                 }
                 return
             }
@@ -105,16 +107,16 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
             return
         blockOnLabel(startBlock) {
             current = it
-            it += SetVar(method.createTemp(ClassRef.get("java/lang/String")).first(StringValue("START TRY")))
+            it += SetVar(method.createTemp(ClassRef.Companion.get("java/lang/String")).first(StringValue("START TRY")))
         }
         val endBlock = blockOnLabel(endLabel) {
             current = it
-            it += SetVar(method.createTemp(ClassRef.get("java/lang/String")).first(StringValue("END TRY")))
+            it += SetVar(method.createTemp(ClassRef.Companion.get("java/lang/String")).first(StringValue("END TRY")))
         }
         blockOnLabel(startHandleBlock) {
-            CatchEdge(endBlock, it, ClassRef.get(throubleClassSignature))
+            CatchEdge(endBlock, it, ClassRef.Companion.get(throubleClassSignature))
             current = it
-            it += SetVar(method.createTemp(ClassRef.get("java/lang/String")).first(StringValue("HADLER TRY")))
+            it += SetVar(method.createTemp(ClassRef.Companion.get("java/lang/String")).first(StringValue("HADLER TRY")))
         }
 
         super.visitTryCatchBlock(startBlock, endLabel, startHandleBlock, throubleClassSignature)
@@ -126,10 +128,10 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
     override fun visitJumpInsn(opcode: Int, label: Label) {
         fun buildIf() {
-            val state = method.createTemp(Primitive.get('Z')).first(ConditionExp(left = PopVar(Primitive.get('I')), right = PopVar(Primitive.get('I')), conType = ConditionType.fromOpcode(opcode)))
+            val state = method.createTemp(Primitive.get('Z')).first(ConditionExp(left = PopVar(Primitive.Companion.get('I')), right = PopVar(Primitive.Companion.get('I')), conType = ConditionType.fromOpcode(opcode)))
             current += SetVar(state)
             val oldBlock = current
-            val noBlock = Block(method, Block.LEVEL_PARENT_MIN)//next block
+            val noBlock = Block(method, Block.Companion.LEVEL_PARENT_MIN)//next block
             val yesBlock = blockOnLabel(label) {
                 if (it.isEmpty()) {
                     current = it
@@ -155,7 +157,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
                         current = it
                 }
                 SimpleEdge(current, afterJump, "goto")
-                val newBlock = Block(method, Block.LEVEL_PARENT_MIN)
+                val newBlock = Block(method, Block.Companion.LEVEL_PARENT_MIN)
                 current = newBlock
                 return
             }
@@ -254,7 +256,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
     override fun visitMethodInsn(opcode: Int, owner: String?, name: String?, desc: String?, itf: Boolean) {
 
-        val params = SReader.parse(desc!!)
+        val params = SReader.Companion.parse(desc!!)
 
         val args = LinkedList<Expression>()
 
@@ -264,11 +266,11 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
         val inv = when (opcode) {
             Opcodes.INVOKESPECIAL -> {
-                InvokeSpecial(self = PopVar(ClassRef.get(owner!!)), type = params.ret, methodName = name!!, arguments = args.toTypedArray())
+                InvokeSpecial(self = PopVar(ClassRef.Companion.get(owner!!)), type = params.ret, methodName = name!!, arguments = args.toTypedArray())
             }
 
             Opcodes.INVOKESTATIC -> {
-                InvokeStatic(type = params.ret, methodName = name!!, arguments = args.toTypedArray(), parentClass = ClassRef.get(owner!!))
+                InvokeStatic(type = params.ret, methodName = name!!, arguments = args.toTypedArray(), parentClass = ClassRef.Companion.get(owner!!))
             }
 
             else -> TODO()
@@ -304,7 +306,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
 
             Opcodes.ISUB -> {
                 val state = method.createTemp(Primitive.get('I')).first(
-                        Math(left = PopVar(Primitive.get('I')), right = PopVar(Primitive.get('I')), mathType = Math.MathOp.SUB, type = Primitive.get('I'))
+                        Math(left = PopVar(Primitive.Companion.get('I')), right = PopVar(Primitive.Companion.get('I')), mathType = Math.MathOp.SUB, type = Primitive.Companion.get('I'))
                 )
                 current += SetVar(state)
                 current += PushVar(state)
@@ -315,7 +317,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
                 return
             }
             Opcodes.DUP -> {
-                val state = method.createTemp(Primitive.get('V')).first(PopVar(Primitive.get('V')))
+                val state = method.createTemp(Primitive.get('V')).first(PopVar(Primitive.Companion.get('V')))
                 current += SetVar(state)
                 current += PushVar(state)
                 current += PushVar(state)
@@ -354,9 +356,10 @@ class MethodParser(val method: JMethod) : MethodVisitor(org.objectweb.asm.Opcode
     override fun visitEnd() {
         //ImageDraw.draw(method.entryBlock)
         BlockOptimazer.optimaze(method.entryBlock, HashSet())
+
         //Viwer.show("END. Before optimaze", method.entryBlock)
         StackValueOptimazer.optimazeRecursive(method.entryBlock, HashSet())
-        Viwer.show("END. After optimaze", method.entryBlock)
+        buildDominationTree(method.entryBlock)
         val sb = StringBuilder()
         MethodBodyGenerator.generate(method, sb)
         println("===================\n${sb}\n===================")

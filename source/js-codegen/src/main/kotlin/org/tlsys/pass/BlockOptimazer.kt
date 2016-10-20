@@ -1,7 +1,7 @@
-package ggg.pass
+package org.tlsys.pass
 
-import ggg.Block
-import ggg.SimpleEdge
+import org.tlsys.node.Block
+import org.tlsys.node.SimpleEdge
 import java.util.*
 
 object BlockOptimazer {

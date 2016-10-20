@@ -1,6 +1,7 @@
-package ggg
+package org.tlsys.node
 
 import org.tlsys.TypeID
+import org.tlsys.twt.statement.Expression
 import java.util.*
 
 open abstract class Edge(from: Block, to: Block) {
@@ -53,7 +54,7 @@ open abstract class Edge(from: Block, to: Block) {
     }
 }
 
-class CatchEdge(from: Block, to: Block, val type: TypeID) : Edge(from, to){
+class CatchEdge(from: Block, to: Block, val type: org.tlsys.TypeID) : Edge(from, to){
     override fun _from() = "${from?.ID}"
     override fun _to() = "${to?.ID}"
     override fun toString(): String = "CATCH (${from?.ID}=>${to?.ID}): ${type.sinature}"

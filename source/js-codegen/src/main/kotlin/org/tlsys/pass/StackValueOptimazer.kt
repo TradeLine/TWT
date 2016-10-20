@@ -1,6 +1,8 @@
-package ggg.pass
+package org.tlsys.pass
 
-import ggg.*
+import org.tlsys.node.Block
+import org.tlsys.twt.statement.SkipOne
+import org.tlsys.twt.statement.Statement
 import java.util.*
 
 object StackValueOptimazer {

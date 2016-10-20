@@ -1,6 +1,8 @@
 package org.tlsys
 
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.signature.SignatureReader
+import org.objectweb.asm.signature.SignatureVisitor
 import java.util.*
 
 open class TypeID(val sinature: String) {
@@ -88,6 +90,85 @@ class ClassRef private constructor(sinature: String) : TypeID(sinature) {
             val c = ClassRef(signature)
             created.put(signature, c)
             return c
+        }
+    }
+}
+
+
+class SReader : SignatureVisitor {
+    constructor() : super(Opcodes.ASM5) {
+    }
+
+    companion object {
+        fun parse(signature: String): SReader {
+            val r = SReader()
+            SignatureReader(signature).accept(r)
+            return r
+        }
+    }
+
+    val params = ArrayList<TypeID>()
+    var ret: TypeID = UNKNOWN_TYPE
+
+    override fun visitReturnType(): SignatureVisitor {
+        return object : SignatureVisitor(Opcodes.ASM5) {
+            var arr: Int = 0
+            override fun visitArrayType(): SignatureVisitor {
+                arr++
+                return super.visitArrayType()
+            }
+
+            override fun visitClassType(name: String?) {
+                var t: TypeID = ClassRef.get(name!!)
+                while (arr > 0) {
+                    arr--
+                    t = t.asArray()
+                }
+                ret = t
+            }
+
+            override fun visitBaseType(descriptor: Char) {
+                var t: TypeID? = Primitive.get(descriptor)
+                if (t == null)
+                    throw RuntimeException("Type $descriptor not found")
+                while (arr > 0) {
+                    arr--
+                    t = t!!.asArray()
+                }
+                ret = t!!
+            }
+        }
+    }
+
+    override fun visitParameterType(): SignatureVisitor {
+        val g = params.size
+        params.add(UNKNOWN_TYPE)
+        return object : SignatureVisitor(Opcodes.ASM5) {
+            var arr: Int = 0
+            override fun visitArrayType(): SignatureVisitor {
+                arr++
+                return super.visitArrayType()
+            }
+
+            override fun visitClassType(name: String?) {
+                var t: TypeID = ClassRef.get(name!!)
+                while (arr > 0) {
+                    arr--
+                    t = t.asArray()
+                }
+                params[g] = t
+            }
+
+            override fun visitBaseType(descriptor: Char) {
+                var t: TypeID? = Primitive.get(descriptor)
+                if (t == null)
+                    throw RuntimeException("Type $descriptor not found")
+                while (arr > 0) {
+                    arr--
+                    t = t!!.asArray()
+                }
+                params[g] = t!!
+            }
         }
     }
 }

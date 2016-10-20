@@ -1,7 +1,12 @@
-package ggg.generator
+package org.tlsys.generator
 
-import ggg.*
-import org.tlsys.node.ConditionType
+import org.tlsys.JMethod
+import org.tlsys.NamedVar
+import org.tlsys.node.*
+import org.tlsys.twt.statement.*
+import org.tlsys.twt.statement.ConditionExp
+import org.tlsys.twt.statement.New
+import org.tlsys.twt.statement.Return
 import java.io.PrintStream
 import java.io.PrintWriter
 import java.lang.reflect.Method
@@ -88,7 +93,7 @@ object MethodBodyGenerator {
                 generateExpression(s.invoke, writer)
                 return
             }
-            is Return->{
+            is Return ->{
                 writer.append("return")
                 return
             }

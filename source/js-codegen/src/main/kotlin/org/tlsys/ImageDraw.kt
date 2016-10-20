@@ -1,5 +1,8 @@
-package ggg
+package org.tlsys
 
+import org.tlsys.node.Block
+import org.tlsys.node.Edge
+import org.tlsys.twt.statement.Statement
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
@@ -14,7 +17,7 @@ import javax.imageio.ImageIO
 object ImageDraw {
 
     class Vec2D(val X: Double, val Y: Double) {
-        operator fun plus(v: ImageDraw.Vec2D): Vec2D = Vec2D(X + v.X, Y + v.Y)
+        operator fun plus(v: Vec2D): Vec2D = Vec2D(X + v.X, Y + v.Y)
         operator fun div(i: Int): Vec2D = Vec2D(X / i.toDouble(), Y / i.toDouble())
         operator fun div(i: Double): Vec2D = Vec2D(X / i, Y / i)
     }

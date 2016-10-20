@@ -2,10 +2,10 @@ package ggg
 
 import org.junit.Test
 import org.objectweb.asm.*
-import org.tlsys.BBB
-import org.tlsys.ClassRef
-import org.tlsys.Program
-import org.tlsys.node.SReader
+import org.tlsys.*
+import org.tlsys.parser.MethodParser
+import org.tlsys.twt.statement.InitValue
+import org.tlsys.twt.statement.SetVar
 import java.util.*
 
 class Start {
@@ -16,12 +16,14 @@ class Start {
         val cr = ClassReader(BBB::class.java.name)
         val v = ClassV()
         cr.accept(v, 0)
+        Viwer.show("END. After optimaze", v.clazz.methods[0].entryBlock)
     }
 }
 
 class ClassV : ClassVisitor(Opcodes.ASM5) {
     val program = ArrayList<Program>()
-    lateinit var type: ClassRef
+    lateinit var clazz: JClass
+
 
     override fun visitAttribute(p0: Attribute?) {
         super.visitAttribute(p0)
@@ -40,7 +42,7 @@ class ClassV : ClassVisitor(Opcodes.ASM5) {
     }
 
     override fun visit(p0: Int, p1: Int, classSignature: String, p3: String?, superClassSignature: String?, p5: Array<out String>?) {
-        type = ClassRef.get(classSignature)
+        clazz = JClass(ClassRef.get(classSignature))
     }
 
     override fun visitField(p0: Int, p1: String?, p2: String?, p3: String?, p4: Any?): FieldVisitor {
@@ -69,8 +71,8 @@ class ClassV : ClassVisitor(Opcodes.ASM5) {
         val g = SReader.parse(desc)
 
         if (!staticMethod) {
-            val g = method.createArg(0, type)
-            method.entryBlock += SetVar(g.first(InitValue(type)))
+            val g = method.createArg(0, clazz.signature)
+            method.entryBlock += SetVar(g.first(InitValue(clazz.signature)))
         }
 
         for (i in 0..g.params.size - 1) {
@@ -78,6 +80,7 @@ class ClassV : ClassVisitor(Opcodes.ASM5) {
             method.entryBlock += SetVar(v.first(InitValue(g.params[i])))
         }
 
+        clazz.methods += method
         return m
     }
 }

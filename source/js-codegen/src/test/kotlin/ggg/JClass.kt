@@ -1,5 +1,0 @@
-package ggg
-
-class JClass {
-
-}

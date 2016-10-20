@@ -1,11 +1,14 @@
-package ggg
+package org.tlsys.twt.statement
 
 import org.objectweb.asm.Label
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.tlsys.ClassRef
 import org.tlsys.Primitive
 import org.tlsys.TypeID
-import org.tlsys.node.ConditionType
+import org.tlsys.Var
+import org.tlsys.node.Block
+import org.tlsys.node.SimpleEdge
 import java.util.*
 
 open class Statement() {
@@ -133,7 +136,7 @@ open class Statement() {
     }
 
     open val stackOut: Expression? = null
-    open val stackNeed: TypeID? = null
+    open val stackNeed: org.tlsys.TypeID? = null
     open fun push(value: Expression): Boolean = false
 
     fun moveToLast(block: Block) {
@@ -144,7 +147,7 @@ open class Statement() {
 }
 
 class GetVar(val state: Var.VarState) : Expression() {
-    override val type: TypeID
+    override val type: org.tlsys.TypeID
         get() = state.parent.type
 
     override fun toString(): String = "${state.parent}"
@@ -155,8 +158,8 @@ class SkipOne : Statement() {
 
     var value: Expression? = null
 
-    override val stackNeed: TypeID?
-        get() = if (value === null) Primitive.get('V') else null
+    override val stackNeed: org.tlsys.TypeID?
+        get() = if (value === null) org.tlsys.Primitive.Companion.get('V') else null
 
     override fun push(value: Expression): Boolean {
         if (this.value === null) {
@@ -169,23 +172,23 @@ class SkipOne : Statement() {
     override fun toString(): String = "SKIP${if (value === null) "" else " VAL:$value"}"
 }
 
-class InitValue(private var initType: TypeID) : Expression() {
-    override val type: TypeID
+class InitValue(private var initType: org.tlsys.TypeID) : Expression() {
+    override val type: org.tlsys.TypeID
         get() = initType
 
     override fun toString(): String = "INIT (${initType.sinature})"
 }
 
 class UnknownVarValue(val parent: Var) : Expression() {
-    override val type: TypeID
+    override val type: org.tlsys.TypeID
         get() = parent.type
 
     override fun toString(): String = "IK_$parent"
 }
 
 abstract open class Expression() {
-    abstract val type: TypeID
-    open val stackTypeNeed: TypeID? = null
+    abstract val type: org.tlsys.TypeID
+    open val stackTypeNeed: org.tlsys.TypeID? = null
     open fun push(value: Expression): Boolean = false
 }
 
@@ -196,22 +199,22 @@ class Return() : Statement() {
 class LabelSt(val label: Label) : Statement()
 
 class StringValue(val value: String) : Expression() {
-    override val type: TypeID
-        get() = ClassRef.get("STRING")
+    override val type: org.tlsys.TypeID
+        get() = org.tlsys.ClassRef.Companion.get("STRING")
 
     override fun toString(): String = "\"$value\""
 }
 
 class IntValue(val value: Int) : Expression() {
-    override val type: TypeID
-        get() = Primitive.get('I')
+    override val type: org.tlsys.TypeID
+        get() = org.tlsys.Primitive.Companion.get('I')
 
     override fun toString(): String = "$value"
 }
 
 class ExeInvoke(val invoke: Invoke) : Statement() {
 
-    override val stackNeed: TypeID?
+    override val stackNeed: org.tlsys.TypeID?
         get() = invoke.stackTypeNeed
 
     override fun push(value: Expression): Boolean {
@@ -231,7 +234,7 @@ class PushVar(val state: Var.VarState) : Statement() {
 class SetVar(var state: Var.VarState) : Statement() {
     override fun toString(): String = "SET VAR ${state.parent}  =  {${state.value}}"
 
-    override val stackNeed: TypeID?
+    override val stackNeed: org.tlsys.TypeID?
         get() {
             if (state.value is PopVar)
                 return state.parent.type
@@ -318,13 +321,13 @@ fun Statement.findValueOfVar(v: Var): Var.VarState? {
 }
 
 
-class PopVar(override val type: TypeID) : Expression() {
+class PopVar(override val type: org.tlsys.TypeID) : Expression() {
     override fun toString(): String = "POP"
 }
 
-open class Invoke(val methodName: String, val arguments: Array<Expression>, override var type: TypeID) : Expression() {
+open class Invoke(val methodName: String, val arguments: Array<Expression>, override var type: org.tlsys.TypeID) : Expression() {
 
-    override val stackTypeNeed: TypeID?
+    override val stackTypeNeed: org.tlsys.TypeID?
         get() {
             for (i in arguments.size - 1 downTo 0) {
                 if (arguments[i] is PopVar)
@@ -356,12 +359,12 @@ open class Invoke(val methodName: String, val arguments: Array<Expression>, over
     }
 }
 
-class InvokeStatic(val parentClass: TypeID, methodName: String, arguments: Array<Expression>, type: TypeID) : Invoke(methodName, arguments, type) {
+class InvokeStatic(val parentClass: org.tlsys.TypeID, methodName: String, arguments: Array<Expression>, type: org.tlsys.TypeID) : Invoke(methodName, arguments, type) {
     override fun toString(): String = "INV_STATIC ${parentClass.sinature}.$methodName(${arguments.joinToString(",")}):${type.sinature}"
 }
 
-class InvokeSpecial(var self: Expression, methodName: String, arguments: Array<Expression>, type: TypeID) : Invoke(methodName, arguments, type) {
-    override val stackTypeNeed: TypeID?
+class InvokeSpecial(var self: Expression, methodName: String, arguments: Array<Expression>, type: org.tlsys.TypeID) : Invoke(methodName, arguments, type) {
+    override val stackTypeNeed: org.tlsys.TypeID?
         get() {
             val g = super.stackTypeNeed
             if (g !== null)
@@ -384,9 +387,58 @@ class InvokeSpecial(var self: Expression, methodName: String, arguments: Array<E
     override fun toString(): String = "SPECIAL $self.$methodName(${arguments.joinToString(",")}):${type.sinature}"
 }
 
+enum class ConditionType(var text: String) {
+    IFEQ("=="),
+    IFNE("!="),
+
+    IFLT("<"),
+    IFLE("<="),
+
+    IFGT(">"),
+    IFGE(">="),
+    AND("&&"),
+    OR("||");
+
+    operator fun not(): ConditionType {
+        return when (this) {
+            IFEQ -> IFNE
+            IFNE -> IFEQ
+
+            IFLT -> IFGE
+            IFGE -> IFLT
+
+            IFLE -> IFGT
+            IFGT -> IFLE
+            else -> TODO()
+        }
+    }
+
+    companion object {
+        fun fromOpcode(opcode: Int): ConditionType {
+            return when (opcode) {
+                Opcodes.IFLE, Opcodes.IF_ICMPLE -> IFLE
+                Opcodes.IFGE, Opcodes.IF_ICMPGE -> IFGE
+                Opcodes.IFGT, Opcodes.IF_ICMPGT -> IFGT
+                Opcodes.IFLE -> IFLE
+                Opcodes.IFLT -> IFLT
+                else -> TODO("Unknown opcode $opcode")
+            }
+        }
+
+        fun isCondition(opcode: Int): Boolean {
+            try {
+                fromOpcode(opcode)
+                return true
+            } catch (e: Throwable) {
+                return false
+            }
+        }
+    }
+}
+
 class ConditionExp(var left: Expression, var right: Expression, var conType: ConditionType) : Expression() {
 
-    override val stackTypeNeed: TypeID?
+    override val stackTypeNeed: org.tlsys.TypeID?
         get() {
             if (right is PopVar)
                 return right.type
@@ -407,19 +459,19 @@ class ConditionExp(var left: Expression, var right: Expression, var conType: Con
         return false
     }
 
-    override val type: TypeID
-        get() = Primitive.get('Z')
+    override val type: org.tlsys.TypeID
+        get() = org.tlsys.Primitive.Companion.get('Z')
 
     override fun toString(): String = "$left ${conType.text} $right"
 }
 
-class New(override val type: TypeID) : Expression() {
+class New(override val type: org.tlsys.TypeID) : Expression() {
     override fun toString(): String = "NEW ${type.sinature}"
 }
 
-class Math(var left: Expression, var right: Expression, var mathType: MathOp, override val type: TypeID) : Expression() {
+class Math(var left: Expression, var right: Expression, var mathType: MathOp, override val type: org.tlsys.TypeID) : Expression() {
 
-    override val stackTypeNeed: TypeID?
+    override val stackTypeNeed: org.tlsys.TypeID?
         get() {
             if (right is PopVar)
                 return right.type

@@ -3,9 +3,13 @@ package org.tlsys
 import org.junit.Test
 import org.objectweb.asm.*
 import org.tlsys.edge.*
+import org.tlsys.edge.ConditionEdge
+import org.tlsys.edge.ElseConditionEdge
+import org.tlsys.edge.SimpleEdge
 import org.tlsys.level2.Optimazer
 import org.tlsys.level2.TernarOp
 import org.tlsys.node.*
+import org.tlsys.twt.statement.ConditionType
 import java.util.*
 
 var labelIdIterator: Int = 0
