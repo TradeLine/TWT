@@ -356,7 +356,6 @@ class MethodParser(val method: JMethod) : MethodVisitor(Opcodes.ASM5) {
     override fun visitEnd() {
         //ImageDraw.draw(method.entryBlock)
         BlockOptimazer.optimaze(method.entryBlock, HashSet())
-
         //Viwer.show("END. Before optimaze", method.entryBlock)
         StackValueOptimazer.optimazeRecursive(method.entryBlock, HashSet())
         buildDominationTree(method.entryBlock)

@@ -32,5 +32,10 @@ object BlockOptimazer {
                 continue
             BlockOptimazer.optimaze(g.to!!, optimazed)
         }
+
+        for (g in entry.inEdge.toList()) {
+            if (g.from!!.isEmpty() && g.from!!.inEdge.isEmpty())
+                g.free()
+        }
     }
 }

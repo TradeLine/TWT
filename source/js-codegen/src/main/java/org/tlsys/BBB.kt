@@ -18,17 +18,5 @@ class BBB(a: Int, c: Int, d: Int) {
         } else {
             testAAA(333,333,333)
         }
-
-        /*
-        do {
-            if (b > 999999) {
-                testAAA(111, 111, 111)
-            } else {
-                testAAA(222, 222, 222)
-            }
-
-            b = b - 22222
-        } while (b > 999999)
-        */
     }
 }

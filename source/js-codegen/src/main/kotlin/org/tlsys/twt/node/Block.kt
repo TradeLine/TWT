@@ -133,6 +133,12 @@ class Block(val method: JMethod, private val levelProvider: Block.() -> Int) {
     val outEdge = OutEdgeContener(this)
 
     fun testValid() {
+        for (g in inEdge)
+            if (g.to!==this)
+                TODO()
+        for (g in outEdge)
+            if (g.from!==this)
+                TODO()
         if ((first == null && last != null) || (first != null && last == null))
             TODO()
 

@@ -55,7 +55,7 @@ val Block.title: String
     get() {
         if (dominator === null)
             return "$ID"
-        return "$ID, ${dominator!!.ID}"
+        return "$ID (dom ${dominator!!.ID})"
     }
 
 fun Block.size(g: Graphics2D): Rectangle2D {
