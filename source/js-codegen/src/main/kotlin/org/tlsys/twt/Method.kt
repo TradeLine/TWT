@@ -39,7 +39,7 @@ class NamedVar(val index: Int, type: TypeID) : Var(type) {
 }
 
 class JMethod() {
-    val entryBlock = Block(this, { 0 })
+    val entryBlock = Block()
     val namedVar = HashMap<Int, NamedVar>()
     val tempVar = ArrayList<Var>()
 

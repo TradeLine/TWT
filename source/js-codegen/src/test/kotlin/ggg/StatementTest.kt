@@ -13,7 +13,7 @@ class StatementTest {
     @Test
     fun testAdd() {
         val method = JMethod()
-        val block1 = Block(method, Block.LEVEL_PARENT_MIN)
+        val block1 = Block()
         val s1 = S()
         assertNull(s1.block)
         assertNull(s1.previous)
@@ -41,7 +41,7 @@ class StatementTest {
     @Test
     fun testRemove() {
         val method = JMethod()
-        val block1 = Block(method, Block.LEVEL_PARENT_MIN)
+        val block1 = Block()
 
         val s1=S()
         block1+=s1
@@ -72,8 +72,8 @@ class StatementTest {
     @Test
     fun testMoveTo_one() {
         val method = JMethod()
-        val block1 = Block(method, Block.LEVEL_PARENT_MIN)
-        val block2 = Block(method, Block.LEVEL_PARENT_MIN)
+        val block1 = Block()
+        val block2 = Block()
         val s1 = S()
         block1 += s1
         s1.moveToLast(block2)

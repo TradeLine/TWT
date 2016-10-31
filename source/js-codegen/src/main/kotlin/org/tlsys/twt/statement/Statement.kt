@@ -23,34 +23,6 @@ open class Statement() {
             val newCursor = changeCurrentAfterRemove()
             cursor!!.remove()
             cursor = newCursor
-            /*
-            if (block.first !== block.last) {
-                if (block.first === null) {//если в блоке нет элементов
-                    TODO()
-                } else {//если в блоке один элемент
-                    cursor = null
-                    block.first = null
-                    block.last = null
-                }
-            } else {//много элементов в блоке
-                if (block.first === c) {//текущий - первый элемент
-                    val n = changeCurrentAfterRemove()
-                    c.next!!.previous = null
-                    block.first = c.next
-                    cursor = n
-                } else if (block.last === c) {//текущий - последний элемент
-                    val n = changeCurrentAfterRemove()
-                    c.previous!!.next = null
-                    block.last = c.previous
-                    cursor = n
-                } else {//текущий -  где-то в центре
-                    val n = changeCurrentAfterRemove()
-                    c.previous!!.next = c.next
-                    c.next!!.previous = c.previous
-                    cursor = n
-                }
-            }
-            */
         }
     }
 
@@ -252,7 +224,7 @@ class SetVar(var state: Var.VarState) : Statement() {
 
 fun Statement.split(): Block {
     val b = block
-    val newBlock = Block(block!!.method, Block.LEVEL_PARENT_MIN)
+    val newBlock = Block()
 
     for (e in block!!.outEdge.toList()) {
         e.from = newBlock

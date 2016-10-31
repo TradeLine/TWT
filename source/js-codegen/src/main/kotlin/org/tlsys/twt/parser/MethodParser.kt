@@ -7,6 +7,7 @@ import org.objectweb.asm.*
 import org.tlsys.twt.graph.buildDominationTree
 import org.tlsys.twt.*
 import org.tlsys.twt.node.*
+import org.tlsys.twt.pass.IfElseOptimizator
 import org.tlsys.twt.statement.*
 import org.tlsys.twt.statement.ConditionExp
 import org.tlsys.twt.statement.New
@@ -36,7 +37,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(Opcodes.ASM5) {
             f(newBlock)
             return newBlock
         } else {
-            val b = Block(method, Block.LEVEL_PARENT_MIN)
+            val b = Block()
             blockForLabel.put(label, MethodParser.BlockForLabel(b, f))
             return b
         }
@@ -63,7 +64,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(Opcodes.ASM5) {
 
         //super.visitFrame(p0, p1, p2, p3, p4)
 
-        val newBlck = Block(method, Block.LEVEL_PARENT_MIN)
+        val newBlck = Block()
         current.outEdge.moveTo(newBlck.outEdge)
         SimpleEdge(current, newBlck, "FRAME")
         current = newBlck
@@ -131,7 +132,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(Opcodes.ASM5) {
             val state = method.createTemp(Primitive.get('Z')).first(ConditionExp(left = PopVar(Primitive.get('I')), right = PopVar(Primitive.get('I')), conType = ConditionType.Companion.fromOpcode(opcode)))
             current += SetVar(state)
             val oldBlock = current
-            val noBlock = Block(method, Block.LEVEL_PARENT_MIN)//next block
+            val noBlock = Block()//next block
             val yesBlock = blockOnLabel(label) {
                 if (it.isEmpty()) {
                     current = it
@@ -157,7 +158,7 @@ class MethodParser(val method: JMethod) : MethodVisitor(Opcodes.ASM5) {
                         current = it
                 }
                 SimpleEdge(current, afterJump, "goto")
-                val newBlock = Block(method, Block.LEVEL_PARENT_MIN)
+                val newBlock = Block()
                 current = newBlock
                 return
             }
@@ -354,11 +355,10 @@ class MethodParser(val method: JMethod) : MethodVisitor(Opcodes.ASM5) {
     }
 
     override fun visitEnd() {
-        //ImageDraw.draw(method.entryBlock)
         BlockOptimazer.optimaze(method.entryBlock, HashSet())
-        //Viwer.show("END. Before optimaze", method.entryBlock)
         StackValueOptimazer.optimazeRecursive(method.entryBlock, HashSet())
         buildDominationTree(method.entryBlock)
+        IfElseOptimizator.optimaze(method.entryBlock)
         val sb = StringBuilder()
         MethodBodyGenerator.generate(method, sb)
         println("===================\n${sb}\n===================")

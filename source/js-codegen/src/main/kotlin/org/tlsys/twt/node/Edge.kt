@@ -11,9 +11,6 @@ open abstract class Edge(from: Block, to: Block) {
     private var _from: Block? = null
     private var _to: Block? = null
 
-    val next: Boolean
-        get() = from!!.level < to!!.level
-
     var from: Block?
         get() = _from
         set(it) {

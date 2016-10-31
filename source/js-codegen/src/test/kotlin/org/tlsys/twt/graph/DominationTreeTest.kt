@@ -1,6 +1,7 @@
-package org.tlsys.twt
+package org.tlsys.twt.graph
 
 import org.junit.Test
+import org.tlsys.twt.JMethod
 import org.tlsys.twt.graph.buildDominationTree
 import org.tlsys.twt.node.Block
 import org.tlsys.twt.node.SimpleEdge
@@ -11,14 +12,14 @@ class DominationTest {
         val method = JMethod()
 
         fun Block(from: Block, name: String): Block {
-            val test = Block(method, Block.Companion.LEVEL_PARENT_MIN)
+            val test = Block()
             SimpleEdge(from, test, "")
             test.description = name
             return test
         }
 
 
-        val R = Block(method, Block.Companion.LEVEL_PARENT_MIN)
+        val R = Block()
         R.description = "R"
 
 

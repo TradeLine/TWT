@@ -7,7 +7,10 @@ class BBB(a: Int, c: Int, d: Int) {
         var b = a
         testAAA(b, c, d)
         F()
+        if (b > 1000)
+            testAAA(111, 111, 111)
 
+/*
         if (b>1000) {
             if (b<=500) {
                 testAAA(111, 111, 111)
@@ -18,5 +21,6 @@ class BBB(a: Int, c: Int, d: Int) {
         } else {
             testAAA(333,333,333)
         }
+        */
     }
 }

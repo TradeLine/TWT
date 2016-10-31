@@ -53,9 +53,7 @@ fun buildDominationTree(entry: Block) {
     }
 
 
-    fun FindSemi(it: Block, node: Block) {
-        if (it.description == "H")
-            println(123)
+    fun findSemi(it: Block, node: Block) {
         // делаем пометки что бы не зацыклиться
         if (isMark(it))
             return
@@ -74,7 +72,7 @@ fun buildDominationTree(entry: Block) {
         }
         // продолжаем искать дорогу через большие вершины
         for (l in it.inEdge)
-            FindSemi(l.from!!, node)
+            findSemi(l.from!!, node)
 
 
         /*
@@ -83,7 +81,7 @@ fun buildDominationTree(entry: Block) {
         // если номер вершины меньше нашей, то дорогу через неё не прокладываем, но коректируем семидоминатор, если надо
         if(it.id() < node.id()) { if(node.dominator!==null || it.id < node.dominator!!.id) node.dominator=it; return;}
         // продолжаем искать дорогу через большие вершины
-        for(link_st *l=links; l; l=l->next) if(l->to==it) FindSemi(l->from,node);
+        for(link_st *l=links; l; l=l->next) if(l->to==it) findSemi(l->from,node);
         */
     }
 
@@ -95,7 +93,7 @@ fun buildDominationTree(entry: Block) {
      * @param to куда надо найти дорогу
      * @returntrue если есть дорого вдоль дерева
      */
-    fun FindDomi(from: Block, to: Block): Boolean {
+    fun findDomi(from: Block, to: Block): Boolean {
         if (isMark(from))
             return false
         setMark(from)
@@ -103,7 +101,7 @@ fun buildDominationTree(entry: Block) {
         if (from === to) return true; // вершины совпали, значит весь путь найден
 
         for (l in from.outEdge) {
-            if (FindDomi(l.to!!, to)) {
+            if (findDomi(l.to!!, to)) {
                 // если путь был найден коректируем семидоминатор
                 res = true;
                 if (l.to!!.dominator!!.id() < to.dominator!!.id())
@@ -116,10 +114,10 @@ fun buildDominationTree(entry: Block) {
     }
 
 
-    //поиск сидоминаторов
+    //поиск симидоминаторов
     for (n in sidoms_id.keys) {
         marks.clear()
-        FindSemi(n, n)
+        findSemi(n, n)
     }
 
 
@@ -132,7 +130,7 @@ fun buildDominationTree(entry: Block) {
             continue
         }
         marks.clear()
-        FindDomi(n.dominator!!, n)
+        findDomi(n.dominator!!, n)
     }
 }
 
