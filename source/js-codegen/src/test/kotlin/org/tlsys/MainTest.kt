@@ -294,62 +294,6 @@ class MethodV : MethodVisitor(org.objectweb.asm.Opcodes.ASM5) {
 
             changeCurrentBlock(nextBlock)
         }
-        /*
-        if (opcode == Opcodes.IFLE) {
-
-            val value = currentBlock.steck.pop()
-
-            val forJump = blockForLabel(label)
-            val nextBlock = program.createBlock("Next after if")
-
-            val exp = ConditionExp(value, IntValue(0), ConditionType.IFLE)
-            val not_exp = ConditionNot(exp)
-
-            val if_yes = ConditionEdge(currentBlock, forJump, exp)
-            val if_no = ConditionEdge(currentBlock, nextBlock, not_exp)
-
-            currentBlock.outEdge += if_yes
-            forJump.inEdge += if_yes
-            forJump.steck.marge(if_yes.from!!.steck)
-
-            currentBlock.outEdge += if_no
-            nextBlock.inEdge += if_no
-            forJump.steck.marge(if_no.from!!.steck)
-
-            changeCurrentBlock(nextBlock)
-
-            return
-        }
-
-
-        if (opcode == Opcodes.IF_ICMPGE) {
-
-            val value2 = currentBlock.steck.pop()
-            val value1 = currentBlock.steck.pop()
-
-
-            val forJump = blockForLabel(label!!)
-            val nextBlock = program.createBlock("Next after if")
-
-            val exp = ConditionExp(value1, value2, ConditionType.IFGE)
-            //val not_exp = ConditionNot(currentBlock, exp)
-
-            val if_yes = ConditionEdge(currentBlock, forJump, exp)
-            val if_no = ElseConditionEdge(if_yes, nextBlock)
-
-            currentBlock.outEdge += if_yes
-            forJump.inEdge += if_yes
-            forJump.steck.marge(if_yes.from!!.steck)
-
-            currentBlock.outEdge += if_no
-            nextBlock.inEdge += if_no
-            forJump.steck.marge(if_no.from!!.steck)
-
-            changeCurrentBlock(nextBlock)
-
-            return
-        }
-        */
         if (opcode == Opcodes.IF_ICMPLE) {
             buildIf(ConditionType.IFLE)
             return

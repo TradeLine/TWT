@@ -29,6 +29,7 @@ class LCATreeTest {
             if (g !== null)
                 return g
             g = Block()
+            g.description = a
             blocks[a] = g
             blocks_name[g] = a
             return g
@@ -90,5 +91,34 @@ class LCATreeTest {
         assertEquals(tree["YES2".block, "NO1".block], "R2".block)
         assertEquals(tree["YES1".block, "NO2".block], "R2".block)
         assertEquals(tree["YES2".block, "NO2".block], "R2".block)
+    }
+
+    @Test
+    fun test_back() {
+        "R".."IF"
+
+        "IF".."YES1"
+        "IF".."NO1"
+
+        "YES1".."YES2"
+        "NO1".."NO2"
+
+        //"YES".."RETURN"
+
+        "YES2".."END1"
+        "NO2".."END1"
+
+        "END1".."END2"
+
+        var tree = LCATree("END2".block, false)
+        assertEquals(tree["NO1".block, "YES1".block], "END1".block)
+
+        "YES1".."RETURN"
+
+        tree = LCATree("RETURN".block, false)
+
+        assertFalse("NO1".block in tree)
+
+        //assertEquals(, "END1".block)
     }
 }

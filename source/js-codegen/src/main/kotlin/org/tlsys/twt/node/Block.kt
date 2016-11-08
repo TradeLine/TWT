@@ -10,6 +10,8 @@ class Block() {
 
     var description: String = ""
 
+    override fun toString(): String = description
+
     val nextIterator: Statement.NextIterator
         get() {
             val e = Statement()
